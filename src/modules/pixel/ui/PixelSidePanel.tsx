@@ -6,7 +6,7 @@ import { Linkedin, MessageSquare, Video, Armchair, ExternalLink, Briefcase, LogO
 import { toast } from "sonner";
 import { STATUS_COLOR, STATUS_LABEL, type PixelStatus } from "../core/constants";
 import { PixelSprite } from "../renderer/PixelSprite";
-import { PixelAvatarSprite } from "../renderer/PixelAvatarSprite";
+import { AvatarLayeredSprite } from "../renderer/AvatarLayeredSprite";
 import { PixelStatusBadge } from "../renderer/PixelStatusBadge";
 import { roleFromSpriteKey } from "../core/pixelOfficeTheme";
 import { useCharacterDetails } from "../data/useCharacterDetails";
