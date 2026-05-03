@@ -62,6 +62,7 @@ export default function MyCharacterPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [form, setForm] = useState<ProfileForm>(emptyForm);
+  const [customization, setCustomization] = useState<AvatarCustomization>(DEFAULT_CUSTOMIZATION);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
   // Carrega ou cria pixel_profile
@@ -72,7 +73,7 @@ export default function MyCharacterPage() {
       setLoading(true);
       const { data: existing, error } = await supabase
         .from("pixel_profiles")
-        .select("*")
+        .select(`*, ${AVATAR_CUSTOMIZATION_COLUMNS}`)
         .eq("user_id", user.id)
         .maybeSingle();
 
@@ -96,6 +97,7 @@ export default function MyCharacterPage() {
           avatar_sprite_key: existing.avatar_sprite_key ?? AVATAR_SPRITES[0]?.key ?? "",
           status: (existing.status as ProfileForm["status"]) ?? "online",
         });
+        setCustomization(customizationFromProfile(existing));
         setLoading(false);
         return;
       }
@@ -122,6 +124,7 @@ export default function MyCharacterPage() {
           ...emptyForm,
           display_name: user.email?.split("@")[0] ?? "Usuário",
         });
+        setCustomization(DEFAULT_CUSTOMIZATION);
         setLoading(false);
       }
     })();
@@ -132,11 +135,6 @@ export default function MyCharacterPage() {
 
   const setField = <K extends keyof ProfileForm>(k: K, v: ProfileForm[K]) =>
     setForm((f) => ({ ...f, [k]: v }));
-
-  const previewSprite = useMemo(
-    () => AVATAR_SPRITES.find((s) => s.key === form.avatar_sprite_key) ?? AVATAR_SPRITES[0],
-    [form.avatar_sprite_key],
-  );
 
   const handleSave = async () => {
     if (!user) return;
@@ -165,6 +163,19 @@ export default function MyCharacterPage() {
         sector_description: v.sector_description || null,
         avatar_sprite_key: v.avatar_sprite_key,
         status: v.status,
+        avatar_body_key: customization.avatar_body_key ?? null,
+        avatar_skin_tone: customization.avatar_skin_tone ?? null,
+        avatar_hair_key: customization.avatar_hair_key ?? null,
+        avatar_hair_color: customization.avatar_hair_color ?? null,
+        avatar_outfit_key: customization.avatar_outfit_key ?? null,
+        avatar_outfit_color: customization.avatar_outfit_color ?? null,
+        avatar_bottom_key: customization.avatar_bottom_key ?? null,
+        avatar_shoes_key: customization.avatar_shoes_key ?? null,
+        avatar_lipstick_key: customization.avatar_lipstick_key ?? null,
+        avatar_earring_key: customization.avatar_earring_key ?? null,
+        avatar_glasses_key: customization.avatar_glasses_key ?? null,
+        avatar_hat_key: customization.avatar_hat_key ?? null,
+        avatar_tool_key: customization.avatar_tool_key ?? null,
       })
       .eq("user_id", user.id);
     setSaving(false);
