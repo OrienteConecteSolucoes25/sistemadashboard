@@ -19,6 +19,7 @@ export default function PixelOfficePage() {
     characters,
     desks,
     rooms,
+    refresh,
   } = usePixelWorkspaceData();
 
   const [selected, setSelected] = useState<Selected>(null);
