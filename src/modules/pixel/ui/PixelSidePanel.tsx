@@ -127,7 +127,7 @@ const CharacterPanel = ({
               "linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted) / 0.5) 100%)",
           }}
         >
-          <PixelAvatarSprite role={roleFromSpriteKey(data.avatar_sprite_key)} size={144} />
+          <AvatarLayeredSprite customization={data.customization} size={144} />
         </div>
         <div className="flex items-center gap-2 text-sm">
           <PixelStatusBadge status={status} />
