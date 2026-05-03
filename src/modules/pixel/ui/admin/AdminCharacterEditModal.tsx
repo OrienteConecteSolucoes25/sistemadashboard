@@ -95,6 +95,15 @@ export const AdminCharacterEditModal = ({
       is_blocked: character.is_blocked,
       desk_id: character.desk_id ?? null,
     });
+    // Carrega customization de avatar do banco
+    (async () => {
+      const { data } = await supabase
+        .from("pixel_profiles")
+        .select(`avatar_sprite_key, ${AVATAR_CUSTOMIZATION_COLUMNS}`)
+        .eq("user_id", character.user_id)
+        .maybeSingle();
+      setCustomization(customizationFromProfile(data));
+    })();
   }, [character]);
 
   const handleSave = async () => {
