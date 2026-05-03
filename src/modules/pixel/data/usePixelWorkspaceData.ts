@@ -183,6 +183,7 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
           position_y: pos?.position_y ?? 4,
           current_action: pos?.current_action ?? "idle",
           is_sitting: pos?.is_sitting ?? false,
+          customization: customizationFromProfile(p),
         };
       });
 
