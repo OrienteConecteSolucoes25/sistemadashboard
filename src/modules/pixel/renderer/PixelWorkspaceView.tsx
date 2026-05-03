@@ -21,8 +21,12 @@ interface Props {
   characters: PixelCharacter[];
   desks: DeskLite[];
   rooms: RoomLite[];
+  /** Posições efetivas (com overrides locais de movimento). */
+  getPosition: (userId: string, fallback: { x: number; y: number }) => { x: number; y: number };
   onSelectCharacter: (c: PixelCharacter) => void;
   onSelectDesk: (d: DeskLite) => void;
+  /** Clique em ponto livre (em coordenadas de tile). */
+  onStageClick: (tileX: number, tileY: number) => void;
 }
 
 /**
@@ -36,11 +40,12 @@ export const PixelWorkspaceView = ({
   characters,
   desks,
   rooms,
+  getPosition,
   onSelectCharacter,
   onSelectDesk,
+  onStageClick,
 }: Props) => {
   const grid = useMemo(() => {
-    // grid pixel-art em CSS
     return {
       backgroundImage:
         "linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border) / 0.4) 1px, transparent 1px)",
@@ -48,16 +53,26 @@ export const PixelWorkspaceView = ({
     } as React.CSSProperties;
   }, []);
 
+  const handleStageClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const px = e.clientX - rect.left;
+    const py = e.clientY - rect.top;
+    const tileX = Math.floor(px / TILE_SIZE);
+    const tileY = Math.floor(py / TILE_SIZE);
+    onStageClick(tileX, tileY);
+  };
+
   return (
     <div className="overflow-auto rounded-lg border bg-card">
       <div
-        className="relative"
+        className="relative cursor-pointer"
         style={{
           width: STAGE_WIDTH_PX,
           height: STAGE_HEIGHT_PX,
           ...grid,
         }}
         aria-label={`Workspace ${workspace.name} (${STAGE_WIDTH_TILES}x${STAGE_HEIGHT_TILES})`}
+        onClick={handleStageClick}
       >
         {/* Salas (atrás) */}
         {rooms.map((r) => (
@@ -72,9 +87,18 @@ export const PixelWorkspaceView = ({
         {/* Personagens */}
         {characters
           .filter((c) => c.is_visible && !c.is_blocked)
-          .map((c) => (
-            <PixelAvatar key={c.user_id} character={c} onClick={onSelectCharacter} />
-          ))}
+          .map((c) => {
+            const pos = getPosition(c.user_id, { x: c.position_x, y: c.position_y });
+            return (
+              <PixelAvatar
+                key={c.user_id}
+                character={c}
+                posX={pos.x}
+                posY={pos.y}
+                onClick={onSelectCharacter}
+              />
+            );
+          })}
       </div>
     </div>
   );
