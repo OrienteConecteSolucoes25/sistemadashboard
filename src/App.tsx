@@ -11,6 +11,12 @@ import Adm from "./pages/Adm";
 import MyCharacterPage from "./modules/pixel/ui/MyCharacterPage";
 import PixelOfficePage from "./modules/pixel/ui/PixelOfficePage";
 import PixelAdminPage from "./modules/pixel/ui/admin/PixelAdminPage";
+import EngenhariaGuard from "./modules/engenharia/ui/EngenhariaGuard";
+import EngenhariaDashboard from "./modules/engenharia/ui/EngenhariaDashboard";
+import {
+  EngSitesPage, EngRFIPage, EngPendenciasPage,
+  EngMateriaisPage, EngEquipesPage, EngRelatoriosPage,
+} from "./modules/engenharia/ui/EngPages";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -30,6 +36,15 @@ const App = () => (
               <Route path="pixel-office" element={<PixelOfficePage />} />
               <Route path="pixel-office/meu-personagem" element={<MyCharacterPage />} />
               <Route path="pixel-office/admin" element={<PixelAdminPage />} />
+              <Route path="engenharia" element={<EngenhariaGuard />}>
+                <Route index element={<EngenhariaDashboard />} />
+                <Route path="sites" element={<EngSitesPage />} />
+                <Route path="rfi" element={<EngRFIPage />} />
+                <Route path="pendencias" element={<EngPendenciasPage />} />
+                <Route path="materiais" element={<EngMateriaisPage />} />
+                <Route path="equipes" element={<EngEquipesPage />} />
+                <Route path="relatorios" element={<EngRelatoriosPage />} />
+              </Route>
               <Route path="adm" element={<Adm />} />
             </Route>
             <Route path="*" element={<NotFound />} />
