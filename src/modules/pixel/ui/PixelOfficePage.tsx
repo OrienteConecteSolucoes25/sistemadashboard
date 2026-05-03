@@ -19,6 +19,7 @@ export default function PixelOfficePage() {
     characters,
     desks,
     rooms,
+    refresh,
   } = usePixelWorkspaceData();
 
   const [selected, setSelected] = useState<Selected>(null);
@@ -71,7 +72,7 @@ export default function PixelOfficePage() {
         </>
       )}
 
-      <PixelSidePanel selected={selected} onClose={() => setSelected(null)} />
+      <PixelSidePanel selected={selected} onClose={() => setSelected(null)} refresh={refresh} />
     </div>
   );
 }

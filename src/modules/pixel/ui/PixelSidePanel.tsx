@@ -2,11 +2,12 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Linkedin, MessageSquare, Video, Armchair, ExternalLink } from "lucide-react";
+import { Linkedin, MessageSquare, Video, Armchair, ExternalLink, Briefcase, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { STATUS_COLOR, STATUS_LABEL, type PixelStatus } from "../core/constants";
 import { PixelSprite } from "../renderer/PixelSprite";
 import { useCharacterDetails } from "../data/useCharacterDetails";
+import { useDeskActions } from "../data/useDeskActions";
 import type { PixelCharacter, DeskLite } from "../data/usePixelWorkspaceData";
 
 type Selected =
@@ -18,6 +19,7 @@ interface Props {
   selected: Selected;
   onClose: () => void;
   onFocusDesk?: (deskId: string) => void;
+  refresh?: () => void;
 }
 
 const isValidLinkedIn = (url: string | null | undefined): boolean => {
@@ -46,7 +48,7 @@ const formatRelativeTime = (iso: string | null): string => {
   return `há ${d} d`;
 };
 
-export const PixelSidePanel = ({ selected, onClose, onFocusDesk }: Props) => {
+export const PixelSidePanel = ({ selected, onClose, onFocusDesk, refresh }: Props) => {
   const open = selected !== null;
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
@@ -54,7 +56,7 @@ export const PixelSidePanel = ({ selected, onClose, onFocusDesk }: Props) => {
         {selected?.kind === "character" && (
           <CharacterPanel userId={selected.data.user_id} onFocusDesk={onFocusDesk} />
         )}
-        {selected?.kind === "desk" && <DeskPanel desk={selected.data} />}
+        {selected?.kind === "desk" && <DeskPanel desk={selected.data} refresh={refresh} />}
       </SheetContent>
     </Sheet>
   );
@@ -222,23 +224,100 @@ const CharacterPanel = ({
 };
 
 // ---------------------------------------------------------------
-// Desk panel (mantido leve)
+// Desk panel — sentar / trabalhar / levantar
 // ---------------------------------------------------------------
-const DeskPanel = ({ desk }: { desk: DeskLite }) => (
-  <>
-    <SheetHeader>
-      <SheetTitle>{desk.desk_name ?? "Mesa"}</SheetTitle>
-      <SheetDescription>Tipo: {desk.desk_type}</SheetDescription>
-    </SheetHeader>
-    <div className="mt-6 text-sm space-y-1">
-      <Row label="Posição" value={`${desk.position_x}, ${desk.position_y}`} />
-      <Row
-        label="Dono"
-        value={desk.user_id ? <span className="font-mono text-xs">{desk.user_id.slice(0, 8)}…</span> : "—"}
-      />
-    </div>
-  </>
-);
+const DeskPanel = ({ desk, refresh }: { desk: DeskLite; refresh?: () => void }) => {
+  const { sit, work, standUp, canControl, busy } = useDeskActions(refresh);
+  const allowed = canControl(desk);
+  const ownerStatus = (desk.owner_status as PixelStatus) ?? "offline";
+  const isSitting = desk.owner_is_sitting === true;
+  const isWorking = desk.owner_current_action === "working";
+
+  return (
+    <>
+      <SheetHeader className="text-left">
+        <SheetTitle>{desk.desk_name ?? "Mesa"}</SheetTitle>
+        <SheetDescription>Tipo: {desk.desk_type}</SheetDescription>
+      </SheetHeader>
+
+      <div className="mt-6 space-y-4">
+        <Section title="Mesa">
+          <Row label="Nome" value={desk.desk_name} />
+          <Row label="Posição" value={`${desk.position_x}, ${desk.position_y}`} />
+        </Section>
+
+        <Section title="Dono">
+          <Row label="Nome" value={desk.owner_display_name ?? "Sem dono"} />
+          {desk.user_id && (
+            <Row
+              label="Status"
+              value={
+                <div className="flex items-center gap-2">
+                  <span
+                    className="w-2.5 h-2.5 rounded-full"
+                    style={{ background: STATUS_COLOR[ownerStatus] }}
+                  />
+                  {STATUS_LABEL[ownerStatus]}
+                  {isWorking && (
+                    <Badge variant="secondary" className="ml-1">
+                      Trabalhando
+                    </Badge>
+                  )}
+                </div>
+              }
+            />
+          )}
+        </Section>
+
+        <Separator />
+
+        {!desk.user_id && (
+          <p className="text-sm text-muted-foreground">
+            Esta mesa ainda não tem dono. Um administrador precisa atribuí-la.
+          </p>
+        )}
+
+        {desk.user_id && !allowed && (
+          <p className="text-sm text-muted-foreground">
+            Você só pode interagir com a sua própria mesa.
+          </p>
+        )}
+
+        {desk.user_id && allowed && (
+          <div className="flex flex-col gap-2">
+            <Button
+              variant="default"
+              className="justify-start"
+              disabled={busy || isWorking}
+              onClick={() => work(desk)}
+            >
+              <Briefcase className="w-4 h-4" />
+              Trabalhar
+            </Button>
+            <Button
+              variant="secondary"
+              className="justify-start"
+              disabled={busy || (isSitting && !isWorking)}
+              onClick={() => sit(desk)}
+            >
+              <Armchair className="w-4 h-4" />
+              Sentar
+            </Button>
+            <Button
+              variant="outline"
+              className="justify-start"
+              disabled={busy || !isSitting}
+              onClick={() => standUp(desk)}
+            >
+              <LogOut className="w-4 h-4" />
+              Levantar
+            </Button>
+          </div>
+        )}
+      </div>
+    </>
+  );
+};
 
 // ---------------------------------------------------------------
 // Helpers
