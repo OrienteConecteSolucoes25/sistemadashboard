@@ -33,6 +33,11 @@ export interface DeskLite {
   position_x: number;
   position_y: number;
   rotation: number;
+  /** preenchido via join em memória */
+  owner_display_name?: string | null;
+  owner_status?: string | null;
+  owner_is_sitting?: boolean | null;
+  owner_current_action?: string | null;
 }
 
 export interface RoomLite {
@@ -48,12 +53,13 @@ export interface RoomLite {
 
 interface UsePixelWorkspaceDataResult {
   loading: boolean;
-  workspaces: WorkspaceLite[]; // workspaces visíveis (1 para user comum, todos para admin)
+  workspaces: WorkspaceLite[];
   activeWorkspace: WorkspaceLite | null;
   setActiveWorkspaceId: (id: string) => void;
   characters: PixelCharacter[];
   desks: DeskLite[];
   rooms: RoomLite[];
+  refresh: () => void;
 }
 
 /**
