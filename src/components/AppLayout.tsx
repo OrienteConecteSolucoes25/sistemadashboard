@@ -1,7 +1,7 @@
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, FolderKanban, LogOut, Settings } from "lucide-react";
+import { Shield, FolderKanban, LogOut, Settings, User } from "lucide-react";
 
 const AppLayout = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
@@ -25,6 +25,7 @@ const AppLayout = () => {
       <aside className="w-64 border-r p-4 flex flex-col gap-2">
         <div className="font-bold text-lg mb-4">OCS</div>
         <NavItem to="/app" icon={FolderKanban} label="Projetos" />
+        <NavItem to="/app/pixel-office/meu-personagem" icon={User} label="Meu Personagem" />
         {isAdmin && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
         <div className="mt-auto pt-4 border-t">
           <div className="text-xs text-muted-foreground mb-2 truncate">{session.user.email}</div>
