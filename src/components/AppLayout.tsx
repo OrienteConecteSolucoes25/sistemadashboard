@@ -1,7 +1,7 @@
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, FolderKanban, LogOut, Settings } from "lucide-react";
+import { Shield, FolderKanban, LogOut, Settings, User } from "lucide-react";
 
 const AppLayout = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
