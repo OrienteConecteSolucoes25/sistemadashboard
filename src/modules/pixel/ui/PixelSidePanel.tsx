@@ -2,11 +2,12 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Linkedin, MessageSquare, Video, Armchair, ExternalLink } from "lucide-react";
+import { Linkedin, MessageSquare, Video, Armchair, ExternalLink, Briefcase, LogOut } from "lucide-react";
 import { toast } from "sonner";
 import { STATUS_COLOR, STATUS_LABEL, type PixelStatus } from "../core/constants";
 import { PixelSprite } from "../renderer/PixelSprite";
 import { useCharacterDetails } from "../data/useCharacterDetails";
+import { useDeskActions } from "../data/useDeskActions";
 import type { PixelCharacter, DeskLite } from "../data/usePixelWorkspaceData";
 
 type Selected =
@@ -18,6 +19,7 @@ interface Props {
   selected: Selected;
   onClose: () => void;
   onFocusDesk?: (deskId: string) => void;
+  refresh?: () => void;
 }
 
 const isValidLinkedIn = (url: string | null | undefined): boolean => {
