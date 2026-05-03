@@ -80,6 +80,7 @@ export const AdminCharacterEditModal = ({
     desk_id: null as string | null,
   });
   const [saving, setSaving] = useState(false);
+  const [customization, setCustomization] = useState<AvatarCustomization>(DEFAULT_CUSTOMIZATION);
 
   useEffect(() => {
     if (!character) return;
