@@ -72,7 +72,7 @@ export default function PixelOfficePage() {
         </>
       )}
 
-      <PixelSidePanel selected={selected} onClose={() => setSelected(null)} />
+      <PixelSidePanel selected={selected} onClose={() => setSelected(null)} refresh={refresh} />
     </div>
   );
 }
