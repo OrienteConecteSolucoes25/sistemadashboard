@@ -331,9 +331,20 @@ export type Database = {
           age: number | null
           avatar_accessory_key: string | null
           avatar_body_key: string | null
+          avatar_bottom_key: string | null
           avatar_clothes_key: string | null
+          avatar_earring_key: string | null
+          avatar_glasses_key: string | null
+          avatar_hair_color: string | null
           avatar_hair_key: string | null
+          avatar_hat_key: string | null
+          avatar_lipstick_key: string | null
+          avatar_outfit_color: string | null
+          avatar_outfit_key: string | null
+          avatar_shoes_key: string | null
+          avatar_skin_tone: string | null
           avatar_sprite_key: string | null
+          avatar_tool_key: string | null
           created_at: string
           department: string | null
           display_name: string | null
@@ -353,9 +364,20 @@ export type Database = {
           age?: number | null
           avatar_accessory_key?: string | null
           avatar_body_key?: string | null
+          avatar_bottom_key?: string | null
           avatar_clothes_key?: string | null
+          avatar_earring_key?: string | null
+          avatar_glasses_key?: string | null
+          avatar_hair_color?: string | null
           avatar_hair_key?: string | null
+          avatar_hat_key?: string | null
+          avatar_lipstick_key?: string | null
+          avatar_outfit_color?: string | null
+          avatar_outfit_key?: string | null
+          avatar_shoes_key?: string | null
+          avatar_skin_tone?: string | null
           avatar_sprite_key?: string | null
+          avatar_tool_key?: string | null
           created_at?: string
           department?: string | null
           display_name?: string | null
@@ -375,9 +397,20 @@ export type Database = {
           age?: number | null
           avatar_accessory_key?: string | null
           avatar_body_key?: string | null
+          avatar_bottom_key?: string | null
           avatar_clothes_key?: string | null
+          avatar_earring_key?: string | null
+          avatar_glasses_key?: string | null
+          avatar_hair_color?: string | null
           avatar_hair_key?: string | null
+          avatar_hat_key?: string | null
+          avatar_lipstick_key?: string | null
+          avatar_outfit_color?: string | null
+          avatar_outfit_key?: string | null
+          avatar_shoes_key?: string | null
+          avatar_skin_tone?: string | null
           avatar_sprite_key?: string | null
+          avatar_tool_key?: string | null
           created_at?: string
           department?: string | null
           display_name?: string | null
