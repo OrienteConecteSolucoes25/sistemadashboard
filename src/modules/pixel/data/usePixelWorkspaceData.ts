@@ -76,6 +76,8 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
   const [characters, setCharacters] = useState<PixelCharacter[]>([]);
   const [desks, setDesks] = useState<DeskLite[]>([]);
   const [rooms, setRooms] = useState<RoomLite[]>([]);
+  const [reloadTick, setReloadTick] = useState(0);
+  const refresh = () => setReloadTick((n) => n + 1);
 
   // 1) Carregar workspaces visíveis
   useEffect(() => {
