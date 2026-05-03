@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -10,8 +10,13 @@ import { Switch } from "@/components/ui/switch";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { PixelSprite } from "../renderer/PixelSprite";
 import { AVATAR_SPRITES } from "../core/sprites";
+import { AvatarBuilder } from "./AvatarBuilder";
+import {
+  AVATAR_CUSTOMIZATION_COLUMNS,
+  customizationFromProfile,
+} from "../core/avatarMapping";
+import { DEFAULT_CUSTOMIZATION, type AvatarCustomization } from "../core/avatarOptions";
 
 const STATUS_OPTIONS = ["online", "offline", "working", "meeting", "away", "busy"] as const;
 
