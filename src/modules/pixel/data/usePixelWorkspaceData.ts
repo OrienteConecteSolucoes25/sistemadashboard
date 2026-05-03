@@ -181,13 +181,28 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
       });
 
       setCharacters(chars);
-      setDesks(desksR.data ?? []);
+
+      // Enriquecer mesas com dados do dono
+      const profileMap = new Map<string, any>();
+      (profilesR.data ?? []).forEach((p) => profileMap.set(p.user_id, p));
+      const enrichedDesks: DeskLite[] = (desksR.data ?? []).map((d) => {
+        const owner = d.user_id ? profileMap.get(d.user_id) : null;
+        const ownerPos = d.user_id ? posMap.get(d.user_id) : null;
+        return {
+          ...d,
+          owner_display_name: owner?.display_name ?? null,
+          owner_status: owner?.status ?? null,
+          owner_is_sitting: ownerPos?.is_sitting ?? null,
+          owner_current_action: ownerPos?.current_action ?? null,
+        };
+      });
+      setDesks(enrichedDesks);
       setRooms(roomsR.data ?? []);
     })();
     return () => {
       cancelled = true;
     };
-  }, [activeId, workspaces]);
+  }, [activeId, workspaces, reloadTick]);
 
   const activeWorkspace = workspaces.find((w) => w.id === activeId) ?? null;
 
@@ -199,5 +214,6 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
     characters,
     desks,
     rooms,
+    refresh,
   };
 }
