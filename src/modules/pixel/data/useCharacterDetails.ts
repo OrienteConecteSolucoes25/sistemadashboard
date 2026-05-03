@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  AVATAR_CUSTOMIZATION_COLUMNS,
+  customizationFromProfile,
+} from "../core/avatarMapping";
+import type { AvatarCustomization } from "../core/avatarOptions";
 
 export interface CharacterFullDetails {
   user_id: string;
@@ -18,6 +23,7 @@ export interface CharacterFullDetails {
   desk_id: string | null;
   last_moved_at: string | null;
   current_action: string | null;
+  customization: AvatarCustomization;
 }
 
 /**
@@ -41,7 +47,7 @@ export function useCharacterDetails(userId: string | null) {
         supabase
           .from("pixel_profiles")
           .select(
-            "user_id, display_name, job_title, age, show_age, linkedin_url, department, sector_description, avatar_sprite_key, status, visibility_group_id, visibility_groups:visibility_group_id(name, color)",
+            `user_id, display_name, job_title, age, show_age, linkedin_url, department, sector_description, avatar_sprite_key, status, visibility_group_id, ${AVATAR_CUSTOMIZATION_COLUMNS}, visibility_groups:visibility_group_id(name, color)`,
           )
           .eq("user_id", userId)
           .maybeSingle(),
@@ -85,6 +91,7 @@ export function useCharacterDetails(userId: string | null) {
         desk_id: deskR.data?.id ?? null,
         last_moved_at: positionR.data?.last_moved_at ?? null,
         current_action: positionR.data?.current_action ?? null,
+        customization: customizationFromProfile(p),
       });
       setLoading(false);
     })();

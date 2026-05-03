@@ -22,6 +22,12 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { AvatarBuilder } from "../AvatarBuilder";
+import {
+  AVATAR_CUSTOMIZATION_COLUMNS,
+  customizationFromProfile,
+} from "../../core/avatarMapping";
+import { DEFAULT_CUSTOMIZATION, type AvatarCustomization } from "../../core/avatarOptions";
 import { usePixelAdminLog } from "../../data/usePixelAdminLog";
 import type {
   AdminCharacterRow,
@@ -74,6 +80,7 @@ export const AdminCharacterEditModal = ({
     desk_id: null as string | null,
   });
   const [saving, setSaving] = useState(false);
+  const [customization, setCustomization] = useState<AvatarCustomization>(DEFAULT_CUSTOMIZATION);
 
   useEffect(() => {
     if (!character) return;
@@ -88,6 +95,15 @@ export const AdminCharacterEditModal = ({
       is_blocked: character.is_blocked,
       desk_id: character.desk_id ?? null,
     });
+    // Carrega customization de avatar do banco
+    (async () => {
+      const { data } = await supabase
+        .from("pixel_profiles")
+        .select(`avatar_sprite_key, ${AVATAR_CUSTOMIZATION_COLUMNS}`)
+        .eq("user_id", character.user_id)
+        .maybeSingle();
+      setCustomization(customizationFromProfile(data));
+    })();
   }, [character]);
 
   const handleSave = async () => {
@@ -111,6 +127,19 @@ export const AdminCharacterEditModal = ({
           status: parsed.data.status,
           is_visible: parsed.data.is_visible,
           is_blocked: parsed.data.is_blocked,
+          avatar_body_key: customization.avatar_body_key ?? null,
+          avatar_skin_tone: customization.avatar_skin_tone ?? null,
+          avatar_hair_key: customization.avatar_hair_key ?? null,
+          avatar_hair_color: customization.avatar_hair_color ?? null,
+          avatar_outfit_key: customization.avatar_outfit_key ?? null,
+          avatar_outfit_color: customization.avatar_outfit_color ?? null,
+          avatar_bottom_key: customization.avatar_bottom_key ?? null,
+          avatar_shoes_key: customization.avatar_shoes_key ?? null,
+          avatar_lipstick_key: customization.avatar_lipstick_key ?? null,
+          avatar_earring_key: customization.avatar_earring_key ?? null,
+          avatar_glasses_key: customization.avatar_glasses_key ?? null,
+          avatar_hat_key: customization.avatar_hat_key ?? null,
+          avatar_tool_key: customization.avatar_tool_key ?? null,
         })
         .eq("user_id", character.user_id);
       if (pErr) throw pErr;
@@ -162,6 +191,12 @@ export const AdminCharacterEditModal = ({
         </DialogHeader>
 
         <div className="space-y-3">
+          <div className="rounded-md border p-3">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+              Aparência do avatar
+            </div>
+            <AvatarBuilder value={customization} onChange={setCustomization} previewSize={120} />
+          </div>
           <div className="space-y-1.5">
             <Label>Nome de exibição</Label>
             <Input

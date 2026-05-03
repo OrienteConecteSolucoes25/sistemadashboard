@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  AVATAR_CUSTOMIZATION_COLUMNS,
+  customizationFromProfile,
+} from "../core/avatarMapping";
+import type { AvatarCustomization } from "../core/avatarOptions";
 
 export interface WorkspaceLite {
   id: string;
@@ -22,6 +27,7 @@ export interface PixelCharacter {
   position_y: number;
   current_action: string;
   is_sitting: boolean;
+  customization: AvatarCustomization;
 }
 
 export interface DeskLite {
@@ -130,7 +136,7 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
       const profilesP = supabase
         .from("pixel_profiles")
         .select(
-          "user_id, display_name, job_title, avatar_sprite_key, status, is_visible, is_blocked",
+          `user_id, display_name, job_title, avatar_sprite_key, status, is_visible, is_blocked, ${AVATAR_CUSTOMIZATION_COLUMNS}`,
         )
         .eq("visibility_group_id", ws.visibility_group_id)
         .eq("is_visible", true);
@@ -177,6 +183,7 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
           position_y: pos?.position_y ?? 4,
           current_action: pos?.current_action ?? "idle",
           is_sitting: pos?.is_sitting ?? false,
+          customization: customizationFromProfile(p),
         };
       });
 

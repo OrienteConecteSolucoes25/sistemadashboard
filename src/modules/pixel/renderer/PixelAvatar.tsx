@@ -1,6 +1,6 @@
 import { TILE_SIZE, STATUS_LABEL, type PixelStatus } from "../core/constants";
 import { roleFromSpriteKey, ROLE_PALETTES } from "../core/pixelOfficeTheme";
-import { PixelAvatarSprite } from "./PixelAvatarSprite";
+import { AvatarLayeredSprite } from "./AvatarLayeredSprite";
 import { PixelStatusBadge } from "./PixelStatusBadge";
 import type { PixelCharacter } from "../data/usePixelWorkspaceData";
 
@@ -45,7 +45,7 @@ export const PixelAvatar = ({ character, posX, posY, onClick }: Props) => {
       aria-label={`Personagem ${character.display_name ?? ""}`}
     >
       <div className="relative w-full h-full">
-        <PixelAvatarSprite role={role} size={AVATAR_SIZE} faded={faded} grayscale={grayscale} />
+        <AvatarLayeredSprite customization={character.customization} size={AVATAR_SIZE} faded={faded} grayscale={grayscale} />
 
         {/* Indicador de status discreto */}
         <span className="absolute -top-1 -right-1">

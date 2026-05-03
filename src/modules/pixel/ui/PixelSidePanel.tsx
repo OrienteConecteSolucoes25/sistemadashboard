@@ -6,7 +6,7 @@ import { Linkedin, MessageSquare, Video, Armchair, ExternalLink, Briefcase, LogO
 import { toast } from "sonner";
 import { STATUS_COLOR, STATUS_LABEL, type PixelStatus } from "../core/constants";
 import { PixelSprite } from "../renderer/PixelSprite";
-import { PixelAvatarSprite } from "../renderer/PixelAvatarSprite";
+import { AvatarLayeredSprite } from "../renderer/AvatarLayeredSprite";
 import { PixelStatusBadge } from "../renderer/PixelStatusBadge";
 import { roleFromSpriteKey } from "../core/pixelOfficeTheme";
 import { useCharacterDetails } from "../data/useCharacterDetails";
@@ -127,7 +127,7 @@ const CharacterPanel = ({
               "linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted) / 0.5) 100%)",
           }}
         >
-          <PixelAvatarSprite role={roleFromSpriteKey(data.avatar_sprite_key)} size={144} />
+          <AvatarLayeredSprite customization={data.customization} size={144} />
         </div>
         <div className="flex items-center gap-2 text-sm">
           <PixelStatusBadge status={status} />
