@@ -27,6 +27,7 @@ export interface PixelCharacter {
   position_y: number;
   current_action: string;
   is_sitting: boolean;
+  customization: AvatarCustomization;
 }
 
 export interface DeskLite {
