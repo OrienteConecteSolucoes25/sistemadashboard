@@ -47,7 +47,7 @@ export function useCharacterDetails(userId: string | null) {
         supabase
           .from("pixel_profiles")
           .select(
-            "user_id, display_name, job_title, age, show_age, linkedin_url, department, sector_description, avatar_sprite_key, status, visibility_group_id, visibility_groups:visibility_group_id(name, color)",
+            `user_id, display_name, job_title, age, show_age, linkedin_url, department, sector_description, avatar_sprite_key, status, visibility_group_id, ${AVATAR_CUSTOMIZATION_COLUMNS}, visibility_groups:visibility_group_id(name, color)`,
           )
           .eq("user_id", userId)
           .maybeSingle(),
