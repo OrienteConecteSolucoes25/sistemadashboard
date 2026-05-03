@@ -27,6 +27,7 @@ const AppLayout = () => {
         <NavItem to="/app" icon={FolderKanban} label="Projetos" />
         <NavItem to="/app/pixel-office" icon={Gamepad2} label="Pixel Office" />
         <NavItem to="/app/pixel-office/meu-personagem" icon={User} label="Meu Personagem" />
+        {isAdmin && <NavItem to="/app/pixel-office/admin" icon={Shield} label="Pixel Admin" />}
         {isAdmin && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
         <div className="mt-auto pt-4 border-t">
           <div className="text-xs text-muted-foreground mb-2 truncate">{session.user.email}</div>
