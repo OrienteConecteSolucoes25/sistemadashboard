@@ -9,6 +9,7 @@ import Auth from "./pages/Auth";
 import Projetos from "./pages/Projetos";
 import Adm from "./pages/Adm";
 import MyCharacterPage from "./modules/pixel/ui/MyCharacterPage";
+import PixelOfficePage from "./modules/pixel/ui/PixelOfficePage";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -25,6 +26,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/app" element={<AppLayout />}>
               <Route index element={<Projetos />} />
+              <Route path="pixel-office" element={<PixelOfficePage />} />
               <Route path="pixel-office/meu-personagem" element={<MyCharacterPage />} />
               <Route path="adm" element={<Adm />} />
             </Route>
