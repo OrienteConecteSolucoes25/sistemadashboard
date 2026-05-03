@@ -91,6 +91,7 @@ export function useCharacterDetails(userId: string | null) {
         desk_id: deskR.data?.id ?? null,
         last_moved_at: positionR.data?.last_moved_at ?? null,
         current_action: positionR.data?.current_action ?? null,
+        customization: customizationFromProfile(p),
       });
       setLoading(false);
     })();
