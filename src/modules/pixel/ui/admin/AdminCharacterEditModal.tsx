@@ -127,6 +127,19 @@ export const AdminCharacterEditModal = ({
           status: parsed.data.status,
           is_visible: parsed.data.is_visible,
           is_blocked: parsed.data.is_blocked,
+          avatar_body_key: customization.avatar_body_key ?? null,
+          avatar_skin_tone: customization.avatar_skin_tone ?? null,
+          avatar_hair_key: customization.avatar_hair_key ?? null,
+          avatar_hair_color: customization.avatar_hair_color ?? null,
+          avatar_outfit_key: customization.avatar_outfit_key ?? null,
+          avatar_outfit_color: customization.avatar_outfit_color ?? null,
+          avatar_bottom_key: customization.avatar_bottom_key ?? null,
+          avatar_shoes_key: customization.avatar_shoes_key ?? null,
+          avatar_lipstick_key: customization.avatar_lipstick_key ?? null,
+          avatar_earring_key: customization.avatar_earring_key ?? null,
+          avatar_glasses_key: customization.avatar_glasses_key ?? null,
+          avatar_hat_key: customization.avatar_hat_key ?? null,
+          avatar_tool_key: customization.avatar_tool_key ?? null,
         })
         .eq("user_id", character.user_id);
       if (pErr) throw pErr;
