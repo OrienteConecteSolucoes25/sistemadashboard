@@ -1,4 +1,3 @@
-import { useMemo } from "react";
 import {
   STAGE_HEIGHT_PX,
   STAGE_WIDTH_PX,
@@ -9,6 +8,8 @@ import {
 import { PixelAvatar } from "../renderer/PixelAvatar";
 import { PixelDesk } from "../renderer/PixelDesk";
 import { PixelRoom } from "../renderer/PixelRoom";
+import { PixelOfficeMap } from "../renderer/PixelOfficeMap";
+import { PixelOfficeDecorations } from "../renderer/PixelOfficeDecorations";
 import type {
   PixelCharacter,
   DeskLite,
