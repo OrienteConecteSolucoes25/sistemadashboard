@@ -107,22 +107,30 @@ export const AdminDeskModal = ({
     }
     setSaving(true);
     try {
+      const payload = {
+        desk_name: parsed.data.desk_name,
+        desk_type: parsed.data.desk_type,
+        workspace_id: parsed.data.workspace_id,
+        position_x: parsed.data.position_x,
+        position_y: parsed.data.position_y,
+        user_id: parsed.data.user_id,
+      };
       if (desk) {
         const { error } = await supabase
           .from("pixel_desks")
-          .update(parsed.data)
+          .update(payload)
           .eq("id", desk.id);
         if (error) throw error;
         await log("update_desk", {
-          description: `Mesa ${parsed.data.desk_name}`,
-          metadata: { desk_id: desk.id, ...parsed.data },
+          description: `Mesa ${payload.desk_name}`,
+          metadata: { desk_id: desk.id, ...payload },
         });
       } else {
-        const { error } = await supabase.from("pixel_desks").insert([parsed.data]);
+        const { error } = await supabase.from("pixel_desks").insert(payload);
         if (error) throw error;
         await log("create_desk", {
-          description: `Mesa ${parsed.data.desk_name}`,
-          metadata: parsed.data,
+          description: `Mesa ${payload.desk_name}`,
+          metadata: payload,
         });
       }
       toast.success("Mesa salva");
