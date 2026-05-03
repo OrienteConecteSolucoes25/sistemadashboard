@@ -48,7 +48,7 @@ const formatRelativeTime = (iso: string | null): string => {
   return `há ${d} d`;
 };
 
-export const PixelSidePanel = ({ selected, onClose, onFocusDesk }: Props) => {
+export const PixelSidePanel = ({ selected, onClose, onFocusDesk, refresh }: Props) => {
   const open = selected !== null;
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
@@ -56,7 +56,7 @@ export const PixelSidePanel = ({ selected, onClose, onFocusDesk }: Props) => {
         {selected?.kind === "character" && (
           <CharacterPanel userId={selected.data.user_id} onFocusDesk={onFocusDesk} />
         )}
-        {selected?.kind === "desk" && <DeskPanel desk={selected.data} />}
+        {selected?.kind === "desk" && <DeskPanel desk={selected.data} refresh={refresh} />}
       </SheetContent>
     </Sheet>
   );
