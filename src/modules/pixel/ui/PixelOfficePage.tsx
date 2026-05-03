@@ -90,9 +90,9 @@ export default function PixelOfficePage() {
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold">Pixel Office</h1>
+          <h1 className="text-2xl font-bold tracking-tight">Pixel Office OCS</h1>
           <p className="text-sm text-muted-foreground">
-            Clique em um ponto livre para mover seu personagem. Clique em um personagem ou mesa para ver detalhes.
+            Escritório virtual da Comunidade OCS — clique no piso para mover, nos personagens ou mesas para detalhes.
           </p>
         </div>
         <PixelWorkspaceSelector
