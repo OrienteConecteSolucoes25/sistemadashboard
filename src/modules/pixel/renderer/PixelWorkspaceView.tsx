@@ -46,14 +46,6 @@ export const PixelWorkspaceView = ({
   onSelectDesk,
   onStageClick,
 }: Props) => {
-  const grid = useMemo(() => {
-    return {
-      backgroundImage:
-        "linear-gradient(to right, hsl(var(--border) / 0.4) 1px, transparent 1px), linear-gradient(to bottom, hsl(var(--border) / 0.4) 1px, transparent 1px)",
-      backgroundSize: `${TILE_SIZE}px ${TILE_SIZE}px`,
-    } as React.CSSProperties;
-  }, []);
-
   const handleStageClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
     const px = e.clientX - rect.left;
@@ -64,18 +56,23 @@ export const PixelWorkspaceView = ({
   };
 
   return (
-    <div className="overflow-auto rounded-lg border bg-card">
+    <div
+      className="overflow-auto rounded-xl border-2 shadow-inner"
+      style={{ borderColor: "#1a1626", background: "#1a1626" }}
+    >
       <div
-        className="relative cursor-pointer"
+        className="relative cursor-crosshair"
         style={{
           width: STAGE_WIDTH_PX,
           height: STAGE_HEIGHT_PX,
-          ...grid,
         }}
         aria-label={`Workspace ${workspace.name} (${STAGE_WIDTH_TILES}x${STAGE_HEIGHT_TILES})`}
         onClick={handleStageClick}
       >
-        {/* Salas (atrás) */}
+        {/* Piso pseudo-iso */}
+        <PixelOfficeMap />
+        {/* Decorações estáticas (paredes, plantas, quadro) */}
+        <PixelOfficeDecorations />
         {rooms.map((r) => (
           <PixelRoom key={r.id} room={r} />
         ))}
