@@ -1,6 +1,11 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import {
+  AVATAR_CUSTOMIZATION_COLUMNS,
+  customizationFromProfile,
+} from "../core/avatarMapping";
+import type { AvatarCustomization } from "../core/avatarOptions";
 
 export interface WorkspaceLite {
   id: string;
