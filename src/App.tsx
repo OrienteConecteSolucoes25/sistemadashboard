@@ -10,6 +10,7 @@ import Projetos from "./pages/Projetos";
 import Adm from "./pages/Adm";
 import MyCharacterPage from "./modules/pixel/ui/MyCharacterPage";
 import PixelOfficePage from "./modules/pixel/ui/PixelOfficePage";
+import PixelAdminPage from "./modules/pixel/ui/admin/PixelAdminPage";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
               <Route index element={<Projetos />} />
               <Route path="pixel-office" element={<PixelOfficePage />} />
               <Route path="pixel-office/meu-personagem" element={<MyCharacterPage />} />
+              <Route path="pixel-office/admin" element={<PixelAdminPage />} />
               <Route path="adm" element={<Adm />} />
             </Route>
             <Route path="*" element={<NotFound />} />
