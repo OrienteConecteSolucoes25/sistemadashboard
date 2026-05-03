@@ -1,15 +1,21 @@
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, FolderKanban, LogOut, Settings, User, Gamepad2, HardHat, Scale } from "lucide-react";
+import { Shield, FolderKanban, LogOut, Settings, User, Gamepad2, HardHat, Scale, Menu, X } from "lucide-react";
 import { useEngenhariaAccess } from "@/modules/engenharia/hooks/useEngenhariaAccess";
 import { useJuridicoAccess } from "@/modules/juridico/hooks/useJuridicoAccess";
+import { useEffect, useState } from "react";
 
 const AppLayout = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
   const { hasAccess: engAccess } = useEngenhariaAccess();
   const { hasAccess: jurAccess } = useJuridicoAccess();
   const loc = useLocation();
+  const [open, setOpen] = useState(false);
+
+  // Close drawer on route change
+  useEffect(() => { setOpen(false); }, [loc.pathname]);
+
   if (loading) return null;
   if (!session) return <Navigate to="/auth" replace />;
 
@@ -26,30 +32,80 @@ const AppLayout = () => {
     </Link>
   );
 
+  const SidebarContent = (
+    <>
+      <div className="flex items-center justify-between mb-4">
+        <div className="font-bold text-lg">OCS</div>
+        <button
+          className="md:hidden p-1 rounded hover:bg-accent"
+          onClick={() => setOpen(false)}
+          aria-label="Fechar menu"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+      <NavItem to="/app" icon={FolderKanban} label="Projetos" />
+      <NavItem to="/app/pixel-office" icon={Gamepad2} label="Pixel Office" />
+      <NavItem to="/app/pixel-office/meu-personagem" icon={User} label="Meu Personagem" />
+      {engAccess && <NavItem to="/app/engenharia" icon={HardHat} label="Engenharia" />}
+      {jurAccess && <NavItem to="/app/juridico" icon={Scale} label="Jurídico" />}
+      {isAdmin && <NavItem to="/app/pixel-office/admin" icon={Shield} label="Pixel Admin" />}
+      {isAdmin && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
+      <div className="mt-auto pt-4 border-t">
+        <div className="text-xs text-muted-foreground mb-2 truncate">{session.user.email}</div>
+        {isAdmin && (
+          <div className="text-xs flex items-center gap-1 text-primary mb-2">
+            <Shield className="w-3 h-3" /> Admin
+          </div>
+        )}
+        <Button variant="outline" size="sm" className="w-full" onClick={signOut}>
+          <LogOut className="w-4 h-4 mr-2" /> Sair
+        </Button>
+      </div>
+    </>
+  );
+
   return (
     <div className="min-h-screen flex bg-background text-foreground">
-      <aside className="w-64 border-r p-4 flex flex-col gap-2">
-        <div className="font-bold text-lg mb-4">OCS</div>
-        <NavItem to="/app" icon={FolderKanban} label="Projetos" />
-        <NavItem to="/app/pixel-office" icon={Gamepad2} label="Pixel Office" />
-        <NavItem to="/app/pixel-office/meu-personagem" icon={User} label="Meu Personagem" />
-        {engAccess && <NavItem to="/app/engenharia" icon={HardHat} label="Engenharia" />}
-        {jurAccess && <NavItem to="/app/juridico" icon={Scale} label="Jurídico" />}
-        {isAdmin && <NavItem to="/app/pixel-office/admin" icon={Shield} label="Pixel Admin" />}
-        {isAdmin && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
-        <div className="mt-auto pt-4 border-t">
-          <div className="text-xs text-muted-foreground mb-2 truncate">{session.user.email}</div>
-          {isAdmin && (
-            <div className="text-xs flex items-center gap-1 text-primary mb-2">
-              <Shield className="w-3 h-3" /> Admin
-            </div>
-          )}
-          <Button variant="outline" size="sm" className="w-full" onClick={signOut}>
-            <LogOut className="w-4 h-4 mr-2" /> Sair
-          </Button>
-        </div>
+      {/* Mobile top bar */}
+      <header
+        className="md:hidden fixed top-0 inset-x-0 z-40 h-14 border-b bg-background/95 backdrop-blur flex items-center justify-between px-4"
+        style={{ paddingTop: "env(safe-area-inset-top)" }}
+      >
+        <button
+          className="p-2 rounded-md hover:bg-accent"
+          onClick={() => setOpen(true)}
+          aria-label="Abrir menu"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <div className="font-bold">OCS</div>
+        <div className="w-9" />
+      </header>
+
+      {/* Mobile drawer overlay */}
+      {open && (
+        <div
+          className="md:hidden fixed inset-0 z-50 bg-black/50"
+          onClick={() => setOpen(false)}
+          aria-hidden
+        />
+      )}
+
+      {/* Sidebar — desktop static / mobile drawer */}
+      <aside
+        className={`fixed md:static inset-y-0 left-0 z-50 w-64 border-r p-4 flex flex-col gap-2 bg-background transition-transform duration-200 md:translate-x-0 ${
+          open ? "translate-x-0" : "-translate-x-full"
+        }`}
+        style={{ paddingTop: "max(1rem, env(safe-area-inset-top))" }}
+      >
+        {SidebarContent}
       </aside>
-      <main className="flex-1 p-6 overflow-auto">
+
+      <main
+        className="flex-1 p-4 md:p-6 overflow-auto pt-20 md:pt-6"
+        style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
+      >
         <Outlet />
       </main>
     </div>
