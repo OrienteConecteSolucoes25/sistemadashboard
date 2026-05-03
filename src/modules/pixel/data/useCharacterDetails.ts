@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import {
+  AVATAR_CUSTOMIZATION_COLUMNS,
+  customizationFromProfile,
+} from "../core/avatarMapping";
+import type { AvatarCustomization } from "../core/avatarOptions";
 
 export interface CharacterFullDetails {
   user_id: string;
@@ -18,6 +23,7 @@ export interface CharacterFullDetails {
   desk_id: string | null;
   last_moved_at: string | null;
   current_action: string | null;
+  customization: AvatarCustomization;
 }
 
 /**
