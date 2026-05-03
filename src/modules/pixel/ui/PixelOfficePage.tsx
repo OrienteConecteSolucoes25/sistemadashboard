@@ -15,6 +15,7 @@ import { PixelSidePanel } from "./PixelSidePanel";
 import { PixelMeetingModal } from "./PixelMeetingModal";
 import { PixelMeetingInvite } from "./PixelMeetingInvite";
 import { PixelMeetingsPanel } from "./PixelMeetingsPanel";
+import { PixelCommunityPanel } from "./PixelCommunityPanel";
 
 type Selected =
   | { kind: "character"; data: PixelCharacter }
@@ -142,6 +143,8 @@ export default function PixelOfficePage() {
               setMeetingModalOpen(true);
             }}
           />
+
+          <PixelCommunityPanel activeWorkspace={activeWorkspace} workspaces={workspaces} />
         </>
       )}
 
