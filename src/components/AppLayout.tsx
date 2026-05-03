@@ -1,12 +1,14 @@
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, FolderKanban, LogOut, Settings, User, Gamepad2, HardHat } from "lucide-react";
+import { Shield, FolderKanban, LogOut, Settings, User, Gamepad2, HardHat, Scale } from "lucide-react";
 import { useEngenhariaAccess } from "@/modules/engenharia/hooks/useEngenhariaAccess";
+import { useJuridicoAccess } from "@/modules/juridico/hooks/useJuridicoAccess";
 
 const AppLayout = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
   const { hasAccess: engAccess } = useEngenhariaAccess();
+  const { hasAccess: jurAccess } = useJuridicoAccess();
   const loc = useLocation();
   if (loading) return null;
   if (!session) return <Navigate to="/auth" replace />;
@@ -32,6 +34,7 @@ const AppLayout = () => {
         <NavItem to="/app/pixel-office" icon={Gamepad2} label="Pixel Office" />
         <NavItem to="/app/pixel-office/meu-personagem" icon={User} label="Meu Personagem" />
         {engAccess && <NavItem to="/app/engenharia" icon={HardHat} label="Engenharia" />}
+        {jurAccess && <NavItem to="/app/juridico" icon={Scale} label="Jurídico" />}
         {isAdmin && <NavItem to="/app/pixel-office/admin" icon={Shield} label="Pixel Admin" />}
         {isAdmin && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
         <div className="mt-auto pt-4 border-t">

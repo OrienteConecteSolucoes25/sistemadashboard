@@ -17,6 +17,12 @@ import {
   EngSitesPage, EngRFIPage, EngPendenciasPage,
   EngMateriaisPage, EngEquipesPage, EngRelatoriosPage,
 } from "./modules/engenharia/ui/EngPages";
+import JuridicoGuard from "./modules/juridico/ui/JuridicoGuard";
+import JuridicoDashboard from "./modules/juridico/ui/JuridicoDashboard";
+import {
+  JurProcessosPage, JurPrazosPage, JurDocumentosPage,
+  JurResponsaveisPage, JurTarefasPage, JurRelatoriosPage,
+} from "./modules/juridico/ui/JurPages";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -44,6 +50,15 @@ const App = () => (
                 <Route path="materiais" element={<EngMateriaisPage />} />
                 <Route path="equipes" element={<EngEquipesPage />} />
                 <Route path="relatorios" element={<EngRelatoriosPage />} />
+              </Route>
+              <Route path="juridico" element={<JuridicoGuard />}>
+                <Route index element={<JuridicoDashboard />} />
+                <Route path="processos" element={<JurProcessosPage />} />
+                <Route path="prazos" element={<JurPrazosPage />} />
+                <Route path="documentos" element={<JurDocumentosPage />} />
+                <Route path="responsaveis" element={<JurResponsaveisPage />} />
+                <Route path="tarefas" element={<JurTarefasPage />} />
+                <Route path="relatorios" element={<JurRelatoriosPage />} />
               </Route>
               <Route path="adm" element={<Adm />} />
             </Route>
