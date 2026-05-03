@@ -4,20 +4,35 @@ import type { PixelCharacter } from "../data/usePixelWorkspaceData";
 
 interface Props {
   character: PixelCharacter;
+  /** Posição efetiva (sobrescrita por movimento local, se houver). */
+  posX?: number;
+  posY?: number;
   onClick?: (c: PixelCharacter) => void;
 }
 
-export const PixelAvatar = ({ character, onClick }: Props) => {
+export const PixelAvatar = ({ character, posX, posY, onClick }: Props) => {
   const status = (character.status as PixelStatus) ?? "offline";
-  const left = character.position_x * TILE_SIZE;
-  const top = character.position_y * TILE_SIZE;
+  const x = posX ?? character.position_x;
+  const y = posY ?? character.position_y;
+  const left = x * TILE_SIZE;
+  const top = y * TILE_SIZE;
 
   return (
     <button
       type="button"
-      onClick={() => onClick?.(character)}
+      onClick={(e) => {
+        e.stopPropagation();
+        onClick?.(character);
+      }}
       className="absolute group focus:outline-none focus:ring-2 focus:ring-primary rounded-md"
-      style={{ left, top, width: TILE_SIZE * 2, height: TILE_SIZE * 2 }}
+      style={{
+        left,
+        top,
+        width: TILE_SIZE * 2,
+        height: TILE_SIZE * 2,
+        transition: "left 600ms ease-in-out, top 600ms ease-in-out",
+        willChange: "left, top",
+      }}
       aria-label={`Personagem ${character.display_name ?? ""}`}
     >
       {/* Sprite */}
