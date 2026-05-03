@@ -22,6 +22,12 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { AvatarBuilder } from "../AvatarBuilder";
+import {
+  AVATAR_CUSTOMIZATION_COLUMNS,
+  customizationFromProfile,
+} from "../../core/avatarMapping";
+import { DEFAULT_CUSTOMIZATION, type AvatarCustomization } from "../../core/avatarOptions";
 import { usePixelAdminLog } from "../../data/usePixelAdminLog";
 import type {
   AdminCharacterRow,
