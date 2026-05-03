@@ -45,7 +45,7 @@ export const PixelAvatar = ({ character, posX, posY, onClick }: Props) => {
       aria-label={`Personagem ${character.display_name ?? ""}`}
     >
       <div className="relative w-full h-full">
-        <PixelAvatarSprite role={role} size={AVATAR_SIZE} faded={faded} grayscale={grayscale} />
+        <AvatarLayeredSprite customization={character.customization} size={AVATAR_SIZE} faded={faded} grayscale={grayscale} />
 
         {/* Indicador de status discreto */}
         <span className="absolute -top-1 -right-1">
