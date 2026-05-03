@@ -22,13 +22,13 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { usePixelAdminLog } from "../data/usePixelAdminLog";
+import { usePixelAdminLog } from "../../data/usePixelAdminLog";
 import type {
   AdminCharacterRow,
   AdminDeskRow,
   AdminGroupRow,
-} from "../data/usePixelAdminData";
-import { STATUS_LABEL, type PixelStatus } from "../core/constants";
+} from "../../data/usePixelAdminData";
+import { STATUS_LABEL, type PixelStatus } from "../../core/constants";
 
 const editSchema = z.object({
   display_name: z.string().trim().min(1, "Nome obrigatório").max(80),

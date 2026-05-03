@@ -118,7 +118,7 @@ export const AdminDeskModal = ({
           metadata: { desk_id: desk.id, ...parsed.data },
         });
       } else {
-        const { error } = await supabase.from("pixel_desks").insert(parsed.data);
+        const { error } = await supabase.from("pixel_desks").insert([parsed.data]);
         if (error) throw error;
         await log("create_desk", {
           description: `Mesa ${parsed.data.desk_name}`,
