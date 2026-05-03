@@ -25,6 +25,7 @@ const AppLayout = () => {
       <aside className="w-64 border-r p-4 flex flex-col gap-2">
         <div className="font-bold text-lg mb-4">OCS</div>
         <NavItem to="/app" icon={FolderKanban} label="Projetos" />
+        <NavItem to="/app/pixel-office" icon={Gamepad2} label="Pixel Office" />
         <NavItem to="/app/pixel-office/meu-personagem" icon={User} label="Meu Personagem" />
         {isAdmin && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
         <div className="mt-auto pt-4 border-t">
