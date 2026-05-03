@@ -1,6 +1,6 @@
 import { TILE_SIZE, STATUS_LABEL, type PixelStatus } from "../core/constants";
 import { roleFromSpriteKey, ROLE_PALETTES } from "../core/pixelOfficeTheme";
-import { PixelAvatarSprite } from "./PixelAvatarSprite";
+import { AvatarLayeredSprite } from "./AvatarLayeredSprite";
 import { PixelStatusBadge } from "./PixelStatusBadge";
 import type { PixelCharacter } from "../data/usePixelWorkspaceData";
 
