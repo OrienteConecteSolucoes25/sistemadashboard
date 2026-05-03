@@ -199,40 +199,21 @@ export default function MyCharacterPage() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-[280px_1fr] gap-6">
-        {/* Preview + Avatar Picker */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Avatar</CardTitle>
-            <CardDescription>Escolha seu personagem</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-center">
-              <PixelSprite spriteKey={previewSprite?.key} size={160} />
-            </div>
-            <div className="text-center text-sm font-medium">{previewSprite?.label}</div>
-            <div className="grid grid-cols-3 gap-2">
-              {AVATAR_SPRITES.map((s) => (
-                <button
-                  key={s.key}
-                  type="button"
-                  onClick={() => setField("avatar_sprite_key", s.key)}
-                  className={`flex items-center justify-center p-2 rounded-md border transition-colors ${
-                    form.avatar_sprite_key === s.key
-                      ? "border-primary bg-accent"
-                      : "border-border hover:bg-accent"
-                  }`}
-                  aria-label={s.label}
-                >
-                  <PixelSprite spriteKey={s.key} size={48} />
-                </button>
-              ))}
-            </div>
-            {errors.avatar_sprite_key && (
-              <p className="text-xs text-destructive">{errors.avatar_sprite_key}</p>
-            )}
-          </CardContent>
-        </Card>
+      {/* Avatar Builder — aparência */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Aparência do Personagem</CardTitle>
+          <CardDescription>
+            Personalize cabelo, roupa, acessórios e itens de trabalho. A pré-visualização atualiza
+            em tempo real.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <AvatarBuilder value={customization} onChange={setCustomization} />
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 gap-6">
 
         {/* Form */}
         <Card>
