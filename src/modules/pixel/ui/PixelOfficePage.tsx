@@ -8,9 +8,13 @@ import {
   type PixelCharacter,
 } from "../data/usePixelWorkspaceData";
 import { useCharacterMovement } from "../data/useCharacterMovement";
+import { usePixelMeetings } from "../data/usePixelMeetings";
 import { PixelWorkspaceView } from "../renderer/PixelWorkspaceView";
 import { PixelWorkspaceSelector } from "./PixelWorkspaceSelector";
 import { PixelSidePanel } from "./PixelSidePanel";
+import { PixelMeetingModal } from "./PixelMeetingModal";
+import { PixelMeetingInvite } from "./PixelMeetingInvite";
+import { PixelMeetingsPanel } from "./PixelMeetingsPanel";
 
 type Selected =
   | { kind: "character"; data: PixelCharacter }
@@ -31,13 +35,17 @@ export default function PixelOfficePage() {
   } = usePixelWorkspaceData();
 
   const [selected, setSelected] = useState<Selected>(null);
+  const [meetingModalOpen, setMeetingModalOpen] = useState(false);
+  const [preselectInvitee, setPreselectInvitee] = useState<string | null>(null);
 
-  const { moveTo, getPosition, canMove } = useCharacterMovement({
+  const { moveTo, getPosition } = useCharacterMovement({
     workspaceId: activeWorkspace?.id ?? null,
     isAdmin,
   });
 
-  // Realtime: outros usuários do mesmo workspace veem a posição final
+  const meetings = usePixelMeetings({ workspaceId: activeWorkspace?.id ?? null });
+
+  // Realtime: posições de outros usuários
   useEffect(() => {
     if (!activeWorkspace?.id) return;
     const channel = supabase
@@ -52,7 +60,6 @@ export default function PixelOfficePage() {
         },
         (payload) => {
           const row: any = payload.new ?? payload.old;
-          // Ignora a própria posição (já foi atualizada localmente)
           if (row?.user_id === user?.id) return;
           refresh();
         },
@@ -63,11 +70,19 @@ export default function PixelOfficePage() {
     };
   }, [activeWorkspace?.id, user?.id, refresh]);
 
+  // Personagens "em reunião" recebem badge meeting (via status do profile já vem)
+  // Posicionar personagens joined dentro/perto da sala da reunião visualmente
+  // (Para simplicidade, sala de reunião visual fica no painel lateral abaixo.)
+
   const handleStageClick = (tileX: number, tileY: number) => {
     if (!user?.id) return;
-    // Usuário comum move só o próprio personagem.
-    // (Admin pode mover outros pelo painel lateral — futuro.)
     moveTo(user.id, tileX, tileY);
+  };
+
+  const handleCallToMeeting = (userId: string) => {
+    setPreselectInvitee(userId);
+    setMeetingModalOpen(true);
+    setSelected(null);
   };
 
   return (
@@ -106,6 +121,7 @@ export default function PixelOfficePage() {
             <span>👤 {characters.length} personagens</span>
             <span>🪑 {desks.length} mesas</span>
             <span>🚪 {rooms.length} salas</span>
+            <span>🎥 {meetings.meetings.length} reuniões</span>
           </div>
           <PixelWorkspaceView
             workspace={activeWorkspace}
@@ -117,10 +133,41 @@ export default function PixelOfficePage() {
             onSelectDesk={(d) => setSelected({ kind: "desk", data: d })}
             onStageClick={handleStageClick}
           />
+
+          <PixelMeetingsPanel
+            meetings={meetings}
+            characters={characters}
+            onNewMeeting={() => {
+              setPreselectInvitee(null);
+              setMeetingModalOpen(true);
+            }}
+          />
         </>
       )}
 
-      <PixelSidePanel selected={selected} onClose={() => setSelected(null)} refresh={refresh} />
+      <PixelSidePanel
+        selected={selected}
+        onClose={() => setSelected(null)}
+        onCallToMeeting={handleCallToMeeting}
+        refresh={refresh}
+      />
+
+      <PixelMeetingModal
+        open={meetingModalOpen}
+        onOpenChange={setMeetingModalOpen}
+        workspaceId={activeWorkspace?.id ?? null}
+        visibilityGroupId={activeWorkspace?.visibility_group_id ?? null}
+        rooms={rooms}
+        workspaceCharacters={characters}
+        meetings={meetings}
+        preselectUserId={preselectInvitee}
+      />
+
+      <PixelMeetingInvite
+        invites={meetings.myInvites}
+        onAccept={meetings.acceptInvite}
+        onDecline={meetings.declineInvite}
+      />
     </div>
   );
 }

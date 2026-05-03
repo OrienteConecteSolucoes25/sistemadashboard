@@ -205,7 +205,7 @@ const CharacterPanel = ({
         <Button
           variant="default"
           className="justify-start"
-          onClick={() => futureFeature("Chamada para reunião")}
+          onClick={() => onCallToMeeting?.(userId)}
         >
           <Video className="w-4 h-4" /> Chamar para reunião
         </Button>
