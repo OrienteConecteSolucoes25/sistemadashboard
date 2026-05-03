@@ -19,6 +19,7 @@ interface Props {
   selected: Selected;
   onClose: () => void;
   onFocusDesk?: (deskId: string) => void;
+  onCallToMeeting?: (userId: string) => void;
   refresh?: () => void;
 }
 
@@ -48,13 +49,17 @@ const formatRelativeTime = (iso: string | null): string => {
   return `há ${d} d`;
 };
 
-export const PixelSidePanel = ({ selected, onClose, onFocusDesk, refresh }: Props) => {
+export const PixelSidePanel = ({ selected, onClose, onFocusDesk, onCallToMeeting, refresh }: Props) => {
   const open = selected !== null;
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
       <SheetContent side="right" className="w-[380px] sm:w-[420px] overflow-y-auto">
         {selected?.kind === "character" && (
-          <CharacterPanel userId={selected.data.user_id} onFocusDesk={onFocusDesk} />
+          <CharacterPanel
+            userId={selected.data.user_id}
+            onFocusDesk={onFocusDesk}
+            onCallToMeeting={onCallToMeeting}
+          />
         )}
         {selected?.kind === "desk" && <DeskPanel desk={selected.data} refresh={refresh} />}
       </SheetContent>
@@ -68,9 +73,11 @@ export const PixelSidePanel = ({ selected, onClose, onFocusDesk, refresh }: Prop
 const CharacterPanel = ({
   userId,
   onFocusDesk,
+  onCallToMeeting,
 }: {
   userId: string;
   onFocusDesk?: (deskId: string) => void;
+  onCallToMeeting?: (userId: string) => void;
 }) => {
   const { data, loading } = useCharacterDetails(userId);
 
@@ -198,7 +205,7 @@ const CharacterPanel = ({
         <Button
           variant="default"
           className="justify-start"
-          onClick={() => futureFeature("Chamada para reunião")}
+          onClick={() => onCallToMeeting?.(userId)}
         >
           <Video className="w-4 h-4" /> Chamar para reunião
         </Button>
