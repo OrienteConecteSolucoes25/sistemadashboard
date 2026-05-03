@@ -136,7 +136,7 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
       const profilesP = supabase
         .from("pixel_profiles")
         .select(
-          "user_id, display_name, job_title, avatar_sprite_key, status, is_visible, is_blocked",
+          `user_id, display_name, job_title, avatar_sprite_key, status, is_visible, is_blocked, ${AVATAR_CUSTOMIZATION_COLUMNS}`,
         )
         .eq("visibility_group_id", ws.visibility_group_id)
         .eq("is_visible", true);
