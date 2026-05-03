@@ -6,6 +6,9 @@ import { Linkedin, MessageSquare, Video, Armchair, ExternalLink, Briefcase, LogO
 import { toast } from "sonner";
 import { STATUS_COLOR, STATUS_LABEL, type PixelStatus } from "../core/constants";
 import { PixelSprite } from "../renderer/PixelSprite";
+import { PixelAvatarSprite } from "../renderer/PixelAvatarSprite";
+import { PixelStatusBadge } from "../renderer/PixelStatusBadge";
+import { roleFromSpriteKey } from "../core/pixelOfficeTheme";
 import { useCharacterDetails } from "../data/useCharacterDetails";
 import { useDeskActions } from "../data/useDeskActions";
 import type { PixelCharacter, DeskLite } from "../data/usePixelWorkspaceData";
@@ -117,14 +120,17 @@ const CharacterPanel = ({
 
       {/* Avatar grande + status */}
       <div className="mt-6 flex flex-col items-center gap-3">
-        <div className="p-4 rounded-lg bg-muted/40">
-          <PixelSprite spriteKey={data.avatar_sprite_key} size={144} />
+        <div
+          className="p-6 rounded-xl border shadow-inner"
+          style={{
+            background:
+              "linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted) / 0.5) 100%)",
+          }}
+        >
+          <PixelAvatarSprite role={roleFromSpriteKey(data.avatar_sprite_key)} size={144} />
         </div>
         <div className="flex items-center gap-2 text-sm">
-          <span
-            className="w-2.5 h-2.5 rounded-full"
-            style={{ background: STATUS_COLOR[status] }}
-          />
+          <PixelStatusBadge status={status} />
           <span className="font-medium">{STATUS_LABEL[status]}</span>
           {data.current_action && data.current_action !== "idle" && (
             <span className="text-muted-foreground">· {data.current_action}</span>
