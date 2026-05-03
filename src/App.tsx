@@ -26,6 +26,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/app" element={<AppLayout />}>
               <Route index element={<Projetos />} />
+              <Route path="pixel-office" element={<PixelOfficePage />} />
               <Route path="pixel-office/meu-personagem" element={<MyCharacterPage />} />
               <Route path="adm" element={<Adm />} />
             </Route>
