@@ -191,6 +191,12 @@ export const AdminCharacterEditModal = ({
         </DialogHeader>
 
         <div className="space-y-3">
+          <div className="rounded-md border p-3">
+            <div className="text-xs uppercase tracking-wide text-muted-foreground mb-2">
+              Aparência do avatar
+            </div>
+            <AvatarBuilder value={customization} onChange={setCustomization} previewSize={120} />
+          </div>
           <div className="space-y-1.5">
             <Label>Nome de exibição</Label>
             <Input
