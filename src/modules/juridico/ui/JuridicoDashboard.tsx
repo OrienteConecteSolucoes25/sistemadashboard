@@ -13,21 +13,10 @@ const tonePrazo = (p: string) =>
   p === "critica" ? "danger" : p === "alta" ? "warn" : "neutral";
 
 const JuridicoDashboard = () => {
-  const distTipo = Object.entries(
-    MOCK_PROCESSOS.reduce((acc: Record<string, number>, p) => {
-      acc[p.tipo] = (acc[p.tipo] || 0) + 1; return acc;
-    }, {})
-  ).map(([name, value]) => ({ name, value }));
-
-  const distStatus = Object.entries(
-    MOCK_PROCESSOS.reduce((acc: Record<string, number>, p) => {
-      acc[p.status] = (acc[p.status] || 0) + 1; return acc;
-    }, {})
-  ).map(([name, value]) => ({ name, value }));
-
-  const rankingResp = MOCK_RESPONSAVEIS
-    .map((r) => ({ name: r.nome, value: r.processosAtivos }))
-    .sort((a, b) => b.value - a.value);
+  // Ranking de responsáveis: expandir cada processo ativo como linha
+  const rankingRows = MOCK_RESPONSAVEIS.flatMap((r) =>
+    Array.from({ length: r.processosAtivos }, () => ({ nome: r.nome }))
+  );
 
   return (
     <div className="space-y-6">
