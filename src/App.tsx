@@ -15,6 +15,8 @@ import EngenhariaGuard from "./modules/engenharia/ui/EngenhariaGuard";
 import EngenhariaDashboard from "./modules/engenharia/ui/EngenhariaDashboard";
 import GovernancaPage from "./modules/engenharia/ui/GovernancaPage";
 import ProjetosElaboracaoPage from "./modules/engenharia/ui/ProjetosElaboracaoPage";
+import FibraPage from "./modules/engenharia/ui/FibraPage";
+import SuprimentosPage from "./modules/engenharia/ui/SuprimentosPage";
 import CrudPage from "./modules/engenharia/ui/crud/CrudPage";
 import {
   SITES_CONFIG, PROJETOS_CONFIG, DEMANDAS_CONFIG, ATIVIDADES_CONFIG, RFI_CONFIG,
