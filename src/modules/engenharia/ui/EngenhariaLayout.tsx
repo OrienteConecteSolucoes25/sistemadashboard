@@ -19,7 +19,7 @@ const EngenhariaLayout = () => {
   );
 
   return (
-    <div className="flex gap-0 -mx-4 lg:-mx-6 -my-4 min-h-[calc(100vh-4rem)]">
+    <div className="flex gap-0 -m-4 md:-m-6 min-h-[calc(100vh-3rem)] rounded-none overflow-hidden">
       {/* Sidebar dark */}
       <aside className="w-64 shrink-0 hidden md:flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
         <div className="px-4 py-4 border-b border-sidebar-border flex items-center gap-2">
