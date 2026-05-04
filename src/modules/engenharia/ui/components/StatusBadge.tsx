@@ -33,7 +33,7 @@ const MAP: Record<string, string> = {
   baixa: "bg-muted text-muted-foreground border-border",
 };
 
-const label = (v: string) => v.replaceAll("_", " ");
+const label = (v: string) => v.replace(/_/g, " ");
 
 export const StatusBadge = ({ value }: { value: string | null | undefined }) => {
   if (!value) return <span className="text-muted-foreground text-xs">—</span>;
