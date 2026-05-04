@@ -7,8 +7,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Download, Upload, FileDown, Search, ExternalLink } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  Plus, Pencil, Trash2, Download, Upload, FileDown, Search, ExternalLink,
+  FolderKanban, CheckCircle2, AlertTriangle, CalendarClock, TrendingUp,
+  List, LayoutGrid, BarChart3,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useProjetos, type Projeto } from "../hooks/useProjetos";
 import {
@@ -17,12 +21,13 @@ import {
   DEF_STATUS, DEF_LOCAL, DEF_PRIORIDADE, UFS,
 } from "../lib/projetosImport";
 import { exportXlsx, downloadTemplate, readXlsxFile, fmtDate, uid } from "../lib/storage";
+import { EngPageHeader } from "./components/EngPageHeader";
+import { KpiCard, KpiGrid } from "./components/KpiCard";
+import { StatusBadge } from "./components/StatusBadge";
+import { EngKanban } from "./components/EngKanban";
+import { DistribuicaoCard, RankingCard } from "./components/EngMiniCharts";
 
 const ALL = "__all__";
-const statusVariant: Record<string, "default" | "secondary" | "outline" | "destructive"> = {
-  "CONCLUÍDO": "default", "EM ANDAMENTO": "secondary",
-  "NÃO INICIADA": "outline", "CANCELADA": "destructive", "ON HOLD": "outline",
-};
 
 function SelectFree({ value, onChange, options, placeholder }: { value: string; onChange: (v: string) => void; options: string[]; placeholder?: string }) {
   return (
