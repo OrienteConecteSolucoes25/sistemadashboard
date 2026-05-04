@@ -9,12 +9,16 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Search, Trash2, Filter } from "lucide-react";
+import { Plus, Search, Trash2, Filter, List, LayoutGrid, BarChart3, Clock } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { CrudConfig, FieldSchema } from "./crud/types";
 import { KpiCard, KpiGrid } from "./components/KpiCard";
 import { StatusBadge } from "./components/StatusBadge";
 import { EngPageHeader } from "./components/EngPageHeader";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { EngKanban } from "./components/EngKanban";
+import { EngTimeline } from "./components/EngTimeline";
+import { DistribuicaoCard, RankingCard } from "./components/EngMiniCharts";
 
 type Tone = "teal" | "warn" | "danger" | "success" | "neutral";
 export type KpiDef = {
@@ -25,13 +29,28 @@ export type KpiDef = {
   hint?: string | ((rows: any[]) => string | undefined);
 };
 
+export type ViewKind = "list" | "kanban" | "dashboard" | "timeline";
+
 export type EngListPageProps = {
   config: CrudConfig;
   kpis?: KpiDef[];
-  /** column keys to render with StatusBadge */
   statusKeys?: string[];
-  /** dropdown filters wired to a column's distinct values */
   facetKeys?: string[];
+  /** which sub-views to expose; defaults to ["list"] */
+  views?: ViewKind[];
+  kanban?: {
+    groupKey?: string;
+    columns?: string[];
+    titleKey?: string;
+    subtitleKey?: string;
+    dateKey?: string;
+    priorityKey?: string;
+  };
+  dashboard?: {
+    distribuicaoKey?: string;
+    rankingKey?: string;
+  };
+  timelineDateKey?: string;
 };
 
 const formatCell = (val: any, f: FieldSchema, statusKeys: string[]) => {
