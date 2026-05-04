@@ -50,23 +50,23 @@ const App = () => (
               <Route path="engenharia" element={<EngenhariaGuard />}>
                 <Route index element={<EngenhariaDashboard />} />
                 <Route path="governanca" element={<GovernancaPage />} />
-                <Route path="sites" element={<CrudPage config={SITES_CONFIG} />} />
+                <Route path="sites" element={<SitesPage />} />
                 <Route path="projetos" element={<ProjetosElaboracaoPage />} />
-                <Route path="demandas" element={<CrudPage config={DEMANDAS_CONFIG} />} />
-                <Route path="atividades" element={<CrudPage config={ATIVIDADES_CONFIG} />} />
-                <Route path="rfi" element={<CrudPage config={RFI_CONFIG} />} />
-                <Route path="pendencias" element={<CrudPage config={PENDENCIAS_CONFIG} />} />
-                <Route path="equipes" element={<CrudPage config={EQUIPES_CONFIG} />} />
+                <Route path="demandas" element={<DemandasPage />} />
+                <Route path="atividades" element={<AtividadesPage />} />
+                <Route path="rfi" element={<RfiPage />} />
+                <Route path="pendencias" element={<PendenciasPage />} />
+                <Route path="equipes" element={<EquipesPage />} />
                 <Route path="fibra" element={<FibraPage />} />
-                <Route path="energia" element={<CrudPage config={ENERGIA_CONFIG} />} />
-                <Route path="materiais" element={<CrudPage config={MATERIAIS_CONFIG} />} />
+                <Route path="energia" element={<EnergiaPage />} />
+                <Route path="materiais" element={<MateriaisPage />} />
                 <Route path="suprimentos" element={<SuprimentosPage />} />
-                <Route path="art" element={<CrudPage config={ART_CONFIG} />} />
-                <Route path="relatorios" element={<CrudPage config={RELATORIOS_CONFIG} />} />
-                <Route path="emails" element={<CrudPage config={EMAILS_CONFIG} />} />
-                <Route path="integracoes" element={<CrudPage config={INTEGRACOES_CONFIG} />} />
-                <Route path="roadmap-ia" element={<CrudPage config={ROADMAP_CONFIG} />} />
-                <Route path="configuracoes" element={<CrudPage config={FIELD_OPTIONS_CONFIG} />} />
+                <Route path="art" element={<ArtPage />} />
+                <Route path="relatorios" element={<RelatoriosPage />} />
+                <Route path="emails" element={<EmailsPage />} />
+                <Route path="integracoes" element={<IntegracoesPage />} />
+                <Route path="roadmap-ia" element={<RoadmapPage />} />
+                <Route path="configuracoes" element={<ConfiguracoesPage />} />
               </Route>
               <Route path="juridico" element={<JuridicoGuard />}>
                 <Route index element={<JuridicoDashboard />} />
