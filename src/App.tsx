@@ -14,6 +14,7 @@ import PixelAdminPage from "./modules/pixel/ui/admin/PixelAdminPage";
 import EngenhariaGuard from "./modules/engenharia/ui/EngenhariaGuard";
 import EngenhariaDashboard from "./modules/engenharia/ui/EngenhariaDashboard";
 import GovernancaPage from "./modules/engenharia/ui/GovernancaPage";
+import ProjetosElaboracaoPage from "./modules/engenharia/ui/ProjetosElaboracaoPage";
 import CrudPage from "./modules/engenharia/ui/crud/CrudPage";
 import {
   SITES_CONFIG, PROJETOS_CONFIG, DEMANDAS_CONFIG, ATIVIDADES_CONFIG, RFI_CONFIG,
@@ -50,7 +51,7 @@ const App = () => (
                 <Route index element={<EngenhariaDashboard />} />
                 <Route path="governanca" element={<GovernancaPage />} />
                 <Route path="sites" element={<CrudPage config={SITES_CONFIG} />} />
-                <Route path="projetos" element={<CrudPage config={PROJETOS_CONFIG} />} />
+                <Route path="projetos" element={<ProjetosElaboracaoPage />} />
                 <Route path="demandas" element={<CrudPage config={DEMANDAS_CONFIG} />} />
                 <Route path="atividades" element={<CrudPage config={ATIVIDADES_CONFIG} />} />
                 <Route path="rfi" element={<CrudPage config={RFI_CONFIG} />} />
