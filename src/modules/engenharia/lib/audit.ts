@@ -50,8 +50,7 @@ export async function logAudit(input: AuditLogInput): Promise<void> {
       _user_agent: getUserAgent(),
       _observacoes: input.observacoes ?? null,
     };
-    // @ts-expect-error - função RPC custom não está nos types gerados
-    await supabase.rpc("eng_log_audit", payload);
+    await (supabase.rpc as any)("eng_log_audit", payload);
   } catch { /* silencioso */ }
 }
 
