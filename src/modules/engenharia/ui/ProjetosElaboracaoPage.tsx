@@ -131,100 +131,166 @@ const ProjetosElaboracaoPage = () => {
     exportXlsx(filtered.map(projetoToExportRow), `projetos-${new Date().toISOString().slice(0, 10)}.xlsx`, "Projetos");
   };
 
-  return (
-    <div className="space-y-3">
-      <div>
-        <h2 className="text-xl font-semibold">Projetos (Elaboração)</h2>
-        <p className="text-xs text-muted-foreground">Controle de elaboração — solicitações, prazos, projetistas e produtividade.</p>
-      </div>
+  // KPIs
+  const total = items.length;
+  const concluidos = items.filter((p) => /concl/i.test(p.status)).length;
+  const emAndamento = items.filter((p) => /andamento/i.test(p.status)).length;
+  const naoIniciada = items.filter((p) => /n[aã]o\s*inicia/i.test(p.status)).length;
+  const foraPrazo = items.filter((p) => p.dentro_prazo === "FORA").length;
+  const dentroPrazo = items.filter((p) => p.dentro_prazo === "DENTRO").length;
+  const taxaSucesso = (dentroPrazo + foraPrazo) > 0 ? Math.round((dentroPrazo / (dentroPrazo + foraPrazo)) * 100) : 0;
 
-      <Card>
-        <CardContent className="pt-4 flex flex-wrap items-center gap-2">
-          <Button onClick={openNew}><Plus className="h-4 w-4 mr-1" />Novo projeto</Button>
-          <Button variant="outline" onClick={() => downloadTemplate([...PROJETO_HEADERS], "modelo-projetos.xlsx")}>
-            <FileDown className="h-4 w-4 mr-1" />Modelo
-          </Button>
-          <label>
-            <input type="file" accept=".xlsx,.xls" className="hidden"
-              onChange={(e) => { const f = e.target.files?.[0]; if (f) { doImport(f); e.currentTarget.value = ""; } }} />
-            <span className="inline-flex items-center gap-1 h-9 px-3 rounded-md border bg-background text-sm cursor-pointer hover:bg-muted">
-              <Upload className="h-4 w-4" /> Importar
-            </span>
-          </label>
-          <Button variant="outline" onClick={doExport}><Download className="h-4 w-4 mr-1" />Exportar</Button>
+  // Kanban groups (status uppercase)
+  const kanbanRows = filtered.map((p) => ({ ...p, status: (p.status || "NÃO INICIADA").toUpperCase() }));
+  const kanbanCols = ["NÃO INICIADA", "EM ANDAMENTO", "ON HOLD", "CONCLUÍDO", "CANCELADA"];
 
-          <div className="ml-auto flex flex-wrap items-center gap-2">
-            <div className="relative">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input className="pl-8 w-56" placeholder="Buscar…" value={busca} onChange={(e) => setBusca(e.target.value)} />
-            </div>
-            <Filter label="Cliente" value={fCliente} onChange={setFCliente} options={optionsCliente} />
-            <Filter label="Status" value={fStatus} onChange={setFStatus} options={DEF_STATUS} />
-            <Filter label="Projetista" value={fProj} onChange={setFProj} options={optionsProj} />
-            <Filter label="UF" value={fUf} onChange={setFUf} options={UFS} />
-            <Badge variant="secondary">{filtered.length} de {items.length}</Badge>
+  const filtersBar = (
+    <Card className="card-elegant p-3">
+      <div className="flex flex-wrap items-center gap-2">
+        <Button onClick={openNew} className="shadow-elegant"><Plus className="h-4 w-4 mr-1" />Novo projeto</Button>
+        <Button variant="outline" onClick={() => downloadTemplate([...PROJETO_HEADERS], "modelo-projetos.xlsx")}>
+          <FileDown className="h-4 w-4 mr-1" />Modelo
+        </Button>
+        <label>
+          <input type="file" accept=".xlsx,.xls" className="hidden"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) { doImport(f); e.currentTarget.value = ""; } }} />
+          <span className="inline-flex items-center gap-1 h-9 px-3 rounded-md border bg-background text-sm cursor-pointer hover:bg-muted">
+            <Upload className="h-4 w-4" /> Importar
+          </span>
+        </label>
+        <Button variant="outline" onClick={doExport}><Download className="h-4 w-4 mr-1" />Exportar</Button>
+
+        <div className="ml-auto flex flex-wrap items-center gap-2">
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+            <Input className="pl-8 w-56 h-9" placeholder="Buscar…" value={busca} onChange={(e) => setBusca(e.target.value)} />
           </div>
-        </CardContent>
-      </Card>
+          <Filter label="Cliente" value={fCliente} onChange={setFCliente} options={optionsCliente} />
+          <Filter label="Status" value={fStatus} onChange={setFStatus} options={DEF_STATUS} />
+          <Filter label="Projetista" value={fProj} onChange={setFProj} options={optionsProj} />
+          <Filter label="UF" value={fUf} onChange={setFUf} options={UFS} />
+          <Badge variant="secondary">{filtered.length} de {items.length}</Badge>
+        </div>
+      </div>
+    </Card>
+  );
 
-      <Card>
-        <CardContent className="pt-4 overflow-x-auto">
-          {!ready ? (
-            <div className="text-center py-8 text-muted-foreground">Carregando…</div>
-          ) : filtered.length === 0 ? (
-            <div className="text-center py-8 text-muted-foreground">
-              {items.length === 0 ? "Nenhum projeto cadastrado ainda." : "Nenhum resultado para os filtros."}
-            </div>
-          ) : (
-            <Table>
-              <TableHeader>
-                <TableRow>
-                  <TableHead>Cliente</TableHead>
-                  <TableHead>Site</TableHead>
-                  <TableHead>Cidade/UF</TableHead>
-                  <TableHead>Projetista</TableHead>
-                  <TableHead>Escopo</TableHead>
-                  <TableHead>Status</TableHead>
-                  <TableHead>Solicit.</TableHead>
-                  <TableHead>Prazo</TableHead>
-                  <TableHead>Prazo?</TableHead>
-                  <TableHead className="text-right">Ações</TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {filtered.map((p) => (
-                  <TableRow key={p.id}>
-                    <TableCell className="font-medium">{p.cliente}</TableCell>
-                    <TableCell>{p.site}</TableCell>
-                    <TableCell>{[p.cidade, p.uf].filter(Boolean).join(" / ") || "—"}</TableCell>
-                    <TableCell>{p.projetista || "—"}</TableCell>
-                    <TableCell className="text-xs">{p.escopo || p.escopo_generico || "—"}</TableCell>
-                    <TableCell><Badge variant={statusVariant[p.status] ?? "outline"}>{p.status || "—"}</Badge></TableCell>
-                    <TableCell>{fmtDate(p.data_solicitacao)}</TableCell>
-                    <TableCell>{fmtDate(p.prazo_conclusao)}</TableCell>
-                    <TableCell>
-                      {p.dentro_prazo === "DENTRO" && <Badge variant="default">Dentro</Badge>}
-                      {p.dentro_prazo === "FORA" && <Badge variant="destructive">Fora</Badge>}
-                      {!p.dentro_prazo && <span className="text-muted-foreground">—</span>}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <div className="inline-flex gap-1">
-                        {p.link_pasta && (
-                          <a href={p.link_pasta} target="_blank" rel="noreferrer">
-                            <Button variant="ghost" size="icon"><ExternalLink className="h-4 w-4" /></Button>
-                          </a>
-                        )}
-                        <Button variant="ghost" size="icon" onClick={() => openEdit(p)}><Pencil className="h-4 w-4" /></Button>
-                        <Button variant="ghost" size="icon" onClick={() => doDelete(p.id)}><Trash2 className="h-4 w-4" /></Button>
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-              </TableBody>
-            </Table>
-          )}
-        </CardContent>
-      </Card>
+  const listView = (
+    <Card className="card-elegant overflow-x-auto">
+      {!ready ? (
+        <div className="text-center py-8 text-muted-foreground">Carregando…</div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center py-8 text-muted-foreground">
+          {items.length === 0 ? "Nenhum projeto cadastrado ainda." : "Nenhum resultado para os filtros."}
+        </div>
+      ) : (
+        <table className="w-full text-sm">
+          <thead className="bg-muted/60 border-b">
+            <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <th className="px-3 py-2.5">Cliente</th>
+              <th className="px-3 py-2.5">Site</th>
+              <th className="px-3 py-2.5">Cidade/UF</th>
+              <th className="px-3 py-2.5">Projetista</th>
+              <th className="px-3 py-2.5">Escopo</th>
+              <th className="px-3 py-2.5">Status</th>
+              <th className="px-3 py-2.5">Solicit.</th>
+              <th className="px-3 py-2.5">Prazo</th>
+              <th className="px-3 py-2.5">Prazo?</th>
+              <th className="px-3 py-2.5 w-24 text-right">Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filtered.map((p) => (
+              <tr key={p.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => openEdit(p)}>
+                <td className="px-3 py-2.5 font-medium">{p.cliente}</td>
+                <td className="px-3 py-2.5">{p.site}</td>
+                <td className="px-3 py-2.5 text-muted-foreground">{[p.cidade, p.uf].filter(Boolean).join(" / ") || "—"}</td>
+                <td className="px-3 py-2.5">{p.projetista || "—"}</td>
+                <td className="px-3 py-2.5 text-xs max-w-[220px] truncate">{p.escopo || p.escopo_generico || "—"}</td>
+                <td className="px-3 py-2.5"><StatusBadge value={(p.status || "").toLowerCase().replace(/\s+/g, "_")} /></td>
+                <td className="px-3 py-2.5 text-xs">{fmtDate(p.data_solicitacao)}</td>
+                <td className="px-3 py-2.5 text-xs">{fmtDate(p.prazo_conclusao)}</td>
+                <td className="px-3 py-2.5">
+                  {p.dentro_prazo === "DENTRO" && <Badge className="bg-[hsl(var(--success))]/15 text-[hsl(var(--success))] border-[hsl(var(--success))]/30 border" variant="outline">Dentro</Badge>}
+                  {p.dentro_prazo === "FORA" && <Badge variant="destructive">Fora</Badge>}
+                  {!p.dentro_prazo && <span className="text-muted-foreground text-xs">—</span>}
+                </td>
+                <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+                  <div className="inline-flex gap-0.5">
+                    {p.link_pasta && (
+                      <a href={p.link_pasta} target="_blank" rel="noreferrer">
+                        <Button variant="ghost" size="icon" className="h-7 w-7"><ExternalLink className="h-4 w-4" /></Button>
+                      </a>
+                    )}
+                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(p)}><Pencil className="h-4 w-4" /></Button>
+                    <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => doDelete(p.id)}><Trash2 className="h-4 w-4" /></Button>
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+    </Card>
+  );
+
+  return (
+    <div className="space-y-4">
+      <EngPageHeader
+        title="Projetos (Elaboração)"
+        description="Controle de elaboração — solicitações, prazos, projetistas e produtividade."
+      />
+
+      <KpiGrid>
+        <KpiCard label="Total" value={total} icon={FolderKanban} tone="teal" />
+        <KpiCard label="Em andamento" value={emAndamento} icon={CalendarClock} tone="warn" />
+        <KpiCard label="Não iniciados" value={naoIniciada} icon={CalendarClock} tone="neutral" />
+        <KpiCard label="Concluídos" value={concluidos} icon={CheckCircle2} tone="success" />
+        <KpiCard label="Dentro do prazo" value={`${taxaSucesso}%`} icon={TrendingUp} tone={taxaSucesso >= 80 ? "success" : taxaSucesso >= 50 ? "warn" : "danger"} hint={`${dentroPrazo} de ${dentroPrazo + foraPrazo}`} />
+      </KpiGrid>
+
+      <Tabs defaultValue="list" className="space-y-3">
+        <TabsList>
+          <TabsTrigger value="list"><List className="w-4 h-4 mr-1.5" />Lista</TabsTrigger>
+          <TabsTrigger value="kanban"><LayoutGrid className="w-4 h-4 mr-1.5" />Kanban</TabsTrigger>
+          <TabsTrigger value="dashboard"><BarChart3 className="w-4 h-4 mr-1.5" />Dashboard</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="list" className="space-y-3 mt-0">
+          {filtersBar}
+          {listView}
+        </TabsContent>
+
+        <TabsContent value="kanban" className="space-y-3 mt-0">
+          {filtersBar}
+          <EngKanban
+            rows={kanbanRows as any}
+            groupKey="status"
+            columns={kanbanCols}
+            titleKey="site"
+            subtitleKey="projetista"
+            dateKey="prazo_conclusao"
+            priorityKey="prioridade"
+            onItemClick={(p) => openEdit(p as Projeto)}
+          />
+        </TabsContent>
+
+        <TabsContent value="dashboard" className="space-y-3 mt-0">
+          <KpiGrid>
+            <KpiCard label="Fora do prazo" value={foraPrazo} icon={AlertTriangle} tone="danger" />
+            <KpiCard label="Dentro do prazo" value={dentroPrazo} icon={CheckCircle2} tone="success" />
+            <KpiCard label="Cancelados" value={items.filter((p) => /cancel/i.test(p.status)).length} icon={AlertTriangle} tone="neutral" />
+            <KpiCard label="On hold" value={items.filter((p) => /on\s*hold/i.test(p.status)).length} icon={CalendarClock} tone="warn" />
+            <KpiCard label="UFs cobertas" value={new Set(items.map((p) => p.uf).filter(Boolean)).size} icon={FolderKanban} tone="teal" />
+          </KpiGrid>
+          <div className="grid gap-3 md:grid-cols-2">
+            <DistribuicaoCard title="Distribuição por status" rows={filtered as any} groupKey="status" />
+            <RankingCard title="Top projetistas" rows={filtered as any} groupKey="projetista" />
+            <RankingCard title="Top clientes" rows={filtered as any} groupKey="cliente" />
+            <DistribuicaoCard title="Local de elaboração" rows={filtered as any} groupKey="local_elaboracao" />
+          </div>
+        </TabsContent>
+      </Tabs>
 
       <Dialog open={open} onOpenChange={(v) => { if (!v) { setOpen(false); setEditId(null); } }}>
         <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
