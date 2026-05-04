@@ -35,12 +35,12 @@ const JuridicoDashboard = () => {
       </KpiGrid>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <DistribuicaoCard title="Processos por tipo" data={distTipo} />
-        <DistribuicaoCard title="Processos por status" data={distStatus} />
+        <DistribuicaoCard title="Processos por tipo" rows={MOCK_PROCESSOS} groupKey="tipo" />
+        <DistribuicaoCard title="Processos por status" rows={MOCK_PROCESSOS} groupKey="status" />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <RankingCard title="Top responsáveis (processos ativos)" data={rankingResp} />
+        <RankingCard title="Top responsáveis (processos ativos)" rows={rankingRows} groupKey="nome" />
         <Card className="card-elegant">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-display flex items-center gap-2">
