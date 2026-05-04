@@ -17,13 +17,11 @@ import GovernancaPage from "./modules/engenharia/ui/GovernancaPage";
 import ProjetosElaboracaoPage from "./modules/engenharia/ui/ProjetosElaboracaoPage";
 import FibraPage from "./modules/engenharia/ui/FibraPage";
 import SuprimentosPage from "./modules/engenharia/ui/SuprimentosPage";
-import CrudPage from "./modules/engenharia/ui/crud/CrudPage";
 import {
-  SITES_CONFIG, PROJETOS_CONFIG, DEMANDAS_CONFIG, ATIVIDADES_CONFIG, RFI_CONFIG,
-  PENDENCIAS_CONFIG, EQUIPES_CONFIG, FIBRA_CONFIG, ENERGIA_CONFIG, MATERIAIS_CONFIG,
-  SUPRIMENTOS_CONFIG, ART_CONFIG, RELATORIOS_CONFIG, EMAILS_CONFIG, INTEGRACOES_CONFIG,
-  ROADMAP_CONFIG, FIELD_OPTIONS_CONFIG,
-} from "./modules/engenharia/ui/crud/configs";
+  AtividadesPage, DemandasPage, RfiPage, PendenciasPage, EnergiaPage, ArtPage,
+  SitesPage, EquipesPage, MateriaisPage, RelatoriosPage, EmailsPage,
+  IntegracoesPage, RoadmapPage, ConfiguracoesPage,
+} from "./modules/engenharia/ui/EngOperacaoPages";
 import JuridicoGuard from "./modules/juridico/ui/JuridicoGuard";
 import JuridicoDashboard from "./modules/juridico/ui/JuridicoDashboard";
 import {
