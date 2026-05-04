@@ -177,14 +177,17 @@ export const MateriaisPage = () => {
 
 export const RelatoriosPage = () => <EngListPage config={RELATORIOS_CONFIG} kpis={[
   { label: "Total", icon: FileText, tone: "teal", compute: (r) => r.length },
-]} facetKeys={["tipo"]} />;
+]} facetKeys={["tipo"]} views={["list", "dashboard", "timeline"]}
+  dashboard={{ distribuicaoKey: "tipo", rankingKey: "autor" }}
+  timelineDateKey="data" />;
 
 export const EmailsPage = () => <EngListPage config={EMAILS_CONFIG} kpis={[
   { label: "Total", icon: Mail, tone: "teal", compute: (r) => r.length },
   { label: "Enviados", icon: CheckCircle2, tone: "success", compute: (r) => countBy(r, "status", "enviado") },
   { label: "Falharam", icon: AlertTriangle, tone: "danger", compute: (r) => countBy(r, "status", "falhou") },
   { label: "Pendentes", icon: CalendarClock, tone: "warn", compute: (r) => countBy(r, "status", "pendente") },
-]} facetKeys={["status"]} />;
+]} facetKeys={["status"]} views={["list", "dashboard", "timeline"]}
+  dashboard={{ distribuicaoKey: "status", rankingKey: "destinatario" }} />;
 
 export const IntegracoesPage = () => <EngListPage config={INTEGRACOES_CONFIG} kpis={[
   { label: "Total", icon: Database, tone: "teal", compute: (r) => r.length },
@@ -197,7 +200,9 @@ export const RoadmapPage = () => <EngListPage config={ROADMAP_CONFIG} kpis={[
   { label: "Em dev", icon: CalendarClock, tone: "teal", compute: (r) => countBy(r, "status", "em_dev") },
   { label: "Em produção", icon: CheckCircle2, tone: "success", compute: (r) => countBy(r, "status", "em_producao") },
   { label: "Ideias", icon: Brain, tone: "neutral", compute: (r) => countBy(r, "status", "idea") },
-]} facetKeys={["status", "prioridade"]} />;
+]} facetKeys={["status", "prioridade"]} views={["list", "kanban", "dashboard"]}
+  kanban={{ columns: ["idea", "validando", "em_dev", "em_producao", "descartada"] }}
+  dashboard={{ distribuicaoKey: "status", rankingKey: "area" }} />;
 
 export const ConfiguracoesPage = () => <EngListPage config={FIELD_OPTIONS_CONFIG} kpis={[
   { label: "Opções", icon: Settings2, tone: "teal", compute: (r) => r.length },
