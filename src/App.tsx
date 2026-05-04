@@ -14,11 +14,13 @@ import PixelAdminPage from "./modules/pixel/ui/admin/PixelAdminPage";
 import EngenhariaGuard from "./modules/engenharia/ui/EngenhariaGuard";
 import EngenhariaDashboard from "./modules/engenharia/ui/EngenhariaDashboard";
 import GovernancaPage from "./modules/engenharia/ui/GovernancaPage";
-import PlaceholderPage from "./modules/engenharia/ui/PlaceholderPage";
+import CrudPage from "./modules/engenharia/ui/crud/CrudPage";
 import {
-  EngSitesPage, EngRFIPage, EngPendenciasPage,
-  EngMateriaisPage, EngEquipesPage, EngRelatoriosPage,
-} from "./modules/engenharia/ui/EngPages";
+  SITES_CONFIG, PROJETOS_CONFIG, DEMANDAS_CONFIG, ATIVIDADES_CONFIG, RFI_CONFIG,
+  PENDENCIAS_CONFIG, EQUIPES_CONFIG, FIBRA_CONFIG, ENERGIA_CONFIG, MATERIAIS_CONFIG,
+  SUPRIMENTOS_CONFIG, ART_CONFIG, RELATORIOS_CONFIG, EMAILS_CONFIG, INTEGRACOES_CONFIG,
+  ROADMAP_CONFIG, FIELD_OPTIONS_CONFIG,
+} from "./modules/engenharia/ui/crud/configs";
 import JuridicoGuard from "./modules/juridico/ui/JuridicoGuard";
 import JuridicoDashboard from "./modules/juridico/ui/JuridicoDashboard";
 import {
@@ -47,23 +49,23 @@ const App = () => (
               <Route path="engenharia" element={<EngenhariaGuard />}>
                 <Route index element={<EngenhariaDashboard />} />
                 <Route path="governanca" element={<GovernancaPage />} />
-                <Route path="sites" element={<EngSitesPage />} />
-                <Route path="projetos" element={<PlaceholderPage title="Projetos" description="Projetos de engenharia." table="eng_projetos" />} />
-                <Route path="demandas" element={<PlaceholderPage title="Demandas" description="Demandas técnicas e de campo." table="eng_demandas" />} />
-                <Route path="atividades" element={<PlaceholderPage title="Atividades" description="Atividades dos projetos." table="eng_atividades" />} />
-                <Route path="rfi" element={<EngRFIPage />} />
-                <Route path="pendencias" element={<EngPendenciasPage />} />
-                <Route path="equipes" element={<EngEquipesPage />} />
-                <Route path="fibra" element={<PlaceholderPage title="Fibra (obras)" description="Obras de fibra óptica." table="eng_fibra_obras" />} />
-                <Route path="energia" element={<PlaceholderPage title="Ligações de Energia" description="Pedidos de ligação junto às concessionárias." table="eng_ligacoes_energia" />} />
-                <Route path="materiais" element={<EngMateriaisPage />} />
-                <Route path="suprimentos" element={<PlaceholderPage title="Suprimentos" description="Solicitações de compras." table="eng_suprimentos" />} />
-                <Route path="art" element={<PlaceholderPage title="ART" description="Anotações de Responsabilidade Técnica." table="eng_art" />} />
-                <Route path="relatorios" element={<EngRelatoriosPage />} />
-                <Route path="emails" element={<PlaceholderPage title="E-mails (log)" description="Log de e-mails enviados pelo sistema." table="eng_emails_log" />} />
-                <Route path="integracoes" element={<PlaceholderPage title="Integrações" description="Configuração de integrações externas." table="eng_integracoes" />} />
-                <Route path="roadmap-ia" element={<PlaceholderPage title="Roadmap IA" description="Roadmap de iniciativas de IA." table="eng_roadmap_ia" />} />
-                <Route path="configuracoes" element={<PlaceholderPage title="Configurações" description="Opções de campos e parâmetros." table="eng_field_options" />} />
+                <Route path="sites" element={<CrudPage config={SITES_CONFIG} />} />
+                <Route path="projetos" element={<CrudPage config={PROJETOS_CONFIG} />} />
+                <Route path="demandas" element={<CrudPage config={DEMANDAS_CONFIG} />} />
+                <Route path="atividades" element={<CrudPage config={ATIVIDADES_CONFIG} />} />
+                <Route path="rfi" element={<CrudPage config={RFI_CONFIG} />} />
+                <Route path="pendencias" element={<CrudPage config={PENDENCIAS_CONFIG} />} />
+                <Route path="equipes" element={<CrudPage config={EQUIPES_CONFIG} />} />
+                <Route path="fibra" element={<CrudPage config={FIBRA_CONFIG} />} />
+                <Route path="energia" element={<CrudPage config={ENERGIA_CONFIG} />} />
+                <Route path="materiais" element={<CrudPage config={MATERIAIS_CONFIG} />} />
+                <Route path="suprimentos" element={<CrudPage config={SUPRIMENTOS_CONFIG} />} />
+                <Route path="art" element={<CrudPage config={ART_CONFIG} />} />
+                <Route path="relatorios" element={<CrudPage config={RELATORIOS_CONFIG} />} />
+                <Route path="emails" element={<CrudPage config={EMAILS_CONFIG} />} />
+                <Route path="integracoes" element={<CrudPage config={INTEGRACOES_CONFIG} />} />
+                <Route path="roadmap-ia" element={<CrudPage config={ROADMAP_CONFIG} />} />
+                <Route path="configuracoes" element={<CrudPage config={FIELD_OPTIONS_CONFIG} />} />
               </Route>
               <Route path="juridico" element={<JuridicoGuard />}>
                 <Route index element={<JuridicoDashboard />} />
