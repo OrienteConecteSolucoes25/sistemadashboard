@@ -10,7 +10,11 @@ import { Progress } from "@/components/ui/progress";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, Trash2, Download, Upload, FileDown, Search } from "lucide-react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import {
+  Plus, Pencil, Trash2, Download, Upload, FileDown, Search, Cable, MapPin,
+  TrendingUp, CheckCircle2, List, BarChart3,
+} from "lucide-react";
 import { toast } from "sonner";
 import { useFibraChecklists } from "../hooks/useFibraChecklists";
 import {
@@ -19,6 +23,12 @@ import {
   progressoPorPadrao, type FibraChecklist, type FibraChecklistItem, type Padrao,
 } from "../lib/fibraChecklist";
 import { fmtDate } from "../lib/storage";
+import { EngPageHeader } from "./components/EngPageHeader";
+import { KpiCard, KpiGrid } from "./components/KpiCard";
+import { DistribuicaoCard, RankingCard } from "./components/EngMiniCharts";
+import {
+  ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Cell,
+} from "recharts";
 
 const ALL = "__all__";
 
