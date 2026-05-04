@@ -87,7 +87,10 @@ const FormField = ({ field, value, onChange }: { field: FieldSchema; value: any;
   }
 };
 
-const EngListPage = ({ config, kpis = [], statusKeys = ["status", "prioridade"], facetKeys = [] }: EngListPageProps) => {
+const EngListPage = ({
+  config, kpis = [], statusKeys = ["status", "prioridade"], facetKeys = [],
+  views = ["list"], kanban, dashboard, timelineDateKey = "created_at",
+}: EngListPageProps) => {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
