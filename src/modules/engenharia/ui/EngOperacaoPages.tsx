@@ -25,7 +25,16 @@ export const AtividadesPage = () => {
     { label: "Atrasadas", icon: AlertTriangle, tone: "danger", compute: (r) => r.filter((x) => isOverdue(x.prazo) && String(x.status).toLowerCase() !== "concluida").length },
     { label: "Em aberto", icon: ListTodo, tone: "warn", compute: (r) => countOpen(r) },
   ];
-  return <EngListPage config={ATIVIDADES_CONFIG} kpis={kpis} facetKeys={["status"]} />;
+  return (
+    <EngListPage
+      config={ATIVIDADES_CONFIG}
+      kpis={kpis}
+      facetKeys={["status"]}
+      views={["list", "kanban", "dashboard", "timeline"]}
+      kanban={{ columns: ["aberta", "em_andamento", "concluida", "cancelada"] }}
+      dashboard={{ distribuicaoKey: "status", rankingKey: "responsavel" }}
+    />
+  );
 };
 
 /* =========== DEMANDAS =========== */
@@ -37,7 +46,16 @@ export const DemandasPage = () => {
     { label: "Concluídas", icon: CheckCircle2, tone: "success", compute: (r) => countBy(r, "status", "concluida") },
     { label: "Atrasadas", icon: AlertTriangle, tone: "danger", compute: (r) => r.filter((x) => isOverdue(x.prazo) && String(x.status).toLowerCase() !== "concluida").length },
   ];
-  return <EngListPage config={DEMANDAS_CONFIG} kpis={kpis} facetKeys={["status", "prioridade"]} />;
+  return (
+    <EngListPage
+      config={DEMANDAS_CONFIG}
+      kpis={kpis}
+      facetKeys={["status", "prioridade"]}
+      views={["list", "kanban", "dashboard", "timeline"]}
+      kanban={{ columns: ["aberta", "em_andamento", "concluida", "cancelada"] }}
+      dashboard={{ distribuicaoKey: "prioridade", rankingKey: "responsavel" }}
+    />
+  );
 };
 
 /* =========== RFI =========== */
@@ -49,7 +67,15 @@ export const RfiPage = () => {
     { label: "Fechadas", icon: CheckCircle2, tone: "success", compute: (r) => countBy(r, "status", "fechada") },
     { label: "Atrasadas", icon: AlertTriangle, tone: "danger", compute: (r) => r.filter((x) => isOverdue(x.prazo) && !["fechada", "respondida"].includes(String(x.status).toLowerCase())).length },
   ];
-  return <EngListPage config={RFI_CONFIG} kpis={kpis} facetKeys={["status"]} />;
+  return (
+    <EngListPage
+      config={RFI_CONFIG}
+      kpis={kpis}
+      facetKeys={["status"]}
+      views={["list", "kanban", "timeline"]}
+      kanban={{ columns: ["aberta", "respondida", "fechada"] }}
+    />
+  );
 };
 
 /* =========== PENDÊNCIAS =========== */
@@ -61,7 +87,16 @@ export const PendenciasPage = () => {
     { label: "Concluídas", icon: CheckCircle2, tone: "success", compute: (r) => countBy(r, "status", "concluida") },
     { label: "Atrasadas", icon: AlertTriangle, tone: "danger", compute: (r) => r.filter((x) => isOverdue(x.prazo) && String(x.status).toLowerCase() !== "concluida").length },
   ];
-  return <EngListPage config={PENDENCIAS_CONFIG} kpis={kpis} facetKeys={["status", "prioridade"]} />;
+  return (
+    <EngListPage
+      config={PENDENCIAS_CONFIG}
+      kpis={kpis}
+      facetKeys={["status", "prioridade"]}
+      views={["list", "kanban", "dashboard", "timeline"]}
+      kanban={{ columns: ["aberta", "em_andamento", "concluida", "cancelada"] }}
+      dashboard={{ distribuicaoKey: "prioridade", rankingKey: "responsavel" }}
+    />
+  );
 };
 
 /* =========== ENERGIA =========== */
@@ -73,7 +108,16 @@ export const EnergiaPage = () => {
     { label: "Ligadas", icon: CheckCircle2, tone: "success", compute: (r) => countBy(r, "status", "ligada") },
     { label: "Rejeitadas", icon: AlertTriangle, tone: "danger", compute: (r) => countBy(r, "status", "rejeitada") },
   ];
-  return <EngListPage config={ENERGIA_CONFIG} kpis={kpis} facetKeys={["status", "concessionaria"]} />;
+  return (
+    <EngListPage
+      config={ENERGIA_CONFIG}
+      kpis={kpis}
+      facetKeys={["status", "concessionaria"]}
+      views={["list", "kanban", "dashboard"]}
+      kanban={{ columns: ["solicitada", "em_analise", "aprovada", "ligada", "rejeitada"], titleKey: "protocolo", subtitleKey: "concessionaria", dateKey: "data_solicitacao" }}
+      dashboard={{ distribuicaoKey: "status", rankingKey: "concessionaria" }}
+    />
+  );
 };
 
 /* =========== ART =========== */
@@ -87,7 +131,16 @@ export const ArtPage = () => {
     { label: "Canceladas", icon: AlertTriangle, tone: "danger", compute: (r) => countBy(r, "status", "cancelada") },
     { label: "Valor total", icon: DollarSign, tone: "warn", compute: (r) => fmtBRL(sum(r)) },
   ];
-  return <EngListPage config={ART_CONFIG} kpis={kpis} facetKeys={["status"]} />;
+  return (
+    <EngListPage
+      config={ART_CONFIG}
+      kpis={kpis}
+      facetKeys={["status"]}
+      views={["list", "dashboard", "timeline"]}
+      dashboard={{ distribuicaoKey: "status", rankingKey: "responsavel_tecnico" }}
+      timelineDateKey="data_emissao"
+    />
+  );
 };
 
 /* =========== outras (KPIs leves para manter consistência visual) =========== */
@@ -124,14 +177,17 @@ export const MateriaisPage = () => {
 
 export const RelatoriosPage = () => <EngListPage config={RELATORIOS_CONFIG} kpis={[
   { label: "Total", icon: FileText, tone: "teal", compute: (r) => r.length },
-]} facetKeys={["tipo"]} />;
+]} facetKeys={["tipo"]} views={["list", "dashboard", "timeline"]}
+  dashboard={{ distribuicaoKey: "tipo", rankingKey: "autor" }}
+  timelineDateKey="data" />;
 
 export const EmailsPage = () => <EngListPage config={EMAILS_CONFIG} kpis={[
   { label: "Total", icon: Mail, tone: "teal", compute: (r) => r.length },
   { label: "Enviados", icon: CheckCircle2, tone: "success", compute: (r) => countBy(r, "status", "enviado") },
   { label: "Falharam", icon: AlertTriangle, tone: "danger", compute: (r) => countBy(r, "status", "falhou") },
   { label: "Pendentes", icon: CalendarClock, tone: "warn", compute: (r) => countBy(r, "status", "pendente") },
-]} facetKeys={["status"]} />;
+]} facetKeys={["status"]} views={["list", "dashboard", "timeline"]}
+  dashboard={{ distribuicaoKey: "status", rankingKey: "destinatario" }} />;
 
 export const IntegracoesPage = () => <EngListPage config={INTEGRACOES_CONFIG} kpis={[
   { label: "Total", icon: Database, tone: "teal", compute: (r) => r.length },
@@ -144,7 +200,9 @@ export const RoadmapPage = () => <EngListPage config={ROADMAP_CONFIG} kpis={[
   { label: "Em dev", icon: CalendarClock, tone: "teal", compute: (r) => countBy(r, "status", "em_dev") },
   { label: "Em produção", icon: CheckCircle2, tone: "success", compute: (r) => countBy(r, "status", "em_producao") },
   { label: "Ideias", icon: Brain, tone: "neutral", compute: (r) => countBy(r, "status", "idea") },
-]} facetKeys={["status", "prioridade"]} />;
+]} facetKeys={["status", "prioridade"]} views={["list", "kanban", "dashboard"]}
+  kanban={{ columns: ["idea", "validando", "em_dev", "em_producao", "descartada"] }}
+  dashboard={{ distribuicaoKey: "status", rankingKey: "area" }} />;
 
 export const ConfiguracoesPage = () => <EngListPage config={FIELD_OPTIONS_CONFIG} kpis={[
   { label: "Opções", icon: Settings2, tone: "teal", compute: (r) => r.length },

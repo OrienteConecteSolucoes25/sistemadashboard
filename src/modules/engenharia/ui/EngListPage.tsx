@@ -9,12 +9,16 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Search, Trash2, Filter } from "lucide-react";
+import { Plus, Search, Trash2, Filter, List, LayoutGrid, BarChart3, Clock } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import type { CrudConfig, FieldSchema } from "./crud/types";
 import { KpiCard, KpiGrid } from "./components/KpiCard";
 import { StatusBadge } from "./components/StatusBadge";
 import { EngPageHeader } from "./components/EngPageHeader";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { EngKanban } from "./components/EngKanban";
+import { EngTimeline } from "./components/EngTimeline";
+import { DistribuicaoCard, RankingCard } from "./components/EngMiniCharts";
 
 type Tone = "teal" | "warn" | "danger" | "success" | "neutral";
 export type KpiDef = {
@@ -25,13 +29,28 @@ export type KpiDef = {
   hint?: string | ((rows: any[]) => string | undefined);
 };
 
+export type ViewKind = "list" | "kanban" | "dashboard" | "timeline";
+
 export type EngListPageProps = {
   config: CrudConfig;
   kpis?: KpiDef[];
-  /** column keys to render with StatusBadge */
   statusKeys?: string[];
-  /** dropdown filters wired to a column's distinct values */
   facetKeys?: string[];
+  /** which sub-views to expose; defaults to ["list"] */
+  views?: ViewKind[];
+  kanban?: {
+    groupKey?: string;
+    columns?: string[];
+    titleKey?: string;
+    subtitleKey?: string;
+    dateKey?: string;
+    priorityKey?: string;
+  };
+  dashboard?: {
+    distribuicaoKey?: string;
+    rankingKey?: string;
+  };
+  timelineDateKey?: string;
 };
 
 const formatCell = (val: any, f: FieldSchema, statusKeys: string[]) => {
@@ -68,7 +87,10 @@ const FormField = ({ field, value, onChange }: { field: FieldSchema; value: any;
   }
 };
 
-const EngListPage = ({ config, kpis = [], statusKeys = ["status", "prioridade"], facetKeys = [] }: EngListPageProps) => {
+const EngListPage = ({
+  config, kpis = [], statusKeys = ["status", "prioridade"], facetKeys = [],
+  views = ["list"], kanban, dashboard, timelineDateKey = "created_at",
+}: EngListPageProps) => {
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -172,72 +194,134 @@ const EngListPage = ({ config, kpis = [], statusKeys = ["status", "prioridade"],
         </KpiGrid>
       )}
 
-      <Card className="card-elegant p-3">
-        <div className="flex items-center gap-2 flex-wrap">
-          <div className="relative flex-1 min-w-[220px] max-w-md">
-            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input className="pl-8 h-9" placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} />
-          </div>
-          {facetKeys.map((k) => {
-            const f = config.fields.find((x) => x.key === k);
-            return (
-              <div key={k} className="flex items-center gap-1.5">
-                <Filter className="w-3.5 h-3.5 text-muted-foreground" />
-                <Select
-                  value={facets[k] ?? "__all__"}
-                  onValueChange={(v) => setFacets({ ...facets, [k]: v })}
-                >
-                  <SelectTrigger className="h-9 w-[160px]">
-                    <SelectValue placeholder={f?.label ?? k} />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="__all__">{f?.label ?? k}: todos</SelectItem>
-                    {(facetOptions[k] ?? []).map((o) => (
-                      <SelectItem key={o} value={o}>{o.replace(/_/g, " ")}</SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+      {(() => {
+        const filtersBar = (
+          <Card className="card-elegant p-3">
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="relative flex-1 min-w-[220px] max-w-md">
+                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input className="pl-8 h-9" placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} />
               </div>
-            );
-          })}
-          <span className="ml-auto text-xs text-muted-foreground">
-            {filtered.length} de {rows.length}
-          </span>
-        </div>
-      </Card>
+              {facetKeys.map((k) => {
+                const f = config.fields.find((x) => x.key === k);
+                return (
+                  <div key={k} className="flex items-center gap-1.5">
+                    <Filter className="w-3.5 h-3.5 text-muted-foreground" />
+                    <Select value={facets[k] ?? "__all__"} onValueChange={(v) => setFacets({ ...facets, [k]: v })}>
+                      <SelectTrigger className="h-9 w-[160px]"><SelectValue placeholder={f?.label ?? k} /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="__all__">{f?.label ?? k}: todos</SelectItem>
+                        {(facetOptions[k] ?? []).map((o) => (
+                          <SelectItem key={o} value={o}>{o.replace(/_/g, " ")}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                );
+              })}
+              <span className="ml-auto text-xs text-muted-foreground">
+                {filtered.length} de {rows.length}
+              </span>
+            </div>
+          </Card>
+        );
 
-      <Card className="card-elegant overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/60 border-b">
-            <tr>
-              {listFields.map((f) => (
-                <th key={f.key} className="text-left px-3 py-2.5 font-medium text-xs uppercase tracking-wide text-muted-foreground">
-                  {f.label}
-                </th>
-              ))}
-              <th className="px-3 py-2 w-10"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={listFields.length + 1} className="px-3 py-12 text-center text-muted-foreground">Carregando...</td></tr>
-            ) : filtered.length === 0 ? (
-              <tr><td colSpan={listFields.length + 1} className="px-3 py-12 text-center text-muted-foreground">Nenhum registro.</td></tr>
-            ) : filtered.map((r) => (
-              <tr key={r.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => { setEditing(r); setOpenForm(true); }}>
-                {listFields.map((f) => (
-                  <td key={f.key} className="px-3 py-2.5 max-w-[280px]">{formatCell(r[f.key], f, statusKeys)}</td>
+        const listView = (
+          <Card className="card-elegant overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead className="bg-muted/60 border-b">
+                <tr>
+                  {listFields.map((f) => (
+                    <th key={f.key} className="text-left px-3 py-2.5 font-medium text-xs uppercase tracking-wide text-muted-foreground">
+                      {f.label}
+                    </th>
+                  ))}
+                  <th className="px-3 py-2 w-10"></th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr><td colSpan={listFields.length + 1} className="px-3 py-12 text-center text-muted-foreground">Carregando...</td></tr>
+                ) : filtered.length === 0 ? (
+                  <tr><td colSpan={listFields.length + 1} className="px-3 py-12 text-center text-muted-foreground">Nenhum registro.</td></tr>
+                ) : filtered.map((r) => (
+                  <tr key={r.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => { setEditing(r); setOpenForm(true); }}>
+                    {listFields.map((f) => (
+                      <td key={f.key} className="px-3 py-2.5 max-w-[280px]">{formatCell(r[f.key], f, statusKeys)}</td>
+                    ))}
+                    <td className="px-3 py-2">
+                      <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={(e) => { e.stopPropagation(); del(r.id); }}>
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </td>
+                  </tr>
                 ))}
-                <td className="px-3 py-2">
-                  <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={(e) => { e.stopPropagation(); del(r.id); }}>
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </Card>
+              </tbody>
+            </table>
+          </Card>
+        );
+
+        if (views.length <= 1) {
+          return <>{filtersBar}{listView}</>;
+        }
+
+        const onItemClick = (r: any) => { setEditing(r); setOpenForm(true); };
+
+        return (
+          <Tabs defaultValue={views[0]} className="space-y-3">
+            <TabsList>
+              {views.includes("list") && <TabsTrigger value="list"><List className="w-4 h-4 mr-1.5" />Lista</TabsTrigger>}
+              {views.includes("kanban") && <TabsTrigger value="kanban"><LayoutGrid className="w-4 h-4 mr-1.5" />Kanban</TabsTrigger>}
+              {views.includes("dashboard") && <TabsTrigger value="dashboard"><BarChart3 className="w-4 h-4 mr-1.5" />Dashboard</TabsTrigger>}
+              {views.includes("timeline") && <TabsTrigger value="timeline"><Clock className="w-4 h-4 mr-1.5" />Timeline</TabsTrigger>}
+            </TabsList>
+
+            {views.includes("list") && (
+              <TabsContent value="list" className="space-y-3 mt-0">
+                {filtersBar}
+                {listView}
+              </TabsContent>
+            )}
+            {views.includes("kanban") && (
+              <TabsContent value="kanban" className="space-y-3 mt-0">
+                {filtersBar}
+                <EngKanban
+                  rows={filtered}
+                  groupKey={kanban?.groupKey ?? "status"}
+                  columns={kanban?.columns}
+                  titleKey={kanban?.titleKey}
+                  subtitleKey={kanban?.subtitleKey}
+                  dateKey={kanban?.dateKey}
+                  priorityKey={kanban?.priorityKey}
+                  onItemClick={onItemClick}
+                />
+              </TabsContent>
+            )}
+            {views.includes("dashboard") && (
+              <TabsContent value="dashboard" className="space-y-3 mt-0">
+                <div className="grid gap-3 md:grid-cols-2">
+                  <DistribuicaoCard
+                    title={`Distribuição por ${dashboard?.distribuicaoKey ?? "status"}`}
+                    rows={filtered}
+                    groupKey={dashboard?.distribuicaoKey ?? "status"}
+                  />
+                  <RankingCard
+                    title={`Top ${dashboard?.rankingKey ?? "responsavel"}`}
+                    rows={filtered}
+                    groupKey={dashboard?.rankingKey ?? "responsavel"}
+                  />
+                </div>
+              </TabsContent>
+            )}
+            {views.includes("timeline") && (
+              <TabsContent value="timeline" className="space-y-3 mt-0">
+                {filtersBar}
+                <EngTimeline rows={filtered} dateKey={timelineDateKey} onItemClick={onItemClick} />
+              </TabsContent>
+            )}
+          </Tabs>
+        );
+      })()}
 
       <Dialog open={openForm} onOpenChange={(o) => { setOpenForm(o); if (!o) setEditing(null); }}>
         <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
