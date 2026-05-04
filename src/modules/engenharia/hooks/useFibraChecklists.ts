@@ -1,19 +1,8 @@
 import { useCallback, useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import type { FibraChecklist, FibraChecklistItem } from "../lib/fibraChecklist";
 
-export interface FibraChecklist {
-  id: string; obra_id: string | null; cliente: string | null;
-  uf: string | null; cidade: string | null; km: string | null;
-  status_geral: string | null; responsavel_geral: string | null;
-  observacoes: string | null; created_at: string; updated_at: string;
-}
-export interface FibraChecklistItem {
-  id: string; checklist_id: string; ordem: number;
-  processo: string; padrao: string;
-  data_inicio: string | null; data_final: string | null;
-  responsavel: string | null; entrega_final: string | null;
-  observacao: string | null;
-}
+export type { FibraChecklist, FibraChecklistItem };
 
 export function useFibraChecklists() {
   const [checklists, setChecklists] = useState<FibraChecklist[]>([]);
