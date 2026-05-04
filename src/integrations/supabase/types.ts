@@ -238,26 +238,95 @@ export type Database = {
         }
         Relationships: []
       }
-      eng_fibra_checklists: {
+      eng_fibra_checklist_items: {
         Row: {
+          checklist_id: string
           created_at: string
+          data_final: string | null
+          data_inicio: string | null
+          entrega_final: string | null
           id: string
-          itens: Json | null
-          obra_id: string | null
+          observacao: string | null
+          ordem: number
+          padrao: string
+          processo: string
+          responsavel: string | null
           updated_at: string
         }
         Insert: {
+          checklist_id: string
           created_at?: string
+          data_final?: string | null
+          data_inicio?: string | null
+          entrega_final?: string | null
           id?: string
-          itens?: Json | null
-          obra_id?: string | null
+          observacao?: string | null
+          ordem?: number
+          padrao: string
+          processo: string
+          responsavel?: string | null
           updated_at?: string
         }
         Update: {
+          checklist_id?: string
           created_at?: string
+          data_final?: string | null
+          data_inicio?: string | null
+          entrega_final?: string | null
+          id?: string
+          observacao?: string | null
+          ordem?: number
+          padrao?: string
+          processo?: string
+          responsavel?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      eng_fibra_checklists: {
+        Row: {
+          cidade: string | null
+          cliente: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          itens: Json | null
+          km: string | null
+          obra_id: string | null
+          observacoes: string | null
+          responsavel_geral: string | null
+          status_geral: string | null
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          cidade?: string | null
+          cliente?: string | null
+          created_at?: string
+          created_by?: string | null
           id?: string
           itens?: Json | null
+          km?: string | null
           obra_id?: string | null
+          observacoes?: string | null
+          responsavel_geral?: string | null
+          status_geral?: string | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cidade?: string | null
+          cliente?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          itens?: Json | null
+          km?: string | null
+          obra_id?: string | null
+          observacoes?: string | null
+          responsavel_geral?: string | null
+          status_geral?: string | null
+          uf?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -666,6 +735,39 @@ export type Database = {
         }
         Relationships: []
       }
+      eng_module_permissions: {
+        Row: {
+          can_delete: boolean
+          can_edit: boolean
+          can_view: boolean
+          created_at: string
+          id: string
+          module: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          can_delete?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          created_at?: string
+          id?: string
+          module: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          can_delete?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          created_at?: string
+          id?: string
+          module?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       eng_pendencias: {
         Row: {
           created_at: string
@@ -734,6 +836,108 @@ export type Database = {
           id?: string
           nome?: string
           status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      eng_projetos_elaboracao: {
+        Row: {
+          cidade: string | null
+          cliente: string | null
+          conta: string | null
+          created_at: string
+          created_by: string | null
+          data_inicio_real: string | null
+          data_solicitacao: string | null
+          data_termino_real: string | null
+          delta_horas: number | null
+          dentro_prazo: string | null
+          descricao: string | null
+          diferenca_tempo: number | null
+          escopo: string | null
+          escopo_generico: string | null
+          id: string
+          link_pasta: string | null
+          local_elaboracao: string | null
+          observacao: string | null
+          peso: number | null
+          prazo_conclusao: string | null
+          prioridade: string | null
+          projetista: string | null
+          responsavel_solicitante: string | null
+          site: string | null
+          status: string | null
+          tempo_previsto: string | null
+          tempo_real: string | null
+          tempo_resposta_previsto: number | null
+          tempo_resposta_real: number | null
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          cidade?: string | null
+          cliente?: string | null
+          conta?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_inicio_real?: string | null
+          data_solicitacao?: string | null
+          data_termino_real?: string | null
+          delta_horas?: number | null
+          dentro_prazo?: string | null
+          descricao?: string | null
+          diferenca_tempo?: number | null
+          escopo?: string | null
+          escopo_generico?: string | null
+          id?: string
+          link_pasta?: string | null
+          local_elaboracao?: string | null
+          observacao?: string | null
+          peso?: number | null
+          prazo_conclusao?: string | null
+          prioridade?: string | null
+          projetista?: string | null
+          responsavel_solicitante?: string | null
+          site?: string | null
+          status?: string | null
+          tempo_previsto?: string | null
+          tempo_real?: string | null
+          tempo_resposta_previsto?: number | null
+          tempo_resposta_real?: number | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cidade?: string | null
+          cliente?: string | null
+          conta?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_inicio_real?: string | null
+          data_solicitacao?: string | null
+          data_termino_real?: string | null
+          delta_horas?: number | null
+          dentro_prazo?: string | null
+          descricao?: string | null
+          diferenca_tempo?: number | null
+          escopo?: string | null
+          escopo_generico?: string | null
+          id?: string
+          link_pasta?: string | null
+          local_elaboracao?: string | null
+          observacao?: string | null
+          peso?: number | null
+          prazo_conclusao?: string | null
+          prioridade?: string | null
+          projetista?: string | null
+          responsavel_solicitante?: string | null
+          site?: string | null
+          status?: string | null
+          tempo_previsto?: string | null
+          tempo_real?: string | null
+          tempo_resposta_previsto?: number | null
+          tempo_resposta_real?: number | null
+          uf?: string | null
           updated_at?: string
         }
         Relationships: []
@@ -881,6 +1085,51 @@ export type Database = {
         }
         Relationships: []
       }
+      eng_site_costs: {
+        Row: {
+          categoria: string
+          created_at: string
+          created_by: string | null
+          data_lancamento: string | null
+          descricao: string | null
+          id: string
+          observacao: string | null
+          origem: string | null
+          origem_id: string | null
+          site_id: string | null
+          site_name: string | null
+          valor: number
+        }
+        Insert: {
+          categoria: string
+          created_at?: string
+          created_by?: string | null
+          data_lancamento?: string | null
+          descricao?: string | null
+          id?: string
+          observacao?: string | null
+          origem?: string | null
+          origem_id?: string | null
+          site_id?: string | null
+          site_name?: string | null
+          valor?: number
+        }
+        Update: {
+          categoria?: string
+          created_at?: string
+          created_by?: string | null
+          data_lancamento?: string | null
+          descricao?: string | null
+          id?: string
+          observacao?: string | null
+          origem?: string | null
+          origem_id?: string | null
+          site_id?: string | null
+          site_name?: string | null
+          valor?: number
+        }
+        Relationships: []
+      }
       eng_sites: {
         Row: {
           cidade: string | null
@@ -1009,6 +1258,75 @@ export type Database = {
           responsavel?: string | null
           solicitante?: string | null
           status?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      eng_sync_runs: {
+        Row: {
+          file_name: string | null
+          id: string
+          kind: string
+          message: string | null
+          mode: string | null
+          ran_at: string
+          ran_by: string | null
+          row_count: number | null
+          sheet_name: string | null
+          status: string
+        }
+        Insert: {
+          file_name?: string | null
+          id?: string
+          kind: string
+          message?: string | null
+          mode?: string | null
+          ran_at?: string
+          ran_by?: string | null
+          row_count?: number | null
+          sheet_name?: string | null
+          status: string
+        }
+        Update: {
+          file_name?: string | null
+          id?: string
+          kind?: string
+          message?: string | null
+          mode?: string | null
+          ran_at?: string
+          ran_by?: string | null
+          row_count?: number | null
+          sheet_name?: string | null
+          status?: string
+        }
+        Relationships: []
+      }
+      eng_ui_overrides: {
+        Row: {
+          alvo: string
+          ativo: boolean
+          config: Json
+          created_at: string
+          escopo: string
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          alvo: string
+          ativo?: boolean
+          config?: Json
+          created_at?: string
+          escopo: string
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          alvo?: string
+          ativo?: boolean
+          config?: Json
+          created_at?: string
+          escopo?: string
+          id?: string
           updated_at?: string
         }
         Relationships: []
