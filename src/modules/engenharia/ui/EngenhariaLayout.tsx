@@ -1,8 +1,8 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { ENG_TABS } from "./engTabs";
-import { Badge } from "@/components/ui/badge";
 import { useMemo, useState } from "react";
-import { ChevronDown, ChevronRight } from "lucide-react";
+import { ChevronDown, ChevronRight, Hammer } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const EngenhariaLayout = () => {
   const loc = useLocation();
@@ -19,20 +19,30 @@ const EngenhariaLayout = () => {
   );
 
   return (
-    <div className="flex gap-4">
-      <aside className="w-60 shrink-0 hidden md:block">
-        <div className="sticky top-4 space-y-3">
+    <div className="flex gap-0 -mx-4 lg:-mx-6 -my-4 min-h-[calc(100vh-4rem)]">
+      {/* Sidebar dark */}
+      <aside className="w-64 shrink-0 hidden md:flex flex-col bg-sidebar text-sidebar-foreground border-r border-sidebar-border">
+        <div className="px-4 py-4 border-b border-sidebar-border flex items-center gap-2">
+          <div className="w-8 h-8 rounded-md bg-primary/20 flex items-center justify-center">
+            <Hammer className="w-4 h-4 text-primary" />
+          </div>
+          <div>
+            <div className="font-display font-semibold text-sm leading-none">Engenharia</div>
+            <div className="text-[11px] text-sidebar-foreground/60 mt-0.5">ERP OCS</div>
+          </div>
+        </div>
+        <div className="flex-1 overflow-y-auto py-3 px-2 space-y-3">
           {groups.map(([group, tabs]) => (
-            <div key={group} className="border rounded-md">
+            <div key={group}>
               <button
                 onClick={() => setOpen({ ...open, [group]: !open[group] })}
-                className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold text-muted-foreground hover:bg-accent"
+                className="w-full flex items-center justify-between px-2 py-1 text-[10px] font-semibold tracking-wider text-sidebar-foreground/50 hover:text-sidebar-foreground"
               >
                 <span>{group.toUpperCase()}</span>
                 {open[group] ? <ChevronDown className="w-3 h-3" /> : <ChevronRight className="w-3 h-3" />}
               </button>
               {open[group] && (
-                <div className="p-1">
+                <div className="mt-1 space-y-0.5">
                   {tabs.map((t) => {
                     const active = t.end ? loc.pathname === t.to : loc.pathname.startsWith(t.to);
                     return (
@@ -40,11 +50,15 @@ const EngenhariaLayout = () => {
                         key={t.to}
                         to={t.to}
                         end={t.end}
-                        className={`flex items-center gap-2 px-2 py-1.5 rounded text-sm ${
-                          active ? "bg-primary text-primary-foreground" : "hover:bg-accent"
-                        }`}
+                        className={cn(
+                          "flex items-center gap-2.5 px-2.5 py-1.5 rounded-md text-[13px] transition-colors",
+                          active
+                            ? "bg-primary text-primary-foreground font-medium shadow-sm"
+                            : "text-sidebar-foreground/80 hover:bg-sidebar-accent hover:text-sidebar-foreground"
+                        )}
                       >
-                        <t.icon className="w-4 h-4" /> {t.label}
+                        <t.icon className="w-4 h-4 shrink-0" />
+                        <span className="truncate">{t.label}</span>
                       </NavLink>
                     );
                   })}
@@ -55,17 +69,10 @@ const EngenhariaLayout = () => {
         </div>
       </aside>
 
-      <div className="flex-1 min-w-0 space-y-4">
-        <div className="flex items-center justify-between flex-wrap gap-2">
-          <div>
-            <h1 className="text-2xl font-bold">Engenharia</h1>
-            <p className="text-sm text-muted-foreground">Módulo migrado do Oriente — schema próprio (eng_*).</p>
-          </div>
-          <Badge variant="outline">Leva 1</Badge>
-        </div>
-
-        {/* Mobile dropdown nav */}
-        <nav className="md:hidden flex flex-wrap gap-1 border-b pb-2">
+      {/* Conteúdo */}
+      <div className="flex-1 min-w-0 bg-background">
+        {/* Mobile nav */}
+        <nav className="md:hidden flex overflow-x-auto gap-1 border-b px-3 py-2 bg-card">
           {ENG_TABS.map((t) => {
             const active = t.end ? loc.pathname === t.to : loc.pathname.startsWith(t.to);
             return (
@@ -73,17 +80,21 @@ const EngenhariaLayout = () => {
                 key={t.to}
                 to={t.to}
                 end={t.end}
-                className={`flex items-center gap-1 px-2 py-1 text-xs rounded ${
-                  active ? "bg-primary text-primary-foreground" : "bg-muted"
-                }`}
+                className={cn(
+                  "flex items-center gap-1 px-2 py-1 text-xs rounded whitespace-nowrap",
+                  active ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
+                )}
               >
-                <t.icon className="w-3 h-3" /> {t.label}
+                <t.icon className="w-3 h-3" />
+                {t.label}
               </NavLink>
             );
           })}
         </nav>
 
-        <Outlet />
+        <div className="p-4 lg:p-6">
+          <Outlet />
+        </div>
       </div>
     </div>
   );
