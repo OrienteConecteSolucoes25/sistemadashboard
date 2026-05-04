@@ -854,6 +854,33 @@ export type Database = {
         }
         Relationships: []
       }
+      eng_shared_records: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          data: Json
+          id: string
+          kind: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          id?: string
+          kind: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          id?: string
+          kind?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       eng_sites: {
         Row: {
           cidade: string | null
@@ -895,6 +922,51 @@ export type Database = {
           responsavel?: string | null
           status?: string | null
           uf?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      eng_solicitacao_sc_rc: {
+        Row: {
+          categoria: string | null
+          centro_custo: string | null
+          conta_financeira: string | null
+          created_at: string
+          created_by: string | null
+          id: string
+          numero_documento: string
+          observacao: string | null
+          solicit_id: string
+          status: string | null
+          tipo_documento: string
+          updated_at: string
+        }
+        Insert: {
+          categoria?: string | null
+          centro_custo?: string | null
+          conta_financeira?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          numero_documento: string
+          observacao?: string | null
+          solicit_id: string
+          status?: string | null
+          tipo_documento: string
+          updated_at?: string
+        }
+        Update: {
+          categoria?: string | null
+          centro_custo?: string | null
+          conta_financeira?: string | null
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          numero_documento?: string
+          observacao?: string | null
+          solicit_id?: string
+          status?: string | null
+          tipo_documento?: string
           updated_at?: string
         }
         Relationships: []
@@ -1632,6 +1704,21 @@ export type Database = {
     }
     Functions: {
       eng_can_edit: { Args: { _uid: string }; Returns: boolean }
+      eng_log_audit: {
+        Args: {
+          _acao: string
+          _dados_antes?: Json
+          _dados_depois?: Json
+          _entidade_id?: string
+          _entidade_tipo?: string
+          _ip_origem?: string
+          _modulo: string
+          _nome_entidade?: string
+          _observacoes?: string
+          _user_agent?: string
+        }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
