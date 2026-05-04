@@ -59,10 +59,10 @@ const App = () => (
                 <Route path="rfi" element={<CrudPage config={RFI_CONFIG} />} />
                 <Route path="pendencias" element={<CrudPage config={PENDENCIAS_CONFIG} />} />
                 <Route path="equipes" element={<CrudPage config={EQUIPES_CONFIG} />} />
-                <Route path="fibra" element={<CrudPage config={FIBRA_CONFIG} />} />
+                <Route path="fibra" element={<FibraPage />} />
                 <Route path="energia" element={<CrudPage config={ENERGIA_CONFIG} />} />
                 <Route path="materiais" element={<CrudPage config={MATERIAIS_CONFIG} />} />
-                <Route path="suprimentos" element={<CrudPage config={SUPRIMENTOS_CONFIG} />} />
+                <Route path="suprimentos" element={<SuprimentosPage />} />
                 <Route path="art" element={<CrudPage config={ART_CONFIG} />} />
                 <Route path="relatorios" element={<CrudPage config={RELATORIOS_CONFIG} />} />
                 <Route path="emails" element={<CrudPage config={EMAILS_CONFIG} />} />
