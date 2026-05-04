@@ -19,9 +19,9 @@ import FibraPage from "./modules/engenharia/ui/FibraPage";
 import SuprimentosPage from "./modules/engenharia/ui/SuprimentosPage";
 import {
   AtividadesPage, DemandasPage, RfiPage, PendenciasPage, EnergiaPage, ArtPage,
-  SitesPage, EquipesPage, MateriaisPage, RelatoriosPage, EmailsPage,
-  IntegracoesPage, RoadmapPage, ConfiguracoesPage,
+  RelatoriosPage, EmailsPage, IntegracoesPage, RoadmapPage, ConfiguracoesPage,
 } from "./modules/engenharia/ui/EngOperacaoPages";
+import { SitesDeluxePage, EquipesDeluxePage, MateriaisDeluxePage } from "./modules/engenharia/ui/EngDeluxePages";
 import JuridicoGuard from "./modules/juridico/ui/JuridicoGuard";
 import JuridicoDashboard from "./modules/juridico/ui/JuridicoDashboard";
 import {
@@ -50,16 +50,16 @@ const App = () => (
               <Route path="engenharia" element={<EngenhariaGuard />}>
                 <Route index element={<EngenhariaDashboard />} />
                 <Route path="governanca" element={<GovernancaPage />} />
-                <Route path="sites" element={<SitesPage />} />
+                <Route path="sites" element={<SitesDeluxePage />} />
                 <Route path="projetos" element={<ProjetosElaboracaoPage />} />
                 <Route path="demandas" element={<DemandasPage />} />
                 <Route path="atividades" element={<AtividadesPage />} />
                 <Route path="rfi" element={<RfiPage />} />
                 <Route path="pendencias" element={<PendenciasPage />} />
-                <Route path="equipes" element={<EquipesPage />} />
+                <Route path="equipes" element={<EquipesDeluxePage />} />
                 <Route path="fibra" element={<FibraPage />} />
                 <Route path="energia" element={<EnergiaPage />} />
-                <Route path="materiais" element={<MateriaisPage />} />
+                <Route path="materiais" element={<MateriaisDeluxePage />} />
                 <Route path="suprimentos" element={<SuprimentosPage />} />
                 <Route path="art" element={<ArtPage />} />
                 <Route path="relatorios" element={<RelatoriosPage />} />
