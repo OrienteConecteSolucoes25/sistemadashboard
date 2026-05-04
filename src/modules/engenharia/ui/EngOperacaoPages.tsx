@@ -19,7 +19,7 @@ const countOpen = (rows: any[]) =>
 /* =========== ATIVIDADES =========== */
 export const AtividadesPage = () => {
   const kpis: KpiDef[] = [
-    { label: "Total", value: 0 as any, icon: Activity, tone: "teal", compute: (r) => r.length },
+    { label: "Total", icon: Activity, tone: "teal", compute: (r) => r.length },
     { label: "Em andamento", icon: CalendarClock, tone: "teal", compute: (r) => countBy(r, "status", "em_andamento") },
     { label: "Concluídas", icon: CheckCircle2, tone: "success", compute: (r) => countBy(r, "status", "concluida") },
     { label: "Atrasadas", icon: AlertTriangle, tone: "danger", compute: (r) => r.filter((x) => isOverdue(x.prazo) && String(x.status).toLowerCase() !== "concluida").length },
