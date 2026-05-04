@@ -275,4 +275,83 @@ const ModulosTab = () => {
   );
 };
 
+// ===== Cadastro em massa =====
+const BulkTab = () => {
+  const [text, setText] = useState(
+    "Clebson Andrade da SIlva,clebson.silva@novacorrente.ind.br\n" +
+    "Mirla Caldas,mirla.caldas@novacorrente.ind.br\n" +
+    "Raiane Santiago,raiane.santos@novacorrente.ind.br\n" +
+    "Arthur Sampaio,arthur.sampaio@novacorrente.ind.br\n" +
+    "Brenda,brenda.goncalves@novacorrente.ind.br\n" +
+    "Estéfane da Paixão dos Santos,estefanesantos158@gmail.com\n" +
+    "Wellington Cruz,wellington.cruz@novacorrente.ind.br\n" +
+    "Cauã,caua.conceicao@novacorrente.ind.br\n" +
+    "Taine,taine.pereira@novacorrente.ind.br\n" +
+    "ERICK DIEGO ARAUJO SILVA GONÇALVES,erick.silva@novacorrente.ind.br\n" +
+    "Jessica Reis,jessica.cerqueira@novacorrente.ind.br\n" +
+    "Jéssica Reis,orienteconectesolucoes@gmail.com"
+  );
+  const [password, setPassword] = useState("Oriente@2026");
+  const [running, setRunning] = useState(false);
+  const [results, setResults] = useState<any[]>([]);
+
+  const run = async () => {
+    const users = text.split("\n").map((l) => l.trim()).filter(Boolean).map((l) => {
+      const [full_name, email] = l.split(",").map((s) => s.trim());
+      return { full_name, email };
+    });
+    setRunning(true);
+    setResults([]);
+    const { data, error } = await supabase.functions.invoke("admin-bulk-create-users", {
+      body: { users, defaultPassword: password },
+    });
+    setRunning(false);
+    if (error) return toast.error(error.message);
+    setResults(data?.results || []);
+    toast.success("Processado");
+  };
+
+  return (
+    <div className="space-y-3 mt-4">
+      <Card>
+        <CardHeader><CardTitle className="text-base">Cadastro em massa de usuários</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">
+            Cole uma linha por usuário no formato: <code>Nome Completo, email@dominio</code>. Os usuários receberão a mesma senha inicial.
+          </p>
+          <div>
+            <Label>Lista (Nome, Email)</Label>
+            <textarea
+              className="w-full min-h-[180px] p-2 border rounded-md text-sm font-mono bg-background"
+              value={text}
+              onChange={(e) => setText(e.target.value)}
+            />
+          </div>
+          <div className="flex gap-2 items-end">
+            <div><Label>Senha inicial</Label><Input value={password} onChange={(e) => setPassword(e.target.value)} /></div>
+            <Button onClick={run} disabled={running}>{running ? "Cadastrando..." : "Cadastrar todos"}</Button>
+          </div>
+          {results.length > 0 && (
+            <div className="border rounded-md max-h-80 overflow-y-auto">
+              <table className="w-full text-xs">
+                <thead className="bg-muted/50"><tr><th className="text-left px-2 py-1">Email</th><th className="text-left px-2 py-1">Status</th><th className="text-left px-2 py-1">Detalhe</th></tr></thead>
+                <tbody>
+                  {results.map((r, i) => (
+                    <tr key={i} className="border-t">
+                      <td className="px-2 py-1">{r.email}</td>
+                      <td className="px-2 py-1">{r.ok ? <Badge>OK</Badge> : <Badge variant="destructive">Erro</Badge>}</td>
+                      <td className="px-2 py-1 text-muted-foreground">{r.error || r.id}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+};
+
 export default Adm;
+
