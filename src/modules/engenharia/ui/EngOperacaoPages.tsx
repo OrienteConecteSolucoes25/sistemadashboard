@@ -1,4 +1,5 @@
 import EngListPage, { KpiDef } from "./EngListPage";
+import { PendenciasAggregator } from "./components/PendenciasAggregator";
 import {
   ATIVIDADES_CONFIG, DEMANDAS_CONFIG, RFI_CONFIG, PENDENCIAS_CONFIG,
   ENERGIA_CONFIG, ART_CONFIG, EQUIPES_CONFIG, MATERIAIS_CONFIG,
@@ -26,14 +27,17 @@ export const AtividadesPage = () => {
     { label: "Em aberto", icon: ListTodo, tone: "warn", compute: (r) => countOpen(r) },
   ];
   return (
-    <EngListPage
-      config={ATIVIDADES_CONFIG}
-      kpis={kpis}
-      facetKeys={["status"]}
-      views={["list", "kanban", "dashboard", "timeline"]}
-      kanban={{ columns: ["aberta", "em_andamento", "concluida", "cancelada"] }}
-      dashboard={{ distribuicaoKey: "status", rankingKey: "responsavel" }}
-    />
+    <div>
+      <PendenciasAggregator />
+      <EngListPage
+        config={ATIVIDADES_CONFIG}
+        kpis={kpis}
+        facetKeys={["status"]}
+        views={["list", "kanban", "dashboard", "timeline"]}
+        kanban={{ columns: ["aberta", "em_andamento", "concluida", "cancelada"] }}
+        dashboard={{ distribuicaoKey: "status", rankingKey: "responsavel" }}
+      />
+    </div>
   );
 };
 

@@ -1,142 +1,211 @@
 
-# Plano — Recriar Engenharia (Oriente) completo no ERP OCS
+# Auditoria — Automações faltantes no ERP OCS
 
-> Trabalho grande. Vou ser direto sobre o que consigo fazer sozinho e o que depende de você.
+Comparação dos 3 projetos: **ERP OCS** (destino), **Oriente Conecte** (origem 1) e **Justice Reimagined / Sistema Jurídico** (origem 2).
+
+## 1. O que JÁ existe no ERP OCS
+
+- Módulos UI migrados: Engenharia (Sites, Atividades, Demandas, RFI, Pendências, Energia, ART, Equipes, Materiais, Relatórios, Emails, Integrações, Roadmap, Configurações, Fibra, Suprimentos, Projetos, Governança) e Jurídico (Processos, Prazos, Tarefas, Documentos, Responsáveis, Relatórios).
+- Backend: tabelas `eng_*` com RLS via `eng_can_edit`, função `eng_log_audit`, tabela `eng_auditoria`.
+- Lib client: `sharedStore.ts` (com `fireAudit` + `scheduleSpSync`), `audit.ts`, `sharepointSync.ts`.
+- Edge function: apenas `admin-bulk-create-users`.
+- Sem assistentes flutuantes, sem sino de notificações, sem agregador de pendências, sem fluxos de e-mail/WhatsApp, sem edge functions de IA.
+
+## 2. O que existe na ORIGEM e NÃO foi migrado
+
+### Oriente Conecte (701827c5)
+Edge functions ausentes no destino:
+- `roadmap-ia` (assistente IA + gerador de roadmap, Lovable AI Gateway)
+- `robozinho-edit` (IA de sugestão de edição com auditoria em 2 etapas)
+- `generate-governance-report`, `gov-resumo-executivo`
+- `sharepoint-sync`, `sharepoint-list-create`
+
+Componentes/automações UI ausentes:
+- `AssistenteFloating` (chat IA + voz pt-BR via Web Speech API)
+- `RobozinhoFloating` (IA de edição estrutura/dados com log)
+- `NotificationsBell` (sino global, agrega prazos vencidos/próximos de 7 fontes em polling 60s)
+- `PendenciasAggregator` (card que agrupa pendências por responsável em 7 módulos)
+- `EnviarOutlookRcDialog` (gera e-mail Outlook/mailto com tabela HTML, registra envio)
+- `useModulePermissions` (gate `can(modulo, action)`)
+- `siteAutocreate.ts` (cria site automaticamente quando referenciado)
+- `robozinho.ts` lib client
+
+### Justice Reimagined (75ca46b4)
+Edge functions ausentes:
+- `ai-assist` (chat IA jurídico via Lovable AI Gateway)
+
+Componentes/automações UI ausentes:
+- `AIAssistant` + `AIFab` (assistente de extração de contratos a partir de Word/Excel)
+- Modais `WAModal` e `MailModal` (envio WhatsApp via `wa.me/...` + envio Outlook)
+- Botões por linha: WhatsApp, E-mail, com mensagem pré-preenchida e log
+- Cálculo automático de `statusGeral`/`statusFinal` (Apto/Bloqueado/Pendente) ao salvar Empresa/Colaborador
+- Alertas de Dashboard (contratos vencidos/a vencer, ASOs vencidos)
+- Log de ações em audit por toda mudança (`st.log(...)`)
+
+## 3. Tabela comparativa origem × destino
+
+| Origem | Módulo / Aba | Automação | Tipo | Gatilho | Ação | Backing | No OCS? | Falta | Prioridade |
+|---|---|---|---|---|---|---|---|---|---|
+| Oriente | Global | Sino de notificações | Notificação interna | Polling 60s | Lista prazos vencidos/próximos de 7 módulos | tabelas `eng_*` | Não | Componente + lógica | **P1** |
+| Oriente | Atividades | Pendências por responsável | Notificação interna | Polling 90s | Agrupa pendências de 7 módulos por pessoa | `eng_*` | Não | Componente | **P1** |
+| Oriente | Suprimentos / SC-RC | Vínculo solicit ↔ SC/RC | Vínculo entre abas | Insert/update | Atualiza solicit ao alterar SC-RC | `eng_solicitacao_sc_rc` | Parcial (tabela existe, sem trigger UI) | Hooks + atualização cruzada | **P1** |
+| Oriente | Status de qualquer módulo | Auto-criação de tarefa ao mudar status | Mudança de status | Update `status` | Insere em `eng_atividades` | `eng_atividades` | Não | Trigger client/server | **P1** |
+| Oriente | Sites | Auto-criação de site ao referenciar | Vínculo entre abas | Insert atividade/projeto com site novo | Cria `eng_sites` | `eng_sites` | Não | Lib `siteAutocreate` | **P1** |
+| Oriente | Suprimentos | Enviar Outlook (RC/SC) | Outlook | Botão | Abre `ms-outlook://` + clipboard HTML + log envio | `eng_emails_log` | Não | Dialog + log | **P2** |
+| Oriente | E-mails | Status de envio + reenvio | Outlook | Worker | Atualiza log | `eng_emails_log` | Não | Edge function | **P2** |
+| Justice | Empresas/Colaboradores | Botão WhatsApp por linha | WhatsApp | Botão | Abre `https://wa.me/...?text=` + log | `eng_emails_log` (estender) | Não | Modal + helper | **P3** |
+| Justice | Empresas/Colaboradores | Botão E-mail por linha | Outlook | Botão | Abre mailto/Outlook + log | `eng_emails_log` | Não | Modal | **P2** |
+| Oriente | Global | Assistente IA (chat + voz) | Assistente virtual | FAB | Edge `roadmap-ia` mode=assist | LOVABLE_API_KEY (já existe) | Não | Componente + edge | **P4** |
+| Oriente | Por registro | Robozinho IA (edição com auditoria) | Assistente virtual | Botão célula | Edge `robozinho-edit` | LOVABLE_API_KEY | Não | Componente + edge | **P4** |
+| Justice | Word/Excel | AIAssistant (extração de contrato) | Assistente virtual | Upload | Edge `ai-assist` | LOVABLE_API_KEY | Não | Componente + edge | **P4** |
+| Oriente | Governança | Resumo executivo IA / Relatório | Geração de documento | Botão | Edge `gov-resumo-executivo` / `generate-governance-report` | LOVABLE_API_KEY | Parcial (libs locais existem) | Edge functions | **P4** |
+| Justice | Empresas/Colaboradores | Cálculo auto status final | Mudança de status | Save | `geral(jur, ehs)` / `calcFinal(...)` | `eng_*` | Não | Helpers no save | **P1** |
+
+## 4. Plano em 4 prioridades
+
+### Prioridade 1 — Automações críticas internas (sem credencial)
+Tudo só com código + tabelas existentes. Logs em `eng_auditoria`.
+
+1. `useStatusAutomations` — hook que ao detectar mudança de status (`aberta→concluida`, etc.) cria automaticamente:
+   - tarefa de follow-up em `eng_atividades`
+   - registro de auditoria
+   - notificação interna
+2. `siteAutocreate.ts` portado — ao criar Atividade/RFI/Projeto referenciando site novo, insere em `eng_sites`.
+3. `NotificationsBell` global — agrega prazos vencidos/próximos de `eng_atividades`, `eng_demandas`, `eng_pendencias`, `eng_rfi`, `eng_ligacoes_energia`, `eng_art`, `eng_projetos_elaboracao`, `eng_gov_action_plan`. Polling 60s + realtime opcional.
+4. `PendenciasAggregator` — card embutido em Atividades, agrupa por responsável.
+5. `useModulePermissions` — wrapper sobre `eng_module_permissions` com cache.
+6. `useCrossModuleLinks` — vínculos: SC/RC ↔ Solicitação, Site ↔ {Atividade, RFI, Projeto, Energia, ART}, Projeto ↔ Atividades.
+7. `internalNotifications.ts` — biblioteca para disparar e ler notificações (tabela nova `eng_internal_notifications`).
+8. Logs internos: cada automação chama `fireAudit({ acao: "automation:<nome>", ... })`.
+
+### Prioridade 2 — E-mail Outlook
+- Tabela `eng_email_templates` (mock + CRUD).
+- Componente `EnviarOutlookDialog` portado (RC/SC + genérico).
+- `eng_emails_log` já existe — usar para status enviado/falhou/pendente, reenvio.
+- Edge function `email-resend` (opcional, sem credencial — apenas reabre URI).
+
+### Prioridade 3 — WhatsApp
+- Helper `wa.ts` que monta `https://wa.me/<num>?text=<msg>` e registra em `eng_emails_log` (kind=whatsapp).
+- Botões por linha em módulos com telefone (Equipes, Responsáveis Jurídico).
+- Templates em `eng_field_options` (field_key=`whatsapp_template`).
+- Status de entrega: **placeholder** (precisa API WhatsApp Cloud / Z-API → P3.5 com credencial).
+
+### Prioridade 4 — Assistente Virtual
+- Edge `roadmap-ia`, `robozinho-edit`, `ai-assist` portadas (usam `LOVABLE_API_KEY` já existente).
+- Componentes `AssistenteFloating`, `RobozinhoFloating`, `AIAssistant`.
+- Logs em `eng_auditoria` (já são gravados pelas próprias edge functions).
+
+## 5. Riscos
+- Polling de 60s × 8 tabelas pode pesar — usar realtime + janela de 200 linhas.
+- `siteAutocreate` precisa idempotência (busca por código antes de inserir).
+- Mudança automática de status pode entrar em loop — usar flag `_auto: true` no payload e ignorar em handlers.
+- RLS: tudo passa por `eng_can_edit`; usuário sem role não dispara automação.
+
+## 6. O que depende de credencial externa
+- WhatsApp com status de entrega (Cloud API / Z-API) — P3.5
+- Envio real de e-mail server-side (Resend/SendGrid) — opcional, P2.5
+- SharePoint sync real (token MS Graph) — fora do escopo agora
+
+## 7. O que pode ser migrado AGORA sem credencial
+- **Toda Prioridade 1** ✅
+- E-mail via Outlook URI / mailto (P2 base)
+- WhatsApp via wa.me (P3 base, sem status)
+- Assistente IA (LOVABLE_API_KEY já existe)
 
 ---
 
-## 🚨 Bloqueios que precisam de ação sua antes de eu começar
+# Implementação — somente Prioridade 1
 
-### 1. Usuários do Oriente — preciso da SERVICE_ROLE_KEY do Oriente
-Você escolheu "Eu leio a tabela `auth.users` do Oriente". Isso só é tecnicamente possível com a **`SUPABASE_SERVICE_ROLE_KEY`** do projeto Oriente (`mjfkrwheepedhofopidm`). A chave anon não acessa `auth.users`.
+## Etapas
 
-Vou te pedir, no início da execução, para colar essa chave como secret (`ORIENTE_SERVICE_ROLE_KEY`). Com ela, uma edge function vai:
-- Listar `auth.users` do Oriente.
-- Criar cada um no ERP OCS via Admin API com senha temporária aleatória.
-- Disparar e-mail de "definir senha" (reset) para cada usuário.
-- Copiar `full_name` e e-mail para `profiles`.
-- Não copiar roles automaticamente (você atribui depois em ADM).
-
-Se preferir não passar a service_role, a alternativa é você colar a lista de e-mails (CSV ou texto). Sem uma das duas, esse passo não roda.
-
-### 2. Schema do Oriente — vou replicar apenas o que está no código
-Não tenho acesso direto ao banco do Oriente. Vou inferir as tabelas a partir dos componentes e libs (`governanca_master`, `gov_atividades_raw`, `gov_faturamento_raw`, `gov_resultados_raw`, `governance_action_plan`, `governance_settings`, `projetos`, `sites`, `demandas`, `rfi`, `atividades`, `equipes`, `fibra_*`, `suprimentos`, `ligacoes_energia`, `art`, `auditoria`, `emails`, `integracoes`, `roadmap_ia`, `mapa`, `relatorios` etc.). **Pode haver colunas que existem no Oriente mas não aparecem no código — essas ficam de fora desta primeira leva.**
-
-### 3. Erro da Governança no Oriente original
-Você disse que o erro está no Oriente. Para corrigir ao portar, preciso saber o sintoma. Vou rodar uma análise estática do código de Governança (vejo que ele lê de `governanca_master` mas o realtime escuta `gov_*_raw` — possível desalinhamento) e listar os bugs prováveis. Se você souber o erro exato (mensagem ou comportamento), me diga junto da aprovação do plano.
-
----
-
-## Escopo do port (todas as ~20 abas, código idêntico)
-
-### Rotas a criar no ERP OCS (sob `/app/engenharia/...`)
-Vou re-encaixar as rotas planas do Oriente dentro do módulo Engenharia já existente, mantendo nomes:
-
+### Etapa 1.1 — Migração de banco
+Criar tabela `eng_internal_notifications`:
 ```
-/app/engenharia                  → dashboard (já existe, será expandido)
-/app/engenharia/projetos
-/app/engenharia/sites             (já existe — será substituído pelo real)
-/app/engenharia/rfi               (idem)
-/app/engenharia/pendencias        (idem)
-/app/engenharia/materiais         (idem)
-/app/engenharia/equipes           (idem)
-/app/engenharia/relatorios        (idem)
-/app/engenharia/governanca        ← NOVA (com correção)
-/app/engenharia/atividades
-/app/engenharia/demandas
-/app/engenharia/fibra
-/app/engenharia/suprimentos
-/app/engenharia/ligacoes-energia
-/app/engenharia/mapa
-/app/engenharia/auditoria
-/app/engenharia/art
-/app/engenharia/emails
-/app/engenharia/integracoes
-/app/engenharia/roadmap-ia
-/app/engenharia/equipe/:teamId/checkin
+id uuid pk, user_id uuid null (null=broadcast), origem text, origem_id uuid,
+titulo text, detalhe text, tipo text ('prazo'|'status'|'vinculo'|'tarefa'),
+modulo text, route text, lida boolean default false,
+created_at timestamptz default now()
+```
+RLS:
+- SELECT: `user_id = auth.uid() OR user_id IS NULL`
+- INSERT/UPDATE: `eng_can_edit(auth.uid())`
+
+Habilitar realtime na tabela.
+
+### Etapa 1.2 — Lib de automações (`src/modules/engenharia/lib/automations/`)
+Arquivos novos:
+- `siteAutocreate.ts` — `ensureSiteByCodigo(codigo, nome?)` retorna site_id; idempotente.
+- `statusFlows.ts` — mapa `{ kind → { fromStatus → toStatus → action[] } }`. Actions: `createFollowupTask`, `notify`, `closeLinked`.
+- `internalNotifications.ts` — `notify({ user_id?, origem, origem_id, ... })` insere em `eng_internal_notifications` + `fireAudit`.
+- `crossModuleLinks.ts` — helpers `linkScRcToSolicit`, `unlinkScRc`, `getProjectActivities(projeto_id)`.
+
+### Etapa 1.3 — Hooks
+- `src/modules/engenharia/hooks/useStatusAutomations.ts` — wrapper de `updateShared` que executa flow correspondente.
+- `src/modules/engenharia/hooks/useInternalNotifications.ts` — lista + marca como lida + realtime.
+- `src/modules/engenharia/hooks/useModulePermissions.ts` — porta do Oriente, lê `eng_module_permissions`.
+
+### Etapa 1.4 — Componentes UI
+- `src/components/NotificationsBell.tsx` — sino fixo no `AppLayout` (usa `useInternalNotifications`).
+- `src/modules/engenharia/ui/components/PendenciasAggregator.tsx` — card embutido na aba Atividades.
+- `src/modules/engenharia/ui/components/AutomationFallback.tsx` — placeholder visual quando automação está desligada/sem config.
+
+### Etapa 1.5 — Wiring
+- Integrar `NotificationsBell` em `src/components/AppLayout.tsx`.
+- Substituir chamadas diretas de `updateShared` nos `Eng*Page` para passar pelo `useStatusAutomations`.
+- Adicionar `PendenciasAggregator` no topo de `AtividadesPage`.
+
+## Arquivos a criar
+```
+src/modules/engenharia/lib/automations/siteAutocreate.ts
+src/modules/engenharia/lib/automations/statusFlows.ts
+src/modules/engenharia/lib/automations/internalNotifications.ts
+src/modules/engenharia/lib/automations/crossModuleLinks.ts
+src/modules/engenharia/hooks/useStatusAutomations.ts
+src/modules/engenharia/hooks/useInternalNotifications.ts
+src/modules/engenharia/hooks/useModulePermissions.ts (se ainda não existir funcional)
+src/modules/engenharia/ui/components/PendenciasAggregator.tsx
+src/modules/engenharia/ui/components/AutomationFallback.tsx
+src/components/NotificationsBell.tsx
 ```
 
-### Tabelas a criar (vazias, com RLS)
-Todas com prefixo `eng_` para evitar conflito (PROMPT 16). Mapeamento:
+## Arquivos a alterar
+```
+src/components/AppLayout.tsx                    (mount sino)
+src/modules/engenharia/lib/sharedStore.ts       (hook de pós-update p/ flows)
+src/modules/engenharia/ui/EngOperacaoPages.tsx  (AtividadesPage com agregador)
+supabase migration                               (eng_internal_notifications + realtime)
+```
 
-| Oriente | ERP OCS |
-|---|---|
-| `governanca_master` | `eng_governanca_master` |
-| `gov_atividades_raw` | `eng_gov_atividades_raw` |
-| `gov_faturamento_raw` | `eng_gov_faturamento_raw` |
-| `gov_resultados_raw` | `eng_gov_resultados_raw` |
-| `governance_action_plan` | `eng_gov_action_plan` |
-| `governance_settings` | `eng_gov_settings` |
-| `projetos` | já existe — **vou criar `eng_projetos`** separado, sem mexer no atual |
-| `sites`, `demandas`, `rfi`, `atividades`, `equipes`, `fibra_*`, `suprimentos`, `ligacoes_energia`, `art_*`, `auditoria`, `emails_log`, `integracoes`, `roadmap_ia` | `eng_sites`, `eng_demandas`, `eng_rfi`, `eng_atividades`, `eng_equipes`, `eng_fibra_*`, `eng_suprimentos`, `eng_ligacoes_energia`, `eng_art_*`, `eng_auditoria`, `eng_emails_log`, `eng_integracoes`, `eng_roadmap_ia` |
+## Tabelas necessárias
+- **NOVA**: `eng_internal_notifications` (RLS + realtime).
+- Reusa: `eng_atividades`, `eng_auditoria`, `eng_module_permissions`, `eng_sites`, `eng_solicitacao_sc_rc` e demais.
 
-RLS padrão por tabela:
-- `SELECT`: `has_role(admin) OR has_visibility(uid, '<table>', id)` quando o módulo for restrito; senão `authenticated`.
-- `INSERT/UPDATE/DELETE`: admin + papéis específicos (planejamento, diretoria, gestor de obra etc., conforme cada aba do Oriente exige).
+## Edge functions necessárias
+Nenhuma — Prioridade 1 é 100% client-side + RLS.
 
-Roles novas a adicionar ao enum `app_role`: `planejamento`, `diretoria`, `engenharia`, `suprimentos`, `fibra`.
-
-### Componentes / hooks / libs a portar
-- `src/modules/engenharia/components/governance/*` (5 arquivos: Dashboard, ActionPlan, Data, DataSources, Reports)
-- `src/modules/engenharia/components/{adm,art,fibra}/*` (subpastas)
-- `src/modules/engenharia/components/*` (todos os ~25 utilitários: PageShell, KpiCard, AssistenteFloating, RobozinhoFloating, ImportExportBar, SmartSelect, NotificationsBell, ObraDetail, EnergiaCharts, ProjetosCharts, ItensSolicitacaoPicker, BulkSelectToolbar, ConfirmDestructive, DynamicFormsTabs, DynamicTab, EnviarOutlookRcDialog, PendenciasAggregator, PermissoesTab, SharePointListConfig, SharePointPicker, SiteAutoInput)
-- `src/modules/engenharia/hooks/*` (10 hooks: useGovernanceAccess, useFibraChecklists, useFieldOptions, useMateriais, useModulePermissions, useObraVinculos, useProjetos, useRealtimeList, useSharedRealtime, useSites)
-- `src/modules/engenharia/lib/*` (todos os ~20: governanceReport, govReportBuilders, govDocxBuilder, govSources, govAtividades, governanceImport, projetosImport, fibraChecklist, sharepointSync, sharepointSuprimentos, syncList, scrcStore, sharedStore, robozinho, siteAutocreate, audit, storage, emailRcConfig, constants, utils)
-
-Adaptações obrigatórias:
-- Trocar TanStack Router (`createFileRoute`) por React Router DOM.
-- Trocar imports `@/` para `@/modules/engenharia/...` para isolamento.
-- Reusar `useAuth` do ERP, **não** portar `AuthProvider` do Oriente.
-- Trocar nomes de tabela para `eng_*` em todos os `supabase.from(...)`.
-- Sidebar do ERP: substituir o item "Engenharia" por sub-menu colapsável com as 19 abas.
-
-### Correção do bug da Governança ao portar
-Análise estática já feita:
-1. `governanca_master` é lida mas a hidratação assume várias colunas que podem não existir → vou criar `eng_governanca_master` com **todas** as colunas usadas (`localizador`, `data_acionamento`, `area_atuacao`, `cliente`, `tipo_atividade`, `status`, `prazo_final`, `termino_real`, `responsavel`, `valor_inicial`, `faturamento_total`, `custo_total_direto_real`, `custos_diversos_total`, `resultado_real`, `margem_real`, `quantidade_replan_total`, `ofensor`, `causa_raiz`, `prioridade`).
-2. Realtime escuta `gov_*_raw` mas o select é em `governanca_master` → vou alinhar o realtime para escutar **também** `eng_governanca_master`.
-3. `governance_settings.id = true` é estranho (id boolean). Vou criar `eng_gov_settings` com `id boolean primary key default true` (singleton row) e seed de uma linha `{id: true, edit_open_to_all: false}`.
-4. `useGovernanceAccess` assume roles `planejamento`/`diretoria` que não existem no enum → vou adicioná-las.
-5. Cast `as never` em `from("governanca_master" as never)` indica que types.ts não tinha a tabela → no ERP os types serão regenerados após as migrations, removendo o cast.
-
----
-
-## Fases de execução
-
-**Fase A — Schema & roles (1 migration grande)**
-- Adiciona valores ao enum `app_role`.
-- Cria todas as tabelas `eng_*` vazias com RLS.
-- Seed: 1 linha em `eng_gov_settings`.
-
-**Fase B — Edge function `port-oriente-users`**
-- Pede secret `ORIENTE_SERVICE_ROLE_KEY` (parada obrigatória aqui).
-- Lê `auth.users` do Oriente, cria no ERP, dispara reset de senha.
-- Loga em `visibility_audit`.
-
-**Fase C — Port de libs e hooks** (sem UI ainda, para validar tipos).
-
-**Fase D — Port de componentes governance + outros componentes compartilhados.**
-
-**Fase E — Port das 19 rotas + sub-menu na sidebar do ERP.**
-
-**Fase F — Smoke test:** abrir cada aba logado como admin e confirmar que renderiza sem erro (vazia é OK).
-
----
-
-## Detalhes técnicos
-
-- Nenhuma migração destrutiva. Tudo `CREATE TABLE IF NOT EXISTS`.
-- Nada toca módulo Pixel Office nem Jurídico.
-- Tabela `projetos` atual do ERP fica intacta — port vira `eng_projetos`.
-- Mocks atuais de Engenharia (`engMockData.ts`) ficam removidos quando as tabelas reais entrarem.
-- Nenhum dado real do Oriente é copiado (alinhado com PROMPT 17/19).
-- Edge function de port de usuários só roda **uma vez**, sob comando manual de admin via UI em `/app/adm`.
+## Botões e telas atualizadas
+- `AppLayout`: sino no topo direito.
+- `AtividadesPage`: novo card "Pendências por responsável".
+- Todos os `Eng*Page` que usam `updateShared`: agora passam por automação (transparente).
 
 ## Riscos
-- Escopo muito grande; vou entregar em commits por fase para você acompanhar.
-- Colunas faltantes nas tabelas inferidas vão aparecer como erros runtime → corrigíveis sob demanda.
-- Se a senha temporária dos usuários portados gerar e-mails em massa, alguns podem cair em spam.
+- Loop em flows: mitigado com flag `_auto`.
+- Realtime sobrecarga: filtrar por `user_id=eq.<uid>` quando disponível.
+- Permissões: respeitar `useModulePermissions` antes de mostrar agregador.
 
-## O que você precisa me dar para eu começar
-1. Confirmar o plano.
-2. Estar pronto para colar `ORIENTE_SERVICE_ROLE_KEY` quando eu pedir (Fase B).
-3. (Opcional) Mensagem exata do erro da Governança no Oriente, se souber.
+## Como testar cada automação
+1. **Status flow**: abrir Atividade, mudar status para `concluida` → verificar notificação criada + log em `eng_auditoria`.
+2. **Site autocreate**: criar Atividade com site `XX-9999` inexistente → site aparece em `/app/engenharia/sites`.
+3. **Sino**: criar Atividade com prazo ontem → contador no sino sobe; clicar leva à rota.
+4. **Pendências**: abrir `/app/engenharia/atividades` → card mostra contagem por responsável.
+5. **Vínculo SC/RC**: criar SC/RC vinculado a uma solicitação → solicitação reflete no agregador.
+
+## Dependência de credencial
+- Nenhuma. `LOVABLE_API_KEY` só será usada nas P2-P4.
+
+## Compatível com
+- RLS atual (`eng_can_edit`).
+- Visibilidade de grupos (não altera).
+- Auth atual (não altera).
+
+Aprove para eu seguir com Prioridade 1.

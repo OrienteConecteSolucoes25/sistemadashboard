@@ -5,6 +5,7 @@ import { Shield, FolderKanban, LogOut, Settings, User, Gamepad2, HardHat, Scale,
 import { useEngenhariaAccess } from "@/modules/engenharia/hooks/useEngenhariaAccess";
 import { useJuridicoAccess } from "@/modules/juridico/hooks/useJuridicoAccess";
 import { useEffect, useState } from "react";
+import { NotificationsBell } from "@/components/NotificationsBell";
 
 const AppLayout = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
@@ -80,8 +81,13 @@ const AppLayout = () => {
           <Menu className="w-5 h-5" />
         </button>
         <div className="font-bold">OCS</div>
-        <div className="w-9" />
+        <NotificationsBell />
       </header>
+
+      {/* Desktop floating bell */}
+      <div className="hidden md:block fixed top-3 right-4 z-30">
+        <NotificationsBell />
+      </div>
 
       {/* Mobile drawer overlay */}
       {open && (

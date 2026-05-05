@@ -660,6 +660,51 @@ export type Database = {
         }
         Relationships: []
       }
+      eng_internal_notifications: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          detalhe: string | null
+          id: string
+          lida: boolean
+          modulo: string | null
+          origem: string
+          origem_id: string | null
+          route: string | null
+          tipo: string
+          titulo: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          detalhe?: string | null
+          id?: string
+          lida?: boolean
+          modulo?: string | null
+          origem: string
+          origem_id?: string | null
+          route?: string | null
+          tipo?: string
+          titulo: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          detalhe?: string | null
+          id?: string
+          lida?: boolean
+          modulo?: string | null
+          origem?: string
+          origem_id?: string | null
+          route?: string | null
+          tipo?: string
+          titulo?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       eng_ligacoes_energia: {
         Row: {
           concessionaria: string | null
