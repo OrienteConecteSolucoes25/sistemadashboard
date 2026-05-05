@@ -2,6 +2,8 @@ import EngListPage, { KpiDef } from "./EngListPage";
 import { PendenciasAggregator } from "./components/PendenciasAggregator";
 import { OutlookComposeButton } from "./components/OutlookComposeButton";
 import { OutlookTemplatesManager } from "./components/OutlookTemplatesManager";
+import { WhatsappComposeButton } from "./components/WhatsappComposeButton";
+import { WhatsappTemplatesManager } from "./components/WhatsappTemplatesManager";
 import {
   ATIVIDADES_CONFIG, DEMANDAS_CONFIG, RFI_CONFIG, PENDENCIAS_CONFIG,
   ENERGIA_CONFIG, ART_CONFIG, EQUIPES_CONFIG, MATERIAIS_CONFIG,
