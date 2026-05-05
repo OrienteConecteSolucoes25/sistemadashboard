@@ -1,5 +1,7 @@
 import EngListPage, { KpiDef } from "./EngListPage";
 import { PendenciasAggregator } from "./components/PendenciasAggregator";
+import { OutlookComposeButton } from "./components/OutlookComposeButton";
+import { OutlookTemplatesManager } from "./components/OutlookTemplatesManager";
 import {
   ATIVIDADES_CONFIG, DEMANDAS_CONFIG, RFI_CONFIG, PENDENCIAS_CONFIG,
   ENERGIA_CONFIG, ART_CONFIG, EQUIPES_CONFIG, MATERIAIS_CONFIG,
@@ -185,13 +187,26 @@ export const RelatoriosPage = () => <EngListPage config={RELATORIOS_CONFIG} kpis
   dashboard={{ distribuicaoKey: "tipo", rankingKey: "autor" }}
   timelineDateKey="data" />;
 
-export const EmailsPage = () => <EngListPage config={EMAILS_CONFIG} kpis={[
-  { label: "Total", icon: Mail, tone: "teal", compute: (r) => r.length },
-  { label: "Enviados", icon: CheckCircle2, tone: "success", compute: (r) => countBy(r, "status", "enviado") },
-  { label: "Falharam", icon: AlertTriangle, tone: "danger", compute: (r) => countBy(r, "status", "falhou") },
-  { label: "Pendentes", icon: CalendarClock, tone: "warn", compute: (r) => countBy(r, "status", "pendente") },
-]} facetKeys={["status"]} views={["list", "dashboard", "timeline"]}
-  dashboard={{ distribuicaoKey: "status", rankingKey: "destinatario" }} />;
+export const EmailsPage = () => (
+  <div className="space-y-4">
+    <div className="flex flex-wrap items-center justify-between gap-2">
+      <div>
+        <h2 className="text-lg font-display font-semibold">E-mails (Outlook)</h2>
+        <p className="text-xs text-muted-foreground">Composer integrado com Outlook (mailto / OWA / desktop) e log automático.</p>
+      </div>
+      <OutlookComposeButton variant="default" size="sm" label="Novo e-mail" defaults={{ origem: "manual", modulo: "emails" }} />
+    </div>
+    <OutlookTemplatesManager />
+    <EngListPage config={EMAILS_CONFIG} kpis={[
+      { label: "Total", icon: Mail, tone: "teal", compute: (r) => r.length },
+      { label: "Compostos", icon: CheckCircle2, tone: "teal", compute: (r) => countBy(r, "status", "composed") },
+      { label: "Enviados", icon: CheckCircle2, tone: "success", compute: (r) => countBy(r, "status", "enviado") },
+      { label: "Falharam", icon: AlertTriangle, tone: "danger", compute: (r) => countBy(r, "status", "falhou") },
+      { label: "Pendentes", icon: CalendarClock, tone: "warn", compute: (r) => countBy(r, "status", "pendente") },
+    ]} facetKeys={["status"]} views={["list", "dashboard", "timeline"]}
+      dashboard={{ distribuicaoKey: "status", rankingKey: "destinatario" }} />
+  </div>
+);
 
 export const IntegracoesPage = () => <EngListPage config={INTEGRACOES_CONFIG} kpis={[
   { label: "Total", icon: Database, tone: "teal", compute: (r) => r.length },
