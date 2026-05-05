@@ -115,6 +115,7 @@ const AppLayout = () => {
       >
         <Outlet />
       </main>
+      <AssistenteFloating />
     </div>
   );
 };
