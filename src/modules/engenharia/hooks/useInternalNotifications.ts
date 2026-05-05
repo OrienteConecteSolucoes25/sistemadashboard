@@ -37,9 +37,8 @@ export function useInternalNotifications(limit = 50) {
   useEffect(() => {
     load();
     if (!user) return;
-    const ch = supabase
-      .channel(`rt_eng_notifs_${user.id}`)
-      .on("postgres_changes",
+    const ch = supabase.channel(`rt_eng_notifs_${user.id}_${Math.random().toString(36).slice(2)}`);
+    ch.on("postgres_changes" as any,
         { event: "*", schema: "public", table: "eng_internal_notifications" },
         () => load())
       .subscribe();
