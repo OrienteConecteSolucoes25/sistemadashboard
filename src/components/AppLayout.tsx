@@ -6,6 +6,7 @@ import { useEngenhariaAccess } from "@/modules/engenharia/hooks/useEngenhariaAcc
 import { useJuridicoAccess } from "@/modules/juridico/hooks/useJuridicoAccess";
 import { useEffect, useState } from "react";
 import { NotificationsBell } from "@/components/NotificationsBell";
+import { AssistenteFloating } from "@/components/AssistenteFloating";
 
 const AppLayout = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
@@ -114,6 +115,7 @@ const AppLayout = () => {
       >
         <Outlet />
       </main>
+      <AssistenteFloating />
     </div>
   );
 };
