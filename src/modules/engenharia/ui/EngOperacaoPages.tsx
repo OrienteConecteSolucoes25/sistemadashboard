@@ -196,9 +196,13 @@ export const EmailsPage = () => (
         <h2 className="text-lg font-display font-semibold">E-mails (Outlook)</h2>
         <p className="text-xs text-muted-foreground">Composer integrado com Outlook (mailto / OWA / desktop) e log automático.</p>
       </div>
-      <OutlookComposeButton variant="default" size="sm" label="Novo e-mail" defaults={{ origem: "manual", modulo: "emails" }} />
+      <div className="flex gap-2">
+        <WhatsappComposeButton variant="outline" size="sm" defaults={{ origem: "manual", modulo: "whatsapp" }} />
+        <OutlookComposeButton variant="default" size="sm" label="Novo e-mail" defaults={{ origem: "manual", modulo: "emails" }} />
+      </div>
     </div>
     <OutlookTemplatesManager />
+    <WhatsappTemplatesManager />
     <EngListPage config={EMAILS_CONFIG} kpis={[
       { label: "Total", icon: Mail, tone: "teal", compute: (r) => r.length },
       { label: "Compostos", icon: CheckCircle2, tone: "teal", compute: (r) => countBy(r, "status", "composed") },
