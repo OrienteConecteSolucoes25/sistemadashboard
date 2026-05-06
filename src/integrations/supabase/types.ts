@@ -227,6 +227,8 @@ export type Database = {
           accent_color: string | null
           animation_level: string | null
           background_color: string | null
+          background_image_url: string | null
+          background_overlay_alpha: number | null
           border_color: string | null
           border_radius: string | null
           button_style: string | null
@@ -259,6 +261,8 @@ export type Database = {
           accent_color?: string | null
           animation_level?: string | null
           background_color?: string | null
+          background_image_url?: string | null
+          background_overlay_alpha?: number | null
           border_color?: string | null
           border_radius?: string | null
           button_style?: string | null
@@ -291,6 +295,8 @@ export type Database = {
           accent_color?: string | null
           animation_level?: string | null
           background_color?: string | null
+          background_image_url?: string | null
+          background_overlay_alpha?: number | null
           border_color?: string | null
           border_radius?: string | null
           button_style?: string | null

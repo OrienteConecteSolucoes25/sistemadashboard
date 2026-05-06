@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Palette, Save, RotateCcw, Eye, Sparkles, Building2, History } from "lucide-react";
+import { Palette, Save, RotateCcw, Eye, Sparkles, Building2, History, Image as ImageIcon, Upload, X } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
 import { PRESET_LIST, THEME_PRESETS, ThemePresetKey, ThemeTokens, DEFAULT_PRESET } from "../lib/themePresets";
 import { useCompanyTheme } from "../hooks/CompanyThemeProvider";
 
@@ -65,12 +66,15 @@ function hexToHslStr(hex: string): string {
 
 export default function ThemeStudioPage() {
   const { isAdmin, loading: authLoading } = useAuth();
-  const { previewTheme, reloadFromDb } = useCompanyTheme();
+  const { previewTheme, previewBackground, reloadFromDb } = useCompanyTheme();
 
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companyId, setCompanyId] = useState<string>("");
   const [preset, setPreset] = useState<ThemePresetKey>(DEFAULT_PRESET);
   const [overrides, setOverrides] = useState<Partial<Record<keyof ThemeTokens, string>>>({});
+  const [bgUrl, setBgUrl] = useState<string | null>(null);
+  const [bgAlpha, setBgAlpha] = useState<number>(0.35);
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [audit, setAudit] = useState<any[]>([]);
 
@@ -100,8 +104,11 @@ export default function ThemeStudioPage() {
         const ov: any = {};
         COLOR_FIELDS.forEach(f => { if (data[f.dbCol]) ov[f.key] = data[f.dbCol]; });
         setOverrides(ov);
+        setBgUrl(data.background_image_url ?? null);
+        setBgAlpha(typeof data.background_overlay_alpha === "number" ? data.background_overlay_alpha : 0.35);
       } else {
         setPreset(DEFAULT_PRESET); setOverrides({});
+        setBgUrl(null); setBgAlpha(0.35);
       }
       const { data: logs } = await (supabase as any)
         .from("theme_audit_logs").select("*")
@@ -110,10 +117,13 @@ export default function ThemeStudioPage() {
     })();
   }, [companyId]);
 
-  // Aplica preview ao vivo
+  // Aplica preview ao vivo (cores + fundo)
   useEffect(() => {
     previewTheme(preset, overrides as any);
   }, [preset, overrides, previewTheme]);
+  useEffect(() => {
+    previewBackground(bgUrl, bgAlpha);
+  }, [bgUrl, bgAlpha, previewBackground]);
 
   if (authLoading) return null;
   if (!isAdmin) return <Navigate to="/app" replace />;
@@ -124,7 +134,10 @@ export default function ThemeStudioPage() {
     const { data: prev } = await (supabase as any)
       .from("company_theme_settings").select("*").eq("company_id", companyId).maybeSingle();
 
-    const payload: any = { company_id: companyId, theme_preset: preset, is_active: true };
+    const payload: any = {
+      company_id: companyId, theme_preset: preset, is_active: true,
+      background_image_url: bgUrl, background_overlay_alpha: bgAlpha,
+    };
     COLOR_FIELDS.forEach(f => { payload[f.dbCol] = overrides[f.key] ?? null; });
 
     const { error } = prev
@@ -147,8 +160,22 @@ export default function ThemeStudioPage() {
     await reloadFromDb();
   };
 
+  const handleUploadBg = async (file: File) => {
+    if (!companyId) { toast.error("Selecione uma empresa primeiro"); return; }
+    setUploading(true);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${companyId}/bg-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("company-wallpapers").upload(path, file, { upsert: true });
+    if (error) { toast.error("Erro no upload: " + error.message); setUploading(false); return; }
+    const { data } = supabase.storage.from("company-wallpapers").getPublicUrl(path);
+    setBgUrl(data.publicUrl);
+    setUploading(false);
+    toast.success("Imagem aplicada — clique em Salvar para persistir");
+  };
+
   const handleReset = () => {
     setPreset(DEFAULT_PRESET); setOverrides({});
+    setBgUrl(null); setBgAlpha(0.35);
     toast.message("Restaurado para o padrão OCS (Glassmorphism)");
   };
 
@@ -196,6 +223,7 @@ export default function ThemeStudioPage() {
         <TabsList>
           <TabsTrigger value="presets"><Sparkles className="w-4 h-4 mr-1" />Presets</TabsTrigger>
           <TabsTrigger value="cores">Cores</TabsTrigger>
+          <TabsTrigger value="fundo"><ImageIcon className="w-4 h-4 mr-1" />Fundo</TabsTrigger>
           <TabsTrigger value="preview"><Eye className="w-4 h-4 mr-1" />Preview</TabsTrigger>
           <TabsTrigger value="auditoria"><History className="w-4 h-4 mr-1" />Auditoria</TabsTrigger>
         </TabsList>
@@ -266,6 +294,93 @@ export default function ThemeStudioPage() {
                   </div>
                 );
               })}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* FUNDO (wallpaper) */}
+        <TabsContent value="fundo" className="mt-4">
+          <Card className="card-elegant">
+            <CardHeader>
+              <CardTitle className="text-lg">Imagem de fundo da empresa</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Defina uma imagem de fundo para realçar o efeito translúcido (especialmente no Glassmorphism).
+                A intensidade do véu da cor de fundo é ajustável.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-4">
+                <div
+                  className="rounded-lg border aspect-video bg-muted overflow-hidden flex items-center justify-center"
+                  style={bgUrl ? { backgroundImage: `url("${bgUrl}")`, backgroundSize: "cover", backgroundPosition: "center" } : {}}
+                >
+                  {!bgUrl && <span className="text-xs text-muted-foreground">Sem imagem</span>}
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    <label className="inline-flex">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadBg(f); }}
+                      />
+                      <Button asChild disabled={uploading || !companyId}>
+                        <span><Upload className="w-4 h-4 mr-2" /> {uploading ? "Enviando..." : "Enviar imagem"}</span>
+                      </Button>
+                    </label>
+                    {bgUrl && (
+                      <Button variant="outline" onClick={() => setBgUrl(null)}>
+                        <X className="w-4 h-4 mr-2" /> Remover
+                      </Button>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label className="text-xs">Ou cole uma URL pública</Label>
+                    <Input
+                      placeholder="https://..."
+                      value={bgUrl ?? ""}
+                      onChange={e => setBgUrl(e.target.value || null)}
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-xs">
+                      Véu da cor de fundo: <strong>{Math.round(bgAlpha * 100)}%</strong>
+                    </Label>
+                    <Slider
+                      min={0} max={100} step={5}
+                      value={[Math.round(bgAlpha * 100)]}
+                      onValueChange={v => setBgAlpha((v[0] ?? 35) / 100)}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      0% = imagem totalmente visível · 100% = só a cor de fundo
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 pt-2">
+                {[
+                  "https://images.unsplash.com/photo-1604079628040-94301bb21b91?w=1600",
+                  "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1600",
+                  "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1600",
+                  "https://images.unsplash.com/photo-1620207418302-439b387441b0?w=1600",
+                  "https://images.unsplash.com/photo-1614851099175-e5b30eb6f696?w=1600",
+                  "https://images.unsplash.com/photo-1517021897933-0e0319cfbc28?w=1600",
+                ].map(u => (
+                  <button
+                    key={u}
+                    onClick={() => setBgUrl(u)}
+                    className="aspect-video rounded border overflow-hidden hover:ring-2 hover:ring-primary"
+                    style={{ backgroundImage: `url("${u}")`, backgroundSize: "cover", backgroundPosition: "center" }}
+                    title="Usar este fundo"
+                  />
+                ))}
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
