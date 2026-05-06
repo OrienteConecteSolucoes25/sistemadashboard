@@ -1727,6 +1727,229 @@ export type Database = {
         }
         Relationships: []
       }
+      hrdp_admission_checklist_items: {
+        Row: {
+          admission_id: string
+          anexo_path: string | null
+          categoria: string
+          company_id: string
+          concluido: boolean
+          concluido_em: string | null
+          concluido_por: string | null
+          created_at: string
+          descricao: string | null
+          id: string
+          obrigatorio: boolean
+          ordem: number
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          admission_id: string
+          anexo_path?: string | null
+          categoria?: string
+          company_id: string
+          concluido?: boolean
+          concluido_em?: string | null
+          concluido_por?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          obrigatorio?: boolean
+          ordem?: number
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          admission_id?: string
+          anexo_path?: string | null
+          categoria?: string
+          company_id?: string
+          concluido?: boolean
+          concluido_em?: string | null
+          concluido_por?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          obrigatorio?: boolean
+          ordem?: number
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hrdp_admission_checklist_items_admission_id_fkey"
+            columns: ["admission_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_admissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hrdp_admissions: {
+        Row: {
+          candidato_email: string | null
+          candidato_nome: string | null
+          cargo: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          data: Json
+          data_admissao_efetiva: string | null
+          data_inicio_prevista: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          employee_id: string | null
+          etapa: string
+          id: string
+          is_deleted: boolean
+          observacoes: string | null
+          responsavel_id: string | null
+          setor: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          candidato_email?: string | null
+          candidato_nome?: string | null
+          cargo?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          data_admissao_efetiva?: string | null
+          data_inicio_prevista?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          employee_id?: string | null
+          etapa?: string
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          responsavel_id?: string | null
+          setor?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          candidato_email?: string | null
+          candidato_nome?: string | null
+          cargo?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          data?: Json
+          data_admissao_efetiva?: string | null
+          data_inicio_prevista?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          employee_id?: string | null
+          etapa?: string
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          responsavel_id?: string | null
+          setor?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hrdp_admissions_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hrdp_employee_documents: {
+        Row: {
+          admission_id: string | null
+          company_id: string
+          created_at: string
+          data_emissao: string | null
+          data_vencimento: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          descricao: string | null
+          employee_id: string | null
+          id: string
+          is_deleted: boolean
+          mime_type: string | null
+          sensivel: boolean
+          storage_path: string
+          tamanho_bytes: number | null
+          tipo: string
+          titulo: string
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          admission_id?: string | null
+          company_id: string
+          created_at?: string
+          data_emissao?: string | null
+          data_vencimento?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao?: string | null
+          employee_id?: string | null
+          id?: string
+          is_deleted?: boolean
+          mime_type?: string | null
+          sensivel?: boolean
+          storage_path: string
+          tamanho_bytes?: number | null
+          tipo: string
+          titulo: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          admission_id?: string | null
+          company_id?: string
+          created_at?: string
+          data_emissao?: string | null
+          data_vencimento?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao?: string | null
+          employee_id?: string | null
+          id?: string
+          is_deleted?: boolean
+          mime_type?: string | null
+          sensivel?: boolean
+          storage_path?: string
+          tamanho_bytes?: number | null
+          tipo?: string
+          titulo?: string
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hrdp_employee_documents_admission_id_fkey"
+            columns: ["admission_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_admissions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hrdp_employee_documents_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hrdp_employees: {
         Row: {
           cargo: string | null
@@ -2876,6 +3099,10 @@ export type Database = {
         Returns: boolean
       }
       hrdp_is_manager_of: {
+        Args: { _employee_id: string; _uid: string }
+        Returns: boolean
+      }
+      hrdp_is_self_doc: {
         Args: { _employee_id: string; _uid: string }
         Returns: boolean
       }
