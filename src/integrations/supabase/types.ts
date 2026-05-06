@@ -14,6 +14,1774 @@ export type Database = {
   }
   public: {
     Tables: {
+      comm_admin_config: {
+        Row: {
+          key: string
+          updated_at: string | null
+          updated_by: string | null
+          value: string | null
+        }
+        Insert: {
+          key: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value?: string | null
+        }
+        Update: {
+          key?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value?: string | null
+        }
+        Relationships: []
+      }
+      comm_ai_quotas: {
+        Row: {
+          blocklist: string[] | null
+          company_id: string
+          daily_image_limit: number
+          monthly_image_limit: number
+          monthly_text_limit: number
+          updated_at: string | null
+        }
+        Insert: {
+          blocklist?: string[] | null
+          company_id: string
+          daily_image_limit?: number
+          monthly_image_limit?: number
+          monthly_text_limit?: number
+          updated_at?: string | null
+        }
+        Update: {
+          blocklist?: string[] | null
+          company_id?: string
+          daily_image_limit?: number
+          monthly_image_limit?: number
+          monthly_text_limit?: number
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      comm_ai_usage: {
+        Row: {
+          company_id: string
+          cost_credits: number | null
+          created_at: string
+          id: string
+          kind: string
+          model: string | null
+          provider: string | null
+          tokens_in: number | null
+          tokens_out: number | null
+          user_id: string | null
+        }
+        Insert: {
+          company_id: string
+          cost_credits?: number | null
+          created_at?: string
+          id?: string
+          kind: string
+          model?: string | null
+          provider?: string | null
+          tokens_in?: number | null
+          tokens_out?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          company_id?: string
+          cost_credits?: number | null
+          created_at?: string
+          id?: string
+          kind?: string
+          model?: string | null
+          provider?: string | null
+          tokens_in?: number | null
+          tokens_out?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      comm_approvals: {
+        Row: {
+          aprovado_em: string | null
+          aprovado_por: string | null
+          comentario: string | null
+          company_id: string
+          created_at: string | null
+          created_by: string | null
+          entidade_id: string
+          entidade_tipo: string
+          id: string
+          motivo_reprovacao: string | null
+          snapshot: Json | null
+          status: string
+          updated_at: string | null
+          versao: number | null
+        }
+        Insert: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          comentario?: string | null
+          company_id: string
+          created_at?: string | null
+          created_by?: string | null
+          entidade_id: string
+          entidade_tipo: string
+          id?: string
+          motivo_reprovacao?: string | null
+          snapshot?: Json | null
+          status?: string
+          updated_at?: string | null
+          versao?: number | null
+        }
+        Update: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          comentario?: string | null
+          company_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          entidade_id?: string
+          entidade_tipo?: string
+          id?: string
+          motivo_reprovacao?: string | null
+          snapshot?: Json | null
+          status?: string
+          updated_at?: string | null
+          versao?: number | null
+        }
+        Relationships: []
+      }
+      comm_audit_logs: {
+        Row: {
+          action: string
+          company_id: string | null
+          created_at: string
+          entidade_id: string | null
+          entidade_tipo: string | null
+          id: string
+          modulo: string | null
+          nome_entidade: string | null
+          observacoes: string | null
+          payload: Json | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          company_id?: string | null
+          created_at?: string
+          entidade_id?: string | null
+          entidade_tipo?: string | null
+          id?: string
+          modulo?: string | null
+          nome_entidade?: string | null
+          observacoes?: string | null
+          payload?: Json | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          company_id?: string | null
+          created_at?: string
+          entidade_id?: string | null
+          entidade_tipo?: string | null
+          id?: string
+          modulo?: string | null
+          nome_entidade?: string | null
+          observacoes?: string | null
+          payload?: Json | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      comm_brand_kits: {
+        Row: {
+          company_id: string
+          cores_principais: Json | null
+          cores_secundarias: Json | null
+          created_at: string | null
+          created_by: string | null
+          cta_padrao: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          descricao: string | null
+          diferenciais: string | null
+          estilo_visual: string | null
+          fontes: Json | null
+          id: string
+          is_default: boolean | null
+          is_deleted: boolean | null
+          links: Json | null
+          logo_url: string | null
+          nome: string
+          palavras_permitidas: string[] | null
+          palavras_proibidas: string[] | null
+          persona: string | null
+          proposta_valor: string | null
+          publico_alvo: string | null
+          redes_sociais: Json | null
+          slogan: string | null
+          tipo_linguagem: string | null
+          tom_de_voz: string | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          company_id: string
+          cores_principais?: Json | null
+          cores_secundarias?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          cta_padrao?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao?: string | null
+          diferenciais?: string | null
+          estilo_visual?: string | null
+          fontes?: Json | null
+          id?: string
+          is_default?: boolean | null
+          is_deleted?: boolean | null
+          links?: Json | null
+          logo_url?: string | null
+          nome: string
+          palavras_permitidas?: string[] | null
+          palavras_proibidas?: string[] | null
+          persona?: string | null
+          proposta_valor?: string | null
+          publico_alvo?: string | null
+          redes_sociais?: Json | null
+          slogan?: string | null
+          tipo_linguagem?: string | null
+          tom_de_voz?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          cores_principais?: Json | null
+          cores_secundarias?: Json | null
+          created_at?: string | null
+          created_by?: string | null
+          cta_padrao?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao?: string | null
+          diferenciais?: string | null
+          estilo_visual?: string | null
+          fontes?: Json | null
+          id?: string
+          is_default?: boolean | null
+          is_deleted?: boolean | null
+          links?: Json | null
+          logo_url?: string | null
+          nome?: string
+          palavras_permitidas?: string[] | null
+          palavras_proibidas?: string[] | null
+          persona?: string | null
+          proposta_valor?: string | null
+          publico_alvo?: string | null
+          redes_sociais?: Json | null
+          slogan?: string | null
+          tipo_linguagem?: string | null
+          tom_de_voz?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      comm_campaigns: {
+        Row: {
+          brand_kit_id: string | null
+          canais: string[] | null
+          company_id: string
+          conceito: string | null
+          created_at: string | null
+          created_by: string | null
+          cta: string | null
+          data_fim: string | null
+          data_inicio: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean | null
+          metricas_esperadas: Json | null
+          nome: string
+          objetivo: string | null
+          orcamento: number | null
+          pecas: Json | null
+          produto: string | null
+          promessa: string | null
+          publico: string | null
+          responsavel_id: string | null
+          resultados: Json | null
+          status: string | null
+          tipo: string | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          brand_kit_id?: string | null
+          canais?: string[] | null
+          company_id: string
+          conceito?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          cta?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          metricas_esperadas?: Json | null
+          nome: string
+          objetivo?: string | null
+          orcamento?: number | null
+          pecas?: Json | null
+          produto?: string | null
+          promessa?: string | null
+          publico?: string | null
+          responsavel_id?: string | null
+          resultados?: Json | null
+          status?: string | null
+          tipo?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          brand_kit_id?: string | null
+          canais?: string[] | null
+          company_id?: string
+          conceito?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          cta?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          metricas_esperadas?: Json | null
+          nome?: string
+          objetivo?: string | null
+          orcamento?: number | null
+          pecas?: Json | null
+          produto?: string | null
+          promessa?: string | null
+          publico?: string | null
+          responsavel_id?: string | null
+          resultados?: Json | null
+          status?: string | null
+          tipo?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_campaigns_brand_kit_id_fkey"
+            columns: ["brand_kit_id"]
+            isOneToOne: false
+            referencedRelation: "comm_brand_kits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_canva_designs: {
+        Row: {
+          approval_status: string | null
+          brand_kit_id: string | null
+          briefing_id: string | null
+          briefing_tipo: string | null
+          canva_design_id: string | null
+          canva_url: string | null
+          company_id: string
+          created_at: string | null
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          exported_file_path: string | null
+          exported_url: string | null
+          formato: string | null
+          id: string
+          is_deleted: boolean | null
+          linked_calendar_id: string | null
+          linked_post_id: string | null
+          prompt_briefing: string | null
+          status: string | null
+          titulo: string | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          approval_status?: string | null
+          brand_kit_id?: string | null
+          briefing_id?: string | null
+          briefing_tipo?: string | null
+          canva_design_id?: string | null
+          canva_url?: string | null
+          company_id: string
+          created_at?: string | null
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          exported_file_path?: string | null
+          exported_url?: string | null
+          formato?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          linked_calendar_id?: string | null
+          linked_post_id?: string | null
+          prompt_briefing?: string | null
+          status?: string | null
+          titulo?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          approval_status?: string | null
+          brand_kit_id?: string | null
+          briefing_id?: string | null
+          briefing_tipo?: string | null
+          canva_design_id?: string | null
+          canva_url?: string | null
+          company_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          exported_file_path?: string | null
+          exported_url?: string | null
+          formato?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          linked_calendar_id?: string | null
+          linked_post_id?: string | null
+          prompt_briefing?: string | null
+          status?: string | null
+          titulo?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_canva_designs_brand_kit_id_fkey"
+            columns: ["brand_kit_id"]
+            isOneToOne: false
+            referencedRelation: "comm_brand_kits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comm_canva_designs_linked_calendar_id_fkey"
+            columns: ["linked_calendar_id"]
+            isOneToOne: false
+            referencedRelation: "comm_editorial_calendar"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comm_canva_designs_linked_post_id_fkey"
+            columns: ["linked_post_id"]
+            isOneToOne: false
+            referencedRelation: "comm_content_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_carousel_slides: {
+        Row: {
+          carousel_id: string
+          created_at: string | null
+          design_sugerido: string | null
+          id: string
+          ordem: number
+          texto: string | null
+          titulo: string | null
+        }
+        Insert: {
+          carousel_id: string
+          created_at?: string | null
+          design_sugerido?: string | null
+          id?: string
+          ordem?: number
+          texto?: string | null
+          titulo?: string | null
+        }
+        Update: {
+          carousel_id?: string
+          created_at?: string | null
+          design_sugerido?: string | null
+          id?: string
+          ordem?: number
+          texto?: string | null
+          titulo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_carousel_slides_carousel_id_fkey"
+            columns: ["carousel_id"]
+            isOneToOne: false
+            referencedRelation: "comm_carousels"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_carousels: {
+        Row: {
+          ai_generated: boolean | null
+          brand_kit_id: string | null
+          canal: string | null
+          company_id: string
+          created_at: string | null
+          created_by: string | null
+          cta: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          hashtags: string[] | null
+          id: string
+          is_deleted: boolean | null
+          legenda: string | null
+          objetivo: string | null
+          publico: string | null
+          status: string | null
+          tema: string | null
+          titulo: string | null
+          tom_de_voz: string | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          ai_generated?: boolean | null
+          brand_kit_id?: string | null
+          canal?: string | null
+          company_id: string
+          created_at?: string | null
+          created_by?: string | null
+          cta?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          hashtags?: string[] | null
+          id?: string
+          is_deleted?: boolean | null
+          legenda?: string | null
+          objetivo?: string | null
+          publico?: string | null
+          status?: string | null
+          tema?: string | null
+          titulo?: string | null
+          tom_de_voz?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          ai_generated?: boolean | null
+          brand_kit_id?: string | null
+          canal?: string | null
+          company_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          cta?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          hashtags?: string[] | null
+          id?: string
+          is_deleted?: boolean | null
+          legenda?: string | null
+          objetivo?: string | null
+          publico?: string | null
+          status?: string | null
+          tema?: string | null
+          titulo?: string | null
+          tom_de_voz?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_carousels_brand_kit_id_fkey"
+            columns: ["brand_kit_id"]
+            isOneToOne: false
+            referencedRelation: "comm_brand_kits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_content_posts: {
+        Row: {
+          ai_generated: boolean | null
+          ai_model: string | null
+          ai_prompt: string | null
+          brand_kit_id: string | null
+          briefing_visual: string | null
+          campaign_id: string | null
+          canal: string | null
+          company_id: string
+          created_at: string | null
+          created_by: string | null
+          cta: string | null
+          data_planejada: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          descricao_alternativa: string | null
+          formato: string | null
+          hashtags: string[] | null
+          id: string
+          is_deleted: boolean | null
+          legenda: string | null
+          objetivo: string | null
+          observacoes: string | null
+          palavras_chave: string[] | null
+          produto_relacionado: string | null
+          prompt_visual: string | null
+          publico: string | null
+          responsavel_id: string | null
+          roteiro: string | null
+          status: string
+          tema: string | null
+          texto_card: string | null
+          titulo: string | null
+          tom_de_voz: string | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          ai_generated?: boolean | null
+          ai_model?: string | null
+          ai_prompt?: string | null
+          brand_kit_id?: string | null
+          briefing_visual?: string | null
+          campaign_id?: string | null
+          canal?: string | null
+          company_id: string
+          created_at?: string | null
+          created_by?: string | null
+          cta?: string | null
+          data_planejada?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao_alternativa?: string | null
+          formato?: string | null
+          hashtags?: string[] | null
+          id?: string
+          is_deleted?: boolean | null
+          legenda?: string | null
+          objetivo?: string | null
+          observacoes?: string | null
+          palavras_chave?: string[] | null
+          produto_relacionado?: string | null
+          prompt_visual?: string | null
+          publico?: string | null
+          responsavel_id?: string | null
+          roteiro?: string | null
+          status?: string
+          tema?: string | null
+          texto_card?: string | null
+          titulo?: string | null
+          tom_de_voz?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          ai_generated?: boolean | null
+          ai_model?: string | null
+          ai_prompt?: string | null
+          brand_kit_id?: string | null
+          briefing_visual?: string | null
+          campaign_id?: string | null
+          canal?: string | null
+          company_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          cta?: string | null
+          data_planejada?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao_alternativa?: string | null
+          formato?: string | null
+          hashtags?: string[] | null
+          id?: string
+          is_deleted?: boolean | null
+          legenda?: string | null
+          objetivo?: string | null
+          observacoes?: string | null
+          palavras_chave?: string[] | null
+          produto_relacionado?: string | null
+          prompt_visual?: string | null
+          publico?: string | null
+          responsavel_id?: string | null
+          roteiro?: string | null
+          status?: string
+          tema?: string | null
+          texto_card?: string | null
+          titulo?: string | null
+          tom_de_voz?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_content_posts_brand_kit_id_fkey"
+            columns: ["brand_kit_id"]
+            isOneToOne: false
+            referencedRelation: "comm_brand_kits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_content_variants: {
+        Row: {
+          conteudo: string | null
+          created_at: string | null
+          id: string
+          ordem: number | null
+          post_id: string
+          tipo: string
+        }
+        Insert: {
+          conteudo?: string | null
+          created_at?: string | null
+          id?: string
+          ordem?: number | null
+          post_id: string
+          tipo: string
+        }
+        Update: {
+          conteudo?: string | null
+          created_at?: string | null
+          id?: string
+          ordem?: number | null
+          post_id?: string
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_content_variants_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "comm_content_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_design_templates: {
+        Row: {
+          altura: number
+          categoria: string | null
+          company_id: string | null
+          created_at: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          formato: string
+          id: string
+          is_deleted: boolean | null
+          is_global: boolean | null
+          largura: number
+          nome: string
+          schema: Json
+          thumbnail_url: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          altura: number
+          categoria?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          formato: string
+          id?: string
+          is_deleted?: boolean | null
+          is_global?: boolean | null
+          largura: number
+          nome: string
+          schema?: Json
+          thumbnail_url?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          altura?: number
+          categoria?: string | null
+          company_id?: string | null
+          created_at?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          formato?: string
+          id?: string
+          is_deleted?: boolean | null
+          is_global?: boolean | null
+          largura?: number
+          nome?: string
+          schema?: Json
+          thumbnail_url?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      comm_editorial_calendar: {
+        Row: {
+          campaign_id: string | null
+          canal: string | null
+          company_id: string
+          created_at: string | null
+          created_by: string | null
+          cta: string | null
+          data_planejada: string
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          formato: string | null
+          hora_planejada: string | null
+          id: string
+          internal_id: string | null
+          is_deleted: boolean | null
+          newsletter_id: string | null
+          notas: string | null
+          post_id: string | null
+          prioridade: string | null
+          responsavel_id: string | null
+          status: string | null
+          tema: string | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          canal?: string | null
+          company_id: string
+          created_at?: string | null
+          created_by?: string | null
+          cta?: string | null
+          data_planejada: string
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          formato?: string | null
+          hora_planejada?: string | null
+          id?: string
+          internal_id?: string | null
+          is_deleted?: boolean | null
+          newsletter_id?: string | null
+          notas?: string | null
+          post_id?: string | null
+          prioridade?: string | null
+          responsavel_id?: string | null
+          status?: string | null
+          tema?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          campaign_id?: string | null
+          canal?: string | null
+          company_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          cta?: string | null
+          data_planejada?: string
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          formato?: string | null
+          hora_planejada?: string | null
+          id?: string
+          internal_id?: string | null
+          is_deleted?: boolean | null
+          newsletter_id?: string | null
+          notas?: string | null
+          post_id?: string | null
+          prioridade?: string | null
+          responsavel_id?: string | null
+          status?: string | null
+          tema?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_editorial_calendar_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "comm_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comm_editorial_calendar_internal_id_fkey"
+            columns: ["internal_id"]
+            isOneToOne: false
+            referencedRelation: "comm_internal_comms"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comm_editorial_calendar_newsletter_id_fkey"
+            columns: ["newsletter_id"]
+            isOneToOne: false
+            referencedRelation: "comm_newsletters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comm_editorial_calendar_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "comm_content_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_generated_designs: {
+        Row: {
+          altura: number | null
+          approval_status: string | null
+          brand_kit_id: string | null
+          company_id: string
+          conteudo: Json
+          created_at: string | null
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          export_url: string | null
+          formato: string | null
+          id: string
+          is_deleted: boolean | null
+          largura: number | null
+          linked_post_id: string | null
+          nome: string | null
+          parent_design_id: string | null
+          preview_url: string | null
+          status: string | null
+          template_id: string | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          altura?: number | null
+          approval_status?: string | null
+          brand_kit_id?: string | null
+          company_id: string
+          conteudo?: Json
+          created_at?: string | null
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          export_url?: string | null
+          formato?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          largura?: number | null
+          linked_post_id?: string | null
+          nome?: string | null
+          parent_design_id?: string | null
+          preview_url?: string | null
+          status?: string | null
+          template_id?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          altura?: number | null
+          approval_status?: string | null
+          brand_kit_id?: string | null
+          company_id?: string
+          conteudo?: Json
+          created_at?: string | null
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          export_url?: string | null
+          formato?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          largura?: number | null
+          linked_post_id?: string | null
+          nome?: string | null
+          parent_design_id?: string | null
+          preview_url?: string | null
+          status?: string | null
+          template_id?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_generated_designs_brand_kit_id_fkey"
+            columns: ["brand_kit_id"]
+            isOneToOne: false
+            referencedRelation: "comm_brand_kits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comm_generated_designs_linked_post_id_fkey"
+            columns: ["linked_post_id"]
+            isOneToOne: false
+            referencedRelation: "comm_content_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comm_generated_designs_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "comm_design_templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_generated_images: {
+        Row: {
+          approval_status: string | null
+          approved_at: string | null
+          approved_by: string | null
+          brand_kit_id: string | null
+          company_id: string
+          cost_credits: number | null
+          created_at: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          format: string | null
+          generated_by: string | null
+          id: string
+          is_deleted: boolean | null
+          linked_design_id: string | null
+          linked_post_id: string | null
+          model: string | null
+          parent_image_id: string | null
+          prompt: string
+          prompt_revisado: string | null
+          provider: string | null
+          public_url: string | null
+          rejection_reason: string | null
+          status: string | null
+          storage_path: string | null
+          tokens_in: number | null
+          tokens_out: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          brand_kit_id?: string | null
+          company_id: string
+          cost_credits?: number | null
+          created_at?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          format?: string | null
+          generated_by?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          linked_design_id?: string | null
+          linked_post_id?: string | null
+          model?: string | null
+          parent_image_id?: string | null
+          prompt: string
+          prompt_revisado?: string | null
+          provider?: string | null
+          public_url?: string | null
+          rejection_reason?: string | null
+          status?: string | null
+          storage_path?: string | null
+          tokens_in?: number | null
+          tokens_out?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          approval_status?: string | null
+          approved_at?: string | null
+          approved_by?: string | null
+          brand_kit_id?: string | null
+          company_id?: string
+          cost_credits?: number | null
+          created_at?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          format?: string | null
+          generated_by?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          linked_design_id?: string | null
+          linked_post_id?: string | null
+          model?: string | null
+          parent_image_id?: string | null
+          prompt?: string
+          prompt_revisado?: string | null
+          provider?: string | null
+          public_url?: string | null
+          rejection_reason?: string | null
+          status?: string | null
+          storage_path?: string | null
+          tokens_in?: number | null
+          tokens_out?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_generated_images_brand_kit_id_fkey"
+            columns: ["brand_kit_id"]
+            isOneToOne: false
+            referencedRelation: "comm_brand_kits"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comm_generated_images_linked_design_id_fkey"
+            columns: ["linked_design_id"]
+            isOneToOne: false
+            referencedRelation: "comm_generated_designs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comm_generated_images_linked_post_id_fkey"
+            columns: ["linked_post_id"]
+            isOneToOne: false
+            referencedRelation: "comm_content_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_idea_bank: {
+        Row: {
+          campaign_id: string | null
+          categoria: string | null
+          company_id: string
+          created_at: string | null
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          ideia: string
+          is_deleted: boolean | null
+          observacoes: string | null
+          origem: string | null
+          prioridade: string | null
+          responsavel_id: string | null
+          status: string | null
+          tags: string[] | null
+          updated_at: string | null
+          votos: number | null
+        }
+        Insert: {
+          campaign_id?: string | null
+          categoria?: string | null
+          company_id: string
+          created_at?: string | null
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          ideia: string
+          is_deleted?: boolean | null
+          observacoes?: string | null
+          origem?: string | null
+          prioridade?: string | null
+          responsavel_id?: string | null
+          status?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          votos?: number | null
+        }
+        Update: {
+          campaign_id?: string | null
+          categoria?: string | null
+          company_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          ideia?: string
+          is_deleted?: boolean | null
+          observacoes?: string | null
+          origem?: string | null
+          prioridade?: string | null
+          responsavel_id?: string | null
+          status?: string | null
+          tags?: string[] | null
+          updated_at?: string | null
+          votos?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_idea_bank_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "comm_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_internal_comms: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          created_by: string | null
+          cta: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean | null
+          mensagem_completa: string | null
+          mensagem_curta: string | null
+          prioridade: string | null
+          publico_alvo: string | null
+          status: string | null
+          tipo: string | null
+          titulo: string | null
+          updated_at: string | null
+          updated_by: string | null
+          versao_email: string | null
+          versao_mural: string | null
+          versao_whatsapp: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          created_by?: string | null
+          cta?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          mensagem_completa?: string | null
+          mensagem_curta?: string | null
+          prioridade?: string | null
+          publico_alvo?: string | null
+          status?: string | null
+          tipo?: string | null
+          titulo?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          versao_email?: string | null
+          versao_mural?: string | null
+          versao_whatsapp?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          cta?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          mensagem_completa?: string | null
+          mensagem_curta?: string | null
+          prioridade?: string | null
+          publico_alvo?: string | null
+          status?: string | null
+          tipo?: string | null
+          titulo?: string | null
+          updated_at?: string | null
+          updated_by?: string | null
+          versao_email?: string | null
+          versao_mural?: string | null
+          versao_whatsapp?: string | null
+        }
+        Relationships: []
+      }
+      comm_metrics: {
+        Row: {
+          alcance: number | null
+          cliques: number | null
+          comentarios: number | null
+          company_id: string
+          compartilhamentos: number | null
+          conversoes: number | null
+          created_at: string | null
+          curtidas: number | null
+          custo: number | null
+          id: string
+          impressoes: number | null
+          inscricoes: number | null
+          leads: number | null
+          origem: string | null
+          periodo_fim: string | null
+          periodo_inicio: string | null
+          publication_id: string | null
+        }
+        Insert: {
+          alcance?: number | null
+          cliques?: number | null
+          comentarios?: number | null
+          company_id: string
+          compartilhamentos?: number | null
+          conversoes?: number | null
+          created_at?: string | null
+          curtidas?: number | null
+          custo?: number | null
+          id?: string
+          impressoes?: number | null
+          inscricoes?: number | null
+          leads?: number | null
+          origem?: string | null
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          publication_id?: string | null
+        }
+        Update: {
+          alcance?: number | null
+          cliques?: number | null
+          comentarios?: number | null
+          company_id?: string
+          compartilhamentos?: number | null
+          conversoes?: number | null
+          created_at?: string | null
+          curtidas?: number | null
+          custo?: number | null
+          id?: string
+          impressoes?: number | null
+          inscricoes?: number | null
+          leads?: number | null
+          origem?: string | null
+          periodo_fim?: string | null
+          periodo_inicio?: string | null
+          publication_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_metrics_publication_id_fkey"
+            columns: ["publication_id"]
+            isOneToOne: false
+            referencedRelation: "comm_publications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_module_permissions: {
+        Row: {
+          can_approve: boolean
+          can_create: boolean
+          can_delete: boolean
+          can_edit: boolean
+          can_export: boolean
+          can_generate_content: boolean
+          can_generate_design: boolean
+          can_generate_image: boolean
+          can_manage_brand: boolean
+          can_manage_settings: boolean
+          can_manage_templates: boolean
+          can_publish: boolean
+          can_view: boolean
+          company_id: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          can_approve?: boolean
+          can_create?: boolean
+          can_delete?: boolean
+          can_edit?: boolean
+          can_export?: boolean
+          can_generate_content?: boolean
+          can_generate_design?: boolean
+          can_generate_image?: boolean
+          can_manage_brand?: boolean
+          can_manage_settings?: boolean
+          can_manage_templates?: boolean
+          can_publish?: boolean
+          can_view?: boolean
+          company_id: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          can_approve?: boolean
+          can_create?: boolean
+          can_delete?: boolean
+          can_edit?: boolean
+          can_export?: boolean
+          can_generate_content?: boolean
+          can_generate_design?: boolean
+          can_generate_image?: boolean
+          can_manage_brand?: boolean
+          can_manage_settings?: boolean
+          can_manage_templates?: boolean
+          can_publish?: boolean
+          can_view?: boolean
+          company_id?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      comm_module_settings: {
+        Row: {
+          ai_enabled: boolean
+          ai_image_enabled: boolean
+          canva_enabled: boolean
+          company_id: string | null
+          config: Json
+          created_at: string
+          default_locale: string | null
+          default_timezone: string | null
+          enabled: boolean
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          ai_enabled?: boolean
+          ai_image_enabled?: boolean
+          canva_enabled?: boolean
+          company_id?: string | null
+          config?: Json
+          created_at?: string
+          default_locale?: string | null
+          default_timezone?: string | null
+          enabled?: boolean
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          ai_enabled?: boolean
+          ai_image_enabled?: boolean
+          canva_enabled?: boolean
+          company_id?: string | null
+          config?: Json
+          created_at?: string
+          default_locale?: string | null
+          default_timezone?: string | null
+          enabled?: boolean
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      comm_newsletters: {
+        Row: {
+          abertura: string | null
+          ai_generated: boolean | null
+          assunto: string | null
+          blocos: Json | null
+          brand_kit_id: string | null
+          company_id: string
+          created_at: string | null
+          created_by: string | null
+          cta: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean | null
+          pre_header: string | null
+          publico: string | null
+          rodape: string | null
+          status: string
+          updated_at: string | null
+          updated_by: string | null
+          versao_html: string | null
+          versao_texto: string | null
+        }
+        Insert: {
+          abertura?: string | null
+          ai_generated?: boolean | null
+          assunto?: string | null
+          blocos?: Json | null
+          brand_kit_id?: string | null
+          company_id: string
+          created_at?: string | null
+          created_by?: string | null
+          cta?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          pre_header?: string | null
+          publico?: string | null
+          rodape?: string | null
+          status?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          versao_html?: string | null
+          versao_texto?: string | null
+        }
+        Update: {
+          abertura?: string | null
+          ai_generated?: boolean | null
+          assunto?: string | null
+          blocos?: Json | null
+          brand_kit_id?: string | null
+          company_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          cta?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          pre_header?: string | null
+          publico?: string | null
+          rodape?: string | null
+          status?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          versao_html?: string | null
+          versao_texto?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_newsletters_brand_kit_id_fkey"
+            columns: ["brand_kit_id"]
+            isOneToOne: false
+            referencedRelation: "comm_brand_kits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_product_items: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          created_by: string | null
+          criterios_aceite: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          descricao: string | null
+          esforco: number | null
+          feedback: string | null
+          id: string
+          impacto: number | null
+          is_deleted: boolean | null
+          modulo_relacionado: string | null
+          prioridade: string | null
+          release_note: string | null
+          responsavel_id: string | null
+          risco: string | null
+          status: string | null
+          tipo: string | null
+          titulo: string
+          updated_at: string | null
+          updated_by: string | null
+          user_story: string | null
+          valor_cliente: string | null
+          versao_prevista: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          created_by?: string | null
+          criterios_aceite?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao?: string | null
+          esforco?: number | null
+          feedback?: string | null
+          id?: string
+          impacto?: number | null
+          is_deleted?: boolean | null
+          modulo_relacionado?: string | null
+          prioridade?: string | null
+          release_note?: string | null
+          responsavel_id?: string | null
+          risco?: string | null
+          status?: string | null
+          tipo?: string | null
+          titulo: string
+          updated_at?: string | null
+          updated_by?: string | null
+          user_story?: string | null
+          valor_cliente?: string | null
+          versao_prevista?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          criterios_aceite?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao?: string | null
+          esforco?: number | null
+          feedback?: string | null
+          id?: string
+          impacto?: number | null
+          is_deleted?: boolean | null
+          modulo_relacionado?: string | null
+          prioridade?: string | null
+          release_note?: string | null
+          responsavel_id?: string | null
+          risco?: string | null
+          status?: string | null
+          tipo?: string | null
+          titulo?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          user_story?: string | null
+          valor_cliente?: string | null
+          versao_prevista?: string | null
+        }
+        Relationships: []
+      }
+      comm_prompt_library: {
+        Row: {
+          brand_kit_id: string | null
+          canal: string | null
+          categoria: string | null
+          company_id: string
+          created_at: string | null
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean | null
+          nome: string
+          objetivo: string | null
+          status: string | null
+          texto: string
+          updated_at: string | null
+          variaveis: Json | null
+        }
+        Insert: {
+          brand_kit_id?: string | null
+          canal?: string | null
+          categoria?: string | null
+          company_id: string
+          created_at?: string | null
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          nome: string
+          objetivo?: string | null
+          status?: string | null
+          texto: string
+          updated_at?: string | null
+          variaveis?: Json | null
+        }
+        Update: {
+          brand_kit_id?: string | null
+          canal?: string | null
+          categoria?: string | null
+          company_id?: string
+          created_at?: string | null
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          nome?: string
+          objetivo?: string | null
+          status?: string | null
+          texto?: string
+          updated_at?: string | null
+          variaveis?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_prompt_library_brand_kit_id_fkey"
+            columns: ["brand_kit_id"]
+            isOneToOne: false
+            referencedRelation: "comm_brand_kits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_publications: {
+        Row: {
+          canal: string | null
+          company_id: string
+          created_at: string | null
+          data_planejada: string | null
+          data_publicada: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean | null
+          link_publicacao: string | null
+          metricas: Json | null
+          post_id: string | null
+          responsavel_id: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          canal?: string | null
+          company_id: string
+          created_at?: string | null
+          data_planejada?: string | null
+          data_publicada?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          link_publicacao?: string | null
+          metricas?: Json | null
+          post_id?: string | null
+          responsavel_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          canal?: string | null
+          company_id?: string
+          created_at?: string | null
+          data_planejada?: string | null
+          data_publicada?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean | null
+          link_publicacao?: string | null
+          metricas?: Json | null
+          post_id?: string | null
+          responsavel_id?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_publications_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "comm_content_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           ativo: boolean
@@ -5567,6 +7335,27 @@ export type Database = {
         Args: { _company_id: string }
         Returns: number
       }
+      comm_can: {
+        Args: { _action: string; _company: string; _uid: string }
+        Returns: boolean
+      }
+      comm_log_audit: {
+        Args: {
+          _action: string
+          _company: string
+          _entidade_id?: string
+          _entidade_tipo?: string
+          _modulo: string
+          _nome_entidade?: string
+          _observacoes?: string
+          _payload?: Json
+        }
+        Returns: undefined
+      }
+      comm_soft_delete: {
+        Args: { _id: string; _reason: string; _table: string }
+        Returns: Json
+      }
       crea_can: {
         Args: { _action: string; _company: string; _uid: string }
         Returns: boolean
@@ -5699,6 +7488,12 @@ export type Database = {
         | "crea_responsavel_tecnico"
         | "crea_auditor"
         | "crea_visualizador"
+        | "comunicacao_admin"
+        | "social_media"
+        | "designer"
+        | "redator"
+        | "aprovador"
+        | "gestor_produto"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -5846,6 +7641,12 @@ export const Constants = {
         "crea_responsavel_tecnico",
         "crea_auditor",
         "crea_visualizador",
+        "comunicacao_admin",
+        "social_media",
+        "designer",
+        "redator",
+        "aprovador",
+        "gestor_produto",
       ],
     },
   },
