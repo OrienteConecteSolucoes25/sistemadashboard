@@ -57,6 +57,16 @@ import {
   DocumentosPage as CreaDocumentosPage, NormasPage as CreaNormasPage, LinksPage as CreaLinksPage,
   CredenciaisPage as CreaCredenciaisPage, AssistentePage as CreaAssistentePage, AuditoriaPage as CreaAuditoriaPage,
 } from "./modules/crea/ui/CreaPages";
+import ComunicacaoLayout from "./modules/comunicacao/ui/ComunicacaoLayout";
+import ComunicacaoDashboard from "./modules/comunicacao/ui/ComunicacaoDashboard";
+import {
+  BrandKitsPage, PostGeneratorPage, LegendaGeneratorPage, TextoGeneratorPage, PostsListPage,
+  AprovacoesPage, CalendarioPage, CarrosselGeneratorPage, NewsletterGeneratorPage,
+  InternaGeneratorPage, CampanhaGeneratorPage, NewslettersListPage, InternaListPage,
+  CarrosseisListPage, CampanhasListPage, ProdutoListPage, PublicacoesListPage,
+  IdeiasPage, PromptsPage, AuditoriaPage as CommAuditoriaPage,
+} from "./modules/comunicacao/ui/ComunicacaoPages";
+import { DesignStudioPage, ImagesGalleryPage, CanvaPage } from "./modules/comunicacao/ui/ComunicacaoStudio";
 import ThemeStudioPage from "./modules/aparencia/ui/ThemeStudioPage";
 import { CompanyThemeProvider } from "./modules/aparencia/hooks/CompanyThemeProvider";
 import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
