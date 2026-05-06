@@ -298,6 +298,93 @@ export default function ThemeStudioPage() {
           </Card>
         </TabsContent>
 
+        {/* FUNDO (wallpaper) */}
+        <TabsContent value="fundo" className="mt-4">
+          <Card className="card-elegant">
+            <CardHeader>
+              <CardTitle className="text-lg">Imagem de fundo da empresa</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Defina uma imagem de fundo para realçar o efeito translúcido (especialmente no Glassmorphism).
+                A intensidade do véu da cor de fundo é ajustável.
+              </p>
+
+              <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-4">
+                <div
+                  className="rounded-lg border aspect-video bg-muted overflow-hidden flex items-center justify-center"
+                  style={bgUrl ? { backgroundImage: `url("${bgUrl}")`, backgroundSize: "cover", backgroundPosition: "center" } : {}}
+                >
+                  {!bgUrl && <span className="text-xs text-muted-foreground">Sem imagem</span>}
+                </div>
+
+                <div className="space-y-3">
+                  <div className="flex flex-wrap gap-2">
+                    <label className="inline-flex">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadBg(f); }}
+                      />
+                      <Button asChild disabled={uploading || !companyId}>
+                        <span><Upload className="w-4 h-4 mr-2" /> {uploading ? "Enviando..." : "Enviar imagem"}</span>
+                      </Button>
+                    </label>
+                    {bgUrl && (
+                      <Button variant="outline" onClick={() => setBgUrl(null)}>
+                        <X className="w-4 h-4 mr-2" /> Remover
+                      </Button>
+                    )}
+                  </div>
+
+                  <div>
+                    <Label className="text-xs">Ou cole uma URL pública</Label>
+                    <Input
+                      placeholder="https://..."
+                      value={bgUrl ?? ""}
+                      onChange={e => setBgUrl(e.target.value || null)}
+                    />
+                  </div>
+
+                  <div>
+                    <Label className="text-xs">
+                      Véu da cor de fundo: <strong>{Math.round(bgAlpha * 100)}%</strong>
+                    </Label>
+                    <Slider
+                      min={0} max={100} step={5}
+                      value={[Math.round(bgAlpha * 100)]}
+                      onValueChange={v => setBgAlpha((v[0] ?? 35) / 100)}
+                    />
+                    <p className="text-xs text-muted-foreground mt-1">
+                      0% = imagem totalmente visível · 100% = só a cor de fundo
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 pt-2">
+                {[
+                  "https://images.unsplash.com/photo-1604079628040-94301bb21b91?w=1600",
+                  "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1600",
+                  "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1600",
+                  "https://images.unsplash.com/photo-1620207418302-439b387441b0?w=1600",
+                  "https://images.unsplash.com/photo-1614851099175-e5b30eb6f696?w=1600",
+                  "https://images.unsplash.com/photo-1517021897933-0e0319cfbc28?w=1600",
+                ].map(u => (
+                  <button
+                    key={u}
+                    onClick={() => setBgUrl(u)}
+                    className="aspect-video rounded border overflow-hidden hover:ring-2 hover:ring-primary"
+                    style={{ backgroundImage: `url("${u}")`, backgroundSize: "cover", backgroundPosition: "center" }}
+                    title="Usar este fundo"
+                  />
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         {/* PREVIEW */}
         <TabsContent value="preview" className="mt-4">
           <ThemePreviewPanel tokens={effective} />
