@@ -13,6 +13,7 @@ const AppLayout = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
   const { hasAccess: engAccess } = useEngenhariaAccess();
   const { hasAccess: jurAccess } = useJuridicoAccess();
+  const { isFinanceiro } = usePlanosAccess();
   const loc = useLocation();
   const [open, setOpen] = useState(false);
 
