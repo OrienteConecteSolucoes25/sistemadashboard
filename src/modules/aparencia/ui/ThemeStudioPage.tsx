@@ -70,8 +70,8 @@ export default function ThemeStudioPage() {
   useEffect(() => {
     if (authLoading) return;
     (async () => {
-      const q = await (supabase as any).from("companies").select("id,name").order("name");
-      setCompanies((q.data as Company[]) || []);
+      const q = await (supabase as any).from("companies").select("id,nome").order("nome");
+      setCompanies(((q.data as any[]) || []).map(c => ({ id: c.id, name: c.nome })));
     })();
   }, [authLoading]);
 
