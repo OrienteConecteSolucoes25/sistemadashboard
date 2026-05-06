@@ -33,6 +33,8 @@ type Ctx = {
   loading: boolean;
   /** preview temporário (não salva) */
   previewTheme: (preset: ThemePresetKey, overrides?: Partial<ThemeTokens>) => void;
+  /** preview de imagem de fundo (não salva) */
+  previewBackground: (url: string | null, overlayAlpha?: number) => void;
   /** restaura do banco */
   reloadFromDb: () => Promise<void>;
 };
