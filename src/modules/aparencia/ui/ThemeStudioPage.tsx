@@ -104,8 +104,11 @@ export default function ThemeStudioPage() {
         const ov: any = {};
         COLOR_FIELDS.forEach(f => { if (data[f.dbCol]) ov[f.key] = data[f.dbCol]; });
         setOverrides(ov);
+        setBgUrl(data.background_image_url ?? null);
+        setBgAlpha(typeof data.background_overlay_alpha === "number" ? data.background_overlay_alpha : 0.35);
       } else {
         setPreset(DEFAULT_PRESET); setOverrides({});
+        setBgUrl(null); setBgAlpha(0.35);
       }
       const { data: logs } = await (supabase as any)
         .from("theme_audit_logs").select("*")
@@ -114,10 +117,13 @@ export default function ThemeStudioPage() {
     })();
   }, [companyId]);
 
-  // Aplica preview ao vivo
+  // Aplica preview ao vivo (cores + fundo)
   useEffect(() => {
     previewTheme(preset, overrides as any);
   }, [preset, overrides, previewTheme]);
+  useEffect(() => {
+    previewBackground(bgUrl, bgAlpha);
+  }, [bgUrl, bgAlpha, previewBackground]);
 
   if (authLoading) return null;
   if (!isAdmin) return <Navigate to="/app" replace />;
