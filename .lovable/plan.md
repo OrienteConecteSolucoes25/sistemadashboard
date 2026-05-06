@@ -1,142 +1,101 @@
-# Fase 3 — Geração de Imagem por IA + Integração Canva Pro
+## Refatoração completa de Aparência & Marca OCS
 
-## 1. Opções de geração de imagem
+Escopo grande — vou implementar em uma única leva, mas organizado em blocos. Aqui vai o que será feito antes de mexer no código.
 
-| Opção | Tipo | Custo | Qualidade | Observação |
-|---|---|---|---|---|
-| **Lovable AI Gateway — `google/gemini-3-pro-image-preview`** | API gerenciada | Incluso no plano Lovable (sem chave externa) | Alta, fotorealista + texto legível | **Recomendado** — já temos `LOVABLE_API_KEY` |
-| **Lovable AI — `google/gemini-3.1-flash-image-preview`** | API gerenciada | Mais barato/rápido | Boa, ideal para variações | Bom para volume |
-| **OpenAI gpt-image-1 / DALL·E 3** | API externa | Pago (chave própria) | Muito alta | Exige `OPENAI_API_KEY` do cliente |
-| **Stability / Replicate / Fal** | API externa | Pago | Alta | Exige conta + chave + billing |
-| **Stable Diffusion local (WebGPU)** | Browser | Grátis | Média/baixa | Pesado (>1 GB modelo), lento, inviável em mobile |
-| **Templates SVG/Canvas (Fase 2)** | Local | Grátis | Determinística | Já implementado — não é IA real |
+### Bloco 1 — Banco de dados (1 migration)
 
-**Conclusão**: usar **Lovable AI Gateway** como provedor padrão (zero configuração para o cliente, sem cartão). Manter arquitetura plugável para OpenAI/Stability futuramente.
+Novas tabelas + ajustes:
 
-## 2. O que exige API paga
+- `company_theme_settings` — tema salvo por empresa (preset, paleta completa em HEX, fonte, raio, sombra, densidade, estilo de sidebar). Substitui/estende o que está em `aparencia` hoje sem quebrar.
+- `company_chart_preferences` — `(company_id, module_key, tab_key, subtab_key, metric_key, allowed_chart_types text[], default_chart_type, user_can_switch)`.
+- `user_chart_preferences` — preferência individual do usuário por métrica.
+- `user_layout_preferences` — `(user_id, company_id, module_key, internal_sidebar_collapsed, table_density, dashboard_density)`.
+- `theme_audit_logs` — antes/depois de cada alteração, com usuário/empresa/tipo.
+- Função RPC `theme_save(_company, _payload)` que valida permissão (`can_manage_theme`/admin) e grava + audita atomicamente.
+- Função RPC `theme_restore_default(_company, _reason)`.
+- Permissões novas no enum/role-check: `can_view_theme`, `can_manage_theme`, `can_manage_company_brand`, `can_manage_chart_preferences`, `can_view_theme_audit` (via tabela `theme_permissions` por usuário, sem mexer em RLS de outros módulos).
+- Todas as tabelas com RLS: leitura permitida ao usuário da empresa; escrita só com `can_manage_theme` ou admin.
 
-- OpenAI, Stability, Midjourney, Replicate, Fal, Leonardo → todos exigem chave + cartão do cliente
-- Lovable AI já vem incluso → **não exige nada do cliente** nesta fase
+### Bloco 2 — Sidebar interna recolhível (CollapsibleModuleSidebar)
 
-## 3. O que roda local
+Componente único reutilizável `<CollapsibleModuleSidebar>` substituindo as sidebars escuras fixas de Engenharia, Jurídico, RH/DP, CREA, Comunicação:
 
-- Apenas templates SVG/Canvas (Fase 2 — pronto)
-- SD local em WebGPU é tecnicamente possível mas inviável na prática (UX ruim)
+- Estado controlado por `useUserLayoutPreferences(moduleKey)` — persiste no banco.
+- Botão recolher/expandir no topo. Quando recolhida → só ícones com tooltip (shadcn `Tooltip`).
+- Mobile: vira Sheet/drawer.
+- **Cores via tokens** (`bg-sidebar`, `text-sidebar-foreground`, `bg-sidebar-accent`) — nunca preto hard-coded. Cada tema define esses tokens.
+- Migra os 5 layouts existentes (`EngLayout`, `JurLayout`, `HrdpLayout`, `CreaLayout`, `CommLayout`) para usar o novo componente, preservando todas as rotas/abas atuais.
 
-## 4. Proteção de chaves
+### Bloco 3 — ThemeStudio reescrito
 
-- `LOVABLE_API_KEY` fica **só no Edge Function** (`supabase/functions/comm-image-gen`)
-- Nunca exposta no cliente
-- Edge function valida `auth.uid()`, papel `comunicacao_admin` ou `can_generate_design`, e `crea_can`-style permissão por empresa
-- Rate limit por usuário/empresa (tabela `comm_ai_usage`)
+Página `/app/aparencia` reorganizada em abas:
 
-## 5. Como salvar as imagens
+1. **Empresa** — seletor obrigatório, badge "tema ativo", botão restaurar padrão.
+2. **Presets** — 7 cards (Glassmorphism, Neo-Brutalism, Corporate Clean, Minimal Tech, Dark Premium, Soft SaaS, Industrial Ops) com mini-preview real, badge "Ativo" só no salvo, "Em pré-visualização" quando aplicado ao draft.
+3. **Cores** — `<ColorField>` por token (23 cores listadas), com:
+   - input nativo `<input type="color">` (picker visual)
+   - campo HEX editável (validado)
+   - HSL avançado em `<Collapsible>` recolhido por padrão
+   - botão copiar HEX
+   - botão restaurar padrão daquele campo
+4. **Tipografia & Layout** — fonte, raio, sombra, densidade, estilo da sidebar.
+5. **Gráficos** — `<ChartPreferencesPanel>`: árvore Módulo → Aba → Sub-aba → Métrica, multi-select de tipos permitidos + radio para padrão + toggle "usuário pode trocar". Botões "aplicar a todos os módulos" e "restaurar padrão OCS".
+6. **Preview** — `<ThemePreviewPanel>` num iframe-like sandbox que renderiza dashboard fake (KPIs, tabela, formulário, modal, sidebar mock, pizza/barras/linha, badges, alertas, mini-Engenharia, mini-Jurídico) usando **apenas o draft**.
+7. **Auditoria** — tabela com data/usuário/empresa/tipo/resumo + botão "Ver antes/depois" (diff JSON).
 
-- Bucket Storage **`comm-generated-images`** (privado, RLS por empresa)
-- Tabela `comm_generated_images`:
-  - `id`, `company_id`, `brand_kit_id`, `prompt`, `prompt_revisado`, `provider` (lovable/openai/...), `model`, `format` (1080x1080, 1080x1920, ...), `storage_path`, `public_url` (assinada sob demanda), `cost_credits`, `tokens_in`, `tokens_out`, `status` (queued/generating/ready/failed/rejected), `approval_status` (rascunho/aprovado/reprovado), `generated_by`, `approved_by`, `linked_post_id`, `linked_design_id`, soft delete completo
+### Bloco 4 — Fluxo de salvamento com draft
 
-## 6. Custo/uso por empresa
+- Hook `useThemeDraft(companyId)` — carrega tema salvo, mantém draft local em memória, expõe `isDirty`, `reset`, `apply`.
+- Provider `<ThemeDraftProvider>` envolve a página — TODAS as abas (incluindo Preview) leem do draft.
+- O `CompanyThemeProvider` global continua aplicando apenas o tema **salvo** no banco — draft NÃO escapa da página de aparência.
+- Botão "Salvar Tema":
+  - Desabilitado se sem empresa OU sem alterações.
+  - Abre `<SaveThemeConfirmationDialog>` com resumo (empresa, preset antes/depois, cores alteradas, gráficos alterados, layout alterado, aviso de impacto).
+  - Confirmar → chama RPC `theme_save` → toast sucesso → atualiza badge "Ativo" → audita.
+- Botão "Restaurar padrão" → `<RestoreThemeConfirmationDialog>` → RPC `theme_restore_default`.
+- Indicador persistente "Alterações não salvas" no header da página quando `isDirty`.
 
-- Tabela `comm_ai_usage`:
-  - `company_id`, `user_id`, `provider`, `model`, `kind` (text/image), `tokens_in`, `tokens_out`, `cost_credits`, `created_at`
-- Tabela `comm_ai_quotas` por empresa: `monthly_image_limit`, `monthly_text_limit`, `current_month_usage` (recalculado via view)
-- Edge function bloqueia se cota estourada
-- Dashboard em `/app/comunicacao/admin` mostra consumo
+### Bloco 5 — Aplicação real do tema
 
-## 7. Aprovação humana obrigatória
+- `CompanyThemeProvider` (já existe) estendido para:
+  - injetar TODOS os 23 tokens HEX→HSL em `:root` via CSS vars.
+  - aplicar fonte, raio, sombra como CSS vars (`--radius`, `--shadow-elegant`, `--font-display`).
+  - aplicar tokens de sidebar (`--sidebar`, `--sidebar-foreground`, `--sidebar-accent`) — é isso que tira o preto fixo.
+- Tema afeta automaticamente: dashboards, cards, botões, tabelas, formulários, menus, sidebar interna, gráficos (paleta `chart-1..5`).
 
-- Toda imagem nasce com `approval_status = 'rascunho'`
-- Só pode ser usada em post/calendário após `aprovado` por papel `aprovador` ou `comunicacao_admin`
-- Edge function de "publicar manualmente" valida `approval_status = 'aprovado'`
+### Bloco 6 — Gráficos configuráveis nos dashboards
 
-## 8. Evitar geração indevida
+- Hook `useChartType(moduleKey, tabKey, metricKey)` — retorna `{ allowed[], current, setCurrent }`. Lê preferência do usuário, fallback para padrão da empresa, fallback para padrão OCS.
+- Componente `<ConfigurableChart metric="..." data={...} />` — renderiza o tipo atual e expõe seletor inline ("Visualização: Pizza | Barras | Donut") quando `user_can_switch`.
+- Aplicado nos dashboards já existentes de Engenharia e Jurídico como exemplo (substituição mínima — sem mexer na lógica de dados). RH/DP, CREA, Comunicação ganham o hook disponível para uso futuro.
 
-- **Moderação de prompt** no edge function: blocklist (violência, sexual, marcas terceiras, políticos)
-- Gemini já tem safety filters nativos — capturar e logar bloqueios
-- Rate limit: 10 imagens/min por usuário, 200/dia por empresa (configurável)
-- Auditoria obrigatória de todo prompt
-- Confirmação visual antes de gerar (mostrar prompt final + custo estimado)
+### Bloco 7 — Integração Design Studio (Comunicação)
 
-## 9. Histórico
+- `useCompanyBrandTokens()` exposto para o módulo Comunicação consumir cores/fonte/estilo da empresa ao gerar templates/prompts. Sem reescrever templates — só passa os tokens.
 
-- Tudo em `comm_generated_images` (soft delete, nunca DELETE)
-- Página `/app/comunicacao/galeria-ia` com filtros (marca, formato, autor, status, período)
-- Versão: `parent_image_id` para "gerar variação a partir desta"
-- Auditoria em `comm_audit_logs` para cada geração/aprovação/uso
+### Bloco 8 — Ajustes visuais gerais
 
-## 10. Riscos
+- Grid responsivo nos dashboards (`grid-cols-1 md:grid-cols-2 xl:grid-cols-4`), `min-w-0` nos cards, `truncate`/`break-words` em títulos longos, `h-full` nos containers de gráfico.
 
-- **Custo descontrolado** → mitigado por cota mensal + rate limit
-- **Conteúdo inapropriado** → moderação + aprovação humana
-- **Vazamento de chave** → nunca no client, só edge function
-- **Direitos autorais** → desabilitar prompts com nomes de marcas/celebridades; aviso jurídico no UI
-- **LGPD** → não gerar imagens com pessoas reais sem consentimento; aviso no formulário
-- **Dependência de provedor** → arquitetura plugável (`provider` na tabela)
+### Permissões / Segurança
 
----
+- Tabela `theme_permissions(user_id, company_id, can_view, can_manage, can_manage_brand, can_manage_charts, can_view_audit)`.
+- Função `theme_can(_uid, _company, _action)` análoga a `crea_can`/`comm_can`.
+- RLS em todas as novas tabelas referenciando `theme_can`.
+- Admin geral sempre passa.
+- `<ThemeStudioGuard>` na rota `/app/aparencia` bloqueia acesso de quem não tem `can_view_theme`.
+- Toda alteração registra em `theme_audit_logs` via RPC.
 
-## Integração Canva Pro (alternativa preferida)
+### O que NÃO será tocado
 
-Você descreveu um fluxo que **economiza créditos de IA de imagem** e usa o Canva (que você já paga) como editor final. Arquitetura:
+- RLS de Engenharia, Jurídico, RH/DP, CREA, Comunicação, Pixel.
+- Lógica de auth, roles existentes, `eng_can_edit`, `crea_can`, `comm_can`, `hrdp_can`.
+- Dados operacionais.
+- Edge functions existentes.
 
-```text
-ERP OCS Comunicação IA Studio
-   │
-   ├─ Gera briefing + legenda + texto + roteiro + carrossel + prompt visual (texto IA Lovable, grátis)
-   │
-   ├─ Botão "Abrir no Canva" → deep link com:
-   │     • formato (1080x1080, 1080x1920, ...)
-   │     • texto pré-preenchido (via clipboard ou Canva Apps SDK)
-   │     • brand kit (cores, fontes, logo) já configurado no Canva
-   │
-   ├─ Você finaliza no Canva (manualmente, com seu Pro)
-   │
-   └─ Volta ao ERP via:
-         • cola URL pública do design Canva no campo `canva_url`
-         • upload manual do PNG/PDF exportado
-         • (futuro) Canva Connect API → import automático
-```
+### Ordem de execução
 
-### Opções técnicas de integração Canva
+1. Migration única com tudo do Bloco 1 (peço aprovação, é o único passo bloqueante).
+2. Após aprovada: implemento Blocos 2–8 em sequência, em uma só resposta.
 
-| Nível | Como funciona | Esforço | Limitação |
-|---|---|---|---|
-| **A. Deep link simples** | Botão abre `https://www.canva.com/design?create&type=InstagramPost` em nova aba; usuário cola texto manualmente | Trivial | Sem automação real |
-| **B. Clipboard + deep link** | Copia texto/prompt para clipboard antes de abrir Canva; usuário cola (Ctrl+V) | Baixo | Ainda manual mas rápido |
-| **C. Canva Connect API (OAuth)** | OAuth do usuário, cria design via API, retorna URL editável, importa exportado de volta | Médio-alto | Exige aprovação Canva (parceiro), conta Pro/Teams, rate limits |
-| **D. Canva Apps SDK (Plugin)** | Construir app dentro do Canva que puxa briefings do ERP | Alto | Publicação no Canva Marketplace |
-
-**Recomendação**: começar com **B (clipboard + deep link)** + campo `canva_url` para registrar o design finalizado. Avaliar **C (Connect API)** na Fase 4 se houver volume.
-
-### Tabela nova
-- `comm_canva_designs`:
-  - `id`, `company_id`, `brand_kit_id`, `briefing_id` (FK para post/legenda gerados)
-  - `canva_url`, `canva_design_id` (se via API), `formato`, `status` (em_canva/exportado/aprovado/publicado)
-  - `exported_file_path` (Storage), `linked_post_id`, `linked_calendar_id`
-  - auditoria + soft delete
-
-### Fluxo de aprovação (mantém regra atual)
-1. IA gera briefing + prompt visual → `rascunho`
-2. Usuário clica "Abrir no Canva" → status `em_canva`
-3. Volta, cola URL ou faz upload → `exportado`
-4. Aprovador aprova → `aprovado`
-5. Marca como publicado manualmente → `publicado`
-
----
-
-## Decisão necessária
-
-Preciso que você escolha o caminho da Fase 3 antes de eu implementar:
-
-**Opção 1** — Geração de imagem IA real (Lovable AI Gateway, sem custo extra para você)
-**Opção 2** — Apenas integração Canva (clipboard + deep link + campo URL), zero IA de imagem
-**Opção 3** — Ambos (IA Lovable como rascunho rápido + Canva como finalização premium)
-
-## Não implementar agora
-- OpenAI/Stability/Midjourney/Replicate
-- Canva Connect API (OAuth completo)
-- Publicação automática em redes sociais
-- SD local em WebGPU
-- Geração de vídeo IA
-- Edição inline da imagem gerada (mask/inpainting)
+Posso seguir? A migration vai primeiro.

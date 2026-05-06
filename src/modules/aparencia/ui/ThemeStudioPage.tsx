@@ -10,10 +10,17 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Palette, Save, RotateCcw, Eye, Sparkles, Building2, History, Image as ImageIcon, Upload, X } from "lucide-react";
+import {
+  Palette, Save, RotateCcw, Eye, Sparkles, Building2, History,
+  Image as ImageIcon, Upload, X, BarChart3, AlertCircle
+} from "lucide-react";
 import { Slider } from "@/components/ui/slider";
 import { PRESET_LIST, THEME_PRESETS, ThemePresetKey, ThemeTokens, DEFAULT_PRESET } from "../lib/themePresets";
 import { useCompanyTheme } from "../hooks/CompanyThemeProvider";
+import { ColorField } from "./ColorField";
+import { SaveThemeConfirmationDialog } from "./SaveThemeConfirmationDialog";
+import { ChartPreferencesPanel } from "./ChartPreferencesPanel";
+import { ThemePreviewPanel } from "./ThemePreviewPanel";
 
 type Company = { id: string; name: string };
 
@@ -31,60 +38,35 @@ const COLOR_FIELDS: { key: keyof ThemeTokens; label: string; dbCol: string }[] =
   { key: "destructive",     label: "Perigo",          dbCol: "danger_color" },
 ];
 
-// Converte HSL "h s% l%" -> hex aproximado para o color picker (e vice-versa)
-function hslStrToHex(s: string): string {
-  const m = s.match(/^\s*(\d+(?:\.\d+)?)\s+(\d+(?:\.\d+)?)%\s+(\d+(?:\.\d+)?)%/);
-  if (!m) return "#888888";
-  const h = +m[1] / 360, sat = +m[2] / 100, l = +m[3] / 100;
-  const a = sat * Math.min(l, 1 - l);
-  const f = (n: number) => {
-    const k = (n + h * 12) % 12;
-    const c = l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1));
-    return Math.round(255 * c).toString(16).padStart(2, "0");
-  };
-  return `#${f(0)}${f(8)}${f(4)}`;
-}
-function hexToHslStr(hex: string): string {
-  const m = hex.replace("#", "");
-  const r = parseInt(m.substring(0, 2), 16) / 255;
-  const g = parseInt(m.substring(2, 4), 16) / 255;
-  const b = parseInt(m.substring(4, 6), 16) / 255;
-  const max = Math.max(r, g, b), min = Math.min(r, g, b);
-  let h = 0, s = 0; const l = (max + min) / 2;
-  if (max !== min) {
-    const d = max - min;
-    s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-    switch (max) {
-      case r: h = (g - b) / d + (g < b ? 6 : 0); break;
-      case g: h = (b - r) / d + 2; break;
-      case b: h = (r - g) / d + 4; break;
-    }
-    h *= 60;
-  }
-  return `${Math.round(h)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
-}
-
 export default function ThemeStudioPage() {
-  const { isAdmin, loading: authLoading } = useAuth();
+  const { user, isAdmin, loading: authLoading } = useAuth();
   const { previewTheme, previewBackground, reloadFromDb } = useCompanyTheme();
 
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companyId, setCompanyId] = useState<string>("");
+  const [companyName, setCompanyName] = useState<string>("");
+
+  // Draft state
   const [preset, setPreset] = useState<ThemePresetKey>(DEFAULT_PRESET);
   const [overrides, setOverrides] = useState<Partial<Record<keyof ThemeTokens, string>>>({});
   const [bgUrl, setBgUrl] = useState<string | null>(null);
   const [bgAlpha, setBgAlpha] = useState<number>(0.35);
+
+  // Saved snapshot — para detectar diferenças e mostrar "antes"
+  const [savedPreset, setSavedPreset] = useState<ThemePresetKey>(DEFAULT_PRESET);
+  const [savedOverrides, setSavedOverrides] = useState<Partial<Record<keyof ThemeTokens, string>>>({});
+  const [savedBgUrl, setSavedBgUrl] = useState<string | null>(null);
+  const [savedBgAlpha, setSavedBgAlpha] = useState<number>(0.35);
+
   const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [audit, setAudit] = useState<any[]>([]);
+  const [chartsDirty, setChartsDirty] = useState(false);
 
   const baseTokens = THEME_PRESETS[preset].tokens;
-  const effective: ThemeTokens = useMemo(
-    () => ({ ...baseTokens, ...(overrides as any) }),
-    [baseTokens, overrides]
-  );
 
-  // Carrega empresas
+  // Lista de empresas
   useEffect(() => {
     if (authLoading) return;
     (async () => {
@@ -93,50 +75,68 @@ export default function ThemeStudioPage() {
     })();
   }, [authLoading]);
 
-  // Carrega tema da empresa selecionada
+  // Carrega tema salvo da empresa
   useEffect(() => {
     if (!companyId) return;
     (async () => {
       const { data } = await (supabase as any)
         .from("company_theme_settings").select("*").eq("company_id", companyId).maybeSingle();
-      if (data) {
-        setPreset((data.theme_preset || DEFAULT_PRESET) as ThemePresetKey);
-        const ov: any = {};
-        COLOR_FIELDS.forEach(f => { if (data[f.dbCol]) ov[f.key] = data[f.dbCol]; });
-        setOverrides(ov);
-        setBgUrl(data.background_image_url ?? null);
-        setBgAlpha(typeof data.background_overlay_alpha === "number" ? data.background_overlay_alpha : 0.35);
-      } else {
-        setPreset(DEFAULT_PRESET); setOverrides({});
-        setBgUrl(null); setBgAlpha(0.35);
-      }
+      const p = (data?.theme_preset || DEFAULT_PRESET) as ThemePresetKey;
+      const ov: any = {};
+      if (data) COLOR_FIELDS.forEach(f => { if (data[f.dbCol]) ov[f.key] = data[f.dbCol]; });
+      const b = data?.background_image_url ?? null;
+      const a = typeof data?.background_overlay_alpha === "number" ? Number(data.background_overlay_alpha) : 0.35;
+      setPreset(p); setOverrides(ov); setBgUrl(b); setBgAlpha(a);
+      setSavedPreset(p); setSavedOverrides(ov); setSavedBgUrl(b); setSavedBgAlpha(a);
+
       const { data: logs } = await (supabase as any)
         .from("theme_audit_logs").select("*")
-        .eq("company_id", companyId).order("created_at", { ascending: false }).limit(20);
+        .eq("company_id", companyId).order("created_at", { ascending: false }).limit(30);
       setAudit(logs || []);
-    })();
-  }, [companyId]);
+      setChartsDirty(false);
 
-  // Aplica preview ao vivo (cores + fundo)
+      const c = companies.find(x => x.id === companyId);
+      setCompanyName(c?.name || "");
+    })();
+  }, [companyId, companies]);
+
+  // Aplica preview ao vivo (só na página)
   useEffect(() => {
+    if (!companyId) return;
     previewTheme(preset, overrides as any);
-  }, [preset, overrides, previewTheme]);
+  }, [preset, overrides, previewTheme, companyId]);
   useEffect(() => {
+    if (!companyId) return;
     previewBackground(bgUrl, bgAlpha);
-  }, [bgUrl, bgAlpha, previewBackground]);
+  }, [bgUrl, bgAlpha, previewBackground, companyId]);
+
+  // Restaura tema real ao desmontar
+  useEffect(() => {
+    return () => { reloadFromDb(); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   if (authLoading) return null;
   if (!isAdmin) return <Navigate to="/app" replace />;
 
-  const handleSave = async () => {
+  // Diferenças
+  const changedColors = COLOR_FIELDS.filter(f => (overrides[f.key] ?? null) !== (savedOverrides[f.key] ?? null)).map(f => f.label);
+  const presetChanged = preset !== savedPreset;
+  const bgChanged = bgUrl !== savedBgUrl || Math.abs(bgAlpha - savedBgAlpha) > 0.001;
+  const isDirty = presetChanged || changedColors.length > 0 || bgChanged || chartsDirty;
+
+  const handleConfirmSave = async () => {
     if (!companyId) { toast.error("Selecione uma empresa"); return; }
     setSaving(true);
     const { data: prev } = await (supabase as any)
       .from("company_theme_settings").select("*").eq("company_id", companyId).maybeSingle();
 
     const payload: any = {
-      company_id: companyId, theme_preset: preset, is_active: true,
-      background_image_url: bgUrl, background_overlay_alpha: bgAlpha,
+      company_id: companyId,
+      theme_preset: preset,
+      is_active: true,
+      background_image_url: bgUrl,
+      background_overlay_alpha: bgAlpha,
     };
     COLOR_FIELDS.forEach(f => { payload[f.dbCol] = overrides[f.key] ?? null; });
 
@@ -146,17 +146,24 @@ export default function ThemeStudioPage() {
 
     if (error) { toast.error("Erro ao salvar: " + error.message); setSaving(false); return; }
 
-    const { data: { user } } = await supabase.auth.getUser();
     await (supabase as any).from("theme_audit_logs").insert({
       company_id: companyId,
       user_id: user?.id ?? null,
-      action_type: prev ? "update" : "create",
-      before_data: prev ?? null,
-      after_data: payload,
+      action: "save",
+      change_type: "theme",
+      summary: `Tema ${THEME_PRESETS[preset].label}`,
+      before: prev ?? null,
+      after: payload,
     });
 
-    toast.success("Tema salvo e aplicado!");
+    toast.success("Tema salvo e aplicado com sucesso.");
     setSaving(false);
+    setConfirmOpen(false);
+    setSavedPreset(preset);
+    setSavedOverrides({ ...overrides });
+    setSavedBgUrl(bgUrl);
+    setSavedBgAlpha(bgAlpha);
+    setChartsDirty(false);
     await reloadFromDb();
   };
 
@@ -170,13 +177,37 @@ export default function ThemeStudioPage() {
     const { data } = supabase.storage.from("company-wallpapers").getPublicUrl(path);
     setBgUrl(data.publicUrl);
     setUploading(false);
-    toast.success("Imagem aplicada — clique em Salvar para persistir");
+    toast.success("Imagem aplicada — clique em Salvar para confirmar");
   };
 
-  const handleReset = () => {
-    setPreset(DEFAULT_PRESET); setOverrides({});
-    setBgUrl(null); setBgAlpha(0.35);
-    toast.message("Restaurado para o padrão OCS (Glassmorphism)");
+  const handleDiscard = () => {
+    setPreset(savedPreset);
+    setOverrides({ ...savedOverrides });
+    setBgUrl(savedBgUrl);
+    setBgAlpha(savedBgAlpha);
+    setChartsDirty(false);
+    toast.message("Alterações descartadas");
+  };
+
+  const handleRestoreDefault = async () => {
+    if (!companyId) { toast.error("Selecione uma empresa"); return; }
+    if (!confirm(`Restaurar o tema padrão OCS para "${companyName}"? Essa ação aplica imediatamente e registra auditoria.`)) return;
+    const { data: prev } = await (supabase as any)
+      .from("company_theme_settings").select("*").eq("company_id", companyId).maybeSingle();
+    await (supabase as any).from("company_theme_settings").delete().eq("company_id", companyId);
+    await (supabase as any).from("theme_audit_logs").insert({
+      company_id: companyId,
+      user_id: user?.id ?? null,
+      action: "restore_default",
+      change_type: "theme",
+      summary: "Restauração do padrão OCS",
+      before: prev ?? null,
+      after: null,
+    });
+    setPreset(DEFAULT_PRESET); setOverrides({}); setBgUrl(null); setBgAlpha(0.35);
+    setSavedPreset(DEFAULT_PRESET); setSavedOverrides({}); setSavedBgUrl(null); setSavedBgAlpha(0.35);
+    toast.success("Padrão OCS restaurado.");
+    await reloadFromDb();
   };
 
   return (
@@ -188,13 +219,23 @@ export default function ThemeStudioPage() {
             Aparência & Marca OCS
           </h1>
           <p className="text-muted-foreground text-sm">
-            Personalize visualmente o ERP por empresa — temas, cores, fontes e estilo.
+            Personalize visualmente o ERP por empresa. As alterações só são aplicadas após confirmar.
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button variant="outline" onClick={handleReset}><RotateCcw className="w-4 h-4 mr-2" />Restaurar padrão</Button>
-          <Button onClick={handleSave} disabled={saving || !companyId}>
-            <Save className="w-4 h-4 mr-2" /> {saving ? "Salvando..." : "Salvar tema"}
+        <div className="flex gap-2 items-center">
+          {isDirty && (
+            <Badge variant="outline" className="border-warn text-warn animate-pulse">
+              <AlertCircle className="w-3 h-3 mr-1" /> Alterações não salvas
+            </Badge>
+          )}
+          <Button variant="outline" onClick={handleDiscard} disabled={!isDirty}>
+            Descartar
+          </Button>
+          <Button variant="outline" onClick={handleRestoreDefault} disabled={!companyId}>
+            <RotateCcw className="w-4 h-4 mr-2" />Restaurar padrão
+          </Button>
+          <Button onClick={() => setConfirmOpen(true)} disabled={!companyId || !isDirty || saving}>
+            <Save className="w-4 h-4 mr-2" /> Salvar tema
           </Button>
         </div>
       </div>
@@ -205,25 +246,36 @@ export default function ThemeStudioPage() {
           <div className="flex-1 min-w-0">
             <Label className="flex items-center gap-2 mb-2"><Building2 className="w-4 h-4" /> Empresa</Label>
             <Select value={companyId} onValueChange={setCompanyId}>
-              <SelectTrigger><SelectValue placeholder="Selecione uma empresa" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder="Selecione uma empresa para editar o tema" /></SelectTrigger>
               <SelectContent>
                 {companies.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
               </SelectContent>
             </Select>
+            {!companyId && (
+              <p className="text-xs text-warn mt-1.5">Selecione uma empresa antes de salvar o tema.</p>
+            )}
           </div>
           {companyId && (
-            <Badge variant="outline" className="text-sm">
-              Tema atual: <strong className="ml-1">{THEME_PRESETS[preset].label}</strong>
-            </Badge>
+            <div className="flex gap-2">
+              <Badge variant="outline" className="text-sm">
+                Salvo: <strong className="ml-1">{THEME_PRESETS[savedPreset].label}</strong>
+              </Badge>
+              {presetChanged && (
+                <Badge className="text-sm">
+                  Em pré-visualização: <strong className="ml-1">{THEME_PRESETS[preset].label}</strong>
+                </Badge>
+              )}
+            </div>
           )}
         </CardContent>
       </Card>
 
       <Tabs defaultValue="presets">
-        <TabsList>
+        <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="presets"><Sparkles className="w-4 h-4 mr-1" />Presets</TabsTrigger>
-          <TabsTrigger value="cores">Cores</TabsTrigger>
+          <TabsTrigger value="cores"><Palette className="w-4 h-4 mr-1" />Cores</TabsTrigger>
           <TabsTrigger value="fundo"><ImageIcon className="w-4 h-4 mr-1" />Fundo</TabsTrigger>
+          <TabsTrigger value="graficos"><BarChart3 className="w-4 h-4 mr-1" />Gráficos</TabsTrigger>
           <TabsTrigger value="preview"><Eye className="w-4 h-4 mr-1" />Preview</TabsTrigger>
           <TabsTrigger value="auditoria"><History className="w-4 h-4 mr-1" />Auditoria</TabsTrigger>
         </TabsList>
@@ -233,21 +285,17 @@ export default function ThemeStudioPage() {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
             {PRESET_LIST.map(p => {
               const t = p.tokens;
-              const active = preset === p.key;
+              const isSaved = savedPreset === p.key;
+              const isDraft = preset === p.key;
               return (
                 <button
                   key={p.key}
                   onClick={() => { setPreset(p.key); setOverrides({}); }}
                   className={`text-left rounded-lg border-2 transition-all overflow-hidden ${
-                    active ? "border-primary shadow-elegant" : "border-border hover:border-primary/50"
+                    isDraft ? "border-primary shadow-elegant" : "border-border hover:border-primary/50"
                   }`}
                 >
-                  <div
-                    className="h-24 relative"
-                    style={{
-                      background: t.bgGradient ?? `hsl(${t.background})`,
-                    }}
-                  >
+                  <div className="h-24 relative" style={{ background: t.bgGradient ?? `hsl(${t.background})` }}>
                     <div className="absolute inset-3 flex gap-2">
                       <span className="w-8 h-8 rounded-full" style={{ background: `hsl(${t.primary})` }} />
                       <span className="w-8 h-8 rounded-full" style={{ background: `hsl(${t.accent})` }} />
@@ -255,11 +303,14 @@ export default function ThemeStudioPage() {
                     </div>
                   </div>
                   <div className="p-3 bg-card">
-                    <div className="font-display font-semibold flex items-center justify-between">
-                      {p.label}
-                      {active && <Badge className="text-xs">Ativo</Badge>}
+                    <div className="font-display font-semibold flex items-center justify-between gap-2">
+                      <span className="truncate">{p.label}</span>
+                      <div className="flex gap-1 shrink-0">
+                        {isSaved && <Badge className="text-[10px]">Ativo</Badge>}
+                        {isDraft && !isSaved && <Badge variant="outline" className="text-[10px] border-warn text-warn">Em pré-visualização</Badge>}
+                      </div>
                     </div>
-                    <p className="text-xs text-muted-foreground mt-1">{p.description}</p>
+                    <p className="text-xs text-muted-foreground mt-1 line-clamp-2">{p.description}</p>
                   </div>
                 </button>
               );
@@ -270,35 +321,30 @@ export default function ThemeStudioPage() {
         {/* CORES */}
         <TabsContent value="cores" className="mt-4">
           <Card className="card-elegant">
-            <CardHeader><CardTitle className="text-lg">Paleta de cores</CardTitle></CardHeader>
-            <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            <CardHeader>
+              <CardTitle className="text-lg">Paleta de cores</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                Use o seletor visual ou edite o código HEX. As alterações aparecem no Preview e nesta página, mas só são aplicadas para a empresa após Salvar.
+              </p>
+            </CardHeader>
+            <CardContent className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {COLOR_FIELDS.map(f => {
                 const current = (overrides[f.key] as string) || (baseTokens[f.key] as string);
-                const hex = hslStrToHex(current);
                 return (
-                  <div key={f.key as string} className="space-y-1">
-                    <Label className="text-xs">{f.label}</Label>
-                    <div className="flex gap-2 items-center">
-                      <input
-                        type="color"
-                        value={hex}
-                        onChange={e => setOverrides(o => ({ ...o, [f.key]: hexToHslStr(e.target.value) }))}
-                        className="w-10 h-10 rounded border cursor-pointer"
-                      />
-                      <Input
-                        value={current}
-                        onChange={e => setOverrides(o => ({ ...o, [f.key]: e.target.value }))}
-                        className="font-mono text-xs"
-                      />
-                    </div>
-                  </div>
+                  <ColorField
+                    key={f.key as string}
+                    label={f.label}
+                    hslValue={current}
+                    defaultHsl={baseTokens[f.key] as string}
+                    onChange={(v) => setOverrides(o => ({ ...o, [f.key]: v }))}
+                  />
                 );
               })}
             </CardContent>
           </Card>
         </TabsContent>
 
-        {/* FUNDO (wallpaper) */}
+        {/* FUNDO */}
         <TabsContent value="fundo" className="mt-4">
           <Card className="card-elegant">
             <CardHeader>
@@ -306,88 +352,53 @@ export default function ThemeStudioPage() {
             </CardHeader>
             <CardContent className="space-y-4">
               <p className="text-sm text-muted-foreground">
-                Defina uma imagem de fundo para realçar o efeito translúcido (especialmente no Glassmorphism).
-                A intensidade do véu da cor de fundo é ajustável.
+                Defina uma imagem de fundo para realçar o efeito translúcido. A intensidade do véu da cor de fundo é ajustável.
               </p>
-
               <div className="grid grid-cols-1 md:grid-cols-[260px_1fr] gap-4">
-                <div
-                  className="rounded-lg border aspect-video bg-muted overflow-hidden flex items-center justify-center"
-                  style={bgUrl ? { backgroundImage: `url("${bgUrl}")`, backgroundSize: "cover", backgroundPosition: "center" } : {}}
-                >
+                <div className="rounded-lg border aspect-video bg-muted overflow-hidden flex items-center justify-center"
+                  style={bgUrl ? { backgroundImage: `url("${bgUrl}")`, backgroundSize: "cover", backgroundPosition: "center" } : {}}>
                   {!bgUrl && <span className="text-xs text-muted-foreground">Sem imagem</span>}
                 </div>
-
                 <div className="space-y-3">
                   <div className="flex flex-wrap gap-2">
                     <label className="inline-flex">
-                      <input
-                        type="file"
-                        accept="image/*"
-                        className="hidden"
-                        onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadBg(f); }}
-                      />
+                      <input type="file" accept="image/*" className="hidden"
+                        onChange={e => { const f = e.target.files?.[0]; if (f) handleUploadBg(f); }} />
                       <Button asChild disabled={uploading || !companyId}>
                         <span><Upload className="w-4 h-4 mr-2" /> {uploading ? "Enviando..." : "Enviar imagem"}</span>
                       </Button>
                     </label>
-                    {bgUrl && (
-                      <Button variant="outline" onClick={() => setBgUrl(null)}>
-                        <X className="w-4 h-4 mr-2" /> Remover
-                      </Button>
-                    )}
+                    {bgUrl && <Button variant="outline" onClick={() => setBgUrl(null)}><X className="w-4 h-4 mr-2" /> Remover</Button>}
                   </div>
-
                   <div>
                     <Label className="text-xs">Ou cole uma URL pública</Label>
-                    <Input
-                      placeholder="https://..."
-                      value={bgUrl ?? ""}
-                      onChange={e => setBgUrl(e.target.value || null)}
-                    />
+                    <Input placeholder="https://..." value={bgUrl ?? ""} onChange={e => setBgUrl(e.target.value || null)} />
                   </div>
-
                   <div>
-                    <Label className="text-xs">
-                      Véu da cor de fundo: <strong>{Math.round(bgAlpha * 100)}%</strong>
-                    </Label>
-                    <Slider
-                      min={0} max={100} step={5}
-                      value={[Math.round(bgAlpha * 100)]}
-                      onValueChange={v => setBgAlpha((v[0] ?? 35) / 100)}
-                    />
-                    <p className="text-xs text-muted-foreground mt-1">
-                      0% = imagem totalmente visível · 100% = só a cor de fundo
-                    </p>
+                    <Label className="text-xs">Véu da cor de fundo: <strong>{Math.round(bgAlpha * 100)}%</strong></Label>
+                    <Slider min={0} max={100} step={5} value={[Math.round(bgAlpha * 100)]} onValueChange={v => setBgAlpha((v[0] ?? 35) / 100)} />
+                    <p className="text-xs text-muted-foreground mt-1">0% = imagem totalmente visível · 100% = só a cor de fundo</p>
                   </div>
                 </div>
-              </div>
-
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2 pt-2">
-                {[
-                  "https://images.unsplash.com/photo-1604079628040-94301bb21b91?w=1600",
-                  "https://images.unsplash.com/photo-1557682250-33bd709cbe85?w=1600",
-                  "https://images.unsplash.com/photo-1579546929518-9e396f3cc809?w=1600",
-                  "https://images.unsplash.com/photo-1620207418302-439b387441b0?w=1600",
-                  "https://images.unsplash.com/photo-1614851099175-e5b30eb6f696?w=1600",
-                  "https://images.unsplash.com/photo-1517021897933-0e0319cfbc28?w=1600",
-                ].map(u => (
-                  <button
-                    key={u}
-                    onClick={() => setBgUrl(u)}
-                    className="aspect-video rounded border overflow-hidden hover:ring-2 hover:ring-primary"
-                    style={{ backgroundImage: `url("${u}")`, backgroundSize: "cover", backgroundPosition: "center" }}
-                    title="Usar este fundo"
-                  />
-                ))}
               </div>
             </CardContent>
           </Card>
         </TabsContent>
 
+        {/* GRÁFICOS */}
+        <TabsContent value="graficos" className="mt-4">
+          {companyId ? (
+            <ChartPreferencesPanel companyId={companyId} onDirtyChange={setChartsDirty} />
+          ) : (
+            <Card className="card-elegant"><CardContent className="pt-6 text-sm text-muted-foreground">
+              Selecione uma empresa para configurar os gráficos.
+            </CardContent></Card>
+          )}
+        </TabsContent>
+
         {/* PREVIEW */}
         <TabsContent value="preview" className="mt-4">
-          <ThemePreviewPanel tokens={effective} />
+          <ThemePreviewPanel />
         </TabsContent>
 
         {/* AUDITORIA */}
@@ -395,15 +406,15 @@ export default function ThemeStudioPage() {
           <Card className="card-elegant">
             <CardHeader><CardTitle className="text-lg">Histórico de alterações</CardTitle></CardHeader>
             <CardContent>
-              {audit.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma alteração registrada.</p>}
+              {audit.length === 0 && <p className="text-sm text-muted-foreground">Nenhuma alteração registrada para esta empresa.</p>}
               <div className="space-y-2">
                 {audit.map(a => (
-                  <div key={a.id} className="flex items-center justify-between text-sm border-b py-2">
-                    <div>
-                      <Badge variant="outline" className="mr-2">{a.action_type}</Badge>
-                      <span className="font-mono text-xs">{a.after_data?.theme_preset}</span>
+                  <div key={a.id} className="flex items-center justify-between text-sm border-b py-2 gap-2">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <Badge variant="outline" className="shrink-0">{a.action || a.action_type}</Badge>
+                      <span className="truncate">{a.summary || (a.after_data?.theme_preset || a.after?.theme_preset || "-")}</span>
                     </div>
-                    <span className="text-xs text-muted-foreground">
+                    <span className="text-xs text-muted-foreground shrink-0">
                       {new Date(a.created_at).toLocaleString("pt-BR")}
                     </span>
                   </div>
@@ -413,64 +424,19 @@ export default function ThemeStudioPage() {
           </Card>
         </TabsContent>
       </Tabs>
-    </div>
-  );
-}
 
-function ThemePreviewPanel({ tokens }: { tokens: ThemeTokens }) {
-  // Renderiza com tokens "ao vivo" — como já aplicamos via previewTheme, basta usar os componentes do app
-  return (
-    <div className="space-y-4">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {[
-          { label: "Receita", value: "R$ 184k", color: "kpi-teal" },
-          { label: "Pendências", value: "12", color: "kpi-warn" },
-          { label: "Atrasos", value: "3", color: "kpi-danger" },
-        ].map(k => (
-          <Card key={k.label} className={`card-elegant ${k.color}`}>
-            <CardContent className="pt-6">
-              <div className="text-xs text-muted-foreground">{k.label}</div>
-              <div className="text-3xl font-display mt-1">{k.value}</div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card className="card-elegant">
-        <CardHeader><CardTitle>Preview de componentes</CardTitle></CardHeader>
-        <CardContent className="space-y-4">
-          <div className="flex flex-wrap gap-2">
-            <Button>Primário</Button>
-            <Button variant="secondary">Secundário</Button>
-            <Button variant="outline">Outline</Button>
-            <Button variant="destructive">Perigo</Button>
-            <Button variant="ghost">Ghost</Button>
-          </div>
-          <div className="flex flex-wrap gap-2">
-            <Badge>default</Badge>
-            <Badge variant="secondary">secondary</Badge>
-            <Badge variant="outline">outline</Badge>
-            <Badge variant="destructive">destructive</Badge>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Input placeholder="Campo de exemplo" />
-            <Input placeholder="Outro campo" />
-          </div>
-          <div
-            className="p-4 rounded-lg border"
-            style={{
-              background: `hsl(${tokens.card} / ${tokens.glassAlpha})`,
-              backdropFilter: `blur(${tokens.glassBlur})`,
-              WebkitBackdropFilter: `blur(${tokens.glassBlur})`,
-            }}
-          >
-            <div className="font-display font-semibold">Card translúcido</div>
-            <p className="text-sm text-muted-foreground">
-              Reflete a intensidade de glass do tema selecionado.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <SaveThemeConfirmationDialog
+        open={confirmOpen}
+        onOpenChange={setConfirmOpen}
+        companyName={companyName}
+        presetBefore={THEME_PRESETS[savedPreset].label}
+        presetAfter={THEME_PRESETS[preset].label}
+        changedColors={changedColors}
+        layoutChanged={bgChanged}
+        chartsChanged={chartsDirty}
+        saving={saving}
+        onConfirm={handleConfirmSave}
+      />
     </div>
   );
 }
