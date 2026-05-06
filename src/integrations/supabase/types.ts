@@ -2765,6 +2765,149 @@ export type Database = {
           },
         ]
       }
+      hrdp_payroll_closings: {
+        Row: {
+          company_id: string
+          competencia: string
+          created_at: string
+          data: Json
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          fechado_em: string | null
+          fechado_por: string | null
+          id: string
+          is_deleted: boolean
+          observacoes: string | null
+          qtd_colaboradores: number
+          status: string
+          total_descontos: number
+          total_liquido: number
+          total_proventos: number
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          competencia: string
+          created_at?: string
+          data?: Json
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          fechado_em?: string | null
+          fechado_por?: string | null
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          qtd_colaboradores?: number
+          status?: string
+          total_descontos?: number
+          total_liquido?: number
+          total_proventos?: number
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          competencia?: string
+          created_at?: string
+          data?: Json
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          fechado_em?: string | null
+          fechado_por?: string | null
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          qtd_colaboradores?: number
+          status?: string
+          total_descontos?: number
+          total_liquido?: number
+          total_proventos?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      hrdp_payslips: {
+        Row: {
+          closing_id: string | null
+          company_id: string
+          competencia: string
+          created_at: string
+          data: Json
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          descontos: number
+          employee_id: string
+          id: string
+          is_deleted: boolean
+          liquido: number
+          observacoes: string | null
+          pdf_path: string | null
+          proventos: number
+          publicado_em: string | null
+          rubricas: Json
+          salario_base: number
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          closing_id?: string | null
+          company_id: string
+          competencia: string
+          created_at?: string
+          data?: Json
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descontos?: number
+          employee_id: string
+          id?: string
+          is_deleted?: boolean
+          liquido?: number
+          observacoes?: string | null
+          pdf_path?: string | null
+          proventos?: number
+          publicado_em?: string | null
+          rubricas?: Json
+          salario_base?: number
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          closing_id?: string | null
+          company_id?: string
+          competencia?: string
+          created_at?: string
+          data?: Json
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descontos?: number
+          employee_id?: string
+          id?: string
+          is_deleted?: boolean
+          liquido?: number
+          observacoes?: string | null
+          pdf_path?: string | null
+          proventos?: number
+          publicado_em?: string | null
+          rubricas?: Json
+          salario_base?: number
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hrdp_payslips_closing_id_fkey"
+            columns: ["closing_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_payroll_closings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hrdp_submodules_catalog: {
         Row: {
           area: string
