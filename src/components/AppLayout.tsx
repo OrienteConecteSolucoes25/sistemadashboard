@@ -1,9 +1,10 @@
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, FolderKanban, LogOut, Settings, User, Gamepad2, HardHat, Scale, Menu, X } from "lucide-react";
+import { Shield, FolderKanban, LogOut, Settings, User, Gamepad2, HardHat, Scale, Menu, X, CreditCard } from "lucide-react";
 import { useEngenhariaAccess } from "@/modules/engenharia/hooks/useEngenhariaAccess";
 import { useJuridicoAccess } from "@/modules/juridico/hooks/useJuridicoAccess";
+import { usePlanosAccess } from "@/modules/planos/hooks/usePlanosAccess";
 import { useEffect, useState } from "react";
 import { NotificationsBell } from "@/components/NotificationsBell";
 import { AssistenteFloating } from "@/components/AssistenteFloating";
