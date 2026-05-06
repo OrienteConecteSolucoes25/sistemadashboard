@@ -1,4 +1,4 @@
-import { LayoutDashboard, ShieldCheck, MapPin, FolderKanban, ListTodo, FileQuestion, AlertTriangle, Users, Boxes, FileText, Building2, Zap, Cable, ShoppingCart, FileSignature, Mail, Settings2, Database, Brain, Activity } from "lucide-react";
+import { LayoutDashboard, ShieldCheck, MapPin, FolderKanban, ListTodo, FileQuestion, AlertTriangle, Users, Boxes, FileText, Building2, Zap, Cable, ShoppingCart, FileSignature, Mail, Settings2, Database, Brain, Activity, ShieldAlert } from "lucide-react";
 
 export type EngTab = {
   to: string;
@@ -31,4 +31,5 @@ export const ENG_TABS: EngTab[] = [
   { to: "/app/engenharia/integracoes", label: "Integrações", icon: Database, group: "Sistema" },
   { to: "/app/engenharia/roadmap-ia", label: "Roadmap IA", icon: Brain, group: "Sistema" },
   { to: "/app/engenharia/configuracoes", label: "Configurações", icon: Settings2, group: "Sistema" },
+  { to: "/app/engenharia/rastreabilidade", label: "Rastreabilidade", icon: ShieldAlert, group: "Sistema" },
 ];
