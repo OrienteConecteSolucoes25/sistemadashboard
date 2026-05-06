@@ -125,10 +125,13 @@ const AppLayout = () => {
       </aside>
 
       <main
-        className="flex-1 p-4 md:p-6 overflow-auto pt-20 md:pt-6"
+        className="flex-1 overflow-auto pt-14 md:pt-0"
         style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
       >
-        <Outlet />
+        <ImpersonationBanner />
+        <div className="p-4 md:p-6">
+          <Outlet />
+        </div>
       </main>
       <AssistenteFloating />
     </div>
