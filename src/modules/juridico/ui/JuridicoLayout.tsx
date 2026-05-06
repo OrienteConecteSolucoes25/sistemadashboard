@@ -1,19 +1,23 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import { LayoutDashboard, Scale, Clock, FileText, Users, ListChecks, BarChart3, Gavel } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUserModules } from "@/modules/planos/hooks/useUserModules";
+import { useMemo } from "react";
 
-const tabs = [
-  { to: "/app/juridico", label: "Dashboard", icon: LayoutDashboard, end: true, group: "Visão geral" },
-  { to: "/app/juridico/processos", label: "Processos", icon: Scale, group: "Operação" },
-  { to: "/app/juridico/prazos", label: "Prazos", icon: Clock, group: "Operação" },
-  { to: "/app/juridico/tarefas", label: "Tarefas", icon: ListChecks, group: "Operação" },
-  { to: "/app/juridico/documentos", label: "Documentos", icon: FileText, group: "Acervo" },
-  { to: "/app/juridico/responsaveis", label: "Responsáveis", icon: Users, group: "Acervo" },
-  { to: "/app/juridico/relatorios", label: "Relatórios", icon: BarChart3, group: "Análise" },
+const allTabs = [
+  { to: "/app/juridico", label: "Dashboard", icon: LayoutDashboard, end: true, group: "Visão geral", moduleKey: "jur.dashboard" },
+  { to: "/app/juridico/processos", label: "Processos", icon: Scale, group: "Operação", moduleKey: "jur.processos" },
+  { to: "/app/juridico/prazos", label: "Prazos", icon: Clock, group: "Operação", moduleKey: "jur.prazos" },
+  { to: "/app/juridico/tarefas", label: "Tarefas", icon: ListChecks, group: "Operação", moduleKey: "jur.tarefas" },
+  { to: "/app/juridico/documentos", label: "Documentos", icon: FileText, group: "Acervo", moduleKey: "jur.documentos" },
+  { to: "/app/juridico/responsaveis", label: "Responsáveis", icon: Users, group: "Acervo", moduleKey: "jur.responsaveis" },
+  { to: "/app/juridico/relatorios", label: "Relatórios", icon: BarChart3, group: "Análise", moduleKey: "jur.relatorios" },
 ];
 
 const JuridicoLayout = () => {
   const loc = useLocation();
+  const { has, ready } = useUserModules();
+  const tabs = useMemo(() => ready ? allTabs.filter(t => has(t.moduleKey)) : allTabs, [ready, has]);
   const groups = Array.from(new Set(tabs.map((t) => t.group)));
 
   return (
