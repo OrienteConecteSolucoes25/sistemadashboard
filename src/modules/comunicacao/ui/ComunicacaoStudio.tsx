@@ -179,7 +179,7 @@ export function ImagesGalleryPage() {
             </div>}
             <div className="flex gap-1">
               <Button size="icon" variant="ghost" onClick={() => navigator.clipboard.writeText(i.public_url)}><Copy className="w-3 h-3" /></Button>
-              <Button size="icon" variant="ghost" onClick={async () => { const r = prompt("Motivo:"); if (r) { await commSoftDelete("comm_generated_images", i.id, r); load(); } }}><Trash2 className="w-3 h-3" /></Button>
+              <Button size="icon" variant="ghost" onClick={async () => { const r = window.prompt("Motivo:"); if (r) { await commSoftDelete("comm_generated_images", i.id, r); load(); } }}><Trash2 className="w-3 h-3" /></Button>
             </div>
           </Card>
         ))}
