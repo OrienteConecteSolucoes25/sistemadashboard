@@ -148,6 +148,7 @@ export type Database = {
           created_at: string
           dia_vencimento: number
           id: string
+          integrations: string[]
           modules: string[]
           observacoes: string | null
           status: string
@@ -159,6 +160,7 @@ export type Database = {
           created_at?: string
           dia_vencimento?: number
           id?: string
+          integrations?: string[]
           modules?: string[]
           observacoes?: string | null
           status?: string
@@ -170,6 +172,7 @@ export type Database = {
           created_at?: string
           dia_vencimento?: number
           id?: string
+          integrations?: string[]
           modules?: string[]
           observacoes?: string | null
           status?: string
@@ -2230,6 +2233,33 @@ export type Database = {
           },
         ]
       }
+      plan_integrations_catalog: {
+        Row: {
+          ativo: boolean
+          descricao: string | null
+          key: string
+          label: string
+          ordem: number
+          preco_mensal: number
+        }
+        Insert: {
+          ativo?: boolean
+          descricao?: string | null
+          key: string
+          label: string
+          ordem?: number
+          preco_mensal?: number
+        }
+        Update: {
+          ativo?: boolean
+          descricao?: string | null
+          key?: string
+          label?: string
+          ordem?: number
+          preco_mensal?: number
+        }
+        Relationships: []
+      }
       plan_modules_catalog: {
         Row: {
           ativo: boolean
@@ -2284,6 +2314,33 @@ export type Database = {
           id?: string
           modules?: string[]
           nome?: string
+        }
+        Relationships: []
+      }
+      plan_pricing_config: {
+        Row: {
+          id: boolean
+          precos_por_integracao: Json
+          precos_por_modulo: Json
+          updated_at: string
+          updated_by: string | null
+          valor_por_usuario: number
+        }
+        Insert: {
+          id?: boolean
+          precos_por_integracao?: Json
+          precos_por_modulo?: Json
+          updated_at?: string
+          updated_by?: string | null
+          valor_por_usuario?: number
+        }
+        Update: {
+          id?: boolean
+          precos_por_integracao?: Json
+          precos_por_modulo?: Json
+          updated_at?: string
+          updated_by?: string | null
+          valor_por_usuario?: number
         }
         Relationships: []
       }
@@ -2458,6 +2515,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      apply_calculated_value: { Args: { _company_id: string }; Returns: number }
+      calc_company_plan_value: {
+        Args: { _company_id: string }
+        Returns: number
+      }
       current_user_modules: { Args: { _uid: string }; Returns: string[] }
       eng_can_edit: { Args: { _uid: string }; Returns: boolean }
       eng_log_audit: {

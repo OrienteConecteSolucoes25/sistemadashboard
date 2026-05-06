@@ -13,9 +13,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, MessageCircle, CreditCard, Building2, Package, Bell } from "lucide-react";
+import { Plus, Pencil, MessageCircle, CreditCard, Building2, Package, Bell, Calculator, ExternalLink } from "lucide-react";
 import { toast } from "sonner";
 import { paymentStatus, ymNow, whatsappLink, buildBillingMessage } from "../lib/billing";
+import CalculadoraTab from "./CalculadoraTab";
+import CompanySheet from "./CompanySheet";
 
 type Company = { id: string; nome: string; cnpj?: string; contato_nome?: string; contato_email?: string; contato_whatsapp?: string; pix_chave?: string; ativo: boolean };
 type Catalog = { key: string; label: string; grupo: string; sempre_obrigatorio: boolean; ordem: number };
@@ -35,6 +37,7 @@ export default function PlanosPage() {
   const [editing, setEditing] = useState<Company | null>(null);
   const [planEditor, setPlanEditor] = useState<{ company: Company; plan: Plan | null } | null>(null);
   const [paymentModal, setPaymentModal] = useState<Plan | null>(null);
+  const [openSheet, setOpenSheet] = useState<Company | null>(null);
 
   async function reload() {
     const [{ data: c }, { data: p }, { data: pay }, { data: cat }, { data: pk }] = await Promise.all([
@@ -68,6 +71,7 @@ export default function PlanosPage() {
         <TabsList>
           <TabsTrigger value="empresas"><Building2 className="w-4 h-4 mr-1" /> Empresas</TabsTrigger>
           <TabsTrigger value="pagamentos"><CreditCard className="w-4 h-4 mr-1" /> Pagamentos</TabsTrigger>
+          <TabsTrigger value="calculadora"><Calculator className="w-4 h-4 mr-1" /> Calculadora</TabsTrigger>
           <TabsTrigger value="avisos"><Bell className="w-4 h-4 mr-1" /> Avisos</TabsTrigger>
           <TabsTrigger value="catalogo"><Package className="w-4 h-4 mr-1" /> Catálogo & Pacotes</TabsTrigger>
         </TabsList>
@@ -79,11 +83,16 @@ export default function PlanosPage() {
             onPlan={(c) => setPlanEditor({ company: c, plan: plans.find(p => p.company_id === c.id) ?? null })}
             onWhatsApp={(c, p) => sendWhatsApp(c, p, payments.filter(x => x.company_plan_id === p.id))}
             onNew={() => setEditing({ id: "", nome: "", ativo: true } as Company)}
+            onOpenSheet={(c) => setOpenSheet(c)}
           />
         </TabsContent>
 
         <TabsContent value="pagamentos" className="space-y-4">
           <PaymentsTab companies={companies} plans={plans} payments={payments} onRegister={(p) => setPaymentModal(p)} onReload={reload} />
+        </TabsContent>
+
+        <TabsContent value="calculadora" className="space-y-4">
+          <CalculadoraTab />
         </TabsContent>
 
         <TabsContent value="avisos" className="space-y-4">
@@ -94,6 +103,8 @@ export default function PlanosPage() {
           <CatalogTab catalog={catalog} packages={packages} onReload={reload} />
         </TabsContent>
       </Tabs>
+
+      {openSheet && <CompanySheet company={openSheet} onClose={() => setOpenSheet(null)} onChanged={reload} />}
 
       {editing && (
         <CompanyModal
@@ -136,7 +147,7 @@ function sendWhatsApp(company: Company, plan: Plan, pays: Payment[]) {
 }
 
 /* ============== Tabs ============== */
-function CompaniesTab({ companies, plans, payments, onEdit, onPlan, onWhatsApp, onNew }: any) {
+function CompaniesTab({ companies, plans, payments, onEdit, onPlan, onWhatsApp, onNew, onOpenSheet }: any) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -160,7 +171,12 @@ function CompaniesTab({ companies, plans, payments, onEdit, onPlan, onWhatsApp, 
               const st = plan ? paymentStatus(plan, pays) : null;
               return (
                 <TableRow key={c.id}>
-                  <TableCell className="font-medium">{c.nome}<div className="text-xs text-muted-foreground">{c.cnpj}</div></TableCell>
+                  <TableCell className="font-medium">
+                    <button className="text-left hover:underline text-primary inline-flex items-center gap-1" onClick={() => onOpenSheet(c)}>
+                      {c.nome} <ExternalLink className="w-3 h-3" />
+                    </button>
+                    <div className="text-xs text-muted-foreground">{c.cnpj}</div>
+                  </TableCell>
                   <TableCell className="text-sm">{c.contato_whatsapp || "—"}</TableCell>
                   <TableCell>{plan ? Number(plan.valor_mensal).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—"}</TableCell>
                   <TableCell>{plan ? `dia ${plan.dia_vencimento}` : "—"}</TableCell>
