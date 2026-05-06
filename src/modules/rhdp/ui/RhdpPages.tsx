@@ -27,6 +27,6 @@ export const BeneficiosPage = () => <Placeholder title="Benefícios" descricao="
 export const SolicitacoesPage = () => <Placeholder title="Solicitações" descricao="Fila de pedidos com SLA (fase 7)." />;
 
 
-export const FeriasPage = () => <Placeholder title="Férias & Provisão" descricao="Aquisitivo e provisões (fase 6)." />;
+
 export const FolhaPage = () => <Placeholder title="Folha & Holerite" descricao="Fechamento e holerites (fase 10)." />;
 export const IndicadoresPage = () => <Placeholder title="Indicadores RH/DP" descricao="Absenteísmo, turnover (fase 10)." />;
