@@ -2052,7 +2052,7 @@ export type Database = {
           border_radius: string | null
           button_style: string | null
           card_style: string | null
-          company_id: string
+          company_id: string | null
           contrast_level: string | null
           created_at: string
           danger_color: string | null
@@ -2064,6 +2064,7 @@ export type Database = {
           is_active: boolean
           muted_text_color: string | null
           primary_color: string | null
+          scope: string
           secondary_color: string | null
           shadow_style: string | null
           sidebar_style: string | null
@@ -2086,7 +2087,7 @@ export type Database = {
           border_radius?: string | null
           button_style?: string | null
           card_style?: string | null
-          company_id: string
+          company_id?: string | null
           contrast_level?: string | null
           created_at?: string
           danger_color?: string | null
@@ -2098,6 +2099,7 @@ export type Database = {
           is_active?: boolean
           muted_text_color?: string | null
           primary_color?: string | null
+          scope?: string
           secondary_color?: string | null
           shadow_style?: string | null
           sidebar_style?: string | null
@@ -2120,7 +2122,7 @@ export type Database = {
           border_radius?: string | null
           button_style?: string | null
           card_style?: string | null
-          company_id?: string
+          company_id?: string | null
           contrast_level?: string | null
           created_at?: string
           danger_color?: string | null
@@ -2132,6 +2134,7 @@ export type Database = {
           is_active?: boolean
           muted_text_color?: string | null
           primary_color?: string | null
+          scope?: string
           secondary_color?: string | null
           shadow_style?: string | null
           sidebar_style?: string | null
@@ -7535,7 +7538,7 @@ export type Database = {
           action_type: string
           after_data: Json | null
           before_data: Json | null
-          company_id: string
+          company_id: string | null
           created_at: string
           id: string
           user_id: string | null
@@ -7544,7 +7547,7 @@ export type Database = {
           action_type: string
           after_data?: Json | null
           before_data?: Json | null
-          company_id: string
+          company_id?: string | null
           created_at?: string
           id?: string
           user_id?: string | null
@@ -7553,7 +7556,7 @@ export type Database = {
           action_type?: string
           after_data?: Json | null
           before_data?: Json | null
-          company_id?: string
+          company_id?: string | null
           created_at?: string
           id?: string
           user_id?: string | null

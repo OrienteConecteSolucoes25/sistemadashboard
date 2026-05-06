@@ -22,7 +22,15 @@ import { SaveThemeConfirmationDialog } from "./SaveThemeConfirmationDialog";
 import { ChartPreferencesPanel } from "./ChartPreferencesPanel";
 import { ThemePreviewPanel } from "./ThemePreviewPanel";
 
-type Company = { id: string; name: string };
+type ScopeKind = "system_global" | "owner_company" | "client_company";
+type EnvOption = { id: string; name: string; scope: ScopeKind; companyId: string | null };
+
+const SYSTEM_GLOBAL_ID = "__system_global__";
+const SCOPE_LABEL: Record<ScopeKind, string> = {
+  system_global: "Tema Global",
+  owner_company: "Ambiente Interno OCS",
+  client_company: "Cliente",
+};
 
 const COLOR_FIELDS: { key: keyof ThemeTokens; label: string; dbCol: string }[] = [
   { key: "primary",         label: "Primária",        dbCol: "primary_color" },
@@ -42,9 +50,12 @@ export default function ThemeStudioPage() {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const { previewTheme, previewBackground, reloadFromDb } = useCompanyTheme();
 
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [companyId, setCompanyId] = useState<string>("");
-  const [companyName, setCompanyName] = useState<string>("");
+  const [environments, setEnvironments] = useState<EnvOption[]>([]);
+  const [envId, setEnvId] = useState<string>("");
+  const currentEnv = environments.find(e => e.id === envId);
+  const companyId = currentEnv?.companyId ?? null;
+  const scope: ScopeKind = currentEnv?.scope ?? "client_company";
+  const companyName = currentEnv?.name ?? "";
 
   // Draft state
   const [preset, setPreset] = useState<ThemePresetKey>(DEFAULT_PRESET);
@@ -66,28 +77,37 @@ export default function ThemeStudioPage() {
 
   const baseTokens = THEME_PRESETS[preset].tokens;
 
-  // Lista de empresas
+  // Lista de ambientes (Global + OCS interno + clientes)
   useEffect(() => {
     if (authLoading) return;
     (async () => {
       const q = await (supabase as any).from("companies").select("id,nome").order("nome");
-      const list = ((q.data as any[]) || []).map(c => ({ id: c.id, name: c.nome }));
-      // Coloca "ERP OCS" (minha empresa) no topo da lista
-      list.sort((a, b) => {
-        const aOcs = /erp\s*ocs/i.test(a.name) ? 0 : 1;
-        const bOcs = /erp\s*ocs/i.test(b.name) ? 0 : 1;
-        return aOcs - bOcs || a.name.localeCompare(b.name);
-      });
-      setCompanies(list);
+      const raw = ((q.data as any[]) || []) as { id: string; nome: string }[];
+      const isOcs = (n: string) => /erp\s*ocs|oriente\s*conecte/i.test(n);
+      const owner = raw.find(c => isOcs(c.nome));
+      const clients = raw.filter(c => !isOcs(c.nome)).sort((a, b) => a.nome.localeCompare(b.nome));
+
+      const opts: EnvOption[] = [
+        { id: SYSTEM_GLOBAL_ID, name: "ERP OCS — Tema Global", scope: "system_global", companyId: null },
+      ];
+      if (owner) {
+        opts.push({ id: owner.id, name: `${owner.nome} — Ambiente Interno`, scope: "owner_company", companyId: owner.id });
+      }
+      clients.forEach(c => opts.push({ id: c.id, name: c.nome, scope: "client_company", companyId: c.id }));
+      setEnvironments(opts);
     })();
   }, [authLoading]);
 
-  // Carrega tema salvo da empresa
+  // Carrega tema salvo do ambiente
   useEffect(() => {
-    if (!companyId) return;
+    if (!envId) return;
     (async () => {
-      const { data } = await (supabase as any)
-        .from("company_theme_settings").select("*").eq("company_id", companyId).maybeSingle();
+      const baseQ = (supabase as any).from("company_theme_settings").select("*");
+      const q = scope === "system_global"
+        ? baseQ.eq("scope", "system_global").is("company_id", null)
+        : baseQ.eq("company_id", companyId);
+      const { data } = await q.maybeSingle();
+
       const p = (data?.theme_preset || DEFAULT_PRESET) as ThemePresetKey;
       const ov: any = {};
       if (data) COLOR_FIELDS.forEach(f => { if (data[f.dbCol]) ov[f.key] = data[f.dbCol]; });
@@ -96,26 +116,24 @@ export default function ThemeStudioPage() {
       setPreset(p); setOverrides(ov); setBgUrl(b); setBgAlpha(a);
       setSavedPreset(p); setSavedOverrides(ov); setSavedBgUrl(b); setSavedBgAlpha(a);
 
-      const { data: logs } = await (supabase as any)
-        .from("theme_audit_logs").select("*")
-        .eq("company_id", companyId).order("created_at", { ascending: false }).limit(30);
+      const logsQ = (supabase as any).from("theme_audit_logs").select("*").order("created_at", { ascending: false }).limit(30);
+      const { data: logs } = scope === "system_global"
+        ? await logsQ.is("company_id", null)
+        : await logsQ.eq("company_id", companyId);
       setAudit(logs || []);
       setChartsDirty(false);
-
-      const c = companies.find(x => x.id === companyId);
-      setCompanyName(c?.name || "");
     })();
-  }, [companyId, companies]);
+  }, [envId, scope, companyId]);
 
   // Aplica preview ao vivo (só na página)
   useEffect(() => {
-    if (!companyId) return;
+    if (!envId) return;
     previewTheme(preset, overrides as any);
-  }, [preset, overrides, previewTheme, companyId]);
+  }, [preset, overrides, previewTheme, envId]);
   useEffect(() => {
-    if (!companyId) return;
+    if (!envId) return;
     previewBackground(bgUrl, bgAlpha);
-  }, [bgUrl, bgAlpha, previewBackground, companyId]);
+  }, [bgUrl, bgAlpha, previewBackground, envId]);
 
   // Restaura tema real ao desmontar
   useEffect(() => {
@@ -132,14 +150,22 @@ export default function ThemeStudioPage() {
   const bgChanged = bgUrl !== savedBgUrl || Math.abs(bgAlpha - savedBgAlpha) > 0.001;
   const isDirty = presetChanged || changedColors.length > 0 || bgChanged || chartsDirty;
 
+  const loadCurrentRow = async () => {
+    const baseQ = (supabase as any).from("company_theme_settings").select("*");
+    const q = scope === "system_global"
+      ? baseQ.eq("scope", "system_global").is("company_id", null)
+      : baseQ.eq("company_id", companyId);
+    return (await q.maybeSingle()).data;
+  };
+
   const handleConfirmSave = async () => {
-    if (!companyId) { toast.error("Selecione uma empresa"); return; }
+    if (!envId) { toast.error("Selecione um ambiente"); return; }
     setSaving(true);
-    const { data: prev } = await (supabase as any)
-      .from("company_theme_settings").select("*").eq("company_id", companyId).maybeSingle();
+    const prev = await loadCurrentRow();
 
     const payload: any = {
       company_id: companyId,
+      scope,
       theme_preset: preset,
       is_active: true,
       background_image_url: bgUrl,
@@ -147,16 +173,27 @@ export default function ThemeStudioPage() {
     };
     COLOR_FIELDS.forEach(f => { payload[f.dbCol] = overrides[f.key] ?? null; });
 
-    const { error } = prev
-      ? await (supabase as any).from("company_theme_settings").update(payload).eq("company_id", companyId)
-      : await (supabase as any).from("company_theme_settings").insert(payload);
+    let error: any = null;
+    if (prev) {
+      const upd = scope === "system_global"
+        ? (supabase as any).from("company_theme_settings").update(payload).eq("scope","system_global").is("company_id", null)
+        : (supabase as any).from("company_theme_settings").update(payload).eq("company_id", companyId);
+      error = (await upd).error;
+    } else {
+      error = (await (supabase as any).from("company_theme_settings").insert(payload)).error;
+    }
 
     if (error) { toast.error("Erro ao salvar: " + error.message); setSaving(false); return; }
+
+    const actionType =
+      scope === "system_global" ? "update_global_theme" :
+      scope === "owner_company" ? "update_owner_company_theme" :
+      "update_client_company_theme";
 
     await (supabase as any).from("theme_audit_logs").insert({
       company_id: companyId,
       user_id: user?.id ?? null,
-      action_type: `save_theme:${preset}`,
+      action_type: `${actionType}:${preset}`,
       before_data: prev ?? null,
       after_data: payload,
     });
@@ -173,10 +210,11 @@ export default function ThemeStudioPage() {
   };
 
   const handleUploadBg = async (file: File) => {
-    if (!companyId) { toast.error("Selecione uma empresa primeiro"); return; }
+    if (!envId) { toast.error("Selecione um ambiente primeiro"); return; }
     setUploading(true);
+    const folder = scope === "system_global" ? "_global" : (companyId ?? "_global");
     const ext = file.name.split(".").pop() || "jpg";
-    const path = `${companyId}/bg-${Date.now()}.${ext}`;
+    const path = `${folder}/bg-${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from("company-wallpapers").upload(path, file, { upsert: true });
     if (error) { toast.error("Erro no upload: " + error.message); setUploading(false); return; }
     const { data } = supabase.storage.from("company-wallpapers").getPublicUrl(path);
@@ -195,15 +233,17 @@ export default function ThemeStudioPage() {
   };
 
   const handleRestoreDefault = async () => {
-    if (!companyId) { toast.error("Selecione uma empresa"); return; }
+    if (!envId) { toast.error("Selecione um ambiente"); return; }
     if (!confirm(`Restaurar o tema padrão OCS para "${companyName}"? Essa ação aplica imediatamente e registra auditoria.`)) return;
-    const { data: prev } = await (supabase as any)
-      .from("company_theme_settings").select("*").eq("company_id", companyId).maybeSingle();
-    await (supabase as any).from("company_theme_settings").delete().eq("company_id", companyId);
+    const prev = await loadCurrentRow();
+    const del = scope === "system_global"
+      ? (supabase as any).from("company_theme_settings").delete().eq("scope","system_global").is("company_id", null)
+      : (supabase as any).from("company_theme_settings").delete().eq("company_id", companyId);
+    await del;
     await (supabase as any).from("theme_audit_logs").insert({
       company_id: companyId,
       user_id: user?.id ?? null,
-      action_type: "restore_default",
+      action_type: "restore_default_theme",
       before_data: prev ?? null,
       after_data: null,
     });
@@ -234,36 +274,43 @@ export default function ThemeStudioPage() {
           <Button variant="outline" onClick={handleDiscard} disabled={!isDirty}>
             Descartar
           </Button>
-          <Button variant="outline" onClick={handleRestoreDefault} disabled={!companyId}>
+          <Button variant="outline" onClick={handleRestoreDefault} disabled={!envId}>
             <RotateCcw className="w-4 h-4 mr-2" />Restaurar padrão
           </Button>
-          <Button onClick={() => setConfirmOpen(true)} disabled={!companyId || !isDirty || saving}>
+          <Button onClick={() => setConfirmOpen(true)} disabled={!envId || !isDirty || saving}>
             <Save className="w-4 h-4 mr-2" /> Salvar tema
           </Button>
         </div>
       </div>
 
-      {/* Seletor de empresa */}
+      {/* Seletor de Ambiente / Empresa */}
       <Card className="card-elegant">
         <CardContent className="pt-6 flex flex-col md:flex-row gap-4 items-end">
           <div className="flex-1 min-w-0">
-            <Label className="flex items-center gap-2 mb-2"><Building2 className="w-4 h-4" /> Empresa</Label>
-            <Select value={companyId} onValueChange={setCompanyId}>
-              <SelectTrigger><SelectValue placeholder="Selecione uma empresa para editar o tema" /></SelectTrigger>
+            <Label className="flex items-center gap-2 mb-2"><Building2 className="w-4 h-4" /> Ambiente / Empresa</Label>
+            <Select value={envId} onValueChange={setEnvId}>
+              <SelectTrigger><SelectValue placeholder="Selecione o ambiente para editar o tema" /></SelectTrigger>
               <SelectContent>
-                {companies.map(c => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.name}{/erp\s*ocs/i.test(c.name) ? " — Minha empresa" : ""}
-                  </SelectItem>
+                {environments.map(e => (
+                  <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {!companyId && (
-              <p className="text-xs text-warn mt-1.5">Selecione uma empresa antes de salvar o tema.</p>
+            {!envId && (
+              <p className="text-xs text-warn mt-1.5">Selecione um ambiente antes de salvar o tema.</p>
             )}
           </div>
-          {companyId && (
-            <div className="flex gap-2">
+          {envId && (
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                className={
+                  scope === "system_global" ? "bg-primary text-primary-foreground" :
+                  scope === "owner_company" ? "bg-accent text-accent-foreground" :
+                  "bg-muted text-foreground"
+                }
+              >
+                {SCOPE_LABEL[scope]}
+              </Badge>
               <Badge variant="outline" className="text-sm">
                 Salvo: <strong className="ml-1">{THEME_PRESETS[savedPreset].label}</strong>
               </Badge>
@@ -398,7 +445,9 @@ export default function ThemeStudioPage() {
             <ChartPreferencesPanel companyId={companyId} onDirtyChange={setChartsDirty} />
           ) : (
             <Card className="card-elegant"><CardContent className="pt-6 text-sm text-muted-foreground">
-              Selecione uma empresa para configurar os gráficos.
+              {scope === "system_global"
+                ? "Preferências de gráfico são por empresa. Selecione 'Ambiente Interno' ou um cliente."
+                : "Selecione um ambiente para configurar os gráficos."}
             </CardContent></Card>
           )}
         </TabsContent>
