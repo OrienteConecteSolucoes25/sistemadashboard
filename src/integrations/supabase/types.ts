@@ -14,6 +14,27 @@ export type Database = {
   }
   public: {
     Tables: {
+      eng_admin_config: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: string | null
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string | null
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string | null
+        }
+        Relationships: []
+      }
       eng_art: {
         Row: {
           created_at: string
@@ -57,8 +78,12 @@ export type Database = {
         Row: {
           created_at: string
           data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
           descricao: string | null
           id: string
+          is_deleted: boolean
           prazo: string | null
           projeto_id: string | null
           responsavel: string | null
@@ -70,8 +95,12 @@ export type Database = {
         Insert: {
           created_at?: string
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           descricao?: string | null
           id?: string
+          is_deleted?: boolean
           prazo?: string | null
           projeto_id?: string | null
           responsavel?: string | null
@@ -83,8 +112,12 @@ export type Database = {
         Update: {
           created_at?: string
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           descricao?: string | null
           id?: string
+          is_deleted?: boolean
           prazo?: string | null
           projeto_id?: string | null
           responsavel?: string | null
@@ -748,9 +781,13 @@ export type Database = {
         Row: {
           created_at: string
           data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
           descricao: string
           estoque: number | null
           id: string
+          is_deleted: boolean
           reservado: number | null
           site_id: string | null
           unidade: string | null
@@ -759,9 +796,13 @@ export type Database = {
         Insert: {
           created_at?: string
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           descricao: string
           estoque?: number | null
           id?: string
+          is_deleted?: boolean
           reservado?: number | null
           site_id?: string | null
           unidade?: string | null
@@ -770,9 +811,13 @@ export type Database = {
         Update: {
           created_at?: string
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           descricao?: string
           estoque?: number | null
           id?: string
+          is_deleted?: boolean
           reservado?: number | null
           site_id?: string | null
           unidade?: string | null
@@ -817,7 +862,11 @@ export type Database = {
         Row: {
           created_at: string
           data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
           id: string
+          is_deleted: boolean
           prazo: string | null
           prioridade: string | null
           responsavel: string | null
@@ -829,7 +878,11 @@ export type Database = {
         Insert: {
           created_at?: string
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           id?: string
+          is_deleted?: boolean
           prazo?: string | null
           prioridade?: string | null
           responsavel?: string | null
@@ -841,7 +894,11 @@ export type Database = {
         Update: {
           created_at?: string
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           id?: string
+          is_deleted?: boolean
           prazo?: string | null
           prioridade?: string | null
           responsavel?: string | null
@@ -1028,8 +1085,12 @@ export type Database = {
           assunto: string | null
           created_at: string
           data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
           descricao: string | null
           id: string
+          is_deleted: boolean
           numero: string | null
           prazo: string | null
           site_id: string | null
@@ -1040,8 +1101,12 @@ export type Database = {
           assunto?: string | null
           created_at?: string
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           descricao?: string | null
           id?: string
+          is_deleted?: boolean
           numero?: string | null
           prazo?: string | null
           site_id?: string | null
@@ -1052,8 +1117,12 @@ export type Database = {
           assunto?: string | null
           created_at?: string
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           descricao?: string | null
           id?: string
+          is_deleted?: boolean
           numero?: string | null
           prazo?: string | null
           site_id?: string | null
@@ -1181,7 +1250,11 @@ export type Database = {
           codigo: string | null
           created_at: string
           data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
           id: string
+          is_deleted: boolean
           latitude: number | null
           longitude: number | null
           nome: string
@@ -1195,7 +1268,11 @@ export type Database = {
           codigo?: string | null
           created_at?: string
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           id?: string
+          is_deleted?: boolean
           latitude?: number | null
           longitude?: number | null
           nome: string
@@ -1209,7 +1286,11 @@ export type Database = {
           codigo?: string | null
           created_at?: string
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           id?: string
+          is_deleted?: boolean
           latitude?: number | null
           longitude?: number | null
           nome?: string
@@ -1269,8 +1350,12 @@ export type Database = {
         Row: {
           created_at: string
           data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
           descricao: string | null
           id: string
+          is_deleted: boolean
           itens: Json | null
           numero: string | null
           prazo: string | null
@@ -1282,8 +1367,12 @@ export type Database = {
         Insert: {
           created_at?: string
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           descricao?: string | null
           id?: string
+          is_deleted?: boolean
           itens?: Json | null
           numero?: string | null
           prazo?: string | null
@@ -1295,8 +1384,12 @@ export type Database = {
         Update: {
           created_at?: string
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           descricao?: string | null
           id?: string
+          is_deleted?: boolean
           itens?: Json | null
           numero?: string | null
           prazo?: string | null
@@ -2081,6 +2174,19 @@ export type Database = {
           _user_agent?: string
         }
         Returns: undefined
+      }
+      eng_set_delete_password: {
+        Args: { _new_password: string }
+        Returns: Json
+      }
+      eng_soft_delete: {
+        Args: {
+          _id: string
+          _password: string
+          _reason: string
+          _table: string
+        }
+        Returns: Json
       }
       has_role: {
         Args: {
