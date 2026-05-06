@@ -48,6 +48,8 @@ import AdmissaoPage from "./modules/rhdp/ui/AdmissaoPage";
 import ContratosPage from "./modules/rhdp/ui/ContratosPage";
 import PontoPage from "./modules/rhdp/ui/PontoPage";
 import MinhaEmpresaPage from "./modules/planos/ui/MinhaEmpresaPage";
+import ThemeStudioPage from "./modules/aparencia/ui/ThemeStudioPage";
+import { CompanyThemeProvider } from "./modules/aparencia/hooks/CompanyThemeProvider";
 import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
 import NotFound from "./pages/NotFound.tsx";
 
