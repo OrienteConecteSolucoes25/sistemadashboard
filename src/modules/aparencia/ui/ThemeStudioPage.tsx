@@ -10,7 +10,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import { Palette, Save, RotateCcw, Eye, Sparkles, Building2, History } from "lucide-react";
+import { Palette, Save, RotateCcw, Eye, Sparkles, Building2, History, Image as ImageIcon, Upload, X } from "lucide-react";
+import { Slider } from "@/components/ui/slider";
 import { PRESET_LIST, THEME_PRESETS, ThemePresetKey, ThemeTokens, DEFAULT_PRESET } from "../lib/themePresets";
 import { useCompanyTheme } from "../hooks/CompanyThemeProvider";
 
