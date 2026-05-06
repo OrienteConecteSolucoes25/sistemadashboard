@@ -23,6 +23,7 @@ import {
 } from "./modules/engenharia/ui/EngOperacaoPages";
 import { SitesDeluxePage, EquipesDeluxePage, MateriaisDeluxePage } from "./modules/engenharia/ui/EngDeluxePages";
 import EngRastreabilidadePage from "./modules/engenharia/ui/EngRastreabilidadePage";
+import EngAdminPage from "./modules/engenharia/ui/EngAdminPage";
 import JuridicoGuard from "./modules/juridico/ui/JuridicoGuard";
 import JuridicoDashboard from "./modules/juridico/ui/JuridicoDashboard";
 import {
@@ -70,6 +71,7 @@ const App = () => (
                 <Route path="configuracoes" element={<ConfiguracoesPage />} />
                 <Route path="rastreabilidade" element={<EngRastreabilidadePage />} />
                 <Route path="auditoria" element={<EngRastreabilidadePage />} />
+                <Route path="admin" element={<EngAdminPage />} />
               </Route>
               <Route path="juridico" element={<JuridicoGuard />}>
                 <Route index element={<JuridicoDashboard />} />

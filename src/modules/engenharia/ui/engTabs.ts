@@ -31,5 +31,6 @@ export const ENG_TABS: EngTab[] = [
   { to: "/app/engenharia/integracoes", label: "Integrações", icon: Database, group: "Sistema" },
   { to: "/app/engenharia/roadmap-ia", label: "Roadmap IA", icon: Brain, group: "Sistema" },
   { to: "/app/engenharia/configuracoes", label: "Configurações", icon: Settings2, group: "Sistema" },
+  { to: "/app/engenharia/admin", label: "Admin · Engenharia", icon: Shield, group: "Sistema" },
   { to: "/app/engenharia/rastreabilidade", label: "Rastreabilidade", icon: ShieldAlert, group: "Sistema" },
 ];
