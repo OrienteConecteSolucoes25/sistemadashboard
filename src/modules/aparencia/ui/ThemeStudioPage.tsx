@@ -71,7 +71,14 @@ export default function ThemeStudioPage() {
     if (authLoading) return;
     (async () => {
       const q = await (supabase as any).from("companies").select("id,nome").order("nome");
-      setCompanies(((q.data as any[]) || []).map(c => ({ id: c.id, name: c.nome })));
+      const list = ((q.data as any[]) || []).map(c => ({ id: c.id, name: c.nome }));
+      // Coloca "ERP OCS" (minha empresa) no topo da lista
+      list.sort((a, b) => {
+        const aOcs = /erp\s*ocs/i.test(a.name) ? 0 : 1;
+        const bOcs = /erp\s*ocs/i.test(b.name) ? 0 : 1;
+        return aOcs - bOcs || a.name.localeCompare(b.name);
+      });
+      setCompanies(list);
     })();
   }, [authLoading]);
 
@@ -248,7 +255,11 @@ export default function ThemeStudioPage() {
             <Select value={companyId} onValueChange={setCompanyId}>
               <SelectTrigger><SelectValue placeholder="Selecione uma empresa para editar o tema" /></SelectTrigger>
               <SelectContent>
-                {companies.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                {companies.map(c => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}{/erp\s*ocs/i.test(c.name) ? " — Minha empresa" : ""}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             {!companyId && (
