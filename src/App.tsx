@@ -35,9 +35,9 @@ import PlanosPage from "./modules/planos/ui/PlanosPage";
 import RhdpGuard from "./modules/rhdp/ui/RhdpGuard";
 import {
   RhdpDashboard,
-  IndicadoresPage,
 } from "./modules/rhdp/ui/RhdpPages";
 import FolhaPage from "./modules/rhdp/ui/FolhaPage";
+import IndicadoresPage from "./modules/rhdp/ui/IndicadoresPage";
 import BeneficiosPage from "./modules/rhdp/ui/BeneficiosPage";
 import FeriasPage from "./modules/rhdp/ui/FeriasPage";
 import SolicitacoesPage from "./modules/rhdp/ui/SolicitacoesPage";
