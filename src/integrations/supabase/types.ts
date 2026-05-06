@@ -1866,6 +1866,87 @@ export type Database = {
           },
         ]
       }
+      hrdp_candidates: {
+        Row: {
+          area: string | null
+          company_id: string
+          consentimento_lgpd: boolean | null
+          created_at: string
+          curriculo_path: string | null
+          data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          email: string | null
+          etapa: string | null
+          id: string
+          is_deleted: boolean
+          linkedin_url: string | null
+          nome: string
+          observacoes: string | null
+          origem: string | null
+          pretensao_salarial: number | null
+          score: number | null
+          status: string
+          tags: string[] | null
+          telefone: string | null
+          updated_at: string
+          vaga: string | null
+        }
+        Insert: {
+          area?: string | null
+          company_id: string
+          consentimento_lgpd?: boolean | null
+          created_at?: string
+          curriculo_path?: string | null
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          email?: string | null
+          etapa?: string | null
+          id?: string
+          is_deleted?: boolean
+          linkedin_url?: string | null
+          nome: string
+          observacoes?: string | null
+          origem?: string | null
+          pretensao_salarial?: number | null
+          score?: number | null
+          status?: string
+          tags?: string[] | null
+          telefone?: string | null
+          updated_at?: string
+          vaga?: string | null
+        }
+        Update: {
+          area?: string | null
+          company_id?: string
+          consentimento_lgpd?: boolean | null
+          created_at?: string
+          curriculo_path?: string | null
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          email?: string | null
+          etapa?: string | null
+          id?: string
+          is_deleted?: boolean
+          linkedin_url?: string | null
+          nome?: string
+          observacoes?: string | null
+          origem?: string | null
+          pretensao_salarial?: number | null
+          score?: number | null
+          status?: string
+          tags?: string[] | null
+          telefone?: string | null
+          updated_at?: string
+          vaga?: string | null
+        }
+        Relationships: []
+      }
       hrdp_contract_amendments: {
         Row: {
           arquivo_path: string | null
@@ -2269,6 +2350,107 @@ export type Database = {
             columns: ["gestor_id"]
             isOneToOne: false
             referencedRelation: "hrdp_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hrdp_interview_questions: {
+        Row: {
+          area: string | null
+          ativo: boolean
+          categoria: string | null
+          company_id: string
+          created_at: string
+          id: string
+          ordem: number
+          pergunta: string
+          peso: number
+          updated_at: string
+          vaga: string | null
+        }
+        Insert: {
+          area?: string | null
+          ativo?: boolean
+          categoria?: string | null
+          company_id: string
+          created_at?: string
+          id?: string
+          ordem?: number
+          pergunta: string
+          peso?: number
+          updated_at?: string
+          vaga?: string | null
+        }
+        Update: {
+          area?: string | null
+          ativo?: boolean
+          categoria?: string | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          ordem?: number
+          pergunta?: string
+          peso?: number
+          updated_at?: string
+          vaga?: string | null
+        }
+        Relationships: []
+      }
+      hrdp_interviews: {
+        Row: {
+          candidate_id: string
+          company_id: string
+          created_at: string
+          data_agendada: string | null
+          entrevistador_id: string | null
+          entrevistador_nome: string | null
+          etapa: string | null
+          id: string
+          parecer: string | null
+          recomendacao: string | null
+          respostas: Json | null
+          score_final: number | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          candidate_id: string
+          company_id: string
+          created_at?: string
+          data_agendada?: string | null
+          entrevistador_id?: string | null
+          entrevistador_nome?: string | null
+          etapa?: string | null
+          id?: string
+          parecer?: string | null
+          recomendacao?: string | null
+          respostas?: Json | null
+          score_final?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          candidate_id?: string
+          company_id?: string
+          created_at?: string
+          data_agendada?: string | null
+          entrevistador_id?: string | null
+          entrevistador_nome?: string | null
+          etapa?: string | null
+          id?: string
+          parecer?: string | null
+          recomendacao?: string | null
+          respostas?: Json | null
+          score_final?: number | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hrdp_interviews_candidate_id_fkey"
+            columns: ["candidate_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_candidates"
             referencedColumns: ["id"]
           },
         ]
