@@ -2501,6 +2501,145 @@ export type Database = {
           },
         ]
       }
+      hrdp_vacation_provisions: {
+        Row: {
+          company_id: string
+          competencia: string
+          created_at: string
+          data: Json | null
+          dias_direito: number | null
+          dias_gozados: number | null
+          employee_id: string
+          id: string
+          observacoes: string | null
+          salario_base: number | null
+          saldo_dias: number | null
+          updated_at: string
+          valor_adicional_um_terco: number | null
+          valor_estimado: number | null
+        }
+        Insert: {
+          company_id: string
+          competencia: string
+          created_at?: string
+          data?: Json | null
+          dias_direito?: number | null
+          dias_gozados?: number | null
+          employee_id: string
+          id?: string
+          observacoes?: string | null
+          salario_base?: number | null
+          saldo_dias?: number | null
+          updated_at?: string
+          valor_adicional_um_terco?: number | null
+          valor_estimado?: number | null
+        }
+        Update: {
+          company_id?: string
+          competencia?: string
+          created_at?: string
+          data?: Json | null
+          dias_direito?: number | null
+          dias_gozados?: number | null
+          employee_id?: string
+          id?: string
+          observacoes?: string | null
+          salario_base?: number | null
+          saldo_dias?: number | null
+          updated_at?: string
+          valor_adicional_um_terco?: number | null
+          valor_estimado?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hrdp_vacation_provisions_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hrdp_vacations: {
+        Row: {
+          adiantamento_13: boolean | null
+          aprovado_em: string | null
+          aprovador_id: string | null
+          company_id: string
+          created_at: string
+          data: Json | null
+          data_fim: string | null
+          data_inicio: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          dias_abono: number | null
+          dias_programados: number | null
+          employee_id: string
+          id: string
+          is_deleted: boolean
+          observacoes: string | null
+          periodo_aquisitivo_fim: string
+          periodo_aquisitivo_inicio: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          adiantamento_13?: boolean | null
+          aprovado_em?: string | null
+          aprovador_id?: string | null
+          company_id: string
+          created_at?: string
+          data?: Json | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          dias_abono?: number | null
+          dias_programados?: number | null
+          employee_id: string
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          periodo_aquisitivo_fim: string
+          periodo_aquisitivo_inicio: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          adiantamento_13?: boolean | null
+          aprovado_em?: string | null
+          aprovador_id?: string | null
+          company_id?: string
+          created_at?: string
+          data?: Json | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          dias_abono?: number | null
+          dias_programados?: number | null
+          employee_id?: string
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          periodo_aquisitivo_fim?: string
+          periodo_aquisitivo_inicio?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hrdp_vacations_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       module_visibility_settings: {
         Row: {
           default_assignment: string
