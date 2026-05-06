@@ -445,7 +445,9 @@ export default function ThemeStudioPage() {
             <ChartPreferencesPanel companyId={companyId} onDirtyChange={setChartsDirty} />
           ) : (
             <Card className="card-elegant"><CardContent className="pt-6 text-sm text-muted-foreground">
-              Selecione uma empresa para configurar os gráficos.
+              {scope === "system_global"
+                ? "Preferências de gráfico são por empresa. Selecione 'Ambiente Interno' ou um cliente."
+                : "Selecione um ambiente para configurar os gráficos."}
             </CardContent></Card>
           )}
         </TabsContent>
