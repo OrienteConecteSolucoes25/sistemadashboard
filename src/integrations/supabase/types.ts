@@ -222,6 +222,105 @@ export type Database = {
           },
         ]
       }
+      company_theme_settings: {
+        Row: {
+          accent_color: string | null
+          animation_level: string | null
+          background_color: string | null
+          border_color: string | null
+          border_radius: string | null
+          button_style: string | null
+          card_style: string | null
+          company_id: string
+          contrast_level: string | null
+          created_at: string
+          danger_color: string | null
+          dashboard_density: string | null
+          font_family: string | null
+          glass_intensity: number | null
+          id: string
+          info_color: string | null
+          is_active: boolean
+          muted_text_color: string | null
+          primary_color: string | null
+          secondary_color: string | null
+          shadow_style: string | null
+          sidebar_style: string | null
+          success_color: string | null
+          surface_color: string | null
+          table_density: string | null
+          text_color: string | null
+          theme_preset: string
+          updated_at: string
+          updated_by: string | null
+          warning_color: string | null
+        }
+        Insert: {
+          accent_color?: string | null
+          animation_level?: string | null
+          background_color?: string | null
+          border_color?: string | null
+          border_radius?: string | null
+          button_style?: string | null
+          card_style?: string | null
+          company_id: string
+          contrast_level?: string | null
+          created_at?: string
+          danger_color?: string | null
+          dashboard_density?: string | null
+          font_family?: string | null
+          glass_intensity?: number | null
+          id?: string
+          info_color?: string | null
+          is_active?: boolean
+          muted_text_color?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          shadow_style?: string | null
+          sidebar_style?: string | null
+          success_color?: string | null
+          surface_color?: string | null
+          table_density?: string | null
+          text_color?: string | null
+          theme_preset?: string
+          updated_at?: string
+          updated_by?: string | null
+          warning_color?: string | null
+        }
+        Update: {
+          accent_color?: string | null
+          animation_level?: string | null
+          background_color?: string | null
+          border_color?: string | null
+          border_radius?: string | null
+          button_style?: string | null
+          card_style?: string | null
+          company_id?: string
+          contrast_level?: string | null
+          created_at?: string
+          danger_color?: string | null
+          dashboard_density?: string | null
+          font_family?: string | null
+          glass_intensity?: number | null
+          id?: string
+          info_color?: string | null
+          is_active?: boolean
+          muted_text_color?: string | null
+          primary_color?: string | null
+          secondary_color?: string | null
+          shadow_style?: string | null
+          sidebar_style?: string | null
+          success_color?: string | null
+          surface_color?: string | null
+          table_density?: string | null
+          text_color?: string | null
+          theme_preset?: string
+          updated_at?: string
+          updated_by?: string | null
+          warning_color?: string | null
+        }
+        Relationships: []
+      }
       company_users: {
         Row: {
           company_id: string
@@ -3980,6 +4079,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      theme_audit_logs: {
+        Row: {
+          action_type: string
+          after_data: Json | null
+          before_data: Json | null
+          company_id: string
+          created_at: string
+          id: string
+          user_id: string | null
+        }
+        Insert: {
+          action_type: string
+          after_data?: Json | null
+          before_data?: Json | null
+          company_id: string
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Update: {
+          action_type?: string
+          after_data?: Json | null
+          before_data?: Json | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string | null
+        }
+        Relationships: []
       }
       user_roles: {
         Row: {

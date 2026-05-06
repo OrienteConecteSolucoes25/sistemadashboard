@@ -48,6 +48,8 @@ import AdmissaoPage from "./modules/rhdp/ui/AdmissaoPage";
 import ContratosPage from "./modules/rhdp/ui/ContratosPage";
 import PontoPage from "./modules/rhdp/ui/PontoPage";
 import MinhaEmpresaPage from "./modules/planos/ui/MinhaEmpresaPage";
+import ThemeStudioPage from "./modules/aparencia/ui/ThemeStudioPage";
+import { CompanyThemeProvider } from "./modules/aparencia/hooks/CompanyThemeProvider";
 import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -60,6 +62,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <CompanyThemeProvider>
           <Routes>
             <Route path="/" element={<Navigate to="/app" replace />} />
             <Route path="/auth" element={<Auth />} />
@@ -120,9 +123,12 @@ const App = () => (
               <Route path="minha-empresa" element={<MinhaEmpresaPage />} />
               <Route path="visao-geral" element={<VisaoGeralPage />} />
               <Route path="adm" element={<Adm />} />
+              <Route path="aparencia" element={<ThemeStudioPage />} />
+              <Route path="design-system" element={<ThemeStudioPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
+          </CompanyThemeProvider>
         </AuthProvider>
       </BrowserRouter>
     </TooltipProvider>
