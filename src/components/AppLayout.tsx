@@ -1,7 +1,7 @@
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, FolderKanban, LogOut, Settings, User, Gamepad2, HardHat, Scale, Menu, X, CreditCard } from "lucide-react";
+import { Shield, FolderKanban, LogOut, Settings, User, Gamepad2, HardHat, Scale, Menu, X, CreditCard, Building2, LayoutDashboard } from "lucide-react";
 import { useEngenhariaAccess } from "@/modules/engenharia/hooks/useEngenhariaAccess";
 import { useJuridicoAccess } from "@/modules/juridico/hooks/useJuridicoAccess";
 import { usePlanosAccess } from "@/modules/planos/hooks/usePlanosAccess";
@@ -13,7 +13,7 @@ const AppLayout = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
   const { hasAccess: engAccess } = useEngenhariaAccess();
   const { hasAccess: jurAccess } = useJuridicoAccess();
-  const { isFinanceiro } = usePlanosAccess();
+  const { isFinanceiro, isCompanyAdmin, companyId } = usePlanosAccess();
   const loc = useLocation();
   const [open, setOpen] = useState(false);
 
@@ -49,11 +49,13 @@ const AppLayout = () => {
         </button>
       </div>
       <NavItem to="/app" icon={FolderKanban} label="Projetos" />
+      <NavItem to="/app/visao-geral" icon={LayoutDashboard} label="Visão Geral" />
       <NavItem to="/app/pixel-office" icon={Gamepad2} label="Pixel Office" />
       <NavItem to="/app/pixel-office/meu-personagem" icon={User} label="Meu Personagem" />
       {engAccess && <NavItem to="/app/engenharia" icon={HardHat} label="Engenharia" />}
       {jurAccess && <NavItem to="/app/juridico" icon={Scale} label="Jurídico" />}
       {isFinanceiro && <NavItem to="/app/planos" icon={CreditCard} label="Planos" />}
+      {companyId && <NavItem to="/app/minha-empresa" icon={Building2} label="Minha Empresa" />}
       {isAdmin && <NavItem to="/app/pixel-office/admin" icon={Shield} label="Pixel Admin" />}
       {isAdmin && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
       <div className="mt-auto pt-4 border-t">

@@ -31,6 +31,8 @@ import {
   JurResponsaveisPage, JurTarefasPage, JurRelatoriosPage,
 } from "./modules/juridico/ui/JurPages";
 import PlanosPage from "./modules/planos/ui/PlanosPage";
+import MinhaEmpresaPage from "./modules/planos/ui/MinhaEmpresaPage";
+import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -84,6 +86,8 @@ const App = () => (
                 <Route path="relatorios" element={<JurRelatoriosPage />} />
               </Route>
               <Route path="planos" element={<PlanosPage />} />
+              <Route path="minha-empresa" element={<MinhaEmpresaPage />} />
+              <Route path="visao-geral" element={<VisaoGeralPage />} />
               <Route path="adm" element={<Adm />} />
             </Route>
             <Route path="*" element={<NotFound />} />

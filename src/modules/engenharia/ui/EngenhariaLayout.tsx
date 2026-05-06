@@ -3,17 +3,27 @@ import { ENG_TABS } from "./engTabs";
 import { useMemo, useState } from "react";
 import { ChevronDown, ChevronRight, Hammer } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useUserModules } from "@/modules/planos/hooks/useUserModules";
 
 const EngenhariaLayout = () => {
   const loc = useLocation();
+  const { has, isAdmin, ready } = useUserModules();
+  const visibleTabs = useMemo(() => {
+    if (!ready) return ENG_TABS;
+    return ENG_TABS.filter((t) => {
+      if (t.systemOnly) return isAdmin;
+      if (!t.moduleKey) return true;
+      return has(t.moduleKey);
+    });
+  }, [ready, isAdmin, has]);
   const groups = useMemo(() => {
-    const map = new Map<string, typeof ENG_TABS>();
-    ENG_TABS.forEach((t) => {
+    const map = new Map<string, typeof visibleTabs>();
+    visibleTabs.forEach((t) => {
       if (!map.has(t.group)) map.set(t.group, [] as any);
       (map.get(t.group) as any).push(t);
     });
     return Array.from(map.entries());
-  }, []);
+  }, [visibleTabs]);
   const [open, setOpen] = useState<Record<string, boolean>>(() =>
     Object.fromEntries(groups.map(([g]) => [g, true]))
   );
@@ -73,7 +83,7 @@ const EngenhariaLayout = () => {
       <div className="flex-1 min-w-0 bg-background">
         {/* Mobile nav */}
         <nav className="md:hidden flex overflow-x-auto gap-1 border-b px-3 py-2 bg-card">
-          {ENG_TABS.map((t) => {
+          {visibleTabs.map((t) => {
             const active = t.end ? loc.pathname === t.to : loc.pathname.startsWith(t.to);
             return (
               <NavLink
