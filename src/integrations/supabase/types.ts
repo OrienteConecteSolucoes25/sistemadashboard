@@ -1727,6 +1727,117 @@ export type Database = {
         }
         Relationships: []
       }
+      hrdp_module_permissions: {
+        Row: {
+          can_approve: boolean
+          can_edit: boolean
+          can_view: boolean
+          can_view_sensitive: boolean
+          company_id: string
+          created_at: string
+          id: string
+          submodule_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          can_approve?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          can_view_sensitive?: boolean
+          company_id: string
+          created_at?: string
+          id?: string
+          submodule_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          can_approve?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          can_view_sensitive?: boolean
+          company_id?: string
+          created_at?: string
+          id?: string
+          submodule_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      hrdp_module_settings: {
+        Row: {
+          company_id: string
+          config: Json
+          created_at: string
+          id: string
+          jornada_padrao_horas: number
+          regra_ferias: Json
+          regra_he: Json
+          submodulos_ativos: string[]
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          config?: Json
+          created_at?: string
+          id?: string
+          jornada_padrao_horas?: number
+          regra_ferias?: Json
+          regra_he?: Json
+          submodulos_ativos?: string[]
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          config?: Json
+          created_at?: string
+          id?: string
+          jornada_padrao_horas?: number
+          regra_ferias?: Json
+          regra_he?: Json
+          submodulos_ativos?: string[]
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      hrdp_submodules_catalog: {
+        Row: {
+          area: string
+          ativo: boolean
+          created_at: string
+          descricao: string | null
+          id: string
+          key: string
+          nome: string
+          ordem: number
+          updated_at: string
+        }
+        Insert: {
+          area: string
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          key: string
+          nome: string
+          ordem?: number
+          updated_at?: string
+        }
+        Update: {
+          area?: string
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          key?: string
+          nome?: string
+          ordem?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       module_visibility_settings: {
         Row: {
           default_assignment: string
@@ -2642,6 +2753,15 @@ export type Database = {
         Args: { _record_id: string; _table: string; _user_id: string }
         Returns: boolean
       }
+      hrdp_can: {
+        Args: {
+          _action: string
+          _company: string
+          _submodule: string
+          _uid: string
+        }
+        Returns: boolean
+      }
       is_company_admin: {
         Args: { _company: string; _uid: string }
         Returns: boolean
@@ -2665,6 +2785,11 @@ export type Database = {
         | "fibra"
         | "financeiro_ocs"
         | "company_admin"
+        | "rh_admin"
+        | "dp_admin"
+        | "gestor_area"
+        | "colaborador"
+        | "auditor_rh"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2802,6 +2927,11 @@ export const Constants = {
         "fibra",
         "financeiro_ocs",
         "company_admin",
+        "rh_admin",
+        "dp_admin",
+        "gestor_area",
+        "colaborador",
+        "auditor_rh",
       ],
     },
   },

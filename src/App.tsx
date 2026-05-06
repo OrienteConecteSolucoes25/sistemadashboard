@@ -32,6 +32,11 @@ import {
   JurResponsaveisPage, JurTarefasPage, JurRelatoriosPage,
 } from "./modules/juridico/ui/JurPages";
 import PlanosPage from "./modules/planos/ui/PlanosPage";
+import RhdpGuard from "./modules/rhdp/ui/RhdpGuard";
+import {
+  RhdpDashboard, ColaboradoresPage, RecrutamentoPage, BeneficiosPage, SolicitacoesPage,
+  AdmissaoPage, ContratosPage, PontoPage, FeriasPage, FolhaPage, IndicadoresPage,
+} from "./modules/rhdp/ui/RhdpPages";
 import MinhaEmpresaPage from "./modules/planos/ui/MinhaEmpresaPage";
 import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
 import NotFound from "./pages/NotFound.tsx";
@@ -86,6 +91,19 @@ const App = () => (
                 <Route path="responsaveis" element={<JurResponsaveisPage />} />
                 <Route path="tarefas" element={<JurTarefasPage />} />
                 <Route path="relatorios" element={<JurRelatoriosPage />} />
+              </Route>
+              <Route path="rh-dp" element={<RhdpGuard />}>
+                <Route index element={<RhdpDashboard />} />
+                <Route path="colaboradores" element={<ColaboradoresPage />} />
+                <Route path="recrutamento" element={<RecrutamentoPage />} />
+                <Route path="beneficios" element={<BeneficiosPage />} />
+                <Route path="solicitacoes" element={<SolicitacoesPage />} />
+                <Route path="admissao" element={<AdmissaoPage />} />
+                <Route path="contratos" element={<ContratosPage />} />
+                <Route path="ponto" element={<PontoPage />} />
+                <Route path="ferias" element={<FeriasPage />} />
+                <Route path="folha" element={<FolhaPage />} />
+                <Route path="indicadores" element={<IndicadoresPage />} />
               </Route>
               <Route path="planos" element={<PlanosPage />} />
               <Route path="minha-empresa" element={<MinhaEmpresaPage />} />
