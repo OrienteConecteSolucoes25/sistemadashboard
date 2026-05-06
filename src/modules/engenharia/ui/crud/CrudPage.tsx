@@ -10,10 +10,11 @@ import { Switch } from "@/components/ui/switch";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Plus, Search, Trash2 } from "lucide-react";
+import { Plus, Search, Trash2, Pencil } from "lucide-react";
 import type { CrudConfig, FieldSchema } from "./types";
 import { DeleteWithPasswordModal } from "@/components/DeleteWithPasswordModal";
 import { SOFT_DELETE_TABLES, type SoftDeleteTable } from "@/modules/engenharia/lib/deleteWithAudit";
+import { DataActionsToolbar } from "@/components/DataActionsToolbar";
 
 const formatCell = (val: any, f: FieldSchema) => {
   if (val === null || val === undefined || val === "") return <span className="text-muted-foreground">—</span>;
@@ -139,7 +140,16 @@ const CrudPage = ({ config }: { config: CrudConfig }) => {
           <Input className="pl-8" placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} />
         </div>
         <Badge variant="secondary">{filtered.length} registros</Badge>
-        <Button className="ml-auto" onClick={startNew}><Plus className="w-4 h-4 mr-1" /> Novo</Button>
+        <div className="ml-auto flex items-center gap-2 flex-wrap">
+          <DataActionsToolbar
+            table={config.table}
+            title={config.title}
+            fields={config.fields}
+            rows={filtered}
+            onImported={load}
+          />
+          <Button onClick={startNew}><Plus className="w-4 h-4 mr-1" /> Novo</Button>
+        </div>
       </div>
 
       <Card className="overflow-x-auto">
@@ -147,7 +157,7 @@ const CrudPage = ({ config }: { config: CrudConfig }) => {
           <thead className="bg-muted/50">
             <tr>
               {listFields.map((f) => <th key={f.key} className="text-left px-3 py-2 font-medium">{f.label}</th>)}
-              <th className="px-3 py-2 w-10"></th>
+              <th className="px-3 py-2 w-24 text-right">Ações</th>
             </tr>
           </thead>
           <tbody>
@@ -158,8 +168,11 @@ const CrudPage = ({ config }: { config: CrudConfig }) => {
             ) : filtered.map((r) => (
               <tr key={r.id} className="border-t hover:bg-accent/40 cursor-pointer" onClick={() => { setEditing(r); setOpenForm(true); }}>
                 {listFields.map((f) => <td key={f.key} className="px-3 py-2">{formatCell(r[f.key], f)}</td>)}
-                <td className="px-3 py-2">
-                  <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); askDelete(r); }}>
+                <td className="px-3 py-2 text-right whitespace-nowrap">
+                  <Button size="icon" variant="ghost" title="Editar" onClick={(e) => { e.stopPropagation(); setEditing(r); setOpenForm(true); }}>
+                    <Pencil className="w-4 h-4" />
+                  </Button>
+                  <Button size="icon" variant="ghost" title="Excluir" onClick={(e) => { e.stopPropagation(); askDelete(r); }}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </td>
