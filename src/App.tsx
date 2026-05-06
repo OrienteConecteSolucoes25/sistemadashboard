@@ -34,9 +34,11 @@ import {
 import PlanosPage from "./modules/planos/ui/PlanosPage";
 import RhdpGuard from "./modules/rhdp/ui/RhdpGuard";
 import {
-  RhdpDashboard, ColaboradoresPage, RecrutamentoPage, BeneficiosPage, SolicitacoesPage,
+  RhdpDashboard, RecrutamentoPage, BeneficiosPage, SolicitacoesPage,
   AdmissaoPage, ContratosPage, PontoPage, FeriasPage, FolhaPage, IndicadoresPage,
 } from "./modules/rhdp/ui/RhdpPages";
+import ColaboradoresPage from "./modules/rhdp/ui/ColaboradoresPage";
+import RhdpPermissoesPage from "./modules/rhdp/ui/RhdpPermissoesPage";
 import MinhaEmpresaPage from "./modules/planos/ui/MinhaEmpresaPage";
 import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
 import NotFound from "./pages/NotFound.tsx";
@@ -104,6 +106,7 @@ const App = () => (
                 <Route path="ferias" element={<FeriasPage />} />
                 <Route path="folha" element={<FolhaPage />} />
                 <Route path="indicadores" element={<IndicadoresPage />} />
+                <Route path="permissoes" element={<RhdpPermissoesPage />} />
               </Route>
               <Route path="planos" element={<PlanosPage />} />
               <Route path="minha-empresa" element={<MinhaEmpresaPage />} />

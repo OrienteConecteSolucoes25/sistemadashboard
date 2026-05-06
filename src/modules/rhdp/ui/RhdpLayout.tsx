@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, Users, Briefcase, Gift, Inbox,
-  ClipboardList, FileSignature, Clock, Plane, FileText, BarChart3, HeartHandshake
+  ClipboardList, FileSignature, Clock, Plane, FileText, BarChart3, HeartHandshake, ShieldCheck
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserModules } from "@/modules/planos/hooks/useUserModules";
@@ -22,6 +22,8 @@ const allTabs = [
   { to: "/app/rh-dp/folha", label: "Folha & Holerite", icon: FileText, group: "DP", moduleKey: "rhdp.dp.folha" },
   // BI
   { to: "/app/rh-dp/indicadores", label: "Indicadores", icon: BarChart3, group: "BI", moduleKey: "rhdp.bi.indicadores" },
+  // Admin
+  { to: "/app/rh-dp/permissoes", label: "Permissões", icon: ShieldCheck, group: "Admin", moduleKey: "rhdp.base" },
 ];
 
 export default function RhdpLayout() {
