@@ -146,3 +146,133 @@
     box-shadow: var(--shadow-elegant);
   }
 }
+
+/* ============================================================
+   Neo-Brutalism — overrides agressivos quando data-theme está ativo
+   Bordas grossas pretas, sombras duras deslocadas, sem gradiente,
+   tipografia em caixa-alta para títulos, hover desloca o card.
+   ============================================================ */
+:root[data-theme="neo-brutalism"] {
+  --nb-border: 3px solid hsl(var(--foreground));
+  --nb-shadow: 6px 6px 0 0 hsl(var(--foreground));
+  --nb-shadow-hover: 9px 9px 0 0 hsl(var(--foreground));
+  --nb-shadow-active: 2px 2px 0 0 hsl(var(--foreground));
+}
+
+:root[data-theme="neo-brutalism"] body {
+  font-weight: 600;
+}
+
+:root[data-theme="neo-brutalism"] h1,
+:root[data-theme="neo-brutalism"] h2,
+:root[data-theme="neo-brutalism"] h3 {
+  text-transform: uppercase;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+}
+
+/* Cards com borda preta + sombra dura */
+:root[data-theme="neo-brutalism"] .card-elegant,
+:root[data-theme="neo-brutalism"] [data-slot="card"],
+:root[data-theme="neo-brutalism"] .rounded-lg.border,
+:root[data-theme="neo-brutalism"] .rounded-md.border {
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+  border-radius: 6px !important;
+  transition: transform 0.1s ease, box-shadow 0.1s ease;
+}
+:root[data-theme="neo-brutalism"] .card-elegant:hover,
+:root[data-theme="neo-brutalism"] [data-slot="card"]:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--nb-shadow-hover) !important;
+}
+
+/* Botões — borda preta grossa, sombra dura, sem gradiente */
+:root[data-theme="neo-brutalism"] button:not([data-no-brutal]):not([role="tab"]):not(.no-brutal) {
+  border: var(--nb-border) !important;
+  box-shadow: var(--nb-shadow) !important;
+  border-radius: 6px !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
+}
+:root[data-theme="neo-brutalism"] button:not([data-no-brutal]):not([role="tab"]):hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--nb-shadow-hover) !important;
+}
+:root[data-theme="neo-brutalism"] button:not([data-no-brutal]):not([role="tab"]):active {
+  transform: translate(2px, 2px);
+  box-shadow: var(--nb-shadow-active) !important;
+}
+
+/* Inputs / Selects / Textarea */
+:root[data-theme="neo-brutalism"] input,
+:root[data-theme="neo-brutalism"] textarea,
+:root[data-theme="neo-brutalism"] select,
+:root[data-theme="neo-brutalism"] [role="combobox"] {
+  border: var(--nb-border) !important;
+  box-shadow: 4px 4px 0 0 hsl(var(--foreground)) !important;
+  border-radius: 4px !important;
+  font-weight: 600;
+}
+:root[data-theme="neo-brutalism"] input:focus,
+:root[data-theme="neo-brutalism"] textarea:focus,
+:root[data-theme="neo-brutalism"] [role="combobox"]:focus {
+  outline: none !important;
+  transform: translate(-1px, -1px);
+  box-shadow: 5px 5px 0 0 hsl(var(--primary)) !important;
+}
+
+/* Badges */
+:root[data-theme="neo-brutalism"] [data-slot="badge"],
+:root[data-theme="neo-brutalism"] .badge {
+  border: 2px solid hsl(var(--foreground)) !important;
+  border-radius: 4px !important;
+  font-weight: 800 !important;
+  text-transform: uppercase;
+  box-shadow: 2px 2px 0 0 hsl(var(--foreground));
+}
+
+/* Tabs */
+:root[data-theme="neo-brutalism"] [role="tablist"] {
+  border: var(--nb-border) !important;
+  border-radius: 6px !important;
+  box-shadow: 4px 4px 0 0 hsl(var(--foreground));
+  background: hsl(var(--secondary)) !important;
+}
+:root[data-theme="neo-brutalism"] [role="tab"][data-state="active"] {
+  background: hsl(var(--primary)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  border: 2px solid hsl(var(--foreground)) !important;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+/* Dialog / Popover / Sheet */
+:root[data-theme="neo-brutalism"] [role="dialog"],
+:root[data-theme="neo-brutalism"] [data-radix-popper-content-wrapper] > * {
+  border: var(--nb-border) !important;
+  box-shadow: 10px 10px 0 0 hsl(var(--foreground)) !important;
+  border-radius: 6px !important;
+}
+
+/* Sidebar — mantém escura, mas adiciona borda direita grossa */
+:root[data-theme="neo-brutalism"] [data-sidebar="sidebar"] {
+  border-right: 4px solid hsl(var(--foreground)) !important;
+}
+
+/* Remove gradientes globais no neo-brutal */
+:root[data-theme="neo-brutalism"] body {
+  background-image: none !important;
+  background-color: hsl(var(--background)) !important;
+}
+
+/* KPI borders mais grossas */
+:root[data-theme="neo-brutalism"] .kpi-teal,
+:root[data-theme="neo-brutalism"] .kpi-warn,
+:root[data-theme="neo-brutalism"] .kpi-danger,
+:root[data-theme="neo-brutalism"] .kpi-success,
+:root[data-theme="neo-brutalism"] .kpi-neutral {
+  border-top-width: 6px !important;
+}

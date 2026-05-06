@@ -76,7 +76,7 @@ export const CompanyThemeProvider = ({ children }: { children: ReactNode }) => {
     const cid: string | null = cu?.company_id ?? null;
     setCompanyId(cid);
     if (!cid) {
-      applyThemeTokens(THEME_PRESETS[DEFAULT_PRESET].tokens);
+      applyThemeTokens(THEME_PRESETS[DEFAULT_PRESET].tokens, DEFAULT_PRESET);
       setLoading(false);
       return;
     }
@@ -84,11 +84,11 @@ export const CompanyThemeProvider = ({ children }: { children: ReactNode }) => {
       .from("company_theme_settings").select("*").eq("company_id", cid).maybeSingle();
     if (row) {
       const { preset: p, tokens: t } = rowToTokens(row as CompanyThemeRow);
-      setPreset(p); setTokens(t); applyThemeTokens(t);
+      setPreset(p); setTokens(t); applyThemeTokens(t, p);
     } else {
       setPreset(DEFAULT_PRESET);
       setTokens(THEME_PRESETS[DEFAULT_PRESET].tokens);
-      applyThemeTokens(THEME_PRESETS[DEFAULT_PRESET].tokens);
+      applyThemeTokens(THEME_PRESETS[DEFAULT_PRESET].tokens, DEFAULT_PRESET);
     }
     setLoading(false);
   }, [user]);
@@ -98,7 +98,7 @@ export const CompanyThemeProvider = ({ children }: { children: ReactNode }) => {
   const previewTheme = useCallback((p: ThemePresetKey, overrides?: Partial<ThemeTokens>) => {
     const base = THEME_PRESETS[p]?.tokens ?? THEME_PRESETS[DEFAULT_PRESET].tokens;
     const merged = overrides ? mergeOverrides(base, overrides) : base;
-    setPreset(p); setTokens(merged); applyThemeTokens(merged);
+    setPreset(p); setTokens(merged); applyThemeTokens(merged, p);
   }, []);
 
   return (

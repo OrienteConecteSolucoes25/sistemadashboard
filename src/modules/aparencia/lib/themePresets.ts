@@ -272,9 +272,10 @@ export const PRESET_LIST: ThemePreset[] = Object.values(THEME_PRESETS);
 export const DEFAULT_PRESET: ThemePresetKey = "glassmorphism";
 
 /** Aplica tokens em CSS variables no :root (não persiste). */
-export function applyThemeTokens(tokens: ThemeTokens) {
+export function applyThemeTokens(tokens: ThemeTokens, presetKey?: ThemePresetKey) {
   const r = document.documentElement;
   const set = (k: string, v: string) => r.style.setProperty(k, v);
+  if (presetKey) r.setAttribute("data-theme", presetKey);
 
   set("--background", tokens.background);
   set("--foreground", tokens.foreground);
