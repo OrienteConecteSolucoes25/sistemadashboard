@@ -1,101 +1,86 @@
-## Refatoração completa de Aparência & Marca OCS
+# Finalizar Módulo CREA & ART
 
-Escopo grande — vou implementar em uma única leva, mas organizado em blocos. Aqui vai o que será feito antes de mexer no código.
+Hoje o módulo tem estrutura, tabelas, RLS, RPCs de segurança, layout, dashboard e governança — mas as telas operacionais são **somente leitura** ("CRUD completo nas próximas iterações"), Credenciais e Assistente IA estão como placeholders, e ainda não há admin do CREA. Esta leva fecha tudo o que falta.
 
-### Bloco 1 — Banco de dados (1 migration)
+## Escopo (4 frentes)
 
-Novas tabelas + ajustes:
+### 1. CRUD completo nas 13 telas de cadastro/operação
 
-- `company_theme_settings` — tema salvo por empresa (preset, paleta completa em HEX, fonte, raio, sombra, densidade, estilo de sidebar). Substitui/estende o que está em `aparencia` hoje sem quebrar.
-- `company_chart_preferences` — `(company_id, module_key, tab_key, subtab_key, metric_key, allowed_chart_types text[], default_chart_type, user_can_switch)`.
-- `user_chart_preferences` — preferência individual do usuário por métrica.
-- `user_layout_preferences` — `(user_id, company_id, module_key, internal_sidebar_collapsed, table_density, dashboard_density)`.
-- `theme_audit_logs` — antes/depois de cada alteração, com usuário/empresa/tipo.
-- Função RPC `theme_save(_company, _payload)` que valida permissão (`can_manage_theme`/admin) e grava + audita atomicamente.
-- Função RPC `theme_restore_default(_company, _reason)`.
-- Permissões novas no enum/role-check: `can_view_theme`, `can_manage_theme`, `can_manage_company_brand`, `can_manage_chart_preferences`, `can_view_theme_audit` (via tabela `theme_permissions` por usuário, sem mexer em RLS de outros módulos).
-- Todas as tabelas com RLS: leitura permitida ao usuário da empresa; escrita só com `can_manage_theme` ou admin.
+Substituir o `GenericListPage` (read-only) por uma página real reaproveitando o padrão global do projeto:
 
-### Bloco 2 — Sidebar interna recolhível (CollapsibleModuleSidebar)
+- **DataActionsToolbar** (Exportar xlsx/csv/docx + Modelo + Importar) — já existe no projeto, mesmo padrão de Engenharia/Jurídico. Exceto a parte de importar e modelo que deve seguir o modelo da sub-aba DADOS na aba governança do modulo de engenharia onde o sistema se adapta a planilha importada. ao fazer isso a parte exportar terá também que se adaptar ao formato de planilha que tiver na empresa e a empresa tiver importado.
+- Botão **Novo** abrindo Sheet/Dialog com formulário dinâmico por tabela.
+- Linha clicável → Sheet de edição.
+- **Excluir** via `DeleteWithPasswordModal` chamando RPC `crea_soft_delete(table, id, reason)`.
+- Filtros: busca textual + filtro por UF e por status (quando aplicável).
+- Ordenação por coluna e paginação (200/página).
+- Realtime opcional (subscribe na tabela) para refletir mudanças.
 
-Componente único reutilizável `<CollapsibleModuleSidebar>` substituindo as sidebars escuras fixas de Engenharia, Jurídico, RH/DP, CREA, Comunicação:
+Telas afetadas: ARTs, Protocolos, CATs, Certidões, Baixas, Tratativas, Prazos, RTs, Empresas e CREAs, Documentações, Normas, Links Oficiais, Auditoria (read-only só com filtros).
 
-- Estado controlado por `useUserLayoutPreferences(moduleKey)` — persiste no banco.
-- Botão recolher/expandir no topo. Quando recolhida → só ícones com tooltip (shadcn `Tooltip`).
-- Mobile: vira Sheet/drawer.
-- **Cores via tokens** (`bg-sidebar`, `text-sidebar-foreground`, `bg-sidebar-accent`) — nunca preto hard-coded. Cada tema define esses tokens.
-- Migra os 5 layouts existentes (`EngLayout`, `JurLayout`, `HrdpLayout`, `CreaLayout`, `CommLayout`) para usar o novo componente, preservando todas as rotas/abas atuais.
+Implementação: criar `CreaCrudPage.tsx` parametrizável + `creaCrudConfigs.ts` com schema (campos, tipos, máscaras, opções) por tabela. Os Pages atuais passam a delegar para esse componente.
 
-### Bloco 3 — ThemeStudio reescrito
+### 2. Credenciais — UI segura funcional
 
-Página `/app/aparencia` reorganizada em abas:
+Construir `CredenciaisPage` real:
 
-1. **Empresa** — seletor obrigatório, badge "tema ativo", botão restaurar padrão.
-2. **Presets** — 7 cards (Glassmorphism, Neo-Brutalism, Corporate Clean, Minimal Tech, Dark Premium, Soft SaaS, Industrial Ops) com mini-preview real, badge "Ativo" só no salvo, "Em pré-visualização" quando aplicado ao draft.
-3. **Cores** — `<ColorField>` por token (23 cores listadas), com:
-   - input nativo `<input type="color">` (picker visual)
-   - campo HEX editável (validado)
-   - HSL avançado em `<Collapsible>` recolhido por padrão
-   - botão copiar HEX
-   - botão restaurar padrão daquele campo
-4. **Tipografia & Layout** — fonte, raio, sombra, densidade, estilo da sidebar.
-5. **Gráficos** — `<ChartPreferencesPanel>`: árvore Módulo → Aba → Sub-aba → Métrica, multi-select de tipos permitidos + radio para padrão + toggle "usuário pode trocar". Botões "aplicar a todos os módulos" e "restaurar padrão OCS".
-6. **Preview** — `<ThemePreviewPanel>` num iframe-like sandbox que renderiza dashboard fake (KPIs, tabela, formulário, modal, sidebar mock, pizza/barras/linha, badges, alertas, mini-Engenharia, mini-Jurídico) usando **apenas o draft**.
-7. **Auditoria** — tabela com data/usuário/empresa/tipo/resumo + botão "Ver antes/depois" (diff JSON).
+- Banner para definir a **chave-mestra** (admin OCS) via `crea_set_master_key` se ainda não definida.
+- Lista de credenciais (UF, empresa, RT, portal, login mascarado, última revelação).
+- Botão **Nova Credencial** → form (UF, empresa, RT, portal, login, senha) → `crea_save_credential` (cifragem AES no servidor).
+- Botão **Revelar Senha** → modal exigindo **motivo** (texto obrigatório) + senha do usuário logado → `crea_reveal_credential` → mostra senha por 30s com cópia única e auto-ocultação.
+- Toda revelação grava em `crea_audit_logs`.
+- Visível só com permissão `can_view_credentials` (resto do time só vê o login mascarado).
 
-### Bloco 4 — Fluxo de salvamento com draft
+### 3. Assistente IA CREA
 
-- Hook `useThemeDraft(companyId)` — carrega tema salvo, mantém draft local em memória, expõe `isDirty`, `reset`, `apply`.
-- Provider `<ThemeDraftProvider>` envolve a página — TODAS as abas (incluindo Preview) leem do draft.
-- O `CompanyThemeProvider` global continua aplicando apenas o tema **salvo** no banco — draft NÃO escapa da página de aparência.
-- Botão "Salvar Tema":
-  - Desabilitado se sem empresa OU sem alterações.
-  - Abre `<SaveThemeConfirmationDialog>` com resumo (empresa, preset antes/depois, cores alteradas, gráficos alterados, layout alterado, aviso de impacto).
-  - Confirmar → chama RPC `theme_save` → toast sucesso → atualiza badge "Ativo" → audita.
-- Botão "Restaurar padrão" → `<RestoreThemeConfirmationDialog>` → RPC `theme_restore_default`.
-- Indicador persistente "Alterações não salvas" no header da página quando `isDirty`.
+- Criar edge function `**crea-ai-assist**` (Lovable AI Gateway, model `google/gemini-2.5-flash`) com RAG simples: busca em `crea_ai_sources` (filtro por UF + tema), monta contexto, devolve resposta + lista de fontes citadas.
+- UI em `AssistentePage`: chat (pergunta + resposta + fontes), histórico salvo em `crea_ai_questions`, filtro por UF.
+- Aviso explícito: "Responde apenas com base nas fontes cadastradas. Não inventa norma de CREA."
+- NotebookLM apenas como link de referência opcional no rodapé.
 
-### Bloco 5 — Aplicação real do tema
+### 4. CreaAdminPage (admin OCS)
 
-- `CompanyThemeProvider` (já existe) estendido para:
-  - injetar TODOS os 23 tokens HEX→HSL em `:root` via CSS vars.
-  - aplicar fonte, raio, sombra como CSS vars (`--radius`, `--shadow-elegant`, `--font-display`).
-  - aplicar tokens de sidebar (`--sidebar`, `--sidebar-foreground`, `--sidebar-accent`) — é isso que tira o preto fixo.
-- Tema afeta automaticamente: dashboards, cards, botões, tabelas, formulários, menus, sidebar interna, gráficos (paleta `chart-1..5`).
+Nova rota `/app/crea/admin` (admin-only) com abas:
 
-### Bloco 6 — Gráficos configuráveis nos dashboards
+- **Papéis & Permissões**: gerenciar `user_roles` (crea_*) e `crea_module_permissions` por empresa/usuário.
+- **Chave-mestra**: status, rotação (re-cifra credenciais existentes).
+- **Fontes IA**: CRUD de `crea_ai_sources` (DN, PL, resoluções, checklists).
+- **Configurações**: `crea_module_settings` (defaults por empresa).
+- **Auditoria**: visão consolidada de `crea_audit_logs` com filtros.
 
-- Hook `useChartType(moduleKey, tabKey, metricKey)` — retorna `{ allowed[], current, setCurrent }`. Lê preferência do usuário, fallback para padrão da empresa, fallback para padrão OCS.
-- Componente `<ConfigurableChart metric="..." data={...} />` — renderiza o tipo atual e expõe seletor inline ("Visualização: Pizza | Barras | Donut") quando `user_can_switch`.
-- Aplicado nos dashboards já existentes de Engenharia e Jurídico como exemplo (substituição mínima — sem mexer na lógica de dados). RH/DP, CREA, Comunicação ganham o hook disponível para uso futuro.
+## Detalhes técnicos
 
-### Bloco 7 — Integração Design Studio (Comunicação)
+### Novos arquivos
 
-- `useCompanyBrandTokens()` exposto para o módulo Comunicação consumir cores/fonte/estilo da empresa ao gerar templates/prompts. Sem reescrever templates — só passa os tokens.
+- `src/modules/crea/ui/crud/CreaCrudPage.tsx` — página parametrizável (lista + toolbar + form sheet + delete).
+- `src/modules/crea/ui/crud/creaCrudConfigs.ts` — schema de cada tabela CREA.
+- `src/modules/crea/ui/CredenciaisPage.tsx` — substitui placeholder.
+- `src/modules/crea/ui/RevealCredentialModal.tsx`.
+- `src/modules/crea/ui/AssistentePage.tsx` — substitui placeholder (chat real).
+- `src/modules/crea/ui/CreaAdminPage.tsx` — admin com tabs.
+- `src/modules/crea/lib/creaCrud.ts` — helpers (insert/update/soft-delete + audit).
+- `supabase/functions/crea-ai-assist/index.ts` — edge function RAG.
 
-### Bloco 8 — Ajustes visuais gerais
+### Backend (migration)
 
-- Grid responsivo nos dashboards (`grid-cols-1 md:grid-cols-2 xl:grid-cols-4`), `min-w-0` nos cards, `truncate`/`break-words` em títulos longos, `h-full` nos containers de gráfico.
+- Tabela auxiliar `crea_ai_questions` (se ainda não existir): pergunta, resposta, fontes_citadas, uf, user_id, company_id.
+- Garantir RPC `crea_save_credential` aceitar update (não só insert).
+- Garantir índice em `crea_ai_sources(uf, tema)` para RAG.
+- (Reaproveita `crea_can`, `crea_soft_delete`, `theme_audit_logs` patterns já existentes.)
 
-### Permissões / Segurança
+### Padrões reutilizados (sem reimplementar)
 
-- Tabela `theme_permissions(user_id, company_id, can_view, can_manage, can_manage_brand, can_manage_charts, can_view_audit)`.
-- Função `theme_can(_uid, _company, _action)` análoga a `crea_can`/`comm_can`.
-- RLS em todas as novas tabelas referenciando `theme_can`.
-- Admin geral sempre passa.
-- `<ThemeStudioGuard>` na rota `/app/aparencia` bloqueia acesso de quem não tem `can_view_theme`.
-- Toda alteração registra em `theme_audit_logs` via RPC.
+- `DataActionsToolbar`, `ImportDataModal`, `lib/dataIO` (xlsx/csv/docx).
+- `DeleteWithPasswordModal`.
+- `CollapsibleModuleSidebar` (já em uso).
+- `EngPageHeader` / `KpiGrid` (mesmo padrão visual).
+- Lovable AI Gateway (sem API key extra).
 
-### O que NÃO será tocado
+## Critérios de aceite
 
-- RLS de Engenharia, Jurídico, RH/DP, CREA, Comunicação, Pixel.
-- Lógica de auth, roles existentes, `eng_can_edit`, `crea_can`, `comm_can`, `hrdp_can`.
-- Dados operacionais.
-- Edge functions existentes.
-
-### Ordem de execução
-
-1. Migration única com tudo do Bloco 1 (peço aprovação, é o único passo bloqueante).
-2. Após aprovada: implemento Blocos 2–8 em sequência, em uma só resposta.
-
-Posso seguir? A migration vai primeiro.
+- Em qualquer tela CREA: criar, editar, exportar, importar e excluir (com senha+motivo) funcionam.
+- Credenciais: definir master key, cadastrar e revelar senha (com motivo + auditoria) funcionam.
+- Assistente responde citando fontes de `crea_ai_sources` e grava histórico.
+- `/app/crea/admin` acessível só para admin OCS, com 5 abas operacionais.
+- Nenhuma cor hard-coded; tudo via tokens HSL.
+- Soft delete em todas as tabelas crea_* (nunca DELETE físico).
