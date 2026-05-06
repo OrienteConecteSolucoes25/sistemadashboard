@@ -35,12 +35,13 @@ import PlanosPage from "./modules/planos/ui/PlanosPage";
 import RhdpGuard from "./modules/rhdp/ui/RhdpGuard";
 import {
   RhdpDashboard, RecrutamentoPage, BeneficiosPage, SolicitacoesPage,
-  PontoPage, FeriasPage, FolhaPage, IndicadoresPage,
+  FeriasPage, FolhaPage, IndicadoresPage,
 } from "./modules/rhdp/ui/RhdpPages";
 import ColaboradoresPage from "./modules/rhdp/ui/ColaboradoresPage";
 import RhdpPermissoesPage from "./modules/rhdp/ui/RhdpPermissoesPage";
 import AdmissaoPage from "./modules/rhdp/ui/AdmissaoPage";
 import ContratosPage from "./modules/rhdp/ui/ContratosPage";
+import PontoPage from "./modules/rhdp/ui/PontoPage";
 import MinhaEmpresaPage from "./modules/planos/ui/MinhaEmpresaPage";
 import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
 import NotFound from "./pages/NotFound.tsx";
