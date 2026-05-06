@@ -65,7 +65,7 @@ export function BrandKitsPage() {
   }
 
   async function remove(id: string) {
-    const reason = prompt("Motivo da exclusão:");
+    const reason = window.prompt("Motivo da exclusão:");
     if (!reason) return;
     await commSoftDelete("comm_brand_kits", id, reason);
     load();
@@ -384,7 +384,7 @@ export function PostsListPage() {
             <div className="flex flex-col gap-1">
               {p.status === "rascunho_ia" && <Button size="sm" variant="outline" onClick={() => setStatus(p.id, "em_revisao")}>Enviar p/ revisão</Button>}
               {p.status === "aprovado" && <Button size="sm" onClick={() => setStatus(p.id, "publicado")}>Marcar publicado</Button>}
-              <Button size="icon" variant="ghost" onClick={async () => { const r = prompt("Motivo:"); if (r) { await commSoftDelete("comm_content_posts", p.id, r); load(); } }}><Trash2 className="w-4 h-4" /></Button>
+              <Button size="icon" variant="ghost" onClick={async () => { const r = window.prompt("Motivo:"); if (r) { await commSoftDelete("comm_content_posts", p.id, r); load(); } }}><Trash2 className="w-4 h-4" /></Button>
             </div>
           </Card>
         ))}
@@ -574,7 +574,7 @@ function GenericList({ table, title, fields }: { table: string; title: string; f
       <Card>
         <table className="w-full text-sm">
           <thead className="bg-muted"><tr>{fields.map((f) => <th key={f} className="p-2 text-left">{f}</th>)}<th /></tr></thead>
-          <tbody>{items.map((it) => <tr key={it.id} className="border-t">{fields.map((f) => <td key={f} className="p-2">{Array.isArray(it[f]) ? it[f].join(", ") : (it[f]?.toString().slice(0, 80) || "—")}</td>)}<td className="p-2"><Button size="icon" variant="ghost" onClick={async () => { const r = prompt("Motivo:"); if (r) { await commSoftDelete(table, it.id, r); setItems(items.filter((x) => x.id !== it.id)); } }}><Trash2 className="w-4 h-4" /></Button></td></tr>)}</tbody>
+          <tbody>{items.map((it) => <tr key={it.id} className="border-t">{fields.map((f) => <td key={f} className="p-2">{Array.isArray(it[f]) ? it[f].join(", ") : (it[f]?.toString().slice(0, 80) || "—")}</td>)}<td className="p-2"><Button size="icon" variant="ghost" onClick={async () => { const r = window.prompt("Motivo:"); if (r) { await commSoftDelete(table, it.id, r); setItems(items.filter((x) => x.id !== it.id)); } }}><Trash2 className="w-4 h-4" /></Button></td></tr>)}</tbody>
         </table>
         {items.length === 0 && <div className="p-6 text-center text-muted-foreground text-sm">Vazio.</div>}
       </Card>
@@ -605,7 +605,7 @@ export function IdeiasPage() {
 
   async function genIdeas() {
     if (!companyId) return;
-    const tema = prompt("Tema das ideias?"); if (!tema) return;
+    const tema = window.prompt("Tema das ideias?"); if (!tema) return;
     const r = await commAi({ kind: "ideia", company_id: companyId, inputs: { tema, qtd: 10, categoria: "post" } });
     const lista = r.data?.ideias ?? [];
     if (lista.length) {
@@ -622,7 +622,7 @@ export function IdeiasPage() {
         <Button onClick={add}><Plus className="w-4 h-4" /></Button>
       </Card>
       <div className="grid md:grid-cols-2 gap-2">
-        {items.map((i) => <Card key={i.id} className="p-3 flex justify-between items-start"><div><div className="text-sm">{i.ideia}</div><div className="text-xs text-muted-foreground">{i.categoria} · {i.prioridade} {i.origem ? `· ${i.origem}` : ""}</div></div><Button size="icon" variant="ghost" onClick={async () => { const r = prompt("Motivo:"); if (r) { await commSoftDelete("comm_idea_bank", i.id, r); load(); } }}><Trash2 className="w-4 h-4" /></Button></Card>)}
+        {items.map((i) => <Card key={i.id} className="p-3 flex justify-between items-start"><div><div className="text-sm">{i.ideia}</div><div className="text-xs text-muted-foreground">{i.categoria} · {i.prioridade} {i.origem ? `· ${i.origem}` : ""}</div></div><Button size="icon" variant="ghost" onClick={async () => { const r = window.prompt("Motivo:"); if (r) { await commSoftDelete("comm_idea_bank", i.id, r); load(); } }}><Trash2 className="w-4 h-4" /></Button></Card>)}
       </div>
     </div>
   );
