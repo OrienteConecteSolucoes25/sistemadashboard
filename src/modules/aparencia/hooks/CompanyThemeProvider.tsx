@@ -22,6 +22,8 @@ type CompanyThemeRow = {
   warning_color: string | null;
   danger_color: string | null;
   info_color: string | null;
+  background_image_url: string | null;
+  background_overlay_alpha: number | null;
 };
 
 type Ctx = {
