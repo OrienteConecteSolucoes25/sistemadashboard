@@ -223,6 +223,7 @@ export default function ThemeStudioPage() {
         <TabsList>
           <TabsTrigger value="presets"><Sparkles className="w-4 h-4 mr-1" />Presets</TabsTrigger>
           <TabsTrigger value="cores">Cores</TabsTrigger>
+          <TabsTrigger value="fundo"><ImageIcon className="w-4 h-4 mr-1" />Fundo</TabsTrigger>
           <TabsTrigger value="preview"><Eye className="w-4 h-4 mr-1" />Preview</TabsTrigger>
           <TabsTrigger value="auditoria"><History className="w-4 h-4 mr-1" />Auditoria</TabsTrigger>
         </TabsList>
