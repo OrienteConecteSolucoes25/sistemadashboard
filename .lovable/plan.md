@@ -1,269 +1,184 @@
-Vou organizar em **3 levas** porque são 3 frentes distintas. Confirma e eu sigo na ordem (ou diga qual priorizar primeiro).
+
+# Módulo RH/DP — Plano técnico (somente arquitetura)
+
+## 1. Divisão RH × DP × BI
+
+**RH (gestão de pessoas e atração)**
+- Recrutamento e Entrevistas
+- Banco de Currículos
+- Gestão de Pessoas (perfil, histórico, movimentações)
+- Benefícios (visão do colaborador)
+- Pacotes de Descontos Corporativos (cotação)
+- Solicitações dos Colaboradores (fila RH/DP)
+- Comunicação Interna
+- Painel de Risco (rotatividade, clima, alertas)
+
+**DP (operacional trabalhista)**
+- Admissão
+- Documentos do Colaborador
+- Contratos
+- Controle de Ponto
+- Banco de Horas / Hora Extra
+- Férias
+- Provisão de Férias
+- Holerite
+- Fechamento de Folha
+- Pagamentos e Seguros
+
+**BI RH/DP (somente leitura, agregações)**
+- Absenteísmo, Turnover, Férias (vencidas/a vencer), Banco de horas, Hora extra, Total de funcionários, Vínculos, Entrevistas, Alertas/Riscos
 
 ---
 
-## Leva 1 — Planos de Usuários: Gestão de Acessos + Calculadora
-
-**A. Painel lateral da Empresa (sub-aba Empresas)**
-
-- Clicar no nome da empresa abre `Sheet` lateral com 3 abas:
-  - **Usuários**: lista de `company_users` + botão "Adicionar usuário" (busca por e-mail nos `profiles`, vincula ao `company_id`, marca `is_company_admin` opcional)
-  - **Permissões V/E/D**: matriz usuário × módulo do plano (já existe parcial no modal — migrar pra cá com toggles can_view/can_edit/can_delete em `company_module_permissions`)
-  - **Plano & Valor**: módulos selecionados + valor calculado automaticamente em tempo real
-
-**B. Nova sub-aba "Calculadora de Pagamentos"** em `/app/planos`
-
-- Tabela editável OCS-only:
-  - `valor_por_usuario` (base mensal por seat)
-  - `valor_por_modulo` (preço de cada módulo do `plan_modules_catalog`)
-- Salvos em nova tabela `plan_pricing_config` (linha única)
-- Preview por empresa: `total = nº_usuários × valor_usuário + Σ(módulos_ativos × preço_módulo)`
-- Botão "Aplicar a todas as empresas" → atualiza `company_plans.valor_mensal`
-- Auto-update do `valor_mensal` da empresa quando muda módulos ou usuários
-
-**C. Corrigir Assistente Oriente**
-
-- Atualizar prompt do edge `ai-assist` apontando rotas reais: `/app/planos` → abas Empresas, Pagamentos, Catálogo, Calculadora; `/app/minha-empresa` para clientes
-- Remover referência fantasiosa ("Configurações do Sistema / Gestão de Acessos")
-
-**Migration:**
-
-- `plan_pricing_config(id, valor_por_usuario numeric, precos_por_modulo jsonb, updated_at, updated_by)` — RLS só `is_financeiro_ocs`  
-  
-**C. Deve ter uma coluna de integrações onde cada integração custará um valor também como serviço a mais.**
-
----
-
-## Leva 2 — Visão Geral repaginada (substitui "Dashboard")
-
-- Já existe `/app/visao-geral`. Adicionar:
-  - **Filtros no topo**: Select Módulo (das abas do plano) · Select Ano · Select Mês
-  - **Toolbar de exportação** (4 botões):
-    - Excel (xlsx via `dataIO`)
-    - Word (docx — relatório gerencial com KPIs + tabelas por módulo)
-    - PowerPoint (pptx — 1 slide por módulo, KPIs em destaque)
-    - Power BI (CSV padronizado pronto pra import + breve instrução; export `.pbix` nativo exige licença Microsoft, então entrego o CSV consumível)
-  - **Branding por empresa** aplicado nos relatórios Word/PPT:
-    - Nova tabela `company_branding (company_id, logo_url, papel_timbrado_url, cor_primaria)`
-    - Upload em "Minha Empresa" (admin da empresa) e em `/app/planos` (OCS)
-    - Storage bucket `company-branding`
-- Filtros aplicados a cada `ModuleCard` (passa ano/mês para o query)
-- Sidebar: já está "Visão Geral" — confirmo rotulagem em todos os lugares
-
----
-
-## Leva 3 — Módulo Sites → Obras (revamp completo)
-
-Seguindo a spec detalhada que você colou. Como o backend usa `eng_sites` (e várias tabelas referenciam `site_id`), **mantenho o nome no banco** mas troco TODA a UI pra "Obras" — sem quebrar integrações.
-
-**Renomeação na UI:**
-
-- Sidebar/títulos/subtítulos: "Sites" → "Obras"
-- Labels "código" → "Obra ID"
-- Toda copy "site/sites" → "obra/obras"
-
-**Nova `ObrasPage**` (substitui o CRUD genérico de eng.sites):
-
-- Cabeçalho: título "Obras" + subtítulo "Cadastro e visão integrada por obra"
-- `DataActionsToolbar` (Importar / Modelo / Exportar — já global)
-- Botão "Nova obra" → modal exatamente como sua imagem (Nome*, Endereço, Cidade*, UF*, CEP, Maps, Lat/Long, Acionamento, Entrega, Valor)
-- Validação: nome único case-insensitive
-- Busca em tempo real (nome/cidade/UF/CEP/endereço)
-- Tabela: Nome | Cidade/UF | Endereço | Acionamento | Entrega | Valor | Ações
-- Click linha → `Sheet` lateral `ObraDetail`
-- Confirmação destrutiva (usar `DeleteWithPasswordModal` existente)
-
-`**ObraDetail` (painel 360°):**
-
-- KPIs: Cadastrado · Governança · Custos lançados · Variação % (verde/vermelho)
-- Cards de vínculos (filtrados pelos módulos do plano da empresa via `useUserModules`):
-  - Projetos (`eng_projetos_elaboracao`)
-  - ARTs (`eng_art`)
-  - Solicitações/SCRC (`eng_solicitacao_sc_rc`)
-  - Energia (`eng_ligacoes_energia`)
-  - Governança (`eng_governanca_master`)
-  - Fibra (`eng_fibra_obras`), Suprimentos, RFI, Pendências, Demandas — extensível via Passo A/B/C da spec
-- Bloco Custos: Pizza recharts + lista + Lançar/Editar (tabela `eng_site_costs` já existe)
-- Realtime em `eng_site_costs` (já no hook `useObraVinculos`)
-- Reaproveito o hook existente `src/modules/engenharia/hooks/useObraVinculos.ts` que já está 80% pronto
-
-**Migration:**
-
-- Adicionar à `eng_sites` os campos da spec: `endereco`, `cep`, `maps_url`, `trigger_date`, `delivery_date`, `total_value`
-- UNIQUE INDEX case-insensitive em `LOWER(nome)`
-
-**Auto-create:** já existe `ensureSite` e `ensureSiteByCodigo` — manter.  
-  
-Crie o módulo "Obras" exatamente como descrito: É um módulo central que serve como integrador de todos os outros módulos do sistema que os usuarios escolherem, usando o NOME DA OBRA como chave de ligação.
-
-1. Banco de dados (Lovable Cloud / Supabase)
-
-Crie duas tabelas:
-
-Tabela `sites` (cadastro de obras):
-
-- `id` uuid PK default gen_random_uuid()
-
-- `name` text NOT NULL UNIQUE (case-insensitive)
-
-- `address` text
-
-- `city` text
-
-- `state` text (UF, 2 letras)
-
-- `latitude` numeric
-
-- `longitude` numeric
-
-- `cep` text
-
-- `maps_url` text
-
-- `trigger_date` date (acionamento)
-
-- `delivery_date` date (entrega prevista)
-
-- `total_value` numeric default 0
-
-- `created_at`, `updated_at` timestamptz
-
-Tabela `site_costs` (lançamentos de custo por obra):
-
-- `id` uuid PK
-
-- `site_id` uuid FK → sites(id) ON DELETE CASCADE
-
-- `site_name` text (redundante p/ busca quando site_id ainda não existe)
-
-- `categoria` text NOT NULL (Material, Mão de obra, ART/Taxas, Equipamento, Transporte, Hospedagem/Alimentação, Combustível, Locação, Subcontratado, Outros)
-
-- `descricao` text
-
-- `valor` numeric NOT NULL
-
-- `data_lancamento` date
-
-- `origem` text default 'manual' (manual | art | governanca | suprimentos)
-
-- `origem_id` text
-
-- `observacao` text
-
-- `created_at` timestamptz
-
-RLS:
-
-- `sites`: SELECT/INSERT/UPDATE para usuários autenticados; DELETE só para admin.
-
-- `site_costs`: SELECT/INSERT/UPDATE para autenticados; DELETE só para admin (use função `has_role(auth.uid(),'admin')`).
-
-Habilite Realtime na tabela `site_costs`.
-
-2. Página principal `/app/sites` (rota TanStack)
-
-Listagem em tabela com colunas: Nome | Cidade/UF | Endereço | Acionamento | Entrega prevista | Valor total | Ações (editar/excluir).
-
-- Campo de busca por nome/cidade/UF/CEP/endereço.
-
-- Botão "Nova obra" abre Dialog com formulário (nome, endereço, cidade, UF* via Select com 27 estados, CEP, link Google Maps, latitude, longitude, data de acionamento, data de entrega, valor total).
-
-- Validar duplicidade de nome (case-insensitive) antes de salvar.
-
-- Botão Importar/Exportar Excel (colunas: Nome, Endereço, Cidade, Estado, Latitude, Longitude, CEP, Maps URL, Acionamento, Entrega, Valor).
-
-- Clique na linha abre Sheet lateral com ``.
-
-- Confirmação destrutiva ao excluir.
-
-- Ao final da página, incluir abas dinâmicas configuráveis pelo admin (``).
-
-## 3. Componente `` (painel lateral 360°)
-
-Recebe `site` e `onEdit`. Usa o hook `useObraVinculos(site.name, site.id)`.
-
-**Cabeçalho (Card):** Cidade/UF, endereço, e 3 KPIs em grid: **Cadastrado | Governança | Custos lançados** (todos em R$). Abaixo, linha resumo:  
-
-`Total real (gov+custos): R$ X — variação +Y% vs cadastrado` (verde se ≤0, vermelho se >0). Botão "Editar dados".
-
-**Fórmula da variação:**
-
+## 2. Tabelas (todas com prefixo `hrdp_`)
+
+```text
+hrdp_module_settings        — config por empresa (submódulos ativos, regras de ponto/HE/férias)
+hrdp_employees              — colaboradores (vinculados a company_id)
+hrdp_employee_documents     — anexos por colaborador (storage privado)
+hrdp_contracts              — contratos + modelo, vigência, status
+hrdp_time_entries           — batidas (in, almoço, retorno, out)
+hrdp_overtime_requests      — solicitações de HE (gestor → DP)
+hrdp_time_bank              — saldo banco de horas
+hrdp_vacations              — períodos aquisitivos / programações / status
+hrdp_vacation_provisions    — cálculo estimado (não oficial)
+hrdp_payslips               — holerites (PDF + competência)
+hrdp_payroll_closings       — fechamento mensal consolidado
+hrdp_benefits               — benefícios por colaborador
+hrdp_benefit_quotes         — cotações de pacotes corporativos (rascunho/aprovado)
+hrdp_employee_requests      — fila de solicitações
+hrdp_candidates             — banco de currículos
+hrdp_interview_questions    — perguntas padrão (config)
+hrdp_interviews             — entrevistas + parecer
+hrdp_people_risks           — observações sensíveis e alertas
+hrdp_audit_logs             — log dedicado (além do `eng_auditoria` global)
 ```
 
-totalGeral = somatório(valor_total_atividade dos govs) + somatório(site_costs.valor)
-
-variacao = ((totalGeral - [sites.total](http://sites.total)_value) / [sites.total](http://sites.total)_value) * 100
-
-```
-
-**Seções de vínculos** (cards empilhados, mostram contagem no título):  
-  
-Vai depender de quais modulos a empresa escolheu para o usuario mas segue o exemplo:
-
-- **Projetos** — de `projetos_elaboracao` WHERE site ILIKE name → cliente, escopo, projetista, prazo, status, badge dentro/fora prazo.
-
-- **ARTs** — do localStorage `ocs_arts` filtrado por siteObra → número, tipo, cliente, custo, status.
-
-- **Solicitações** — do localStorage `ocs_solicits` filtrado por siteObra → categoria, escopo, cliente, data, status.
-
-- **Energia** — de `shared_records` kind`energia_solic` filtrado por [data.site](http://data.site) → concessionária, protocolo, data, status.
-
-- **Governança** — de `governance_records` WHERE site ILIKE name → serviço, cliente, % conclusão campo, valor, status_bi e status_atividade.
-
-Cada item tem badge de status colorido (verde concluído/aprovado/pago, vermelho cancelado/vencido, cinza pendente/aguardando).
-
-**Bloco Custos da obra:**
-
-- Botão "Lançar" abre Dialog (categoria via Select, descrição, valor, data, observação).
-
-- Gráfico Pizza (recharts) com distribuição por categoria + legenda lateral com valores e total.
-
-- Lista de lançamentos (badge categoria, descrição, data/origem, valor, editar, excluir).
-
-- Realtime: ao inserir/atualizar/deletar `site_costs`, recarrega automaticamente.
-
-## 4. Hook `useObraVinculos(siteName, siteId)`
-
-Retorna: `{ loading, refresh, projetos, govs, energias, solicits, arts, costs, totalCustos, custosPorCategoria, valorGovTotal }`. Faz queries em paralelo nas tabelas listadas acima e ouve canal realtime de `site_costs`.
-
-Exporte também:
-
-```ts
-
-export const CATEGORIAS_CUSTO = ["Material","Mão de obra","ART / Taxas","Equipamento","Transporte","Hospedagem / Alimentação","Combustível","Locação","Subcontratado","Outros"] as const;
-
-```
-
-## 5. Auto-criação de obra `ensureSite({name, city, uf})`
-
-Função utilitária em `src/lib/siteAutocreate.ts`: ao salvar qualquer registro de outro módulo (ART, Atividades, Energia, Solicitações…) que mencione um site, verificar se existe em `sites` (ILIKE) e, se não, criar automaticamente.
-
-## 6. Componente ``
-
-Input com `` de autocomplete listando todas as obras. Ao digitar um nome existente, preenche cidade/UF automaticamente via callback `onChange({site, cidade, uf})`. Mostra dica "Se já existe, cidade/UF preenchem automaticamente. Caso contrário, será criado em Obras."
-
-Use shadcn/ui (Card, Dialog, Sheet, Table, Select, Input, Button, Badge), recharts para gráfico, sonner para toasts, lucide-react para ícones (Plus, Pencil, Trash2, Search). Tudo em português BR, formatação de moeda `pt-BR`/BRL.
-
-&nbsp;
-
-Criar modal de exclusão
-
-Implementar lançamento de custos
-
-Ativar exportação Excel
-
-Integrar auto-criação de obras
-
-Construir painel com KPIs
+Todas com: `id`, `company_id`, `created_at`, `updated_at`, `is_deleted`, `deleted_*`, `data jsonb` para campos extras.
 
 ---
 
-## Tamanho
+## 3. Permissões
 
-Estimo ~2 levas por mensagem se eu trabalhar focado. Posso fazer **Leva 1 inteira agora** (é a que destrava o Assistente errado e o que você pediu primeiro).
+**Novos roles** (extender `app_role`):
+`rh_admin`, `dp_admin`, `gestor_area`, `colaborador`, `auditor_rh`, `financeiro_rh`
 
-### Pergunta rápida (para Leva 2)
+**Matriz por submódulo**: `can_view`, `can_create`, `can_edit`, `can_delete`, `can_import`, `can_export`, `can_approve`, `can_view_sensitive`, `can_manage_settings` — armazenada em `hrdp_module_permissions(user_id, company_id, submodule, flags...)`.
 
-- **Power BI**: aceita CSV padronizado + template `.pbit` simples (gerado por mim)? se aceitar no power bi da microsoft oque sera uma nova integração futura A licença `.pbix` nativo é Microsoft.
+**Função SQL** `hrdp_can(_uid, _company, _submodule, _action)` (security definer) para uso nas RLS — evita recursão.
 
-&nbsp;
+**Regras de escopo**:
+- `colaborador` → apenas seu próprio registro
+- `gestor_area` → registros onde `gestor_id = self` (filtro por setor/equipe)
+- `rh_admin` / `dp_admin` → toda a empresa (na sua área)
+- `auditor_rh` → SELECT em tudo + logs, sem UPDATE/DELETE
+- `admin` global OCS → tudo
+
+---
+
+## 4. Dados sensíveis (LGPD)
+
+Marcados como **restritos** (só `can_view_sensitive`):
+- CPF, RG, dados bancários, chave Pix, salário, holerite, contratos, anexos pessoais, observações internas em `people_risks`, dados médicos/atestados.
+
+**Tratamento**:
+- Storage bucket `hrdp-private` (não-público) com policies por `company_id`.
+- Mascaramento padrão na UI (`***.***.***-XX`) — desmascarar exige permissão + log.
+- Log obrigatório de **visualização** desses campos (não só edit/delete).
+- Retenção e anonimização documentadas em `hrdp_module_settings`.
+
+---
+
+## 5. Cálculos parametrizáveis (em `hrdp_module_settings.data`)
+
+- Jornada padrão (h/dia, h/semana)
+- Tolerância de ponto (min)
+- Limite mensal de HE
+- % adicional HE dia útil / fim de semana / feriado
+- Regra banco de horas: acumular vs pagar; vencimento
+- Período aquisitivo de férias (12m default)
+- Janela "vencendo" (ex: ≤60 dias)
+- Adicional de 1/3 férias (default 33,33%)
+- Cálculo de provisão (estimado, com aviso visual)
+
+Sempre com banner: *"Cálculo estimado. Validação humana obrigatória — convenção coletiva pode alterar."*
+
+---
+
+## 6. Ativação de submódulos por empresa
+
+- `hrdp_module_settings(company_id, submodule_key, enabled, config jsonb)`
+- Catálogo `hrdp_submodules_catalog` (key, label, area: rh|dp|bi, default_enabled).
+- Tela **OCS** em `/app/planos` (sub-aba "RH/DP") liga/desliga por empresa.
+- Tela **company admin** em `/app/rh-dp/configuracoes` ajusta apenas regras (não ativa).
+- Hook `useHrdpModules(company_id)` controla rotas e itens da sidebar.
+
+---
+
+## 7. Tela inicial `/app/rh-dp`
+
+Dashboard "comando" (somente cards habilitados pelos submódulos ativos):
+- KPIs: Colaboradores ativos · Em admissão · Contratos vencendo · Férias vencendo · HE no mês · Solicitações abertas
+- Atalhos rápidos: Nova admissão · Nova solicitação · Aprovar HE · Aprovar férias
+- Tabs: **Visão Geral · Alertas · Aprovações pendentes · Auditoria recente**
+- Sidebar (filtrada por permissões): Dashboard / Colaboradores / Admissão / Documentos / Contratos / Ponto / Banco de Horas / Férias / Provisão / Holerites / Folha / Benefícios / Pacotes / Solicitações / Recrutamento / Indicadores / Configurações / Auditoria
+
+---
+
+## 8. Implementação em 9 fases
+
+```text
+F1  Base RH/DP        → catálogo, settings, sidebar, dashboard vazio, roles + RLS
+F2  Colaboradores     → hrdp_employees + vínculos + permissões finas
+F3  Admissão + Docs   → checklist por vínculo, upload privado, status
+F4  Contratos         → modelos, vencimento, renovação
+F5  Ponto + HE + BH   → batidas, ajustes, aprovação, saldo
+F6  Férias + Provisão → cálculo aquisitivo, alertas, estimativa
+F7  Solicitações      → fila SLA, comentários, anexos
+F8  Recrutamento      → candidatos, perguntas, entrevistas
+F9  Benefícios + Pacotes → cotação assistida (sem IA pública), aprovação OCS
+F10 Folha + Holerite  → consolidação, conferência, PDF
+F11 BI RH/DP          → dashboards agregados
+```
+
+Cada fase entrega: migration + tipos + página + DataActionsToolbar + DeleteWithPasswordModal + auditoria.
+
+---
+
+## 9. Riscos legais / LGPD
+
+- **CLT/convenção**: cálculos de HE, BH e férias variam por sindicato → marcar tudo como estimado, exigir aprovação humana.
+- **eSocial/folha oficial**: não emitir; integração futura com contabilidade.
+- **LGPD**: base legal = execução de contrato + obrigação legal trabalhista. Exige:
+  - Consentimento explícito para dados sensíveis adicionais (saúde, biometria do ponto)
+  - Direito de acesso/portabilidade do colaborador
+  - Log de quem visualizou dado sensível
+  - Retenção: dados de candidatos não contratados ≤ 2 anos
+  - Storage privado e criptografado em repouso
+- **Geolocalização do ponto**: opt-in, configurável por empresa, nunca obrigatória.
+- **Holerite**: colaborador só vê o próprio (RLS rígida).
+
+---
+
+## 10. O que NÃO implementar agora
+
+- Integração eSocial / DARF / FGTS
+- Folha oficial fechada (apenas conferência)
+- Reconhecimento facial / biometria
+- IA pública pesquisando benefícios e publicando direto (regra de ouro: aprovação OCS sempre)
+- APIs pagas (Flash, TotalPass, iFood) — só campos manuais e link de referência
+- Scraping de fornecedores
+- Assinatura digital de contratos (fase futura)
+- App mobile dedicado (mobile-first responsivo basta)
+- Notificações por SMS/WhatsApp (usar notif interna existente)
+
+---
+
+## Próximo passo
+
+Quando aprovar, começo pela **Fase 1 (Base RH/DP)**:
+- migration: `app_role` += rh_admin/dp_admin/gestor_area/colaborador/auditor_rh, `hrdp_module_settings`, `hrdp_submodules_catalog`, `hrdp_module_permissions`, função `hrdp_can`
+- rota `/app/rh-dp` + guard + sidebar agrupada
+- aba "RH/DP" em `/app/planos` (OCS) para ligar submódulos por empresa
+
+Diga **"fase 1"** quando quiser que eu execute.
