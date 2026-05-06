@@ -157,7 +157,11 @@ const App = () => (
                 <Route path="links" element={<CreaLinksPage />} />
                 <Route path="assistente" element={<CreaAssistentePage />} />
                 <Route path="auditoria" element={<CreaAuditoriaPage />} />
+                <Route path="governanca" element={<GovernanceUniversalPage moduleKey="crea" />} />
               </Route>
+              <Route path="rh-dp/governanca" element={<GovernanceUniversalPage moduleKey="rhdp" />} />
+              <Route path="comunicacao/governanca" element={<GovernanceUniversalPage moduleKey="comunicacao" />} />
+              <Route path="governanca" element={<GovernanceUniversalPage moduleKey="geral" />} />
               <Route path="planos" element={<PlanosPage />} />
               <Route path="minha-empresa" element={<MinhaEmpresaPage />} />
               <Route path="visao-geral" element={<VisaoGeralPage />} />
