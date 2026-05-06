@@ -22,7 +22,15 @@ import { SaveThemeConfirmationDialog } from "./SaveThemeConfirmationDialog";
 import { ChartPreferencesPanel } from "./ChartPreferencesPanel";
 import { ThemePreviewPanel } from "./ThemePreviewPanel";
 
-type Company = { id: string; name: string };
+type ScopeKind = "system_global" | "owner_company" | "client_company";
+type EnvOption = { id: string; name: string; scope: ScopeKind; companyId: string | null };
+
+const SYSTEM_GLOBAL_ID = "__system_global__";
+const SCOPE_LABEL: Record<ScopeKind, string> = {
+  system_global: "Tema Global",
+  owner_company: "Ambiente Interno OCS",
+  client_company: "Cliente",
+};
 
 const COLOR_FIELDS: { key: keyof ThemeTokens; label: string; dbCol: string }[] = [
   { key: "primary",         label: "Primária",        dbCol: "primary_color" },
@@ -42,9 +50,12 @@ export default function ThemeStudioPage() {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const { previewTheme, previewBackground, reloadFromDb } = useCompanyTheme();
 
-  const [companies, setCompanies] = useState<Company[]>([]);
-  const [companyId, setCompanyId] = useState<string>("");
-  const [companyName, setCompanyName] = useState<string>("");
+  const [environments, setEnvironments] = useState<EnvOption[]>([]);
+  const [envId, setEnvId] = useState<string>("");
+  const currentEnv = environments.find(e => e.id === envId);
+  const companyId = currentEnv?.companyId ?? null;
+  const scope: ScopeKind = currentEnv?.scope ?? "client_company";
+  const companyName = currentEnv?.name ?? "";
 
   // Draft state
   const [preset, setPreset] = useState<ThemePresetKey>(DEFAULT_PRESET);
