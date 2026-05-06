@@ -7,9 +7,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-import { Building2, Shield, Eye, Pencil, Trash2 } from "lucide-react";
+import { Building2, Shield, Eye, Pencil, Trash2, Image as ImgIcon } from "lucide-react";
 import { toast } from "sonner";
 import { paymentStatus, ymNow } from "../lib/billing";
+import BrandingTab from "./BrandingTab";
 
 const sb: any = supabase;
 
@@ -91,6 +92,7 @@ export default function MinhaEmpresaPage() {
       <Tabs defaultValue="plano">
         <TabsList>
           <TabsTrigger value="plano">Plano</TabsTrigger>
+          {isCompanyAdmin && <TabsTrigger value="branding"><ImgIcon className="w-4 h-4 mr-1" /> Branding</TabsTrigger>}
           {isCompanyAdmin && <TabsTrigger value="permissoes"><Shield className="w-4 h-4 mr-1" /> Permissões</TabsTrigger>}
         </TabsList>
 
@@ -127,6 +129,12 @@ export default function MinhaEmpresaPage() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {isCompanyAdmin && companyId && (
+          <TabsContent value="branding" className="space-y-4">
+            <BrandingTab companyId={companyId} />
+          </TabsContent>
+        )}
 
         {isCompanyAdmin && (
           <TabsContent value="permissoes" className="space-y-4">

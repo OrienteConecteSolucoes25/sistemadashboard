@@ -53,6 +53,39 @@ export type Database = {
         }
         Relationships: []
       }
+      company_branding: {
+        Row: {
+          company_id: string
+          id: string
+          letterhead_url: string | null
+          logo_url: string | null
+          primary_color: string | null
+          rodape: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          company_id: string
+          id?: string
+          letterhead_url?: string | null
+          logo_url?: string | null
+          primary_color?: string | null
+          rodape?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          id?: string
+          letterhead_url?: string | null
+          logo_url?: string | null
+          primary_color?: string | null
+          rodape?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       company_module_permissions: {
         Row: {
           can_delete: boolean
@@ -1697,6 +1730,36 @@ export type Database = {
           module_label?: string
           restricted?: boolean
           updated_at?: string
+        }
+        Relationships: []
+      }
+      ocs_impersonation_sessions: {
+        Row: {
+          company_id: string
+          data_access_granted: boolean
+          ended_at: string | null
+          id: string
+          ocs_user_id: string
+          reason: string | null
+          started_at: string
+        }
+        Insert: {
+          company_id: string
+          data_access_granted?: boolean
+          ended_at?: string | null
+          id?: string
+          ocs_user_id: string
+          reason?: string | null
+          started_at?: string
+        }
+        Update: {
+          company_id?: string
+          data_access_granted?: boolean
+          ended_at?: string | null
+          id?: string
+          ocs_user_id?: string
+          reason?: string | null
+          started_at?: string
         }
         Relationships: []
       }
