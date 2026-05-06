@@ -58,12 +58,11 @@ export default function RhdpPermissoesPage() {
   useEffect(() => {
     if (!companyId) return;
     (async () => {
-      const { data } = await sb
-        .from("company_users")
-        .select("user_id, profiles:profiles!inner(id, full_name, email)")
-        .eq("company_id", companyId);
-      const list: Profile[] = (data ?? []).map((r: any) => r.profiles).filter(Boolean);
-      setUsers(list);
+      const { data: cu } = await sb.from("company_users").select("user_id").eq("company_id", companyId);
+      const ids = (cu ?? []).map((r: any) => r.user_id);
+      if (ids.length === 0) { setUsers([]); return; }
+      const { data: profs } = await sb.from("profiles").select("id, full_name, email").in("id", ids);
+      setUsers((profs ?? []) as Profile[]);
     })();
   }, [companyId]);
 
