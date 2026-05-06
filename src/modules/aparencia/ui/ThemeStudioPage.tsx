@@ -66,12 +66,15 @@ function hexToHslStr(hex: string): string {
 
 export default function ThemeStudioPage() {
   const { isAdmin, loading: authLoading } = useAuth();
-  const { previewTheme, reloadFromDb } = useCompanyTheme();
+  const { previewTheme, previewBackground, reloadFromDb } = useCompanyTheme();
 
   const [companies, setCompanies] = useState<Company[]>([]);
   const [companyId, setCompanyId] = useState<string>("");
   const [preset, setPreset] = useState<ThemePresetKey>(DEFAULT_PRESET);
   const [overrides, setOverrides] = useState<Partial<Record<keyof ThemeTokens, string>>>({});
+  const [bgUrl, setBgUrl] = useState<string | null>(null);
+  const [bgAlpha, setBgAlpha] = useState<number>(0.35);
+  const [uploading, setUploading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [audit, setAudit] = useState<any[]>([]);
 
