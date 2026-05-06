@@ -255,7 +255,11 @@ export default function ThemeStudioPage() {
             <Select value={companyId} onValueChange={setCompanyId}>
               <SelectTrigger><SelectValue placeholder="Selecione uma empresa para editar o tema" /></SelectTrigger>
               <SelectContent>
-                {companies.map(c => <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>)}
+                {companies.map(c => (
+                  <SelectItem key={c.id} value={c.id}>
+                    {c.name}{/erp\s*ocs/i.test(c.name) ? " — Minha empresa" : ""}
+                  </SelectItem>
+                ))}
               </SelectContent>
             </Select>
             {!companyId && (
