@@ -1854,6 +1854,54 @@ export type Database = {
         }
         Relationships: []
       }
+      company_chart_preferences: {
+        Row: {
+          allowed_chart_types: string[]
+          company_id: string
+          created_at: string
+          default_chart_type: string
+          id: string
+          is_active: boolean
+          metric_key: string
+          module_key: string
+          subtab_key: string
+          tab_key: string
+          updated_at: string
+          updated_by: string | null
+          user_can_switch: boolean
+        }
+        Insert: {
+          allowed_chart_types?: string[]
+          company_id: string
+          created_at?: string
+          default_chart_type?: string
+          id?: string
+          is_active?: boolean
+          metric_key: string
+          module_key: string
+          subtab_key?: string
+          tab_key?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_can_switch?: boolean
+        }
+        Update: {
+          allowed_chart_types?: string[]
+          company_id?: string
+          created_at?: string
+          default_chart_type?: string
+          id?: string
+          is_active?: boolean
+          metric_key?: string
+          module_key?: string
+          subtab_key?: string
+          tab_key?: string
+          updated_at?: string
+          updated_by?: string | null
+          user_can_switch?: boolean
+        }
+        Relationships: []
+      }
       company_module_permissions: {
         Row: {
           can_delete: boolean
@@ -7236,6 +7284,117 @@ export type Database = {
         }
         Relationships: []
       }
+      theme_permissions: {
+        Row: {
+          can_manage: boolean
+          can_manage_brand: boolean
+          can_manage_charts: boolean
+          can_view: boolean
+          can_view_audit: boolean
+          company_id: string | null
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          can_manage?: boolean
+          can_manage_brand?: boolean
+          can_manage_charts?: boolean
+          can_view?: boolean
+          can_view_audit?: boolean
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          can_manage?: boolean
+          can_manage_brand?: boolean
+          can_manage_charts?: boolean
+          can_view?: boolean
+          can_view_audit?: boolean
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_chart_preferences: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          metric_key: string
+          module_key: string
+          selected_chart_type: string
+          tab_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          metric_key: string
+          module_key: string
+          selected_chart_type: string
+          tab_key?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          metric_key?: string
+          module_key?: string
+          selected_chart_type?: string
+          tab_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_layout_preferences: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          dashboard_density: string
+          id: string
+          internal_sidebar_collapsed: boolean
+          module_key: string
+          table_density: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          dashboard_density?: string
+          id?: string
+          internal_sidebar_collapsed?: boolean
+          module_key: string
+          table_density?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          dashboard_density?: string
+          id?: string
+          internal_sidebar_collapsed?: boolean
+          module_key?: string
+          table_density?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           id: string
@@ -7460,6 +7619,15 @@ export type Database = {
         Returns: boolean
       }
       is_financeiro_ocs: { Args: { _uid: string }; Returns: boolean }
+      theme_can: {
+        Args: { _action: string; _company: string; _uid: string }
+        Returns: boolean
+      }
+      theme_restore_default: {
+        Args: { _company: string; _reason: string }
+        Returns: Json
+      }
+      theme_save: { Args: { _company: string; _payload: Json }; Returns: Json }
       user_company: { Args: { _uid: string }; Returns: string }
       user_group_ids: { Args: { _user_id: string }; Returns: string[] }
       user_in_group: {
