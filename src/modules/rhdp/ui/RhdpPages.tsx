@@ -26,4 +26,4 @@ export const RhdpDashboard = () => <Placeholder title="RH/DP — Dashboard" desc
 
 
 
-export const IndicadoresPage = () => <Placeholder title="Indicadores RH/DP" descricao="Absenteísmo, turnover (fase 11)." />;
+
