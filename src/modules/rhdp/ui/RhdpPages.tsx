@@ -25,7 +25,6 @@ export const RhdpDashboard = () => <Placeholder title="RH/DP — Dashboard" desc
 export const RecrutamentoPage = () => <Placeholder title="Recrutamento" descricao="Vagas e banco de talentos (fase 8)." />;
 export const BeneficiosPage = () => <Placeholder title="Benefícios" descricao="Gestão e cotações com aprovação OCS (fase 9)." />;
 export const SolicitacoesPage = () => <Placeholder title="Solicitações" descricao="Fila de pedidos com SLA (fase 7)." />;
-export const AdmissaoPage = () => <Placeholder title="Admissão & Documentos" descricao="Onboarding e checklists (fase 3)." />;
 export const ContratosPage = () => <Placeholder title="Contratos" descricao="Templates e renovações (fase 4)." />;
 export const PontoPage = () => <Placeholder title="Ponto / HE / BH" descricao="Marcações, horas extras, banco de horas (fase 5)." />;
 export const FeriasPage = () => <Placeholder title="Férias & Provisão" descricao="Aquisitivo e provisões (fase 6)." />;
