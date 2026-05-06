@@ -110,55 +110,58 @@ export function DynamicSheetTable({ sheetId, canEdit }: { sheetId: string; canEd
           </Button>
         )}
       </div>
-      <ScrollArea className="h-[500px] border rounded">
-        <Table>
-          <TableHeader className="sticky top-0 bg-background">
-            <TableRow>
-              <TableHead className="w-12 text-xs">#</TableHead>
-              {cols.map((c) => (
-                <TableHead key={c.id} className="text-xs whitespace-nowrap">
-                  <div className="flex items-center gap-1">
-                    {c.header}
-                    {c.is_formula && (
-                      <Tooltip>
-                        <TooltipTrigger asChild><Badge variant="secondary" className="h-4 px-1 text-[10px]"><Sigma className="h-2.5 w-2.5" /></Badge></TooltipTrigger>
-                        <TooltipContent className="max-w-xs">
-                          <div className="text-xs"><b>Fórmula:</b> {c.formula_excel}</div>
-                          {c.formula_purpose && <div className="text-xs mt-1">{c.formula_purpose}</div>}
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-                  </div>
-                </TableHead>
-              ))}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {rows.map((r) => (
-              <TableRow key={r.id}>
-                <TableCell className="text-xs text-muted-foreground">{r.row_index}</TableCell>
-                {cols.map((c) => {
-                  const isEditing = editing?.rowId === r.id && editing.letter === c.col_letter;
-                  let value: unknown = r.values[c.col_letter];
-                  if (c.is_formula) value = r.computed?.[c.col_letter] ?? evalFormula(c.formula_js, r.values, colsAgg);
-                  return (
-                    <TableCell key={c.id} className={`text-xs whitespace-nowrap ${c.is_formula ? "bg-primary/5 text-primary" : ""}`}
-                      onDoubleClick={() => { if (canEdit && !c.is_formula) { setEditing({ rowId: r.id, letter: c.col_letter }); setEditValue(String(r.values[c.col_letter] ?? "")); } }}>
-                      {isEditing ? (
-                        <Input autoFocus className="h-7 text-xs" value={editValue}
-                          onChange={(e) => setEditValue(e.target.value)}
-                          onBlur={() => saveCell(r, c.col_letter, editValue)}
-                          onKeyDown={(e) => { if (e.key === "Enter") saveCell(r, c.col_letter, editValue); if (e.key === "Escape") setEditing(null); }} />
-                      ) : (
-                        formatValue(value, c.data_type)
+      <ScrollArea className="h-[500px] w-full border rounded">
+        <div className="min-w-max">
+          <Table>
+            <TableHeader className="sticky top-0 bg-background z-10">
+              <TableRow>
+                <TableHead className="w-12 text-xs">#</TableHead>
+                {cols.map((c) => (
+                  <TableHead key={c.id} className="text-xs whitespace-nowrap">
+                    <div className="flex items-center gap-1">
+                      {c.header}
+                      {c.is_formula && (
+                        <Tooltip>
+                          <TooltipTrigger asChild><Badge variant="secondary" className="h-4 px-1 text-[10px]"><Sigma className="h-2.5 w-2.5" /></Badge></TooltipTrigger>
+                          <TooltipContent className="max-w-xs">
+                            <div className="text-xs"><b>Fórmula:</b> {c.formula_excel}</div>
+                            {c.formula_purpose && <div className="text-xs mt-1">{c.formula_purpose}</div>}
+                          </TooltipContent>
+                        </Tooltip>
                       )}
-                    </TableCell>
-                  );
-                })}
+                    </div>
+                  </TableHead>
+                ))}
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
+            </TableHeader>
+            <TableBody>
+              {rows.map((r) => (
+                <TableRow key={r.id}>
+                  <TableCell className="text-xs text-muted-foreground">{r.row_index}</TableCell>
+                  {cols.map((c) => {
+                    const isEditing = editing?.rowId === r.id && editing.letter === c.col_letter;
+                    let value: unknown = r.values[c.col_letter];
+                    if (c.is_formula) value = r.computed?.[c.col_letter] ?? evalFormula(c.formula_js, r.values, colsAgg);
+                    return (
+                      <TableCell key={c.id} className={`text-xs whitespace-nowrap ${c.is_formula ? "bg-primary/5 text-primary" : ""}`}
+                        onDoubleClick={() => { if (canEdit && !c.is_formula) { setEditing({ rowId: r.id, letter: c.col_letter }); setEditValue(String(r.values[c.col_letter] ?? "")); } }}>
+                        {isEditing ? (
+                          <Input autoFocus className="h-7 text-xs" value={editValue}
+                            onChange={(e) => setEditValue(e.target.value)}
+                            onBlur={() => saveCell(r, c.col_letter, editValue)}
+                            onKeyDown={(e) => { if (e.key === "Enter") saveCell(r, c.col_letter, editValue); if (e.key === "Escape") setEditing(null); }} />
+                        ) : (
+                          formatValue(value, c.data_type)
+                        )}
+                      </TableCell>
+                    );
+                  })}
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+        <ScrollBar orientation="horizontal" />
       </ScrollArea>
     </TooltipProvider>
   );
