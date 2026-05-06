@@ -70,6 +70,7 @@ import { DesignStudioPage, ImagesGalleryPage, CanvaPage } from "./modules/comuni
 import ThemeStudioPage from "./modules/aparencia/ui/ThemeStudioPage";
 import { CompanyThemeProvider } from "./modules/aparencia/hooks/CompanyThemeProvider";
 import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
+import { GovernanceUniversalPage } from "./modules/governance/ui/GovernanceUniversalPage";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
