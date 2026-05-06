@@ -52,9 +52,8 @@ interface Props {
 }
 
 export const ObraDetailSheet = ({ obra, onClose, onEdit, onChanged }: Props) => {
-  const userModules = useUserModules();
-  const moduleSet = useMemo(() => new Set(userModules), [userModules]);
-  const has = (k: string) => moduleSet.size === 0 || moduleSet.has(k); // se sem plano, mostra todos
+  const um = useUserModules();
+  const has = (k: string) => !um.ready || um.modules.size === 0 || um.has(k);
 
   const v = useObraVinculos(obra?.nome, obra?.id);
 
