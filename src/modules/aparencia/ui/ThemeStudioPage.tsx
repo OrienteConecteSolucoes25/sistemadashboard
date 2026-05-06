@@ -134,7 +134,10 @@ export default function ThemeStudioPage() {
     const { data: prev } = await (supabase as any)
       .from("company_theme_settings").select("*").eq("company_id", companyId).maybeSingle();
 
-    const payload: any = { company_id: companyId, theme_preset: preset, is_active: true };
+    const payload: any = {
+      company_id: companyId, theme_preset: preset, is_active: true,
+      background_image_url: bgUrl, background_overlay_alpha: bgAlpha,
+    };
     COLOR_FIELDS.forEach(f => { payload[f.dbCol] = overrides[f.key] ?? null; });
 
     const { error } = prev
@@ -157,8 +160,22 @@ export default function ThemeStudioPage() {
     await reloadFromDb();
   };
 
+  const handleUploadBg = async (file: File) => {
+    if (!companyId) { toast.error("Selecione uma empresa primeiro"); return; }
+    setUploading(true);
+    const ext = file.name.split(".").pop() || "jpg";
+    const path = `${companyId}/bg-${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from("company-wallpapers").upload(path, file, { upsert: true });
+    if (error) { toast.error("Erro no upload: " + error.message); setUploading(false); return; }
+    const { data } = supabase.storage.from("company-wallpapers").getPublicUrl(path);
+    setBgUrl(data.publicUrl);
+    setUploading(false);
+    toast.success("Imagem aplicada — clique em Salvar para persistir");
+  };
+
   const handleReset = () => {
     setPreset(DEFAULT_PRESET); setOverrides({});
+    setBgUrl(null); setBgAlpha(0.35);
     toast.message("Restaurado para o padrão OCS (Glassmorphism)");
   };
 
