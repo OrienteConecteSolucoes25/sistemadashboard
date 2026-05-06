@@ -108,7 +108,8 @@ export function DesignStudioPage() {
             <rect x={f.w * 0.05} y={f.h * 0.4} width={f.w * 0.9} height={6} fill={fg} />
             <text x={f.w / 2} y={f.h * 0.35} fill={fg} fontSize={f.w * 0.09} fontFamily="Rajdhani, Inter, sans-serif" fontWeight="bold" textAnchor="middle">{titulo}</text>
             <foreignObject x={f.w * 0.08} y={f.h * 0.5} width={f.w * 0.84} height={f.h * 0.3}>
-              <div xmlns="http://www.w3.org/1999/xhtml" style={{ color: fg, fontSize: f.w * 0.04, fontFamily: "Inter, sans-serif", textAlign: "center", lineHeight: 1.3 }}>{subtitulo}</div>
+              {/* @ts-ignore */}
+              <div {...{ xmlns: "http://www.w3.org/1999/xhtml" } as any} style={{ color: fg, fontSize: f.w * 0.04, fontFamily: "Inter, sans-serif", textAlign: "center", lineHeight: 1.3 }}>{subtitulo}</div>
             </foreignObject>
             <rect x={f.w * 0.3} y={f.h * 0.85} width={f.w * 0.4} height={f.h * 0.07} fill={fg} rx={f.h * 0.035} />
             <text x={f.w / 2} y={f.h * 0.9} fill={bg} fontSize={f.w * 0.035} fontFamily="Inter, sans-serif" fontWeight="bold" textAnchor="middle">{cta}</text>
