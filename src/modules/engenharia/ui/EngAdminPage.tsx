@@ -246,12 +246,12 @@ function PermissoesTab() {
   const upsert = async (mod: string, field: "can_view"|"can_edit"|"can_delete", value: boolean) => {
     if (!selected) return;
     const existing = userPerms[mod];
-    const payload = { user_id: selected, module: mod, can_view: existing?.can_view ?? true, can_edit: existing?.can_edit ?? false, can_delete: existing?.can_delete ?? false, [field]: value };
+    const payload: any = { user_id: selected, module: mod, can_view: existing?.can_view ?? true, can_edit: existing?.can_edit ?? false, can_delete: existing?.can_delete ?? false, [field]: value };
     if (existing) {
-      const { error } = await supabase.from("eng_module_permissions").update(payload).eq("id", existing.id);
+      const { error } = await (supabase.from("eng_module_permissions").update(payload).eq("id", existing.id) as any);
       if (error) return toast.error(error.message);
     } else {
-      const { error } = await supabase.from("eng_module_permissions").insert(payload);
+      const { error } = await (supabase.from("eng_module_permissions").insert(payload) as any);
       if (error) return toast.error(error.message);
     }
     await supabase.rpc("eng_log_audit" as any, {
