@@ -22,7 +22,6 @@ function Placeholder({ title, descricao }: { title: string; descricao: string })
 }
 
 export const RhdpDashboard = () => <Placeholder title="RH/DP — Dashboard" descricao="Visão geral do módulo RH/DP." />;
-export const ColaboradoresPage = () => <Placeholder title="Colaboradores" descricao="Cadastro de pessoas e vínculos (fase 2)." />;
 export const RecrutamentoPage = () => <Placeholder title="Recrutamento" descricao="Vagas e banco de talentos (fase 8)." />;
 export const BeneficiosPage = () => <Placeholder title="Benefícios" descricao="Gestão e cotações com aprovação OCS (fase 9)." />;
 export const SolicitacoesPage = () => <Placeholder title="Solicitações" descricao="Fila de pedidos com SLA (fase 7)." />;

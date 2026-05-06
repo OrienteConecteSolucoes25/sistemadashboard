@@ -1727,10 +1727,113 @@ export type Database = {
         }
         Relationships: []
       }
+      hrdp_employees: {
+        Row: {
+          cargo: string | null
+          company_id: string
+          cpf: string | null
+          created_at: string
+          created_by: string | null
+          dados_bancarios: Json | null
+          data: Json
+          data_admissao: string | null
+          data_desligamento: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          email: string | null
+          endereco: Json | null
+          gestor_id: string | null
+          id: string
+          is_deleted: boolean
+          nome: string
+          observacoes: string | null
+          rg: string | null
+          salario: number | null
+          setor: string | null
+          status: string
+          telefone: string | null
+          updated_at: string
+          user_id: string | null
+          vinculo: string | null
+        }
+        Insert: {
+          cargo?: string | null
+          company_id: string
+          cpf?: string | null
+          created_at?: string
+          created_by?: string | null
+          dados_bancarios?: Json | null
+          data?: Json
+          data_admissao?: string | null
+          data_desligamento?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          email?: string | null
+          endereco?: Json | null
+          gestor_id?: string | null
+          id?: string
+          is_deleted?: boolean
+          nome: string
+          observacoes?: string | null
+          rg?: string | null
+          salario?: number | null
+          setor?: string | null
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string | null
+          vinculo?: string | null
+        }
+        Update: {
+          cargo?: string | null
+          company_id?: string
+          cpf?: string | null
+          created_at?: string
+          created_by?: string | null
+          dados_bancarios?: Json | null
+          data?: Json
+          data_admissao?: string | null
+          data_desligamento?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          email?: string | null
+          endereco?: Json | null
+          gestor_id?: string | null
+          id?: string
+          is_deleted?: boolean
+          nome?: string
+          observacoes?: string | null
+          rg?: string | null
+          salario?: number | null
+          setor?: string | null
+          status?: string
+          telefone?: string | null
+          updated_at?: string
+          user_id?: string | null
+          vinculo?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hrdp_employees_gestor_id_fkey"
+            columns: ["gestor_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hrdp_module_permissions: {
         Row: {
           can_approve: boolean
+          can_create: boolean
+          can_delete: boolean
           can_edit: boolean
+          can_export: boolean
+          can_import: boolean
+          can_manage_settings: boolean
           can_view: boolean
           can_view_sensitive: boolean
           company_id: string
@@ -1742,7 +1845,12 @@ export type Database = {
         }
         Insert: {
           can_approve?: boolean
+          can_create?: boolean
+          can_delete?: boolean
           can_edit?: boolean
+          can_export?: boolean
+          can_import?: boolean
+          can_manage_settings?: boolean
           can_view?: boolean
           can_view_sensitive?: boolean
           company_id: string
@@ -1754,7 +1862,12 @@ export type Database = {
         }
         Update: {
           can_approve?: boolean
+          can_create?: boolean
+          can_delete?: boolean
           can_edit?: boolean
+          can_export?: boolean
+          can_import?: boolean
+          can_manage_settings?: boolean
           can_view?: boolean
           can_view_sensitive?: boolean
           company_id?: string
@@ -2760,6 +2873,10 @@ export type Database = {
           _submodule: string
           _uid: string
         }
+        Returns: boolean
+      }
+      hrdp_is_manager_of: {
+        Args: { _employee_id: string; _uid: string }
         Returns: boolean
       }
       is_company_admin: {
