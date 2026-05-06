@@ -185,6 +185,18 @@ const CrudPage = ({ config }: { config: CrudConfig }) => {
           <DialogFooter><Button onClick={save}>Salvar</Button></DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {supportsSoftDelete && (
+        <DeleteWithPasswordModal
+          open={!!deleteTarget}
+          onOpenChange={(o) => { if (!o) setDeleteTarget(null); }}
+          table={config.table as SoftDeleteTable}
+          recordId={deleteTarget?.id ?? null}
+          recordLabel={deleteTarget?.label ?? null}
+          moduleLabel={config.title}
+          onDeleted={() => { setDeleteTarget(null); load(); }}
+        />
+      )}
     </div>
   );
 };
