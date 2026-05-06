@@ -84,7 +84,6 @@ const AppLayout = () => {
   return (
     <ImpersonationProvider>
     <div className="min-h-screen flex bg-background text-foreground">
-      <ImpersonationBanner />
       {/* Mobile top bar */}
       <header
         className="md:hidden fixed top-0 inset-x-0 z-40 h-14 border-b bg-background/95 backdrop-blur flex items-center justify-between px-4"
@@ -126,10 +125,13 @@ const AppLayout = () => {
       </aside>
 
       <main
-        className="flex-1 p-4 md:p-6 overflow-auto pt-20 md:pt-6"
+        className="flex-1 overflow-auto pt-14 md:pt-0"
         style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
       >
-        <Outlet />
+        <ImpersonationBanner />
+        <div className="p-4 md:p-6">
+          <Outlet />
+        </div>
       </main>
       <AssistenteFloating />
     </div>

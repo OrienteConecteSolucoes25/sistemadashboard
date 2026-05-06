@@ -1791,6 +1791,7 @@ export type Database = {
           contato_whatsapp: string | null
           created_at: string
           id: string
+          master_password_hash: string | null
           nome: string
           pix_chave: string | null
           updated_at: string
@@ -1803,6 +1804,7 @@ export type Database = {
           contato_whatsapp?: string | null
           created_at?: string
           id?: string
+          master_password_hash?: string | null
           nome: string
           pix_chave?: string | null
           updated_at?: string
@@ -1815,6 +1817,7 @@ export type Database = {
           contato_whatsapp?: string | null
           created_at?: string
           id?: string
+          master_password_hash?: string | null
           nome?: string
           pix_chave?: string | null
           updated_at?: string
@@ -7898,6 +7901,14 @@ export type Database = {
         Returns: boolean
       }
       is_financeiro_ocs: { Args: { _uid: string }; Returns: boolean }
+      set_company_master_password: {
+        Args: {
+          _company_id: string
+          _current_password?: string
+          _new_password: string
+        }
+        Returns: boolean
+      }
       theme_can: {
         Args: { _action: string; _company: string; _uid: string }
         Returns: boolean
@@ -7911,6 +7922,10 @@ export type Database = {
       user_group_ids: { Args: { _user_id: string }; Returns: string[] }
       user_in_group: {
         Args: { _group_id: string; _user_id: string }
+        Returns: boolean
+      }
+      verify_company_master_password: {
+        Args: { _company_id: string; _password: string }
         Returns: boolean
       }
     }
