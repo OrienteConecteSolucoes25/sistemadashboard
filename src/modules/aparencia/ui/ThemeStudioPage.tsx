@@ -156,11 +156,9 @@ export default function ThemeStudioPage() {
     await (supabase as any).from("theme_audit_logs").insert({
       company_id: companyId,
       user_id: user?.id ?? null,
-      action: "save",
-      change_type: "theme",
-      summary: `Tema ${THEME_PRESETS[preset].label}`,
-      before: prev ?? null,
-      after: payload,
+      action_type: `save_theme:${preset}`,
+      before_data: prev ?? null,
+      after_data: payload,
     });
 
     toast.success("Tema salvo e aplicado com sucesso.");
@@ -205,11 +203,9 @@ export default function ThemeStudioPage() {
     await (supabase as any).from("theme_audit_logs").insert({
       company_id: companyId,
       user_id: user?.id ?? null,
-      action: "restore_default",
-      change_type: "theme",
-      summary: "Restauração do padrão OCS",
-      before: prev ?? null,
-      after: null,
+      action_type: "restore_default",
+      before_data: prev ?? null,
+      after_data: null,
     });
     setPreset(DEFAULT_PRESET); setOverrides({}); setBgUrl(null); setBgAlpha(0.35);
     setSavedPreset(DEFAULT_PRESET); setSavedOverrides({}); setSavedBgUrl(null); setSavedBgAlpha(0.35);
@@ -422,8 +418,10 @@ export default function ThemeStudioPage() {
                 {audit.map(a => (
                   <div key={a.id} className="flex items-center justify-between text-sm border-b py-2 gap-2">
                     <div className="flex items-center gap-2 min-w-0">
-                      <Badge variant="outline" className="shrink-0">{a.action || a.action_type}</Badge>
-                      <span className="truncate">{a.summary || (a.after_data?.theme_preset || a.after?.theme_preset || "-")}</span>
+                      <Badge variant="outline" className="shrink-0">{a.action_type || a.action}</Badge>
+                      <span className="truncate">
+                        {a.after_data?.theme_preset || a.before_data?.theme_preset || a.summary || "-"}
+                      </span>
                     </div>
                     <span className="text-xs text-muted-foreground shrink-0">
                       {new Date(a.created_at).toLocaleString("pt-BR")}
