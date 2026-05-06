@@ -1486,6 +1486,7 @@ export type Database = {
       }
       eng_sites: {
         Row: {
+          cep: string | null
           cidade: string | null
           codigo: string | null
           created_at: string
@@ -1493,17 +1494,23 @@ export type Database = {
           delete_reason: string | null
           deleted_at: string | null
           deleted_by: string | null
+          delivery_date: string | null
+          endereco: string | null
           id: string
           is_deleted: boolean
           latitude: number | null
           longitude: number | null
+          maps_url: string | null
           nome: string
           responsavel: string | null
           status: string | null
+          total_value: number
+          trigger_date: string | null
           uf: string | null
           updated_at: string
         }
         Insert: {
+          cep?: string | null
           cidade?: string | null
           codigo?: string | null
           created_at?: string
@@ -1511,17 +1518,23 @@ export type Database = {
           delete_reason?: string | null
           deleted_at?: string | null
           deleted_by?: string | null
+          delivery_date?: string | null
+          endereco?: string | null
           id?: string
           is_deleted?: boolean
           latitude?: number | null
           longitude?: number | null
+          maps_url?: string | null
           nome: string
           responsavel?: string | null
           status?: string | null
+          total_value?: number
+          trigger_date?: string | null
           uf?: string | null
           updated_at?: string
         }
         Update: {
+          cep?: string | null
           cidade?: string | null
           codigo?: string | null
           created_at?: string
@@ -1529,13 +1542,18 @@ export type Database = {
           delete_reason?: string | null
           deleted_at?: string | null
           deleted_by?: string | null
+          delivery_date?: string | null
+          endereco?: string | null
           id?: string
           is_deleted?: boolean
           latitude?: number | null
           longitude?: number | null
+          maps_url?: string | null
           nome?: string
           responsavel?: string | null
           status?: string | null
+          total_value?: number
+          trigger_date?: string | null
           uf?: string | null
           updated_at?: string
         }
