@@ -230,16 +230,15 @@ export const ObrasPage = () => {
       />
 
       {/* Exclusão segura */}
-      {delOpen && (
-        <DeleteWithPasswordModal
-          open={!!delOpen}
-          onOpenChange={(o) => !o && setDelOpen(null)}
-          tableName="eng_sites"
-          rowId={delOpen.id}
-          rowLabel={delOpen.nome}
-          onDeleted={() => { setDelOpen(null); load(); }}
-        />
-      )}
+      <DeleteWithPasswordModal
+        open={!!delOpen}
+        onOpenChange={(o) => !o && setDelOpen(null)}
+        table="eng_sites"
+        recordId={delOpen?.id ?? null}
+        recordLabel={delOpen?.nome}
+        moduleLabel="Obras"
+        onDeleted={() => { setDelOpen(null); load(); }}
+      />
     </div>
   );
 };
