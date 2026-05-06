@@ -53,6 +53,7 @@ const AppLayout = () => {
       <NavItem to="/app/pixel-office/meu-personagem" icon={User} label="Meu Personagem" />
       {engAccess && <NavItem to="/app/engenharia" icon={HardHat} label="Engenharia" />}
       {jurAccess && <NavItem to="/app/juridico" icon={Scale} label="Jurídico" />}
+      {isFinanceiro && <NavItem to="/app/planos" icon={CreditCard} label="Planos" />}
       {isAdmin && <NavItem to="/app/pixel-office/admin" icon={Shield} label="Pixel Admin" />}
       {isAdmin && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
       <div className="mt-auto pt-4 border-t">
