@@ -147,7 +147,7 @@ function sendWhatsApp(company: Company, plan: Plan, pays: Payment[]) {
 }
 
 /* ============== Tabs ============== */
-function CompaniesTab({ companies, plans, payments, onEdit, onPlan, onWhatsApp, onNew }: any) {
+function CompaniesTab({ companies, plans, payments, onEdit, onPlan, onWhatsApp, onNew, onOpenSheet }: any) {
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
@@ -171,7 +171,12 @@ function CompaniesTab({ companies, plans, payments, onEdit, onPlan, onWhatsApp, 
               const st = plan ? paymentStatus(plan, pays) : null;
               return (
                 <TableRow key={c.id}>
-                  <TableCell className="font-medium">{c.nome}<div className="text-xs text-muted-foreground">{c.cnpj}</div></TableCell>
+                  <TableCell className="font-medium">
+                    <button className="text-left hover:underline text-primary inline-flex items-center gap-1" onClick={() => onOpenSheet(c)}>
+                      {c.nome} <ExternalLink className="w-3 h-3" />
+                    </button>
+                    <div className="text-xs text-muted-foreground">{c.cnpj}</div>
+                  </TableCell>
                   <TableCell className="text-sm">{c.contato_whatsapp || "—"}</TableCell>
                   <TableCell>{plan ? Number(plan.valor_mensal).toLocaleString("pt-BR", { style: "currency", currency: "BRL" }) : "—"}</TableCell>
                   <TableCell>{plan ? `dia ${plan.dia_vencimento}` : "—"}</TableCell>
