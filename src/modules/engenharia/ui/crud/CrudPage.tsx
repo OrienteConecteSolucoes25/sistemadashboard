@@ -12,6 +12,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Plus, Search, Trash2 } from "lucide-react";
 import type { CrudConfig, FieldSchema } from "./types";
+import { DeleteWithPasswordModal } from "@/components/DeleteWithPasswordModal";
+import { SOFT_DELETE_TABLES, type SoftDeleteTable } from "@/modules/engenharia/lib/deleteWithAudit";
 
 const formatCell = (val: any, f: FieldSchema) => {
   if (val === null || val === undefined || val === "") return <span className="text-muted-foreground">—</span>;
@@ -53,6 +55,9 @@ const CrudPage = ({ config }: { config: CrudConfig }) => {
   const [search, setSearch] = useState("");
   const [openForm, setOpenForm] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; label: string } | null>(null);
+
+  const supportsSoftDelete = (SOFT_DELETE_TABLES as readonly string[]).includes(config.table);
 
   const listFields = useMemo(() => config.fields.filter((f) => f.inList !== false).slice(0, 6), [config]);
   const searchKeys = config.searchKeys ?? config.fields.filter((f) => f.type === "text" || f.type === "textarea").map((f) => f.key);
@@ -61,7 +66,9 @@ const CrudPage = ({ config }: { config: CrudConfig }) => {
     setLoading(true);
     const orderCol = config.orderBy?.column ?? "created_at";
     const asc = config.orderBy?.ascending ?? false;
-    const { data, error } = await (supabase.from(config.table as any).select("*").order(orderCol, { ascending: asc }) as any);
+    let query: any = supabase.from(config.table as any).select("*").order(orderCol, { ascending: asc });
+    if (supportsSoftDelete) query = query.eq("is_deleted", false);
+    const { data, error } = await (query as any);
     if (error) toast.error(error.message);
     setRows(data || []);
     setLoading(false);
@@ -104,11 +111,19 @@ const CrudPage = ({ config }: { config: CrudConfig }) => {
     load();
   };
 
-  const del = async (id: string) => {
-    if (!confirm("Excluir registro?")) return;
-    const { error } = await (supabase.from(config.table as any).delete().eq("id", id) as any);
-    if (error) return toast.error(error.message);
-    load();
+  const askDelete = (row: any) => {
+    const label = row.titulo ?? row.nome ?? row.numero ?? row.descricao ?? row.id;
+    if (supportsSoftDelete) {
+      setDeleteTarget({ id: row.id, label: String(label) });
+    } else {
+      // Fallback: tabelas sem soft delete continuam com confirm simples
+      if (!confirm(`Excluir "${label}"?`)) return;
+      void (async () => {
+        const { error } = await (supabase.from(config.table as any).delete().eq("id", row.id) as any);
+        if (error) return toast.error(error.message);
+        load();
+      })();
+    }
   };
 
   return (
@@ -144,7 +159,7 @@ const CrudPage = ({ config }: { config: CrudConfig }) => {
               <tr key={r.id} className="border-t hover:bg-accent/40 cursor-pointer" onClick={() => { setEditing(r); setOpenForm(true); }}>
                 {listFields.map((f) => <td key={f.key} className="px-3 py-2">{formatCell(r[f.key], f)}</td>)}
                 <td className="px-3 py-2">
-                  <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); del(r.id); }}>
+                  <Button size="icon" variant="ghost" onClick={(e) => { e.stopPropagation(); askDelete(r); }}>
                     <Trash2 className="w-4 h-4" />
                   </Button>
                 </td>
