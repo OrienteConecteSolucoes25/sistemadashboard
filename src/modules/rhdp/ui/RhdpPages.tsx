@@ -23,8 +23,6 @@ function Placeholder({ title, descricao }: { title: string; descricao: string })
 
 export const RhdpDashboard = () => <Placeholder title="RH/DP — Dashboard" descricao="Visão geral do módulo RH/DP." />;
 
-export const BeneficiosPage = () => <Placeholder title="Benefícios" descricao="Gestão e cotações com aprovação OCS (fase 9)." />;
-
 
 
 

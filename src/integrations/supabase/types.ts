@@ -1866,6 +1866,158 @@ export type Database = {
           },
         ]
       }
+      hrdp_benefit_quotes: {
+        Row: {
+          aprovado_em: string | null
+          aprovado_por: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          faixa: string | null
+          fornecedor: string | null
+          id: string
+          is_deleted: boolean
+          link_referencia: string | null
+          modalidade: string | null
+          observacoes: string | null
+          qtd_estim_colaboradores: number | null
+          status: string
+          tipo: string
+          titulo: string
+          updated_at: string
+          valor_total_estimado: number | null
+          valor_unitario_estimado: number | null
+        }
+        Insert: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          faixa?: string | null
+          fornecedor?: string | null
+          id?: string
+          is_deleted?: boolean
+          link_referencia?: string | null
+          modalidade?: string | null
+          observacoes?: string | null
+          qtd_estim_colaboradores?: number | null
+          status?: string
+          tipo: string
+          titulo: string
+          updated_at?: string
+          valor_total_estimado?: number | null
+          valor_unitario_estimado?: number | null
+        }
+        Update: {
+          aprovado_em?: string | null
+          aprovado_por?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          faixa?: string | null
+          fornecedor?: string | null
+          id?: string
+          is_deleted?: boolean
+          link_referencia?: string | null
+          modalidade?: string | null
+          observacoes?: string | null
+          qtd_estim_colaboradores?: number | null
+          status?: string
+          tipo?: string
+          titulo?: string
+          updated_at?: string
+          valor_total_estimado?: number | null
+          valor_unitario_estimado?: number | null
+        }
+        Relationships: []
+      }
+      hrdp_benefits: {
+        Row: {
+          company_id: string
+          created_at: string
+          data: Json | null
+          data_fim: string | null
+          data_inicio: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          employee_id: string | null
+          fornecedor: string | null
+          id: string
+          is_deleted: boolean
+          observacoes: string | null
+          plano: string | null
+          status: string
+          tipo: string
+          updated_at: string
+          valor_colaborador: number | null
+          valor_empresa: number | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          data?: Json | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          employee_id?: string | null
+          fornecedor?: string | null
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          plano?: string | null
+          status?: string
+          tipo: string
+          updated_at?: string
+          valor_colaborador?: number | null
+          valor_empresa?: number | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          data?: Json | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          employee_id?: string | null
+          fornecedor?: string | null
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          plano?: string | null
+          status?: string
+          tipo?: string
+          updated_at?: string
+          valor_colaborador?: number | null
+          valor_empresa?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hrdp_benefits_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hrdp_candidates: {
         Row: {
           area: string | null
