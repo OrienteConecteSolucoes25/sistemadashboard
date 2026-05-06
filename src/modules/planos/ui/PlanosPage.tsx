@@ -13,12 +13,13 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Plus, Pencil, MessageCircle, CreditCard, Building2, Package, Bell, Calculator, ExternalLink } from "lucide-react";
+import { Plus, Pencil, MessageCircle, CreditCard, Building2, Package, Bell, Calculator, ExternalLink, HeartHandshake } from "lucide-react";
 import { toast } from "sonner";
 import { paymentStatus, ymNow, whatsappLink, buildBillingMessage } from "../lib/billing";
 import CalculadoraTab from "./CalculadoraTab";
 import CompanySheet from "./CompanySheet";
 import ImpersonateButton from "./ImpersonateButton";
+import RhdpAdminTab from "@/modules/rhdp/ui/RhdpAdminTab";
 
 type Company = { id: string; nome: string; cnpj?: string; contato_nome?: string; contato_email?: string; contato_whatsapp?: string; pix_chave?: string; ativo: boolean };
 type Catalog = { key: string; label: string; grupo: string; sempre_obrigatorio: boolean; ordem: number };
@@ -75,6 +76,7 @@ export default function PlanosPage() {
           <TabsTrigger value="calculadora"><Calculator className="w-4 h-4 mr-1" /> Calculadora</TabsTrigger>
           <TabsTrigger value="avisos"><Bell className="w-4 h-4 mr-1" /> Avisos</TabsTrigger>
           <TabsTrigger value="catalogo"><Package className="w-4 h-4 mr-1" /> Catálogo & Pacotes</TabsTrigger>
+          <TabsTrigger value="rhdp"><HeartHandshake className="w-4 h-4 mr-1" /> RH/DP</TabsTrigger>
         </TabsList>
 
         <TabsContent value="empresas" className="space-y-4">
@@ -102,6 +104,10 @@ export default function PlanosPage() {
 
         <TabsContent value="catalogo" className="space-y-4">
           <CatalogTab catalog={catalog} packages={packages} onReload={reload} />
+        </TabsContent>
+
+        <TabsContent value="rhdp" className="space-y-4">
+          <RhdpAdminTab />
         </TabsContent>
       </Tabs>
 
