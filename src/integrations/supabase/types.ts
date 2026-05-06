@@ -5000,6 +5000,279 @@ export type Database = {
         }
         Relationships: []
       }
+      gov_dataset_columns: {
+        Row: {
+          col_index: number
+          col_letter: string
+          data_type: string
+          format_hint: string | null
+          formula_excel: string | null
+          formula_js: string | null
+          formula_purpose: string | null
+          header: string
+          id: string
+          ignored: boolean
+          is_formula: boolean
+          key_normalized: string | null
+          sheet_id: string
+          width: number | null
+        }
+        Insert: {
+          col_index: number
+          col_letter: string
+          data_type?: string
+          format_hint?: string | null
+          formula_excel?: string | null
+          formula_js?: string | null
+          formula_purpose?: string | null
+          header: string
+          id?: string
+          ignored?: boolean
+          is_formula?: boolean
+          key_normalized?: string | null
+          sheet_id: string
+          width?: number | null
+        }
+        Update: {
+          col_index?: number
+          col_letter?: string
+          data_type?: string
+          format_hint?: string | null
+          formula_excel?: string | null
+          formula_js?: string | null
+          formula_purpose?: string | null
+          header?: string
+          id?: string
+          ignored?: boolean
+          is_formula?: boolean
+          key_normalized?: string | null
+          sheet_id?: string
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gov_dataset_columns_sheet_id_fkey"
+            columns: ["sheet_id"]
+            isOneToOne: false
+            referencedRelation: "gov_dataset_sheets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gov_dataset_rows: {
+        Row: {
+          computed: Json | null
+          created_at: string
+          id: string
+          row_index: number
+          sheet_id: string
+          updated_at: string
+          values: Json
+        }
+        Insert: {
+          computed?: Json | null
+          created_at?: string
+          id?: string
+          row_index: number
+          sheet_id: string
+          updated_at?: string
+          values?: Json
+        }
+        Update: {
+          computed?: Json | null
+          created_at?: string
+          id?: string
+          row_index?: number
+          sheet_id?: string
+          updated_at?: string
+          values?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gov_dataset_rows_sheet_id_fkey"
+            columns: ["sheet_id"]
+            isOneToOne: false
+            referencedRelation: "gov_dataset_sheets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gov_dataset_sheets: {
+        Row: {
+          col_count: number | null
+          created_at: string
+          dataset_id: string
+          header_row_index: number | null
+          id: string
+          row_count: number | null
+          sheet_name: string
+          sheet_order: number | null
+        }
+        Insert: {
+          col_count?: number | null
+          created_at?: string
+          dataset_id: string
+          header_row_index?: number | null
+          id?: string
+          row_count?: number | null
+          sheet_name: string
+          sheet_order?: number | null
+        }
+        Update: {
+          col_count?: number | null
+          created_at?: string
+          dataset_id?: string
+          header_row_index?: number | null
+          id?: string
+          row_count?: number | null
+          sheet_name?: string
+          sheet_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "gov_dataset_sheets_dataset_id_fkey"
+            columns: ["dataset_id"]
+            isOneToOne: false
+            referencedRelation: "gov_datasets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gov_datasets: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          module_key: string
+          name: string
+          sheet_count: number | null
+          source_filename: string | null
+          updated_at: string
+          uploaded_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          module_key?: string
+          name: string
+          sheet_count?: number | null
+          source_filename?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          module_key?: string
+          name?: string
+          sheet_count?: number | null
+          source_filename?: string | null
+          updated_at?: string
+          uploaded_by?: string | null
+        }
+        Relationships: []
+      }
+      governance_action_plan: {
+        Row: {
+          acao: string | null
+          ano: number | null
+          area: string | null
+          causa_raiz: string | null
+          cliente: string | null
+          created_at: string
+          created_by: string | null
+          descricao: string | null
+          evidencia: string | null
+          id: string
+          mes: number | null
+          module_key: string
+          observacoes: string | null
+          ofensor: string | null
+          prazo: string | null
+          prioridade: string
+          responsavel: string | null
+          resultado_esperado: string | null
+          semana: string | null
+          status: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          acao?: string | null
+          ano?: number | null
+          area?: string | null
+          causa_raiz?: string | null
+          cliente?: string | null
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          evidencia?: string | null
+          id?: string
+          mes?: number | null
+          module_key?: string
+          observacoes?: string | null
+          ofensor?: string | null
+          prazo?: string | null
+          prioridade?: string
+          responsavel?: string | null
+          resultado_esperado?: string | null
+          semana?: string | null
+          status?: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          acao?: string | null
+          ano?: number | null
+          area?: string | null
+          causa_raiz?: string | null
+          cliente?: string | null
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          evidencia?: string | null
+          id?: string
+          mes?: number | null
+          module_key?: string
+          observacoes?: string | null
+          ofensor?: string | null
+          prazo?: string | null
+          prioridade?: string
+          responsavel?: string | null
+          resultado_esperado?: string | null
+          semana?: string | null
+          status?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      governance_settings: {
+        Row: {
+          edit_open_to_all: boolean
+          id: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          edit_open_to_all?: boolean
+          id?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          edit_open_to_all?: boolean
+          id?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       hrdp_admission_checklist_items: {
         Row: {
           admission_id: string
@@ -7586,6 +7859,12 @@ export type Database = {
         }
         Returns: Json
       }
+      gov_can_edit: {
+        Args: { _module: string; _uid: string }
+        Returns: boolean
+      }
+      gov_edit_open: { Args: never; Returns: boolean }
+      gov_module_for_sheet: { Args: { _sheet: string }; Returns: string }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

@@ -70,6 +70,7 @@ import { DesignStudioPage, ImagesGalleryPage, CanvaPage } from "./modules/comuni
 import ThemeStudioPage from "./modules/aparencia/ui/ThemeStudioPage";
 import { CompanyThemeProvider } from "./modules/aparencia/hooks/CompanyThemeProvider";
 import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
+import { GovernanceUniversalPage } from "./modules/governance/ui/GovernanceUniversalPage";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -123,6 +124,7 @@ const App = () => (
                 <Route path="responsaveis" element={<JurResponsaveisPage />} />
                 <Route path="tarefas" element={<JurTarefasPage />} />
                 <Route path="relatorios" element={<JurRelatoriosPage />} />
+                <Route path="governanca" element={<GovernanceUniversalPage moduleKey="juridico" />} />
               </Route>
               <Route path="rh-dp" element={<RhdpGuard />}>
                 <Route index element={<RhdpDashboard />} />
@@ -155,7 +157,11 @@ const App = () => (
                 <Route path="links" element={<CreaLinksPage />} />
                 <Route path="assistente" element={<CreaAssistentePage />} />
                 <Route path="auditoria" element={<CreaAuditoriaPage />} />
+                <Route path="governanca" element={<GovernanceUniversalPage moduleKey="crea" />} />
               </Route>
+              <Route path="rh-dp/governanca" element={<GovernanceUniversalPage moduleKey="rhdp" />} />
+              <Route path="comunicacao/governanca" element={<GovernanceUniversalPage moduleKey="comunicacao" />} />
+              <Route path="governanca" element={<GovernanceUniversalPage moduleKey="geral" />} />
               <Route path="planos" element={<PlanosPage />} />
               <Route path="minha-empresa" element={<MinhaEmpresaPage />} />
               <Route path="visao-geral" element={<VisaoGeralPage />} />
