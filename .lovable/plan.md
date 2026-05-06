@@ -1,104 +1,269 @@
+Vou organizar em **3 levas** porque são 3 frentes distintas. Confirma e eu sigo na ordem (ou diga qual priorizar primeiro).
 
-# Módulo Planos de Usuários (OCS) + Multi-empresa + Catálogo de Abas
+---
 
-## 1. Conceitos novos
+## Leva 1 — Planos de Usuários: Gestão de Acessos + Calculadora
 
-- **Empresa (company)**: cliente do ERP. Cada empresa assina um **Plano** com um conjunto de abas (módulos) e um valor mensal.
-- **Usuário ↔ Empresa**: cada usuário pertence a 1 empresa (admin OCS pode mover). Admin de empresa só vê/edita usuários da própria empresa.
-- **Catálogo de Abas**: lista plana e agrupada (Engenharia, Jurídico, Geral) com todas as abas disponíveis. "Visão Geral" é **obrigatória** em todo plano.
-- **Pacotes pré-prontos**: presets que pré-marcam abas (ex.: "Engenharia Completo", "Jurídico Completo", "Starter").
-- **Permissões por usuário dentro do plano**: para cada aba do plano da empresa, o admin da empresa define `view / edit / delete` por usuário.
-- **Cobrança**: valor mensal + dia de vencimento. Admin OCS / `financeiro_ocs` marca pagamento manualmente. Aviso D-3 e D0 (vencimento) automaticamente, via notificação interna + WhatsApp (link wa.me + cron edge function).
+**A. Painel lateral da Empresa (sub-aba Empresas)**
 
-## 2. Papéis
+- Clicar no nome da empresa abre `Sheet` lateral com 3 abas:
+  - **Usuários**: lista de `company_users` + botão "Adicionar usuário" (busca por e-mail nos `profiles`, vincula ao `company_id`, marca `is_company_admin` opcional)
+  - **Permissões V/E/D**: matriz usuário × módulo do plano (já existe parcial no modal — migrar pra cá com toggles can_view/can_edit/can_delete em `company_module_permissions`)
+  - **Plano & Valor**: módulos selecionados + valor calculado automaticamente em tempo real
 
-- `admin` (super-OCS): tudo.
-- `financeiro_ocs` (novo role em `app_role`): gerencia empresas, planos, valores, pagamentos. Não mexe em dados operacionais.
-- `company_admin` (novo role): vê o próprio plano (read-only nos campos financeiros) e gerencia permissões de usuários **dentro do escopo do plano da empresa**.
-- Usuários comuns: só veem/usam abas liberadas pelo plano da empresa, com a permissão concedida pelo company_admin.
+**B. Nova sub-aba "Calculadora de Pagamentos"** em `/app/planos`
 
-## 3. Modelo de dados (novas tabelas)
+- Tabela editável OCS-only:
+  - `valor_por_usuario` (base mensal por seat)
+  - `valor_por_modulo` (preço de cada módulo do `plan_modules_catalog`)
+- Salvos em nova tabela `plan_pricing_config` (linha única)
+- Preview por empresa: `total = nº_usuários × valor_usuário + Σ(módulos_ativos × preço_módulo)`
+- Botão "Aplicar a todas as empresas" → atualiza `company_plans.valor_mensal`
+- Auto-update do `valor_mensal` da empresa quando muda módulos ou usuários
 
-```text
-companies                 id, nome, cnpj, contato_nome, contato_email, contato_whatsapp, pix_chave, ativo, created_at
-company_users             id, company_id, user_id (unique), is_company_admin
-plan_modules_catalog      key (PK, ex: 'eng.sites'), label, grupo ('Engenharia'|'Juridico'|'Geral'),
-                          rota, sempre_obrigatorio (bool), ordem
-plan_packages             id, nome, descricao, modules text[]   -- presets
-company_plans             id, company_id (unique), valor_mensal, dia_vencimento (1-28),
-                          modules text[], status ('ativo'|'suspenso'),
-                          observacoes, created_at, updated_at
-company_plan_payments     id, company_plan_id, competencia (yyyy-mm), valor_pago,
-                          data_pagamento, registrado_por, observacao, created_at
-company_module_permissions id, company_id, user_id, module_key,
-                          can_view, can_edit, can_delete, updated_at
-plan_billing_runs         id, company_plan_id, competencia, tipo ('d-3'|'d0'),
-                          enviado_em, canal ('interno'|'whatsapp'), payload jsonb
-```
+**C. Corrigir Assistente Oriente**
+
+- Atualizar prompt do edge `ai-assist` apontando rotas reais: `/app/planos` → abas Empresas, Pagamentos, Catálogo, Calculadora; `/app/minha-empresa` para clientes
+- Remover referência fantasiosa ("Configurações do Sistema / Gestão de Acessos")
+
+**Migration:**
+
+- `plan_pricing_config(id, valor_por_usuario numeric, precos_por_modulo jsonb, updated_at, updated_by)` — RLS só `is_financeiro_ocs`  
+  
+**C. Deve ter uma coluna de integrações onde cada integração custará um valor também como serviço a mais.**
+
+---
+
+## Leva 2 — Visão Geral repaginada (substitui "Dashboard")
+
+- Já existe `/app/visao-geral`. Adicionar:
+  - **Filtros no topo**: Select Módulo (das abas do plano) · Select Ano · Select Mês
+  - **Toolbar de exportação** (4 botões):
+    - Excel (xlsx via `dataIO`)
+    - Word (docx — relatório gerencial com KPIs + tabelas por módulo)
+    - PowerPoint (pptx — 1 slide por módulo, KPIs em destaque)
+    - Power BI (CSV padronizado pronto pra import + breve instrução; export `.pbix` nativo exige licença Microsoft, então entrego o CSV consumível)
+  - **Branding por empresa** aplicado nos relatórios Word/PPT:
+    - Nova tabela `company_branding (company_id, logo_url, papel_timbrado_url, cor_primaria)`
+    - Upload em "Minha Empresa" (admin da empresa) e em `/app/planos` (OCS)
+    - Storage bucket `company-branding`
+- Filtros aplicados a cada `ModuleCard` (passa ano/mês para o query)
+- Sidebar: já está "Visão Geral" — confirmo rotulagem em todos os lugares
+
+---
+
+## Leva 3 — Módulo Sites → Obras (revamp completo)
+
+Seguindo a spec detalhada que você colou. Como o backend usa `eng_sites` (e várias tabelas referenciam `site_id`), **mantenho o nome no banco** mas troco TODA a UI pra "Obras" — sem quebrar integrações.
+
+**Renomeação na UI:**
+
+- Sidebar/títulos/subtítulos: "Sites" → "Obras"
+- Labels "código" → "Obra ID"
+- Toda copy "site/sites" → "obra/obras"
+
+**Nova `ObrasPage**` (substitui o CRUD genérico de eng.sites):
+
+- Cabeçalho: título "Obras" + subtítulo "Cadastro e visão integrada por obra"
+- `DataActionsToolbar` (Importar / Modelo / Exportar — já global)
+- Botão "Nova obra" → modal exatamente como sua imagem (Nome*, Endereço, Cidade*, UF*, CEP, Maps, Lat/Long, Acionamento, Entrega, Valor)
+- Validação: nome único case-insensitive
+- Busca em tempo real (nome/cidade/UF/CEP/endereço)
+- Tabela: Nome | Cidade/UF | Endereço | Acionamento | Entrega | Valor | Ações
+- Click linha → `Sheet` lateral `ObraDetail`
+- Confirmação destrutiva (usar `DeleteWithPasswordModal` existente)
+
+`**ObraDetail` (painel 360°):**
+
+- KPIs: Cadastrado · Governança · Custos lançados · Variação % (verde/vermelho)
+- Cards de vínculos (filtrados pelos módulos do plano da empresa via `useUserModules`):
+  - Projetos (`eng_projetos_elaboracao`)
+  - ARTs (`eng_art`)
+  - Solicitações/SCRC (`eng_solicitacao_sc_rc`)
+  - Energia (`eng_ligacoes_energia`)
+  - Governança (`eng_governanca_master`)
+  - Fibra (`eng_fibra_obras`), Suprimentos, RFI, Pendências, Demandas — extensível via Passo A/B/C da spec
+- Bloco Custos: Pizza recharts + lista + Lançar/Editar (tabela `eng_site_costs` já existe)
+- Realtime em `eng_site_costs` (já no hook `useObraVinculos`)
+- Reaproveito o hook existente `src/modules/engenharia/hooks/useObraVinculos.ts` que já está 80% pronto
+
+**Migration:**
+
+- Adicionar à `eng_sites` os campos da spec: `endereco`, `cep`, `maps_url`, `trigger_date`, `delivery_date`, `total_value`
+- UNIQUE INDEX case-insensitive em `LOWER(nome)`
+
+**Auto-create:** já existe `ensureSite` e `ensureSiteByCodigo` — manter.  
+  
+Crie o módulo "Obras" exatamente como descrito: É um módulo central que serve como integrador de todos os outros módulos do sistema que os usuarios escolherem, usando o NOME DA OBRA como chave de ligação.
+
+1. Banco de dados (Lovable Cloud / Supabase)
+
+Crie duas tabelas:
+
+Tabela `sites` (cadastro de obras):
+
+- `id` uuid PK default gen_random_uuid()
+
+- `name` text NOT NULL UNIQUE (case-insensitive)
+
+- `address` text
+
+- `city` text
+
+- `state` text (UF, 2 letras)
+
+- `latitude` numeric
+
+- `longitude` numeric
+
+- `cep` text
+
+- `maps_url` text
+
+- `trigger_date` date (acionamento)
+
+- `delivery_date` date (entrega prevista)
+
+- `total_value` numeric default 0
+
+- `created_at`, `updated_at` timestamptz
+
+Tabela `site_costs` (lançamentos de custo por obra):
+
+- `id` uuid PK
+
+- `site_id` uuid FK → sites(id) ON DELETE CASCADE
+
+- `site_name` text (redundante p/ busca quando site_id ainda não existe)
+
+- `categoria` text NOT NULL (Material, Mão de obra, ART/Taxas, Equipamento, Transporte, Hospedagem/Alimentação, Combustível, Locação, Subcontratado, Outros)
+
+- `descricao` text
+
+- `valor` numeric NOT NULL
+
+- `data_lancamento` date
+
+- `origem` text default 'manual' (manual | art | governanca | suprimentos)
+
+- `origem_id` text
+
+- `observacao` text
+
+- `created_at` timestamptz
 
 RLS:
-- `companies / company_plans / payments`: admin + financeiro_ocs editam; company_admin lê apenas a própria company.
-- `company_module_permissions`: admin + financeiro_ocs editam tudo; company_admin edita apenas usuários da própria empresa e só `module_key` que está em `company_plans.modules`.
-- `plan_modules_catalog / plan_packages`: leitura para autenticados, escrita admin/financeiro_ocs.
 
-Funções/RPC:
-- `is_financeiro_ocs(uid)`, `is_company_admin(uid, company_id)`, `user_company(uid)`.
-- `current_user_modules(uid)` → retorna lista de `module_key` que o usuário pode ver, derivada de `company_plans.modules ∩ company_module_permissions`.
-- `register_payment(plan_id, competencia, valor, data)` (admin/financeiro).
-- Trigger: ao inserir em `company_users`, se primeiro usuário da empresa → marca `is_company_admin = true`.
+- `sites`: SELECT/INSERT/UPDATE para usuários autenticados; DELETE só para admin.
 
-## 4. Cron + Edge Function de cobrança
+- `site_costs`: SELECT/INSERT/UPDATE para autenticados; DELETE só para admin (use função `has_role(auth.uid(),'admin')`).
 
-- Edge function `billing-due-check` (deploy automático). Roda diária via `pg_cron + pg_net`.
-- Lógica: para cada `company_plan` ativo, calcula próxima `competencia` e `due_date`. Se `due_date - hoje = 3` ou `= 0` e não há `payments` para a competência, cria:
-  1. `eng_internal_notifications` (broadcast para todos os usuários da empresa, rota `/app/planos`).
-  2. Registro em `plan_billing_runs` (idempotente: unique em `(plan_id, competencia, tipo)`).
-- WhatsApp: gera link `wa.me/<contato_whatsapp>?text=...` com mensagem padronizada (D-3: aviso + pix; D0: vence hoje + pix). O **envio efetivo é click-to-send** (botão na UI de Planos abre o link). A edge function só cria a notificação com o link pronto. Botão "Reenviar agora" disponível ao admin.
+Habilite Realtime na tabela `site_costs`.
 
-## 5. UI nova
+2. Página principal `/app/sites` (rota TanStack)
 
-### Rota `/app/planos` (admin OCS + financeiro_ocs)
-Abas:
-1. **Empresas**: tabela CRUD (DataActionsToolbar padrão), com colunas Nome, Plano, Valor, Vencimento, Status pagamento mês atual (badge: pago/atrasado/em dia/D-3).
-2. **Plano da empresa** (modal/drawer ao abrir empresa):
-   - Dados da empresa + PIX + WhatsApp.
-   - Seleção de **Pacote** (aplica preset) + Catálogo de abas em accordion por grupo (Engenharia / Jurídico / Geral). "Visão Geral" trava como obrigatória.
-   - Valor mensal + dia de vencimento.
-   - Lista de **Usuários da empresa** com matriz `view / edit / delete` por aba do plano.
-3. **Pagamentos**: registro manual (empresa, competência, valor, data, observação) + histórico.
-4. **Avisos**: lista de `plan_billing_runs` recentes, com botão "Abrir WhatsApp" e "Marcar como pago".
-5. **Catálogo & Pacotes**: gerenciar `plan_modules_catalog` e `plan_packages`.
+Listagem em tabela com colunas: Nome | Cidade/UF | Endereço | Acionamento | Entrega prevista | Valor total | Ações (editar/excluir).
 
-### Rota `/app/minha-empresa` (company_admin)
-- Visão do plano (read-only nos campos financeiros, mostra status de pagamento e próximos vencimentos).
-- Matriz de permissões dos usuários da empresa **somente nas abas do plano**.
+- Campo de busca por nome/cidade/UF/CEP/endereço.
 
-### Sidebar / AppLayout
-- Novo item "Planos" (ícone `CreditCard`) visível só para admin/financeiro_ocs.
-- Item "Minha Empresa" visível só para company_admin.
-- **Filtro global**: o menu lateral (Engenharia/Jurídico) passa a renderizar apenas as abas que `current_user_modules()` retorna. Admin OCS continua vendo tudo.
+- Botão "Nova obra" abre Dialog com formulário (nome, endereço, cidade, UF* via Select com 27 estados, CEP, link Google Maps, latitude, longitude, data de acionamento, data de entrega, valor total).
 
-### Visão Geral (dashboard) por aba liberada
-- Componente `ModuleOverviewCard` que para cada aba do plano da empresa busca contagens por status (`atrasado, em_aberto, em_andamento, pendente, concluido, finalizado, entregue, emitido`) — usa um mapeamento status→bucket por tabela. Aparece na home `/app` (Visão Geral obrigatória) como grid de cards, um por aba liberada, com link para a aba.
+- Validar duplicidade de nome (case-insensitive) antes de salvar.
 
-## 6. Notificações internas
+- Botão Importar/Exportar Excel (colunas: Nome, Endereço, Cidade, Estado, Latitude, Longitude, CEP, Maps URL, Acionamento, Entrega, Valor).
 
-- Reaproveita `eng_internal_notifications` (já existe). Tipos novos: `cobranca_d3`, `cobranca_d0`, `pagamento_registrado`.
-- Sininho do header já lista; adicionar ícone/cor distinta para cobrança.
+- Clique na linha abre Sheet lateral com ``.
 
-## 7. Migração / impacto em código existente
+- Confirmação destrutiva ao excluir.
 
-- `app_role` enum: adicionar `'financeiro_ocs'` e `'company_admin'`.
-- Sidebars de Engenharia/Jurídico passam a consultar `current_user_modules()` e filtrar `ENG_TABS` / `JUR_TABS`.
-- `EngenhariaGuard` / `JuridicoGuard`: além do role, exigir que pelo menos uma aba do módulo esteja liberada (ou role admin).
-- Seed inicial do `plan_modules_catalog` com todas as abas atuais (Engenharia + Jurídico + "Visão Geral" como obrigatória).
+- Ao final da página, incluir abas dinâmicas configuráveis pelo admin (``).
 
-## 8. Entrega em fases
+## 3. Componente `` (painel lateral 360°)
 
-1. **Fase A — Backend**: migration (tabelas, roles, funções, seed catálogo+pacotes), RPCs, RLS.
-2. **Fase B — UI Planos**: `/app/planos` (Empresas, Plano, Pagamentos, Catálogo & Pacotes).
-3. **Fase C — Permissões aplicadas**: filtragem da sidebar Eng/Jur por `current_user_modules`, guards atualizados, página `/app/minha-empresa`.
-4. **Fase D — Cobrança automática**: edge function `billing-due-check`, cron diário, UI de Avisos + botão WhatsApp.
-5. **Fase E — Visão Geral consolidada**: `ModuleOverviewCard` com contagens por status para cada aba do plano.
+Recebe `site` e `onEdit`. Usa o hook `useObraVinculos(site.name, site.id)`.
 
-Pronto para implementar a Fase A (migration + roles + seed) ao aprovar.
+**Cabeçalho (Card):** Cidade/UF, endereço, e 3 KPIs em grid: **Cadastrado | Governança | Custos lançados** (todos em R$). Abaixo, linha resumo:  
+
+`Total real (gov+custos): R$ X — variação +Y% vs cadastrado` (verde se ≤0, vermelho se >0). Botão "Editar dados".
+
+**Fórmula da variação:**
+
+```
+
+totalGeral = somatório(valor_total_atividade dos govs) + somatório(site_costs.valor)
+
+variacao = ((totalGeral - [sites.total](http://sites.total)_value) / [sites.total](http://sites.total)_value) * 100
+
+```
+
+**Seções de vínculos** (cards empilhados, mostram contagem no título):  
+  
+Vai depender de quais modulos a empresa escolheu para o usuario mas segue o exemplo:
+
+- **Projetos** — de `projetos_elaboracao` WHERE site ILIKE name → cliente, escopo, projetista, prazo, status, badge dentro/fora prazo.
+
+- **ARTs** — do localStorage `ocs_arts` filtrado por siteObra → número, tipo, cliente, custo, status.
+
+- **Solicitações** — do localStorage `ocs_solicits` filtrado por siteObra → categoria, escopo, cliente, data, status.
+
+- **Energia** — de `shared_records` kind`energia_solic` filtrado por [data.site](http://data.site) → concessionária, protocolo, data, status.
+
+- **Governança** — de `governance_records` WHERE site ILIKE name → serviço, cliente, % conclusão campo, valor, status_bi e status_atividade.
+
+Cada item tem badge de status colorido (verde concluído/aprovado/pago, vermelho cancelado/vencido, cinza pendente/aguardando).
+
+**Bloco Custos da obra:**
+
+- Botão "Lançar" abre Dialog (categoria via Select, descrição, valor, data, observação).
+
+- Gráfico Pizza (recharts) com distribuição por categoria + legenda lateral com valores e total.
+
+- Lista de lançamentos (badge categoria, descrição, data/origem, valor, editar, excluir).
+
+- Realtime: ao inserir/atualizar/deletar `site_costs`, recarrega automaticamente.
+
+## 4. Hook `useObraVinculos(siteName, siteId)`
+
+Retorna: `{ loading, refresh, projetos, govs, energias, solicits, arts, costs, totalCustos, custosPorCategoria, valorGovTotal }`. Faz queries em paralelo nas tabelas listadas acima e ouve canal realtime de `site_costs`.
+
+Exporte também:
+
+```ts
+
+export const CATEGORIAS_CUSTO = ["Material","Mão de obra","ART / Taxas","Equipamento","Transporte","Hospedagem / Alimentação","Combustível","Locação","Subcontratado","Outros"] as const;
+
+```
+
+## 5. Auto-criação de obra `ensureSite({name, city, uf})`
+
+Função utilitária em `src/lib/siteAutocreate.ts`: ao salvar qualquer registro de outro módulo (ART, Atividades, Energia, Solicitações…) que mencione um site, verificar se existe em `sites` (ILIKE) e, se não, criar automaticamente.
+
+## 6. Componente ``
+
+Input com `` de autocomplete listando todas as obras. Ao digitar um nome existente, preenche cidade/UF automaticamente via callback `onChange({site, cidade, uf})`. Mostra dica "Se já existe, cidade/UF preenchem automaticamente. Caso contrário, será criado em Obras."
+
+Use shadcn/ui (Card, Dialog, Sheet, Table, Select, Input, Button, Badge), recharts para gráfico, sonner para toasts, lucide-react para ícones (Plus, Pencil, Trash2, Search). Tudo em português BR, formatação de moeda `pt-BR`/BRL.
+
+&nbsp;
+
+Criar modal de exclusão
+
+Implementar lançamento de custos
+
+Ativar exportação Excel
+
+Integrar auto-criação de obras
+
+Construir painel com KPIs
+
+---
+
+## Tamanho
+
+Estimo ~2 levas por mensagem se eu trabalhar focado. Posso fazer **Leva 1 inteira agora** (é a que destrava o Assistente errado e o que você pediu primeiro).
+
+### Pergunta rápida (para Leva 2)
+
+- **Power BI**: aceita CSV padronizado + template `.pbit` simples (gerado por mim)? se aceitar no power bi da microsoft oque sera uma nova integração futura A licença `.pbix` nativo é Microsoft.
+
+&nbsp;
