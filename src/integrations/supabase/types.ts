@@ -1866,6 +1866,142 @@ export type Database = {
           },
         ]
       }
+      hrdp_contract_amendments: {
+        Row: {
+          arquivo_path: string | null
+          company_id: string
+          contract_id: string
+          created_at: string
+          created_by: string | null
+          data_vigencia: string
+          descricao: string
+          id: string
+          nova_jornada: number | null
+          novo_salario: number | null
+          tipo: string
+        }
+        Insert: {
+          arquivo_path?: string | null
+          company_id: string
+          contract_id: string
+          created_at?: string
+          created_by?: string | null
+          data_vigencia: string
+          descricao: string
+          id?: string
+          nova_jornada?: number | null
+          novo_salario?: number | null
+          tipo?: string
+        }
+        Update: {
+          arquivo_path?: string | null
+          company_id?: string
+          contract_id?: string
+          created_at?: string
+          created_by?: string | null
+          data_vigencia?: string
+          descricao?: string
+          id?: string
+          nova_jornada?: number | null
+          novo_salario?: number | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hrdp_contract_amendments_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hrdp_contracts: {
+        Row: {
+          arquivo_path: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          data: Json | null
+          data_fim: string | null
+          data_fim_experiencia: string | null
+          data_inicio: string
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          employee_id: string
+          experiencia_dias: number | null
+          id: string
+          is_deleted: boolean
+          jornada_horas: number | null
+          modelo: string | null
+          numero: string | null
+          observacoes: string | null
+          salario: number | null
+          status: string
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          arquivo_path?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          data?: Json | null
+          data_fim?: string | null
+          data_fim_experiencia?: string | null
+          data_inicio: string
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          employee_id: string
+          experiencia_dias?: number | null
+          id?: string
+          is_deleted?: boolean
+          jornada_horas?: number | null
+          modelo?: string | null
+          numero?: string | null
+          observacoes?: string | null
+          salario?: number | null
+          status?: string
+          tipo?: string
+          updated_at?: string
+        }
+        Update: {
+          arquivo_path?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          data?: Json | null
+          data_fim?: string | null
+          data_fim_experiencia?: string | null
+          data_inicio?: string
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          employee_id?: string
+          experiencia_dias?: number | null
+          id?: string
+          is_deleted?: boolean
+          jornada_horas?: number | null
+          modelo?: string | null
+          numero?: string | null
+          observacoes?: string | null
+          salario?: number | null
+          status?: string
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hrdp_contracts_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hrdp_employee_documents: {
         Row: {
           admission_id: string | null
