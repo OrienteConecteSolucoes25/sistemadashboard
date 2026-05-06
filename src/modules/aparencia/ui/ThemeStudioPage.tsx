@@ -71,7 +71,14 @@ export default function ThemeStudioPage() {
     if (authLoading) return;
     (async () => {
       const q = await (supabase as any).from("companies").select("id,nome").order("nome");
-      setCompanies(((q.data as any[]) || []).map(c => ({ id: c.id, name: c.nome })));
+      const list = ((q.data as any[]) || []).map(c => ({ id: c.id, name: c.nome }));
+      // Coloca "ERP OCS" (minha empresa) no topo da lista
+      list.sort((a, b) => {
+        const aOcs = /erp\s*ocs/i.test(a.name) ? 0 : 1;
+        const bOcs = /erp\s*ocs/i.test(b.name) ? 0 : 1;
+        return aOcs - bOcs || a.name.localeCompare(b.name);
+      });
+      setCompanies(list);
     })();
   }, [authLoading]);
 
