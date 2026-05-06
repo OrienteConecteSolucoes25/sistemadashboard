@@ -4301,6 +4301,11 @@ export type Database = {
         | "gestor_area"
         | "colaborador"
         | "auditor_rh"
+        | "crea_admin"
+        | "crea_analista"
+        | "crea_responsavel_tecnico"
+        | "crea_auditor"
+        | "crea_visualizador"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4443,6 +4448,11 @@ export const Constants = {
         "gestor_area",
         "colaborador",
         "auditor_rh",
+        "crea_admin",
+        "crea_analista",
+        "crea_responsavel_tecnico",
+        "crea_auditor",
+        "crea_visualizador",
       ],
     },
   },
