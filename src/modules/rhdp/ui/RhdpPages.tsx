@@ -26,7 +26,7 @@ export const RecrutamentoPage = () => <Placeholder title="Recrutamento" descrica
 export const BeneficiosPage = () => <Placeholder title="Benefícios" descricao="Gestão e cotações com aprovação OCS (fase 9)." />;
 export const SolicitacoesPage = () => <Placeholder title="Solicitações" descricao="Fila de pedidos com SLA (fase 7)." />;
 
-export const PontoPage = () => <Placeholder title="Ponto / HE / BH" descricao="Marcações, horas extras, banco de horas (fase 5)." />;
+
 export const FeriasPage = () => <Placeholder title="Férias & Provisão" descricao="Aquisitivo e provisões (fase 6)." />;
 export const FolhaPage = () => <Placeholder title="Folha & Holerite" descricao="Fechamento e holerites (fase 10)." />;
 export const IndicadoresPage = () => <Placeholder title="Indicadores RH/DP" descricao="Absenteísmo, turnover (fase 10)." />;
