@@ -2274,6 +2274,74 @@ export type Database = {
         }
         Relationships: []
       }
+      hrdp_overtime_requests: {
+        Row: {
+          aprovado_em: string | null
+          aprovador_id: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          data_ref: string
+          destino: string
+          employee_id: string
+          hora_fim: string
+          hora_inicio: string
+          id: string
+          motivo: string | null
+          obs_aprovador: string | null
+          status: string
+          tipo: string
+          total_horas: number | null
+          updated_at: string
+        }
+        Insert: {
+          aprovado_em?: string | null
+          aprovador_id?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          data_ref: string
+          destino?: string
+          employee_id: string
+          hora_fim: string
+          hora_inicio: string
+          id?: string
+          motivo?: string | null
+          obs_aprovador?: string | null
+          status?: string
+          tipo?: string
+          total_horas?: number | null
+          updated_at?: string
+        }
+        Update: {
+          aprovado_em?: string | null
+          aprovador_id?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          data_ref?: string
+          destino?: string
+          employee_id?: string
+          hora_fim?: string
+          hora_inicio?: string
+          id?: string
+          motivo?: string | null
+          obs_aprovador?: string | null
+          status?: string
+          tipo?: string
+          total_horas?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hrdp_overtime_requests_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hrdp_submodules_catalog: {
         Row: {
           area: string
@@ -2309,6 +2377,129 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      hrdp_time_bank: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          data_ref: string
+          descricao: string | null
+          employee_id: string
+          horas: number
+          id: string
+          origem_he: string | null
+          tipo: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          data_ref: string
+          descricao?: string | null
+          employee_id: string
+          horas: number
+          id?: string
+          origem_he?: string | null
+          tipo?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          data_ref?: string
+          descricao?: string | null
+          employee_id?: string
+          horas?: number
+          id?: string
+          origem_he?: string | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hrdp_time_bank_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_employees"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hrdp_time_bank_origem_he_fkey"
+            columns: ["origem_he"]
+            isOneToOne: false
+            referencedRelation: "hrdp_overtime_requests"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hrdp_time_entries: {
+        Row: {
+          ajuste_aprovado_em: string | null
+          ajuste_aprovado_por: string | null
+          ajuste_de: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          data_ref: string
+          employee_id: string
+          hora: string
+          id: string
+          justificativa: string | null
+          latitude: number | null
+          longitude: number | null
+          origem: string | null
+          tipo: string
+        }
+        Insert: {
+          ajuste_aprovado_em?: string | null
+          ajuste_aprovado_por?: string | null
+          ajuste_de?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          data_ref: string
+          employee_id: string
+          hora: string
+          id?: string
+          justificativa?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          origem?: string | null
+          tipo: string
+        }
+        Update: {
+          ajuste_aprovado_em?: string | null
+          ajuste_aprovado_por?: string | null
+          ajuste_de?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          data_ref?: string
+          employee_id?: string
+          hora?: string
+          id?: string
+          justificativa?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          origem?: string | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hrdp_time_entries_ajuste_de_fkey"
+            columns: ["ajuste_de"]
+            isOneToOne: false
+            referencedRelation: "hrdp_time_entries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "hrdp_time_entries_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_employees"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       module_visibility_settings: {
         Row: {
