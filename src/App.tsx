@@ -124,6 +124,7 @@ const App = () => (
                 <Route path="responsaveis" element={<JurResponsaveisPage />} />
                 <Route path="tarefas" element={<JurTarefasPage />} />
                 <Route path="relatorios" element={<JurRelatoriosPage />} />
+                <Route path="governanca" element={<GovernanceUniversalPage moduleKey="juridico" />} />
               </Route>
               <Route path="rh-dp" element={<RhdpGuard />}>
                 <Route index element={<RhdpDashboard />} />
