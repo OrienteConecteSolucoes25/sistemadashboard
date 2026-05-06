@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
   THEME_PRESETS, DEFAULT_PRESET, ThemePresetKey, ThemeTokens,
-  applyThemeTokens, mergeOverrides,
+  applyThemeTokens, mergeOverrides, applyBackgroundImage,
 } from "../lib/themePresets";
 
 type CompanyThemeRow = {
