@@ -2086,6 +2086,95 @@ export type Database = {
           },
         ]
       }
+      hrdp_employee_requests: {
+        Row: {
+          anexo_path: string | null
+          aprovado_em: string | null
+          aprovador_id: string | null
+          comentarios: Json | null
+          company_id: string
+          concluido_em: string | null
+          created_at: string
+          data: Json | null
+          data_abertura: string
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          descricao: string | null
+          employee_id: string
+          id: string
+          is_deleted: boolean
+          prazo_sla: string | null
+          prioridade: string
+          resposta: string | null
+          sla_dias: number | null
+          status: string
+          tipo: string
+          titulo: string
+          updated_at: string
+        }
+        Insert: {
+          anexo_path?: string | null
+          aprovado_em?: string | null
+          aprovador_id?: string | null
+          comentarios?: Json | null
+          company_id: string
+          concluido_em?: string | null
+          created_at?: string
+          data?: Json | null
+          data_abertura?: string
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao?: string | null
+          employee_id: string
+          id?: string
+          is_deleted?: boolean
+          prazo_sla?: string | null
+          prioridade?: string
+          resposta?: string | null
+          sla_dias?: number | null
+          status?: string
+          tipo: string
+          titulo: string
+          updated_at?: string
+        }
+        Update: {
+          anexo_path?: string | null
+          aprovado_em?: string | null
+          aprovador_id?: string | null
+          comentarios?: Json | null
+          company_id?: string
+          concluido_em?: string | null
+          created_at?: string
+          data?: Json | null
+          data_abertura?: string
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao?: string | null
+          employee_id?: string
+          id?: string
+          is_deleted?: boolean
+          prazo_sla?: string | null
+          prioridade?: string
+          resposta?: string | null
+          sla_dias?: number | null
+          status?: string
+          tipo?: string
+          titulo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hrdp_employee_requests_employee_id_fkey"
+            columns: ["employee_id"]
+            isOneToOne: false
+            referencedRelation: "hrdp_employees"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       hrdp_employees: {
         Row: {
           cargo: string | null
