@@ -22,6 +22,7 @@ import {
   RelatoriosPage, EmailsPage, IntegracoesPage, RoadmapPage, ConfiguracoesPage,
 } from "./modules/engenharia/ui/EngOperacaoPages";
 import { SitesDeluxePage, EquipesDeluxePage, MateriaisDeluxePage } from "./modules/engenharia/ui/EngDeluxePages";
+import ObrasPage from "./modules/engenharia/ui/ObrasPage";
 import EngRastreabilidadePage from "./modules/engenharia/ui/EngRastreabilidadePage";
 import EngAdminPage from "./modules/engenharia/ui/EngAdminPage";
 import JuridicoGuard from "./modules/juridico/ui/JuridicoGuard";
@@ -55,7 +56,8 @@ const App = () => (
               <Route path="engenharia" element={<EngenhariaGuard />}>
                 <Route index element={<EngenhariaDashboard />} />
                 <Route path="governanca" element={<GovernancaPage />} />
-                <Route path="sites" element={<SitesDeluxePage />} />
+                <Route path="sites" element={<ObrasPage />} />
+                <Route path="obras" element={<ObrasPage />} />
                 <Route path="projetos" element={<ProjetosElaboracaoPage />} />
                 <Route path="demandas" element={<DemandasPage />} />
                 <Route path="atividades" element={<AtividadesPage />} />
