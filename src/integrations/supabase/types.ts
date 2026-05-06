@@ -14,6 +14,210 @@ export type Database = {
   }
   public: {
     Tables: {
+      companies: {
+        Row: {
+          ativo: boolean
+          cnpj: string | null
+          contato_email: string | null
+          contato_nome: string | null
+          contato_whatsapp: string | null
+          created_at: string
+          id: string
+          nome: string
+          pix_chave: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          cnpj?: string | null
+          contato_email?: string | null
+          contato_nome?: string | null
+          contato_whatsapp?: string | null
+          created_at?: string
+          id?: string
+          nome: string
+          pix_chave?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          cnpj?: string | null
+          contato_email?: string | null
+          contato_nome?: string | null
+          contato_whatsapp?: string | null
+          created_at?: string
+          id?: string
+          nome?: string
+          pix_chave?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      company_module_permissions: {
+        Row: {
+          can_delete: boolean
+          can_edit: boolean
+          can_view: boolean
+          company_id: string
+          id: string
+          module_key: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          can_delete?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          company_id: string
+          id?: string
+          module_key: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          can_delete?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          company_id?: string
+          id?: string
+          module_key?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_module_permissions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_module_permissions_module_key_fkey"
+            columns: ["module_key"]
+            isOneToOne: false
+            referencedRelation: "plan_modules_catalog"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
+      company_plan_payments: {
+        Row: {
+          company_plan_id: string
+          competencia: string
+          created_at: string
+          data_pagamento: string
+          id: string
+          observacao: string | null
+          registrado_por: string | null
+          valor_pago: number
+        }
+        Insert: {
+          company_plan_id: string
+          competencia: string
+          created_at?: string
+          data_pagamento: string
+          id?: string
+          observacao?: string | null
+          registrado_por?: string | null
+          valor_pago?: number
+        }
+        Update: {
+          company_plan_id?: string
+          competencia?: string
+          created_at?: string
+          data_pagamento?: string
+          id?: string
+          observacao?: string | null
+          registrado_por?: string | null
+          valor_pago?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_plan_payments_company_plan_id_fkey"
+            columns: ["company_plan_id"]
+            isOneToOne: false
+            referencedRelation: "company_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_plans: {
+        Row: {
+          company_id: string
+          created_at: string
+          dia_vencimento: number
+          id: string
+          modules: string[]
+          observacoes: string | null
+          status: string
+          updated_at: string
+          valor_mensal: number
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          dia_vencimento?: number
+          id?: string
+          modules?: string[]
+          observacoes?: string | null
+          status?: string
+          updated_at?: string
+          valor_mensal?: number
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          dia_vencimento?: number
+          id?: string
+          modules?: string[]
+          observacoes?: string | null
+          status?: string
+          updated_at?: string
+          valor_mensal?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_plans_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_users: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          is_company_admin: boolean
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          is_company_admin?: boolean
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          is_company_admin?: boolean
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_users_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       eng_admin_config: {
         Row: {
           key: string
@@ -1988,6 +2192,101 @@ export type Database = {
           },
         ]
       }
+      plan_billing_runs: {
+        Row: {
+          canal: string
+          company_plan_id: string
+          competencia: string
+          enviado_em: string
+          id: string
+          payload: Json | null
+          tipo: string
+        }
+        Insert: {
+          canal?: string
+          company_plan_id: string
+          competencia: string
+          enviado_em?: string
+          id?: string
+          payload?: Json | null
+          tipo: string
+        }
+        Update: {
+          canal?: string
+          company_plan_id?: string
+          competencia?: string
+          enviado_em?: string
+          id?: string
+          payload?: Json | null
+          tipo?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plan_billing_runs_company_plan_id_fkey"
+            columns: ["company_plan_id"]
+            isOneToOne: false
+            referencedRelation: "company_plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plan_modules_catalog: {
+        Row: {
+          ativo: boolean
+          grupo: string
+          key: string
+          label: string
+          ordem: number
+          rota: string | null
+          sempre_obrigatorio: boolean
+        }
+        Insert: {
+          ativo?: boolean
+          grupo: string
+          key: string
+          label: string
+          ordem?: number
+          rota?: string | null
+          sempre_obrigatorio?: boolean
+        }
+        Update: {
+          ativo?: boolean
+          grupo?: string
+          key?: string
+          label?: string
+          ordem?: number
+          rota?: string | null
+          sempre_obrigatorio?: boolean
+        }
+        Relationships: []
+      }
+      plan_packages: {
+        Row: {
+          ativo: boolean
+          created_at: string
+          descricao: string | null
+          id: string
+          modules: string[]
+          nome: string
+        }
+        Insert: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          modules?: string[]
+          nome: string
+        }
+        Update: {
+          ativo?: boolean
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          modules?: string[]
+          nome?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string
@@ -2159,6 +2458,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      current_user_modules: { Args: { _uid: string }; Returns: string[] }
       eng_can_edit: { Args: { _uid: string }; Returns: boolean }
       eng_log_audit: {
         Args: {
@@ -2199,6 +2499,12 @@ export type Database = {
         Args: { _record_id: string; _table: string; _user_id: string }
         Returns: boolean
       }
+      is_company_admin: {
+        Args: { _company: string; _uid: string }
+        Returns: boolean
+      }
+      is_financeiro_ocs: { Args: { _uid: string }; Returns: boolean }
+      user_company: { Args: { _uid: string }; Returns: string }
       user_group_ids: { Args: { _user_id: string }; Returns: string[] }
       user_in_group: {
         Args: { _group_id: string; _user_id: string }
@@ -2214,6 +2520,8 @@ export type Database = {
         | "engenharia"
         | "suprimentos"
         | "fibra"
+        | "financeiro_ocs"
+        | "company_admin"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2349,6 +2657,8 @@ export const Constants = {
         "engenharia",
         "suprimentos",
         "fibra",
+        "financeiro_ocs",
+        "company_admin",
       ],
     },
   },
