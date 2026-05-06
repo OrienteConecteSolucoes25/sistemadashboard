@@ -1,7 +1,7 @@
 import { NavLink, Outlet, useLocation } from "react-router-dom";
 import {
   LayoutDashboard, FileSignature, FileStack, Users, Building2, KeyRound, ScrollText,
-  Award, FileMinus, FolderOpen, MessageSquare, BookOpen, CalendarClock, Bot, Link as LinkIcon, ShieldCheck, HardHat
+  Award, FileMinus, FolderOpen, MessageSquare, BookOpen, CalendarClock, Bot, Link as LinkIcon, ShieldCheck, HardHat, Settings
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserModules } from "@/modules/planos/hooks/useUserModules";
@@ -25,6 +25,7 @@ const allTabs = [
   { to: "/app/crea/links", label: "Links Oficiais", icon: LinkIcon, group: "Conhecimento", moduleKey: "crea.links" },
   { to: "/app/crea/assistente", label: "Assistente IA", icon: Bot, group: "Conhecimento", moduleKey: "crea.assistente" },
   { to: "/app/crea/auditoria", label: "Auditoria", icon: ShieldCheck, group: "Admin", moduleKey: "crea.auditoria" },
+  { to: "/app/crea/admin", label: "Admin", icon: Settings, group: "Admin", moduleKey: "crea.base" },
 ];
 
 export default function CreaLayout() {

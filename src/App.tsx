@@ -50,6 +50,7 @@ import PontoPage from "./modules/rhdp/ui/PontoPage";
 import MinhaEmpresaPage from "./modules/planos/ui/MinhaEmpresaPage";
 import CreaGuard from "./modules/crea/ui/CreaGuard";
 import CreaDashboard from "./modules/crea/ui/CreaDashboard";
+import CreaAdminPage from "./modules/crea/ui/CreaAdminPage";
 import {
   ArtsPage as CreaArtsPage, ProtocolosPage as CreaProtocolosPage, CatsPage as CreaCatsPage,
   CertidoesPage as CreaCertidoesPage, BaixasPage as CreaBaixasPage, TratativasPage as CreaTratativasPage,
@@ -157,6 +158,7 @@ const App = () => (
                 <Route path="links" element={<CreaLinksPage />} />
                 <Route path="assistente" element={<CreaAssistentePage />} />
                 <Route path="auditoria" element={<CreaAuditoriaPage />} />
+                <Route path="admin" element={<CreaAdminPage />} />
                 <Route path="governanca" element={<GovernanceUniversalPage moduleKey="crea" />} />
               </Route>
               <Route path="rh-dp/governanca" element={<GovernanceUniversalPage moduleKey="rhdp" />} />
