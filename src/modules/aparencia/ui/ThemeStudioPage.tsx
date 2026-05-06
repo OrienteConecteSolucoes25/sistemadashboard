@@ -150,14 +150,22 @@ export default function ThemeStudioPage() {
   const bgChanged = bgUrl !== savedBgUrl || Math.abs(bgAlpha - savedBgAlpha) > 0.001;
   const isDirty = presetChanged || changedColors.length > 0 || bgChanged || chartsDirty;
 
+  const loadCurrentRow = async () => {
+    const baseQ = (supabase as any).from("company_theme_settings").select("*");
+    const q = scope === "system_global"
+      ? baseQ.eq("scope", "system_global").is("company_id", null)
+      : baseQ.eq("company_id", companyId);
+    return (await q.maybeSingle()).data;
+  };
+
   const handleConfirmSave = async () => {
-    if (!companyId) { toast.error("Selecione uma empresa"); return; }
+    if (!envId) { toast.error("Selecione um ambiente"); return; }
     setSaving(true);
-    const { data: prev } = await (supabase as any)
-      .from("company_theme_settings").select("*").eq("company_id", companyId).maybeSingle();
+    const prev = await loadCurrentRow();
 
     const payload: any = {
       company_id: companyId,
+      scope,
       theme_preset: preset,
       is_active: true,
       background_image_url: bgUrl,
@@ -165,16 +173,27 @@ export default function ThemeStudioPage() {
     };
     COLOR_FIELDS.forEach(f => { payload[f.dbCol] = overrides[f.key] ?? null; });
 
-    const { error } = prev
-      ? await (supabase as any).from("company_theme_settings").update(payload).eq("company_id", companyId)
-      : await (supabase as any).from("company_theme_settings").insert(payload);
+    let error: any = null;
+    if (prev) {
+      const upd = scope === "system_global"
+        ? (supabase as any).from("company_theme_settings").update(payload).eq("scope","system_global").is("company_id", null)
+        : (supabase as any).from("company_theme_settings").update(payload).eq("company_id", companyId);
+      error = (await upd).error;
+    } else {
+      error = (await (supabase as any).from("company_theme_settings").insert(payload)).error;
+    }
 
     if (error) { toast.error("Erro ao salvar: " + error.message); setSaving(false); return; }
+
+    const actionType =
+      scope === "system_global" ? "update_global_theme" :
+      scope === "owner_company" ? "update_owner_company_theme" :
+      "update_client_company_theme";
 
     await (supabase as any).from("theme_audit_logs").insert({
       company_id: companyId,
       user_id: user?.id ?? null,
-      action_type: `save_theme:${preset}`,
+      action_type: `${actionType}:${preset}`,
       before_data: prev ?? null,
       after_data: payload,
     });
@@ -191,10 +210,11 @@ export default function ThemeStudioPage() {
   };
 
   const handleUploadBg = async (file: File) => {
-    if (!companyId) { toast.error("Selecione uma empresa primeiro"); return; }
+    if (!envId) { toast.error("Selecione um ambiente primeiro"); return; }
     setUploading(true);
+    const folder = scope === "system_global" ? "_global" : (companyId ?? "_global");
     const ext = file.name.split(".").pop() || "jpg";
-    const path = `${companyId}/bg-${Date.now()}.${ext}`;
+    const path = `${folder}/bg-${Date.now()}.${ext}`;
     const { error } = await supabase.storage.from("company-wallpapers").upload(path, file, { upsert: true });
     if (error) { toast.error("Erro no upload: " + error.message); setUploading(false); return; }
     const { data } = supabase.storage.from("company-wallpapers").getPublicUrl(path);
@@ -213,15 +233,17 @@ export default function ThemeStudioPage() {
   };
 
   const handleRestoreDefault = async () => {
-    if (!companyId) { toast.error("Selecione uma empresa"); return; }
+    if (!envId) { toast.error("Selecione um ambiente"); return; }
     if (!confirm(`Restaurar o tema padrão OCS para "${companyName}"? Essa ação aplica imediatamente e registra auditoria.`)) return;
-    const { data: prev } = await (supabase as any)
-      .from("company_theme_settings").select("*").eq("company_id", companyId).maybeSingle();
-    await (supabase as any).from("company_theme_settings").delete().eq("company_id", companyId);
+    const prev = await loadCurrentRow();
+    const del = scope === "system_global"
+      ? (supabase as any).from("company_theme_settings").delete().eq("scope","system_global").is("company_id", null)
+      : (supabase as any).from("company_theme_settings").delete().eq("company_id", companyId);
+    await del;
     await (supabase as any).from("theme_audit_logs").insert({
       company_id: companyId,
       user_id: user?.id ?? null,
-      action_type: "restore_default",
+      action_type: "restore_default_theme",
       before_data: prev ?? null,
       after_data: null,
     });
