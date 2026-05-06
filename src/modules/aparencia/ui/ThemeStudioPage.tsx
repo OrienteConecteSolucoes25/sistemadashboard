@@ -274,36 +274,43 @@ export default function ThemeStudioPage() {
           <Button variant="outline" onClick={handleDiscard} disabled={!isDirty}>
             Descartar
           </Button>
-          <Button variant="outline" onClick={handleRestoreDefault} disabled={!companyId}>
+          <Button variant="outline" onClick={handleRestoreDefault} disabled={!envId}>
             <RotateCcw className="w-4 h-4 mr-2" />Restaurar padrão
           </Button>
-          <Button onClick={() => setConfirmOpen(true)} disabled={!companyId || !isDirty || saving}>
+          <Button onClick={() => setConfirmOpen(true)} disabled={!envId || !isDirty || saving}>
             <Save className="w-4 h-4 mr-2" /> Salvar tema
           </Button>
         </div>
       </div>
 
-      {/* Seletor de empresa */}
+      {/* Seletor de Ambiente / Empresa */}
       <Card className="card-elegant">
         <CardContent className="pt-6 flex flex-col md:flex-row gap-4 items-end">
           <div className="flex-1 min-w-0">
-            <Label className="flex items-center gap-2 mb-2"><Building2 className="w-4 h-4" /> Empresa</Label>
-            <Select value={companyId} onValueChange={setCompanyId}>
-              <SelectTrigger><SelectValue placeholder="Selecione uma empresa para editar o tema" /></SelectTrigger>
+            <Label className="flex items-center gap-2 mb-2"><Building2 className="w-4 h-4" /> Ambiente / Empresa</Label>
+            <Select value={envId} onValueChange={setEnvId}>
+              <SelectTrigger><SelectValue placeholder="Selecione o ambiente para editar o tema" /></SelectTrigger>
               <SelectContent>
-                {companies.map(c => (
-                  <SelectItem key={c.id} value={c.id}>
-                    {c.name}{/erp\s*ocs/i.test(c.name) ? " — Minha empresa" : ""}
-                  </SelectItem>
+                {environments.map(e => (
+                  <SelectItem key={e.id} value={e.id}>{e.name}</SelectItem>
                 ))}
               </SelectContent>
             </Select>
-            {!companyId && (
-              <p className="text-xs text-warn mt-1.5">Selecione uma empresa antes de salvar o tema.</p>
+            {!envId && (
+              <p className="text-xs text-warn mt-1.5">Selecione um ambiente antes de salvar o tema.</p>
             )}
           </div>
-          {companyId && (
-            <div className="flex gap-2">
+          {envId && (
+            <div className="flex flex-wrap gap-2">
+              <Badge
+                className={
+                  scope === "system_global" ? "bg-primary text-primary-foreground" :
+                  scope === "owner_company" ? "bg-accent text-accent-foreground" :
+                  "bg-muted text-foreground"
+                }
+              >
+                {SCOPE_LABEL[scope]}
+              </Badge>
               <Badge variant="outline" className="text-sm">
                 Salvo: <strong className="ml-1">{THEME_PRESETS[savedPreset].label}</strong>
               </Badge>
