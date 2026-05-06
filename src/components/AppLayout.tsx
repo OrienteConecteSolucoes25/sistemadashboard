@@ -61,6 +61,7 @@ const AppLayout = () => {
       {rhdpAccess && <NavItem to="/app/rh-dp" icon={HeartHandshake} label="RH/DP" />}
       {isFinanceiro && <NavItem to="/app/planos" icon={CreditCard} label="Planos" />}
       {companyId && <NavItem to="/app/minha-empresa" icon={Building2} label="Minha Empresa" />}
+      {isAdmin && <NavItem to="/app/aparencia" icon={Palette} label="Aparência & Marca" />}
       {isAdmin && <NavItem to="/app/pixel-office/admin" icon={Shield} label="Pixel Admin" />}
       {isAdmin && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
       <div className="mt-auto pt-4 border-t">
