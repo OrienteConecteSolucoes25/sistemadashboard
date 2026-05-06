@@ -88,12 +88,15 @@ export const CompanyThemeProvider = ({ children }: { children: ReactNode }) => {
     const { data: row } = await (supabase as any)
       .from("company_theme_settings").select("*").eq("company_id", cid).maybeSingle();
     if (row) {
-      const { preset: p, tokens: t } = rowToTokens(row as CompanyThemeRow);
+      const r = row as CompanyThemeRow;
+      const { preset: p, tokens: t } = rowToTokens(r);
       setPreset(p); setTokens(t); applyThemeTokens(t, p);
+      applyBackgroundImage(r.background_image_url, r.background_overlay_alpha ?? 0.35);
     } else {
       setPreset(DEFAULT_PRESET);
       setTokens(THEME_PRESETS[DEFAULT_PRESET].tokens);
       applyThemeTokens(THEME_PRESETS[DEFAULT_PRESET].tokens, DEFAULT_PRESET);
+      applyBackgroundImage(null);
     }
     setLoading(false);
   }, [user]);
@@ -106,8 +109,12 @@ export const CompanyThemeProvider = ({ children }: { children: ReactNode }) => {
     setPreset(p); setTokens(merged); applyThemeTokens(merged, p);
   }, []);
 
+  const previewBackground = useCallback((url: string | null, overlayAlpha = 0.35) => {
+    applyBackgroundImage(url, overlayAlpha);
+  }, []);
+
   return (
-    <ThemeCtx.Provider value={{ preset, tokens, companyId, loading, previewTheme, reloadFromDb: load }}>
+    <ThemeCtx.Provider value={{ preset, tokens, companyId, loading, previewTheme, previewBackground, reloadFromDb: load }}>
       {children}
     </ThemeCtx.Provider>
   );
