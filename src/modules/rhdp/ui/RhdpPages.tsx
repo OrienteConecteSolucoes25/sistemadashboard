@@ -26,5 +26,4 @@ export const RhdpDashboard = () => <Placeholder title="RH/DP — Dashboard" desc
 
 
 
-export const FolhaPage = () => <Placeholder title="Folha & Holerite" descricao="Fechamento e holerites (fase 10)." />;
-export const IndicadoresPage = () => <Placeholder title="Indicadores RH/DP" descricao="Absenteísmo, turnover (fase 10)." />;
+export const IndicadoresPage = () => <Placeholder title="Indicadores RH/DP" descricao="Absenteísmo, turnover (fase 11)." />;
