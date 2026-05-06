@@ -2,27 +2,30 @@ import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useUserModules } from "@/modules/planos/hooks/useUserModules";
+import { useImpersonation, maskIfNeeded } from "@/modules/planos/hooks/useImpersonation";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { LayoutDashboard, ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { LayoutDashboard, ArrowRight, FileSpreadsheet, FileText, Presentation } from "lucide-react";
+import { exportVisaoXlsx, exportVisaoDocx, exportVisaoPptx, type VisaoRow } from "../lib/visaoExports";
 
 type Bucket = "atrasado" | "em_aberto" | "em_andamento" | "pendente" | "concluido" | "finalizado" | "entregue" | "emitido" | "outros";
-
 const ALL_BUCKETS: Bucket[] = ["atrasado","em_aberto","em_andamento","pendente","concluido","finalizado","entregue","emitido"];
 
-const MODULE_TABLE: Record<string, { table: string; route: string; label: string; prazoField?: string }> = {
-  "eng.sites":       { table: "eng_sites",       route: "/app/engenharia/sites",       label: "Sites" },
-  "eng.atividades":  { table: "eng_atividades",  route: "/app/engenharia/atividades",  label: "Atividades", prazoField: "prazo" },
-  "eng.rfi":         { table: "eng_rfi",         route: "/app/engenharia/rfi",         label: "RFI",        prazoField: "prazo" },
-  "eng.pendencias":  { table: "eng_pendencias",  route: "/app/engenharia/pendencias",  label: "Pendências",prazoField: "prazo" },
-  "eng.suprimentos": { table: "eng_suprimentos", route: "/app/engenharia/suprimentos", label: "Suprimentos",prazoField: "prazo" },
-  "eng.materiais":   { table: "eng_materiais",   route: "/app/engenharia/materiais",   label: "Materiais" },
-  "eng.demandas":    { table: "eng_demandas",    route: "/app/engenharia/demandas",    label: "Demandas",   prazoField: "prazo" },
-  "eng.projetos":    { table: "eng_projetos_elaboracao", route: "/app/engenharia/projetos", label: "Projetos", prazoField: "prazo_conclusao" },
-  "eng.equipes":     { table: "eng_equipes",     route: "/app/engenharia/equipes",     label: "Equipes" },
-  "eng.fibra":       { table: "eng_fibra_obras", route: "/app/engenharia/fibra",       label: "Fibra" },
-  "eng.energia":     { table: "eng_ligacoes_energia", route: "/app/engenharia/energia", label: "Energia" },
-  "eng.art":         { table: "eng_art",         route: "/app/engenharia/art",         label: "ART" },
+const MODULE_TABLE: Record<string, { table: string; route: string; label: string; prazoField?: string; dateField?: string }> = {
+  "eng.sites":       { table: "eng_sites",       route: "/app/engenharia/sites",       label: "Sites", dateField: "created_at" },
+  "eng.atividades":  { table: "eng_atividades",  route: "/app/engenharia/atividades",  label: "Atividades", prazoField: "prazo", dateField: "created_at" },
+  "eng.rfi":         { table: "eng_rfi",         route: "/app/engenharia/rfi",         label: "RFI",        prazoField: "prazo", dateField: "created_at" },
+  "eng.pendencias":  { table: "eng_pendencias",  route: "/app/engenharia/pendencias",  label: "Pendências", prazoField: "prazo", dateField: "created_at" },
+  "eng.suprimentos": { table: "eng_suprimentos", route: "/app/engenharia/suprimentos", label: "Suprimentos",prazoField: "prazo", dateField: "created_at" },
+  "eng.materiais":   { table: "eng_materiais",   route: "/app/engenharia/materiais",   label: "Materiais", dateField: "created_at" },
+  "eng.demandas":    { table: "eng_demandas",    route: "/app/engenharia/demandas",    label: "Demandas",   prazoField: "prazo", dateField: "created_at" },
+  "eng.projetos":    { table: "eng_projetos_elaboracao", route: "/app/engenharia/projetos", label: "Projetos", prazoField: "prazo_conclusao", dateField: "created_at" },
+  "eng.equipes":     { table: "eng_equipes",     route: "/app/engenharia/equipes",     label: "Equipes", dateField: "created_at" },
+  "eng.fibra":       { table: "eng_fibra_obras", route: "/app/engenharia/fibra",       label: "Fibra", dateField: "created_at" },
+  "eng.energia":     { table: "eng_ligacoes_energia", route: "/app/engenharia/energia", label: "Energia", dateField: "created_at" },
+  "eng.art":         { table: "eng_art",         route: "/app/engenharia/art",         label: "ART", dateField: "created_at" },
 };
 
 function bucketOf(status?: string | null): Bucket {
@@ -55,18 +58,31 @@ const BUCKET_COLOR: Record<Bucket,string> = {
   outros: "bg-muted text-muted-foreground",
 };
 
-function ModuleCard({ moduleKey }: { moduleKey: string }) {
+const MESES = ["Jan","Fev","Mar","Abr","Mai","Jun","Jul","Ago","Set","Out","Nov","Dez"];
+const HOJE = new Date();
+
+function ModuleCard({ moduleKey, year, month, onCounts }: { moduleKey: string; year: string; month: string; onCounts: (k: string, total: number, c: Record<string, number>) => void }) {
   const meta = MODULE_TABLE[moduleKey];
   const [counts, setCounts] = useState<Record<Bucket, number>>({} as any);
   const [total, setTotal] = useState(0);
   const [loading, setLoading] = useState(true);
+  const imp = useImpersonation();
 
   useEffect(() => {
     if (!meta) { setLoading(false); return; }
     const sb: any = supabase;
     const fields = ["status"];
     if (meta.prazoField) fields.push(meta.prazoField);
-    sb.from(meta.table).select(fields.join(",")).limit(1000).then(({ data }: any) => {
+    if (meta.dateField) fields.push(meta.dateField);
+    let q = sb.from(meta.table).select(fields.join(",")).limit(1000);
+    if (year !== "all" && meta.dateField) {
+      const y = Number(year);
+      const from = month === "all" ? `${y}-01-01` : `${y}-${String(Number(month)+1).padStart(2,"0")}-01`;
+      const toDate = month === "all" ? new Date(y+1, 0, 1) : new Date(y, Number(month)+1, 1);
+      const to = toDate.toISOString().slice(0,10);
+      q = q.gte(meta.dateField, from).lt(meta.dateField, to);
+    }
+    q.then(({ data }: any) => {
       const today = new Date().toISOString().slice(0,10);
       const c: any = {};
       (data ?? []).forEach((row: any) => {
@@ -79,10 +95,12 @@ function ModuleCard({ moduleKey }: { moduleKey: string }) {
       setCounts(c);
       setTotal((data ?? []).length);
       setLoading(false);
+      onCounts(moduleKey, (data ?? []).length, c);
     });
-  }, [moduleKey]);
+  }, [moduleKey, year, month]);
 
   if (!meta) return null;
+  const showTotal = imp.active && !imp.dataAccess ? maskIfNeeded(total, imp) : total;
   return (
     <Card className="card-elegant">
       <CardHeader className="pb-2">
@@ -92,16 +110,17 @@ function ModuleCard({ moduleKey }: { moduleKey: string }) {
             Abrir <ArrowRight className="w-3 h-3" />
           </Link>
         </CardTitle>
-        <div className="text-2xl font-bold">{loading ? "…" : total}</div>
+        <div className="text-2xl font-bold">{loading ? "…" : showTotal}</div>
       </CardHeader>
       <CardContent>
         <div className="flex flex-wrap gap-1.5">
           {ALL_BUCKETS.map((b) => {
             const v = counts[b] ?? 0;
             if (!v) return null;
+            const display = imp.active && !imp.dataAccess ? "•" : v;
             return (
               <span key={b} className={`text-[11px] px-2 py-0.5 rounded font-medium ${BUCKET_COLOR[b]}`}>
-                {BUCKET_LABEL[b]}: {v}
+                {BUCKET_LABEL[b]}: {display}
               </span>
             );
           })}
@@ -114,26 +133,115 @@ function ModuleCard({ moduleKey }: { moduleKey: string }) {
 
 export default function VisaoGeralPage() {
   const { modules, isAdmin, ready } = useUserModules();
+  const imp = useImpersonation();
+  const [moduleFilter, setModuleFilter] = useState<string>("all");
+  const [year, setYear] = useState<string>("all");
+  const [month, setMonth] = useState<string>("all");
+  const [snapshot, setSnapshot] = useState<Record<string, { total: number; counts: Record<string, number> }>>({});
+  const [branding, setBranding] = useState<{ logo_url?: string|null; primary_color?: string|null; rodape?: string|null; nome?: string|null }>({});
+
+  useEffect(() => {
+    const sb: any = supabase;
+    (async () => {
+      // pega branding do usuário (empresa atual ou impersonada)
+      const { data: cu } = await sb.from("company_users").select("company_id, companies(nome)").maybeSingle();
+      const cid = imp.companyId ?? cu?.company_id;
+      if (cid) {
+        const { data: br } = await sb.from("company_branding").select("*").eq("company_id", cid).maybeSingle();
+        const { data: comp } = await sb.from("companies").select("nome").eq("id", cid).maybeSingle();
+        setBranding({ ...(br ?? {}), nome: comp?.nome ?? "OCS" });
+      } else {
+        setBranding({ nome: "OCS", primary_color: "#2BBDC0" });
+      }
+    })();
+  }, [imp.companyId]);
+
   const visible = useMemo(() => {
     if (!ready) return [] as string[];
-    if (isAdmin) return Object.keys(MODULE_TABLE);
-    return Array.from(modules).filter((k) => k in MODULE_TABLE);
-  }, [modules, isAdmin, ready]);
+    const all = isAdmin ? Object.keys(MODULE_TABLE) : Array.from(modules).filter((k) => k in MODULE_TABLE);
+    if (moduleFilter === "all") return all;
+    return all.filter((k) => k === moduleFilter);
+  }, [modules, isAdmin, ready, moduleFilter]);
+
+  function onCounts(k: string, total: number, c: Record<string, number>) {
+    setSnapshot((s) => ({ ...s, [k]: { total, counts: c } }));
+  }
+
+  const filtroLabel = `Período: ${year === "all" ? "todos" : year}${month !== "all" ? " / " + MESES[Number(month)] : ""} · Módulo: ${moduleFilter === "all" ? "todos" : MODULE_TABLE[moduleFilter]?.label}`;
+
+  function buildRows(): VisaoRow[] {
+    return visible.map((k) => ({
+      modulo: MODULE_TABLE[k]?.label ?? k,
+      total: snapshot[k]?.total ?? 0,
+      counts: snapshot[k]?.counts ?? {},
+    }));
+  }
+
+  const years = Array.from({ length: 4 }, (_, i) => String(HOJE.getFullYear() - i));
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold flex items-center gap-2">
-          <LayoutDashboard className="w-6 h-6 text-primary" /> Visão Geral
-        </h1>
-        <p className="text-sm text-muted-foreground">Status consolidado de cada módulo do seu plano.</p>
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold flex items-center gap-2">
+            <LayoutDashboard className="w-6 h-6 text-primary" /> Visão Geral
+          </h1>
+          <p className="text-sm text-muted-foreground">Status consolidado de cada módulo do seu plano.</p>
+        </div>
+        <div className="flex flex-wrap items-end gap-2">
+          <Button size="sm" variant="outline" onClick={() => exportVisaoXlsx(buildRows(), filtroLabel, branding)}>
+            <FileSpreadsheet className="w-4 h-4 mr-1" /> Excel
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => exportVisaoDocx(buildRows(), filtroLabel, branding)}>
+            <FileText className="w-4 h-4 mr-1" /> Word
+          </Button>
+          <Button size="sm" variant="outline" onClick={() => exportVisaoPptx(buildRows(), filtroLabel, branding)}>
+            <Presentation className="w-4 h-4 mr-1" /> PowerPoint
+          </Button>
+        </div>
       </div>
+
+      <Card>
+        <CardContent className="grid md:grid-cols-3 gap-3 pt-4">
+          <div>
+            <Label className="text-xs">Módulo</Label>
+            <Select value={moduleFilter} onValueChange={setModuleFilter}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {Object.entries(MODULE_TABLE).map(([k, v]) => <SelectItem key={k} value={k}>{v.label}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Ano</Label>
+            <Select value={year} onValueChange={(v) => { setYear(v); if (v === "all") setMonth("all"); }}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {years.map((y) => <SelectItem key={y} value={y}>{y}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Mês</Label>
+            <Select value={month} onValueChange={setMonth} disabled={year === "all"}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Todos</SelectItem>
+                {MESES.map((m, i) => <SelectItem key={i} value={String(i)}>{m}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
+
       {!ready && <div className="text-sm text-muted-foreground">Carregando…</div>}
       {ready && visible.length === 0 && (
-        <Card><CardContent className="p-6 text-center text-muted-foreground">Nenhum módulo liberado no seu plano.</CardContent></Card>
+        <Card><CardContent className="p-6 text-center text-muted-foreground">Nenhum módulo disponível para este filtro.</CardContent></Card>
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-        {visible.map((k) => <ModuleCard key={k} moduleKey={k} />)}
+        {visible.map((k) => <ModuleCard key={k} moduleKey={k} year={year} month={month} onCounts={onCounts} />)}
       </div>
     </div>
   );
