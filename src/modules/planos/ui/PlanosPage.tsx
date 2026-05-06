@@ -37,6 +37,7 @@ export default function PlanosPage() {
   const [editing, setEditing] = useState<Company | null>(null);
   const [planEditor, setPlanEditor] = useState<{ company: Company; plan: Plan | null } | null>(null);
   const [paymentModal, setPaymentModal] = useState<Plan | null>(null);
+  const [openSheet, setOpenSheet] = useState<Company | null>(null);
 
   async function reload() {
     const [{ data: c }, { data: p }, { data: pay }, { data: cat }, { data: pk }] = await Promise.all([
@@ -70,6 +71,7 @@ export default function PlanosPage() {
         <TabsList>
           <TabsTrigger value="empresas"><Building2 className="w-4 h-4 mr-1" /> Empresas</TabsTrigger>
           <TabsTrigger value="pagamentos"><CreditCard className="w-4 h-4 mr-1" /> Pagamentos</TabsTrigger>
+          <TabsTrigger value="calculadora"><Calculator className="w-4 h-4 mr-1" /> Calculadora</TabsTrigger>
           <TabsTrigger value="avisos"><Bell className="w-4 h-4 mr-1" /> Avisos</TabsTrigger>
           <TabsTrigger value="catalogo"><Package className="w-4 h-4 mr-1" /> Catálogo & Pacotes</TabsTrigger>
         </TabsList>
@@ -81,11 +83,16 @@ export default function PlanosPage() {
             onPlan={(c) => setPlanEditor({ company: c, plan: plans.find(p => p.company_id === c.id) ?? null })}
             onWhatsApp={(c, p) => sendWhatsApp(c, p, payments.filter(x => x.company_plan_id === p.id))}
             onNew={() => setEditing({ id: "", nome: "", ativo: true } as Company)}
+            onOpenSheet={(c) => setOpenSheet(c)}
           />
         </TabsContent>
 
         <TabsContent value="pagamentos" className="space-y-4">
           <PaymentsTab companies={companies} plans={plans} payments={payments} onRegister={(p) => setPaymentModal(p)} onReload={reload} />
+        </TabsContent>
+
+        <TabsContent value="calculadora" className="space-y-4">
+          <CalculadoraTab />
         </TabsContent>
 
         <TabsContent value="avisos" className="space-y-4">
@@ -96,6 +103,8 @@ export default function PlanosPage() {
           <CatalogTab catalog={catalog} packages={packages} onReload={reload} />
         </TabsContent>
       </Tabs>
+
+      {openSheet && <CompanySheet company={openSheet} onClose={() => setOpenSheet(null)} onChanged={reload} />}
 
       {editing && (
         <CompanyModal
