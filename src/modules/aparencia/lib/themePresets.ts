@@ -315,9 +315,27 @@ export function applyThemeTokens(tokens: ThemeTokens, presetKey?: ThemePresetKey
   if (tokens.bgGradient) {
     document.body.style.backgroundImage = tokens.bgGradient;
     document.body.style.backgroundAttachment = "fixed";
+    document.body.style.backgroundSize = "cover";
   } else {
     document.body.style.backgroundImage = "";
   }
+}
+
+/** Aplica imagem de fundo personalizada com overlay (sobrepõe o gradient do preset). */
+export function applyBackgroundImage(url: string | null, overlayAlpha = 0.35) {
+  const body = document.body;
+  if (!url) {
+    body.style.removeProperty("--wallpaper-url");
+    body.style.removeProperty("--wallpaper-overlay");
+    return;
+  }
+  const a = Math.max(0, Math.min(1, overlayAlpha));
+  body.style.setProperty("--wallpaper-url", `url("${url}")`);
+  body.style.setProperty("--wallpaper-overlay", `hsl(var(--background) / ${a})`);
+  body.style.backgroundImage = `linear-gradient(var(--wallpaper-overlay), var(--wallpaper-overlay)), var(--wallpaper-url)`;
+  body.style.backgroundSize = "cover";
+  body.style.backgroundPosition = "center";
+  body.style.backgroundAttachment = "fixed";
 }
 
 /** Reseta para o tema OCS padrão (limpa overrides). */
