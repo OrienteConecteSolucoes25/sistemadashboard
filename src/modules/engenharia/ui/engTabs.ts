@@ -16,7 +16,7 @@ export const ENG_TABS: EngTab[] = [
   { to: "/app/engenharia", label: "Dashboard", icon: LayoutDashboard, end: true, group: "Visão", moduleKey: "eng.dashboard" },
   { to: "/app/engenharia/governanca", label: "Governança", icon: ShieldCheck, group: "Visão", moduleKey: "eng.governanca" },
 
-  { to: "/app/engenharia/sites", label: "Sites", icon: MapPin, group: "Operação", moduleKey: "eng.sites" },
+  { to: "/app/engenharia/obras", label: "Obras", icon: MapPin, group: "Operação", moduleKey: "eng.sites" },
   { to: "/app/engenharia/projetos", label: "Projetos", icon: FolderKanban, group: "Operação", moduleKey: "eng.projetos" },
   { to: "/app/engenharia/demandas", label: "Demandas", icon: ListTodo, group: "Operação", moduleKey: "eng.demandas" },
   { to: "/app/engenharia/atividades", label: "Atividades", icon: Activity, group: "Operação", moduleKey: "eng.atividades" },
