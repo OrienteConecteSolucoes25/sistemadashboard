@@ -100,7 +100,7 @@ export const ObrasPage = () => {
 
   return (
     <div className="space-y-4">
-      <EngPageHeader title="Obras" subtitle="Cadastro e visão integrada por obra" />
+      <EngPageHeader title="Obras" description="Cadastro e visão integrada por obra" />
 
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 min-w-[260px]">
