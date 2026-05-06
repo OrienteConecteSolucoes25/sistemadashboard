@@ -83,7 +83,7 @@ const EngenhariaLayout = () => {
       <div className="flex-1 min-w-0 bg-background">
         {/* Mobile nav */}
         <nav className="md:hidden flex overflow-x-auto gap-1 border-b px-3 py-2 bg-card">
-          {ENG_TABS.map((t) => {
+          {visibleTabs.map((t) => {
             const active = t.end ? loc.pathname === t.to : loc.pathname.startsWith(t.to);
             return (
               <NavLink
