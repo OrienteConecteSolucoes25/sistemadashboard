@@ -76,7 +76,7 @@ export function DynamicSheetTable({ sheetId, canEdit }: { sheetId: string; canEd
       parsed = isNaN(n) ? raw : n;
     }
     const newValues = { ...row.values, [letter]: parsed };
-    const { error } = await supabase.from("gov_dataset_rows").update({ values: newValues }).eq("id", row.id);
+    const { error } = await supabase.from("gov_dataset_rows").update({ values: newValues as never }).eq("id", row.id);
     if (error) { toast.error("Erro ao salvar célula"); return; }
     setEditing(null);
     setRows((prev) => prev.map((r) => (r.id === row.id ? { ...r, values: newValues } : r)));
@@ -90,7 +90,7 @@ export function DynamicSheetTable({ sheetId, canEdit }: { sheetId: string; canEd
     for (const r of rows) {
       const computed: Record<string, unknown> = {};
       for (const fc of formulaCols) computed[fc.col_letter] = evalFormula(fc.formula_js, r.values, colsAgg);
-      await supabase.from("gov_dataset_rows").update({ computed }).eq("id", r.id);
+      await supabase.from("gov_dataset_rows").update({ computed: computed as never }).eq("id", r.id);
       updated++;
     }
     toast.success(`${updated} linhas recalculadas`);
