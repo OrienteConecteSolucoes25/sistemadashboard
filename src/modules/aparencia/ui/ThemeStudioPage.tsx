@@ -77,28 +77,37 @@ export default function ThemeStudioPage() {
 
   const baseTokens = THEME_PRESETS[preset].tokens;
 
-  // Lista de empresas
+  // Lista de ambientes (Global + OCS interno + clientes)
   useEffect(() => {
     if (authLoading) return;
     (async () => {
       const q = await (supabase as any).from("companies").select("id,nome").order("nome");
-      const list = ((q.data as any[]) || []).map(c => ({ id: c.id, name: c.nome }));
-      // Coloca "ERP OCS" (minha empresa) no topo da lista
-      list.sort((a, b) => {
-        const aOcs = /erp\s*ocs/i.test(a.name) ? 0 : 1;
-        const bOcs = /erp\s*ocs/i.test(b.name) ? 0 : 1;
-        return aOcs - bOcs || a.name.localeCompare(b.name);
-      });
-      setCompanies(list);
+      const raw = ((q.data as any[]) || []) as { id: string; nome: string }[];
+      const isOcs = (n: string) => /erp\s*ocs|oriente\s*conecte/i.test(n);
+      const owner = raw.find(c => isOcs(c.nome));
+      const clients = raw.filter(c => !isOcs(c.nome)).sort((a, b) => a.nome.localeCompare(b.nome));
+
+      const opts: EnvOption[] = [
+        { id: SYSTEM_GLOBAL_ID, name: "ERP OCS — Tema Global", scope: "system_global", companyId: null },
+      ];
+      if (owner) {
+        opts.push({ id: owner.id, name: `${owner.nome} — Ambiente Interno`, scope: "owner_company", companyId: owner.id });
+      }
+      clients.forEach(c => opts.push({ id: c.id, name: c.nome, scope: "client_company", companyId: c.id }));
+      setEnvironments(opts);
     })();
   }, [authLoading]);
 
-  // Carrega tema salvo da empresa
+  // Carrega tema salvo do ambiente
   useEffect(() => {
-    if (!companyId) return;
+    if (!envId) return;
     (async () => {
-      const { data } = await (supabase as any)
-        .from("company_theme_settings").select("*").eq("company_id", companyId).maybeSingle();
+      const baseQ = (supabase as any).from("company_theme_settings").select("*");
+      const q = scope === "system_global"
+        ? baseQ.eq("scope", "system_global").is("company_id", null)
+        : baseQ.eq("company_id", companyId);
+      const { data } = await q.maybeSingle();
+
       const p = (data?.theme_preset || DEFAULT_PRESET) as ThemePresetKey;
       const ov: any = {};
       if (data) COLOR_FIELDS.forEach(f => { if (data[f.dbCol]) ov[f.key] = data[f.dbCol]; });
@@ -107,26 +116,24 @@ export default function ThemeStudioPage() {
       setPreset(p); setOverrides(ov); setBgUrl(b); setBgAlpha(a);
       setSavedPreset(p); setSavedOverrides(ov); setSavedBgUrl(b); setSavedBgAlpha(a);
 
-      const { data: logs } = await (supabase as any)
-        .from("theme_audit_logs").select("*")
-        .eq("company_id", companyId).order("created_at", { ascending: false }).limit(30);
+      const logsQ = (supabase as any).from("theme_audit_logs").select("*").order("created_at", { ascending: false }).limit(30);
+      const { data: logs } = scope === "system_global"
+        ? await logsQ.is("company_id", null)
+        : await logsQ.eq("company_id", companyId);
       setAudit(logs || []);
       setChartsDirty(false);
-
-      const c = companies.find(x => x.id === companyId);
-      setCompanyName(c?.name || "");
     })();
-  }, [companyId, companies]);
+  }, [envId, scope, companyId]);
 
   // Aplica preview ao vivo (só na página)
   useEffect(() => {
-    if (!companyId) return;
+    if (!envId) return;
     previewTheme(preset, overrides as any);
-  }, [preset, overrides, previewTheme, companyId]);
+  }, [preset, overrides, previewTheme, envId]);
   useEffect(() => {
-    if (!companyId) return;
+    if (!envId) return;
     previewBackground(bgUrl, bgAlpha);
-  }, [bgUrl, bgAlpha, previewBackground, companyId]);
+  }, [bgUrl, bgAlpha, previewBackground, envId]);
 
   // Restaura tema real ao desmontar
   useEffect(() => {
