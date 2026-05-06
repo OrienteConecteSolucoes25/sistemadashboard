@@ -18,6 +18,7 @@ import { toast } from "sonner";
 import { paymentStatus, ymNow, whatsappLink, buildBillingMessage } from "../lib/billing";
 import CalculadoraTab from "./CalculadoraTab";
 import CompanySheet from "./CompanySheet";
+import ImpersonateButton from "./ImpersonateButton";
 
 type Company = { id: string; nome: string; cnpj?: string; contato_nome?: string; contato_email?: string; contato_whatsapp?: string; pix_chave?: string; ativo: boolean };
 type Catalog = { key: string; label: string; grupo: string; sempre_obrigatorio: boolean; ordem: number };
@@ -183,6 +184,7 @@ function CompaniesTab({ companies, plans, payments, onEdit, onPlan, onWhatsApp, 
                   <TableCell>{st ? <StatusBadge st={st.status} /> : "—"}</TableCell>
                   <TableCell><Badge variant="secondary">{plan?.modules?.length ?? 0}</Badge></TableCell>
                   <TableCell className="text-right space-x-1">
+                    <ImpersonateButton company={c} />
                     <Button size="icon" variant="ghost" onClick={() => onEdit(c)}><Pencil className="w-4 h-4" /></Button>
                     <Button size="sm" variant="outline" onClick={() => onPlan(c)}>Plano</Button>
                     {plan && c.contato_whatsapp && (
