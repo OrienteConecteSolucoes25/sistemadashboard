@@ -45,6 +45,7 @@ const ThemeCtx = createContext<Ctx>({
   companyId: null,
   loading: true,
   previewTheme: () => {},
+  previewBackground: () => {},
   reloadFromDb: async () => {},
 });
 
