@@ -276,3 +276,171 @@
 :root[data-theme="neo-brutalism"] .kpi-neutral {
   border-top-width: 6px !important;
 }
+
+/* ============================================================
+   Glassmorphism — vidro translúcido com tinta da cor primária
+   Tudo (cards, botões, inputs, gráficos) ganha fundo semi-transparente
+   com backdrop-blur e borda de luz.
+   ============================================================ */
+:root[data-theme="glassmorphism"] {
+  --glass-tint: hsl(var(--primary) / 0.08);
+  --glass-tint-strong: hsl(var(--primary) / 0.18);
+  --glass-border: hsl(var(--primary) / 0.25);
+  --glass-highlight: hsl(0 0% 100% / 0.35);
+  --glass-bg: hsl(var(--card) / 0.45);
+  --glass-bg-strong: hsl(var(--card) / 0.65);
+  --glass-blur: 18px;
+}
+
+:root[data-theme="glassmorphism"] body {
+  background-attachment: fixed;
+}
+
+/* Cards translúcidos */
+:root[data-theme="glassmorphism"] .card-elegant,
+:root[data-theme="glassmorphism"] [data-slot="card"] {
+  background: linear-gradient(135deg, var(--glass-bg) 0%, var(--glass-tint) 100%) !important;
+  backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  -webkit-backdrop-filter: blur(var(--glass-blur)) saturate(160%);
+  border: 1px solid var(--glass-border) !important;
+  box-shadow:
+    0 8px 32px -8px hsl(var(--primary) / 0.18),
+    inset 0 1px 0 0 var(--glass-highlight) !important;
+}
+
+/* Botões — vidro tingido */
+:root[data-theme="glassmorphism"] button:not([data-no-glass]):not([role="tab"]) {
+  backdrop-filter: blur(12px) saturate(160%);
+  -webkit-backdrop-filter: blur(12px) saturate(160%);
+  border: 1px solid var(--glass-border) !important;
+  box-shadow: inset 0 1px 0 0 var(--glass-highlight), 0 4px 16px -4px hsl(var(--primary) / 0.2);
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+/* Botão primário — tinta da cor escolhida, ainda translúcido */
+:root[data-theme="glassmorphism"] button:not([data-no-glass]):not([role="tab"]).bg-primary,
+:root[data-theme="glassmorphism"] button:not([data-no-glass]):not([role="tab"])[data-variant="default"] {
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.55), hsl(var(--accent) / 0.45)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+}
+/* Botões neutros / outline / ghost — só vidro */
+:root[data-theme="glassmorphism"] button:not([data-no-glass]):not([role="tab"]):not(.bg-primary):not([data-variant="default"]) {
+  background: var(--glass-tint) !important;
+  color: hsl(var(--foreground));
+}
+:root[data-theme="glassmorphism"] button:not([data-no-glass]):not([role="tab"]):hover {
+  background: var(--glass-tint-strong) !important;
+  transform: translateY(-1px);
+}
+
+/* Inputs / Selects / Textarea translúcidos */
+:root[data-theme="glassmorphism"] input,
+:root[data-theme="glassmorphism"] textarea,
+:root[data-theme="glassmorphism"] select,
+:root[data-theme="glassmorphism"] [role="combobox"] {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid var(--glass-border) !important;
+}
+
+/* Tabs */
+:root[data-theme="glassmorphism"] [role="tablist"] {
+  background: var(--glass-bg) !important;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border) !important;
+}
+:root[data-theme="glassmorphism"] [role="tab"][data-state="active"] {
+  background: linear-gradient(135deg, hsl(var(--primary) / 0.55), hsl(var(--accent) / 0.45)) !important;
+  color: hsl(var(--primary-foreground)) !important;
+  backdrop-filter: blur(8px);
+}
+
+/* Badges */
+:root[data-theme="glassmorphism"] [data-slot="badge"] {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  background: var(--glass-tint-strong) !important;
+  border: 1px solid var(--glass-border) !important;
+}
+
+/* Dialog / Popover / Sheet / Dropdown */
+:root[data-theme="glassmorphism"] [role="dialog"],
+:root[data-theme="glassmorphism"] [data-radix-popper-content-wrapper] > * {
+  background: var(--glass-bg-strong) !important;
+  backdrop-filter: blur(24px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(24px) saturate(180%) !important;
+  border: 1px solid var(--glass-border) !important;
+  box-shadow:
+    0 24px 64px -16px hsl(var(--primary) / 0.3),
+    inset 0 1px 0 0 var(--glass-highlight) !important;
+}
+
+/* Sidebar — vidro escuro tingido */
+:root[data-theme="glassmorphism"] [data-sidebar="sidebar"] {
+  background: linear-gradient(180deg,
+    hsl(var(--sidebar-background) / 0.75) 0%,
+    hsl(var(--sidebar-background) / 0.55) 100%) !important;
+  backdrop-filter: blur(20px) saturate(180%);
+  -webkit-backdrop-filter: blur(20px) saturate(180%);
+  border-right: 1px solid hsl(var(--primary) / 0.18) !important;
+}
+
+/* Tabelas com fundo translúcido */
+:root[data-theme="glassmorphism"] table {
+  background: transparent !important;
+}
+:root[data-theme="glassmorphism"] thead {
+  background: var(--glass-tint) !important;
+  backdrop-filter: blur(8px);
+}
+:root[data-theme="glassmorphism"] tbody tr:hover {
+  background: var(--glass-tint) !important;
+}
+
+/* Gráficos (recharts) — fundos transparentes + linhas/áreas com alpha */
+:root[data-theme="glassmorphism"] .recharts-wrapper,
+:root[data-theme="glassmorphism"] .recharts-surface {
+  background: transparent !important;
+}
+:root[data-theme="glassmorphism"] .recharts-cartesian-grid line {
+  stroke: hsl(var(--primary) / 0.12) !important;
+}
+:root[data-theme="glassmorphism"] .recharts-default-tooltip {
+  background: var(--glass-bg-strong) !important;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid var(--glass-border) !important;
+  border-radius: 0.75rem;
+  box-shadow: 0 8px 32px -8px hsl(var(--primary) / 0.3);
+}
+/* Áreas e barras com leve transparência */
+:root[data-theme="glassmorphism"] .recharts-area-area,
+:root[data-theme="glassmorphism"] .recharts-bar-rectangle path {
+  fill-opacity: 0.55 !important;
+}
+:root[data-theme="glassmorphism"] .recharts-pie-sector path {
+  fill-opacity: 0.7 !important;
+  stroke: hsl(var(--background) / 0.5) !important;
+  stroke-width: 1.5 !important;
+}
+
+/* KPI cards ganham reflexo extra */
+:root[data-theme="glassmorphism"] .kpi-teal,
+:root[data-theme="glassmorphism"] .kpi-warn,
+:root[data-theme="glassmorphism"] .kpi-danger,
+:root[data-theme="glassmorphism"] .kpi-success,
+:root[data-theme="glassmorphism"] .kpi-neutral {
+  position: relative;
+  overflow: hidden;
+}
+:root[data-theme="glassmorphism"] .kpi-teal::before,
+:root[data-theme="glassmorphism"] .kpi-warn::before,
+:root[data-theme="glassmorphism"] .kpi-danger::before,
+:root[data-theme="glassmorphism"] .kpi-success::before,
+:root[data-theme="glassmorphism"] .kpi-neutral::before {
+  content: "";
+  position: absolute; inset: 0;
+  background: linear-gradient(135deg, hsl(0 0% 100% / 0.18) 0%, transparent 60%);
+  pointer-events: none;
+}
