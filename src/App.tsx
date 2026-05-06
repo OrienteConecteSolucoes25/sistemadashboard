@@ -30,6 +30,7 @@ import {
   JurProcessosPage, JurPrazosPage, JurDocumentosPage,
   JurResponsaveisPage, JurTarefasPage, JurRelatoriosPage,
 } from "./modules/juridico/ui/JurPages";
+import PlanosPage from "./modules/planos/ui/PlanosPage";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
