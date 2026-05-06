@@ -48,6 +48,15 @@ import AdmissaoPage from "./modules/rhdp/ui/AdmissaoPage";
 import ContratosPage from "./modules/rhdp/ui/ContratosPage";
 import PontoPage from "./modules/rhdp/ui/PontoPage";
 import MinhaEmpresaPage from "./modules/planos/ui/MinhaEmpresaPage";
+import CreaGuard from "./modules/crea/ui/CreaGuard";
+import CreaDashboard from "./modules/crea/ui/CreaDashboard";
+import {
+  ArtsPage as CreaArtsPage, ProtocolosPage as CreaProtocolosPage, CatsPage as CreaCatsPage,
+  CertidoesPage as CreaCertidoesPage, BaixasPage as CreaBaixasPage, TratativasPage as CreaTratativasPage,
+  PrazosPage as CreaPrazosPage, RtsPage as CreaRtsPage, EmpresasPage as CreaEmpresasPage,
+  DocumentosPage as CreaDocumentosPage, NormasPage as CreaNormasPage, LinksPage as CreaLinksPage,
+  CredenciaisPage as CreaCredenciaisPage, AssistentePage as CreaAssistentePage, AuditoriaPage as CreaAuditoriaPage,
+} from "./modules/crea/ui/CreaPages";
 import ThemeStudioPage from "./modules/aparencia/ui/ThemeStudioPage";
 import { CompanyThemeProvider } from "./modules/aparencia/hooks/CompanyThemeProvider";
 import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
@@ -118,6 +127,24 @@ const App = () => (
                 <Route path="folha" element={<FolhaPage />} />
                 <Route path="indicadores" element={<IndicadoresPage />} />
                 <Route path="permissoes" element={<RhdpPermissoesPage />} />
+              </Route>
+              <Route path="crea" element={<CreaGuard />}>
+                <Route index element={<CreaDashboard />} />
+                <Route path="arts" element={<CreaArtsPage />} />
+                <Route path="protocolos" element={<CreaProtocolosPage />} />
+                <Route path="cats" element={<CreaCatsPage />} />
+                <Route path="certidoes" element={<CreaCertidoesPage />} />
+                <Route path="baixas" element={<CreaBaixasPage />} />
+                <Route path="tratativas" element={<CreaTratativasPage />} />
+                <Route path="prazos" element={<CreaPrazosPage />} />
+                <Route path="rts" element={<CreaRtsPage />} />
+                <Route path="empresas" element={<CreaEmpresasPage />} />
+                <Route path="documentos" element={<CreaDocumentosPage />} />
+                <Route path="credenciais" element={<CreaCredenciaisPage />} />
+                <Route path="normas" element={<CreaNormasPage />} />
+                <Route path="links" element={<CreaLinksPage />} />
+                <Route path="assistente" element={<CreaAssistentePage />} />
+                <Route path="auditoria" element={<CreaAuditoriaPage />} />
               </Route>
               <Route path="planos" element={<PlanosPage />} />
               <Route path="minha-empresa" element={<MinhaEmpresaPage />} />

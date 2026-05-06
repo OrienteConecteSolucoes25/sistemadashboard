@@ -359,6 +359,1358 @@ export type Database = {
           },
         ]
       }
+      crea_admin_config: {
+        Row: {
+          key: string
+          updated_at: string
+          updated_by: string | null
+          value: string
+        }
+        Insert: {
+          key: string
+          updated_at?: string
+          updated_by?: string | null
+          value: string
+        }
+        Update: {
+          key?: string
+          updated_at?: string
+          updated_by?: string | null
+          value?: string
+        }
+        Relationships: []
+      }
+      crea_ai_questions: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          fontes: Json | null
+          id: string
+          pergunta: string
+          resposta: string | null
+          user_id: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          fontes?: Json | null
+          id?: string
+          pergunta: string
+          resposta?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          fontes?: Json | null
+          id?: string
+          pergunta?: string
+          resposta?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      crea_ai_sources: {
+        Row: {
+          ativo: boolean
+          company_id: string | null
+          conteudo: string | null
+          created_at: string
+          data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          link: string | null
+          tags: string[] | null
+          tipo: string | null
+          titulo: string
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          company_id?: string | null
+          conteudo?: string | null
+          created_at?: string
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          link?: string | null
+          tags?: string[] | null
+          tipo?: string | null
+          titulo: string
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          company_id?: string | null
+          conteudo?: string | null
+          created_at?: string
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          link?: string | null
+          tags?: string[] | null
+          tipo?: string | null
+          titulo?: string
+          uf?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      crea_arts: {
+        Row: {
+          anexo_url: string | null
+          company_id: string
+          contratado: string | null
+          contratante: string | null
+          created_at: string
+          data: Json | null
+          data_baixa: string | null
+          data_emissao: string | null
+          data_pagamento: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          empresa_id: string | null
+          engineer_id: string | null
+          escopo: string | null
+          id: string
+          is_deleted: boolean
+          link: string | null
+          numero: string
+          observacoes: string | null
+          rt_id: string | null
+          setor: string | null
+          site_ref: string | null
+          status: string | null
+          uf: string | null
+          updated_at: string
+          valor: number | null
+        }
+        Insert: {
+          anexo_url?: string | null
+          company_id: string
+          contratado?: string | null
+          contratante?: string | null
+          created_at?: string
+          data?: Json | null
+          data_baixa?: string | null
+          data_emissao?: string | null
+          data_pagamento?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa_id?: string | null
+          engineer_id?: string | null
+          escopo?: string | null
+          id?: string
+          is_deleted?: boolean
+          link?: string | null
+          numero: string
+          observacoes?: string | null
+          rt_id?: string | null
+          setor?: string | null
+          site_ref?: string | null
+          status?: string | null
+          uf?: string | null
+          updated_at?: string
+          valor?: number | null
+        }
+        Update: {
+          anexo_url?: string | null
+          company_id?: string
+          contratado?: string | null
+          contratante?: string | null
+          created_at?: string
+          data?: Json | null
+          data_baixa?: string | null
+          data_emissao?: string | null
+          data_pagamento?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa_id?: string | null
+          engineer_id?: string | null
+          escopo?: string | null
+          id?: string
+          is_deleted?: boolean
+          link?: string | null
+          numero?: string
+          observacoes?: string | null
+          rt_id?: string | null
+          setor?: string | null
+          site_ref?: string | null
+          status?: string | null
+          uf?: string | null
+          updated_at?: string
+          valor?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_arts_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "crea_companies_crea"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_arts_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "crea_engineers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_arts_rt_id_fkey"
+            columns: ["rt_id"]
+            isOneToOne: false
+            referencedRelation: "crea_responsible_technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crea_audit_logs: {
+        Row: {
+          action: string
+          company_id: string | null
+          created_at: string
+          entidade_id: string | null
+          entidade_tipo: string | null
+          id: number
+          ip_origem: string | null
+          modulo: string
+          nome_entidade: string | null
+          observacoes: string | null
+          payload: Json | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          action: string
+          company_id?: string | null
+          created_at?: string
+          entidade_id?: string | null
+          entidade_tipo?: string | null
+          id?: number
+          ip_origem?: string | null
+          modulo: string
+          nome_entidade?: string | null
+          observacoes?: string | null
+          payload?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          action?: string
+          company_id?: string | null
+          created_at?: string
+          entidade_id?: string | null
+          entidade_tipo?: string | null
+          id?: number
+          ip_origem?: string | null
+          modulo?: string
+          nome_entidade?: string | null
+          observacoes?: string | null
+          payload?: Json | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      crea_cats: {
+        Row: {
+          art_id: string | null
+          atestado: string | null
+          company_id: string
+          created_at: string
+          data: Json | null
+          data_emissao: string | null
+          data_solicitacao: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          empresa_id: string | null
+          id: string
+          is_deleted: boolean
+          link: string | null
+          numero: string | null
+          observacoes: string | null
+          rt_id: string | null
+          status: string | null
+          tipo: string | null
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          art_id?: string | null
+          atestado?: string | null
+          company_id: string
+          created_at?: string
+          data?: Json | null
+          data_emissao?: string | null
+          data_solicitacao?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa_id?: string | null
+          id?: string
+          is_deleted?: boolean
+          link?: string | null
+          numero?: string | null
+          observacoes?: string | null
+          rt_id?: string | null
+          status?: string | null
+          tipo?: string | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          art_id?: string | null
+          atestado?: string | null
+          company_id?: string
+          created_at?: string
+          data?: Json | null
+          data_emissao?: string | null
+          data_solicitacao?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa_id?: string | null
+          id?: string
+          is_deleted?: boolean
+          link?: string | null
+          numero?: string | null
+          observacoes?: string | null
+          rt_id?: string | null
+          status?: string | null
+          tipo?: string | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_cats_art_id_fkey"
+            columns: ["art_id"]
+            isOneToOne: false
+            referencedRelation: "crea_arts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_cats_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "crea_companies_crea"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_cats_rt_id_fkey"
+            columns: ["rt_id"]
+            isOneToOne: false
+            referencedRelation: "crea_responsible_technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crea_certificates: {
+        Row: {
+          anexo_url: string | null
+          company_id: string
+          created_at: string
+          data: Json | null
+          data_emissao: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          empresa_id: string | null
+          id: string
+          is_deleted: boolean
+          link: string | null
+          numero: string | null
+          observacoes: string | null
+          rt_id: string | null
+          status: string | null
+          tipo: string
+          uf: string | null
+          updated_at: string
+          validade: string | null
+        }
+        Insert: {
+          anexo_url?: string | null
+          company_id: string
+          created_at?: string
+          data?: Json | null
+          data_emissao?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa_id?: string | null
+          id?: string
+          is_deleted?: boolean
+          link?: string | null
+          numero?: string | null
+          observacoes?: string | null
+          rt_id?: string | null
+          status?: string | null
+          tipo: string
+          uf?: string | null
+          updated_at?: string
+          validade?: string | null
+        }
+        Update: {
+          anexo_url?: string | null
+          company_id?: string
+          created_at?: string
+          data?: Json | null
+          data_emissao?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa_id?: string | null
+          id?: string
+          is_deleted?: boolean
+          link?: string | null
+          numero?: string | null
+          observacoes?: string | null
+          rt_id?: string | null
+          status?: string | null
+          tipo?: string
+          uf?: string | null
+          updated_at?: string
+          validade?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_certificates_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "crea_companies_crea"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_certificates_rt_id_fkey"
+            columns: ["rt_id"]
+            isOneToOne: false
+            referencedRelation: "crea_responsible_technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crea_companies_crea: {
+        Row: {
+          cnpj: string | null
+          company_id: string
+          created_at: string
+          data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          empresa: string
+          id: string
+          is_deleted: boolean
+          link_portal: string | null
+          observacoes: string | null
+          registro: string | null
+          rt_principal_id: string | null
+          status: string | null
+          uf: string
+          updated_at: string
+          validade: string | null
+          visto: string | null
+        }
+        Insert: {
+          cnpj?: string | null
+          company_id: string
+          created_at?: string
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa: string
+          id?: string
+          is_deleted?: boolean
+          link_portal?: string | null
+          observacoes?: string | null
+          registro?: string | null
+          rt_principal_id?: string | null
+          status?: string | null
+          uf: string
+          updated_at?: string
+          validade?: string | null
+          visto?: string | null
+        }
+        Update: {
+          cnpj?: string | null
+          company_id?: string
+          created_at?: string
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa?: string
+          id?: string
+          is_deleted?: boolean
+          link_portal?: string | null
+          observacoes?: string | null
+          registro?: string | null
+          rt_principal_id?: string | null
+          status?: string | null
+          uf?: string
+          updated_at?: string
+          validade?: string | null
+          visto?: string | null
+        }
+        Relationships: []
+      }
+      crea_credentials: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          empresa_crea_id: string | null
+          id: string
+          is_deleted: boolean
+          login: string | null
+          observacoes: string | null
+          portal_url: string | null
+          rt_id: string | null
+          senha_enc: string | null
+          status: string | null
+          uf: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa_crea_id?: string | null
+          id?: string
+          is_deleted?: boolean
+          login?: string | null
+          observacoes?: string | null
+          portal_url?: string | null
+          rt_id?: string | null
+          senha_enc?: string | null
+          status?: string | null
+          uf: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa_crea_id?: string | null
+          id?: string
+          is_deleted?: boolean
+          login?: string | null
+          observacoes?: string | null
+          portal_url?: string | null
+          rt_id?: string | null
+          senha_enc?: string | null
+          status?: string | null
+          uf?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_credentials_empresa_crea_id_fkey"
+            columns: ["empresa_crea_id"]
+            isOneToOne: false
+            referencedRelation: "crea_companies_crea"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_credentials_rt_id_fkey"
+            columns: ["rt_id"]
+            isOneToOne: false
+            referencedRelation: "crea_responsible_technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crea_deadlines: {
+        Row: {
+          company_id: string
+          created_at: string
+          data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          observacoes: string | null
+          prazo: string
+          ref_id: string | null
+          ref_table: string | null
+          status: string | null
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          prazo: string
+          ref_id?: string | null
+          ref_table?: string | null
+          status?: string | null
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          prazo?: string
+          ref_id?: string | null
+          ref_table?: string | null
+          status?: string | null
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      crea_deregistrations: {
+        Row: {
+          art_id: string | null
+          company_id: string
+          created_at: string
+          data: Json | null
+          data_concluida: string | null
+          data_solicitada: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          empresa_id: string | null
+          id: string
+          is_deleted: boolean
+          observacoes: string | null
+          protocolo_id: string | null
+          rt_id: string | null
+          status: string | null
+          tipo: string
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          art_id?: string | null
+          company_id: string
+          created_at?: string
+          data?: Json | null
+          data_concluida?: string | null
+          data_solicitada?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa_id?: string | null
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          protocolo_id?: string | null
+          rt_id?: string | null
+          status?: string | null
+          tipo: string
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          art_id?: string | null
+          company_id?: string
+          created_at?: string
+          data?: Json | null
+          data_concluida?: string | null
+          data_solicitada?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa_id?: string | null
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          protocolo_id?: string | null
+          rt_id?: string | null
+          status?: string | null
+          tipo?: string
+          uf?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_deregistrations_art_id_fkey"
+            columns: ["art_id"]
+            isOneToOne: false
+            referencedRelation: "crea_arts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_deregistrations_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "crea_companies_crea"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_deregistrations_protocolo_id_fkey"
+            columns: ["protocolo_id"]
+            isOneToOne: false
+            referencedRelation: "crea_protocols"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_deregistrations_rt_id_fkey"
+            columns: ["rt_id"]
+            isOneToOne: false
+            referencedRelation: "crea_responsible_technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crea_documents: {
+        Row: {
+          anexo_url: string | null
+          company_id: string
+          created_at: string
+          data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          escopo: string | null
+          id: string
+          is_deleted: boolean
+          modelo_url: string | null
+          nome: string
+          obrigatorio: boolean | null
+          observacoes: string | null
+          responsavel: string | null
+          status: string | null
+          tipo: string | null
+          uf: string | null
+          updated_at: string
+          validade: string | null
+        }
+        Insert: {
+          anexo_url?: string | null
+          company_id: string
+          created_at?: string
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          escopo?: string | null
+          id?: string
+          is_deleted?: boolean
+          modelo_url?: string | null
+          nome: string
+          obrigatorio?: boolean | null
+          observacoes?: string | null
+          responsavel?: string | null
+          status?: string | null
+          tipo?: string | null
+          uf?: string | null
+          updated_at?: string
+          validade?: string | null
+        }
+        Update: {
+          anexo_url?: string | null
+          company_id?: string
+          created_at?: string
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          escopo?: string | null
+          id?: string
+          is_deleted?: boolean
+          modelo_url?: string | null
+          nome?: string
+          obrigatorio?: boolean | null
+          observacoes?: string | null
+          responsavel?: string | null
+          status?: string | null
+          tipo?: string | null
+          uf?: string | null
+          updated_at?: string
+          validade?: string | null
+        }
+        Relationships: []
+      }
+      crea_engineers: {
+        Row: {
+          company_id: string
+          cpf_mask: string | null
+          crea: string | null
+          created_at: string
+          data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          email: string | null
+          id: string
+          is_deleted: boolean
+          modalidade: string | null
+          nome: string
+          status: string | null
+          telefone: string | null
+          titulo: string | null
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          cpf_mask?: string | null
+          crea?: string | null
+          created_at?: string
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          email?: string | null
+          id?: string
+          is_deleted?: boolean
+          modalidade?: string | null
+          nome: string
+          status?: string | null
+          telefone?: string | null
+          titulo?: string | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          cpf_mask?: string | null
+          crea?: string | null
+          created_at?: string
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          email?: string | null
+          id?: string
+          is_deleted?: boolean
+          modalidade?: string | null
+          nome?: string
+          status?: string | null
+          telefone?: string | null
+          titulo?: string | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      crea_links_oficiais: {
+        Row: {
+          atendimento: string | null
+          certidoes: string | null
+          consulta_art: string | null
+          consulta_cat: string | null
+          created_at: string
+          data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          login_empresa: string | null
+          login_profissional: string | null
+          normas: string | null
+          observacoes: string | null
+          portal_principal: string | null
+          portal_servicos: string | null
+          protocolo: string | null
+          uf: string
+          updated_at: string
+        }
+        Insert: {
+          atendimento?: string | null
+          certidoes?: string | null
+          consulta_art?: string | null
+          consulta_cat?: string | null
+          created_at?: string
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          login_empresa?: string | null
+          login_profissional?: string | null
+          normas?: string | null
+          observacoes?: string | null
+          portal_principal?: string | null
+          portal_servicos?: string | null
+          protocolo?: string | null
+          uf: string
+          updated_at?: string
+        }
+        Update: {
+          atendimento?: string | null
+          certidoes?: string | null
+          consulta_art?: string | null
+          consulta_cat?: string | null
+          created_at?: string
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          login_empresa?: string | null
+          login_profissional?: string | null
+          normas?: string | null
+          observacoes?: string | null
+          portal_principal?: string | null
+          portal_servicos?: string | null
+          protocolo?: string | null
+          uf?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      crea_module_permissions: {
+        Row: {
+          can_approve_publication: boolean
+          can_create: boolean
+          can_delete: boolean
+          can_edit: boolean
+          can_export: boolean
+          can_import: boolean
+          can_manage_ai_sources: boolean
+          can_manage_credentials: boolean
+          can_manage_norms: boolean
+          can_view: boolean
+          can_view_credentials: boolean
+          can_view_sensitive: boolean
+          company_id: string
+          created_at: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          can_approve_publication?: boolean
+          can_create?: boolean
+          can_delete?: boolean
+          can_edit?: boolean
+          can_export?: boolean
+          can_import?: boolean
+          can_manage_ai_sources?: boolean
+          can_manage_credentials?: boolean
+          can_manage_norms?: boolean
+          can_view?: boolean
+          can_view_credentials?: boolean
+          can_view_sensitive?: boolean
+          company_id: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          can_approve_publication?: boolean
+          can_create?: boolean
+          can_delete?: boolean
+          can_edit?: boolean
+          can_export?: boolean
+          can_import?: boolean
+          can_manage_ai_sources?: boolean
+          can_manage_credentials?: boolean
+          can_manage_norms?: boolean
+          can_view?: boolean
+          can_view_credentials?: boolean
+          can_view_sensitive?: boolean
+          company_id?: string
+          created_at?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      crea_module_settings: {
+        Row: {
+          company_id: string
+          created_at: string
+          data: Json | null
+          enabled: boolean
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          data?: Json | null
+          enabled?: boolean
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          data?: Json | null
+          enabled?: boolean
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      crea_norms: {
+        Row: {
+          ano: number | null
+          arquivo_url: string | null
+          created_at: string
+          data: Json | null
+          data_vigencia: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          link: string | null
+          numero: string | null
+          orgao: string | null
+          resumo: string | null
+          status: string | null
+          tags: string[] | null
+          tema: string | null
+          tipo: string
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          ano?: number | null
+          arquivo_url?: string | null
+          created_at?: string
+          data?: Json | null
+          data_vigencia?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          link?: string | null
+          numero?: string | null
+          orgao?: string | null
+          resumo?: string | null
+          status?: string | null
+          tags?: string[] | null
+          tema?: string | null
+          tipo: string
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ano?: number | null
+          arquivo_url?: string | null
+          created_at?: string
+          data?: Json | null
+          data_vigencia?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          link?: string | null
+          numero?: string | null
+          orgao?: string | null
+          resumo?: string | null
+          status?: string | null
+          tags?: string[] | null
+          tema?: string | null
+          tipo?: string
+          uf?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      crea_protocols: {
+        Row: {
+          company_id: string
+          created_at: string
+          data: Json | null
+          data_abertura: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          empresa_id: string | null
+          exigencia: string | null
+          id: string
+          is_deleted: boolean
+          link: string | null
+          login_relacionado: string | null
+          numero: string | null
+          prazo_esperado: string | null
+          responsavel_interno: string | null
+          rt_id: string | null
+          status: string | null
+          tipo: string
+          tratativa: string | null
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          data?: Json | null
+          data_abertura?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa_id?: string | null
+          exigencia?: string | null
+          id?: string
+          is_deleted?: boolean
+          link?: string | null
+          login_relacionado?: string | null
+          numero?: string | null
+          prazo_esperado?: string | null
+          responsavel_interno?: string | null
+          rt_id?: string | null
+          status?: string | null
+          tipo: string
+          tratativa?: string | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          data?: Json | null
+          data_abertura?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa_id?: string | null
+          exigencia?: string | null
+          id?: string
+          is_deleted?: boolean
+          link?: string | null
+          login_relacionado?: string | null
+          numero?: string | null
+          prazo_esperado?: string | null
+          responsavel_interno?: string | null
+          rt_id?: string | null
+          status?: string | null
+          tipo?: string
+          tratativa?: string | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_protocols_empresa_id_fkey"
+            columns: ["empresa_id"]
+            isOneToOne: false
+            referencedRelation: "crea_companies_crea"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_protocols_rt_id_fkey"
+            columns: ["rt_id"]
+            isOneToOne: false
+            referencedRelation: "crea_responsible_technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crea_responsible_technicians: {
+        Row: {
+          company_id: string
+          created_at: string
+          data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          empresa_vinculada: string | null
+          engineer_id: string | null
+          fim_vinculo: string | null
+          id: string
+          inicio_vinculo: string | null
+          is_deleted: boolean
+          observacoes: string | null
+          setor: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa_vinculada?: string | null
+          engineer_id?: string | null
+          fim_vinculo?: string | null
+          id?: string
+          inicio_vinculo?: string | null
+          is_deleted?: boolean
+          observacoes?: string | null
+          setor?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          empresa_vinculada?: string | null
+          engineer_id?: string | null
+          fim_vinculo?: string | null
+          id?: string
+          inicio_vinculo?: string | null
+          is_deleted?: boolean
+          observacoes?: string | null
+          setor?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_responsible_technicians_engineer_id_fkey"
+            columns: ["engineer_id"]
+            isOneToOne: false
+            referencedRelation: "crea_engineers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crea_treatments: {
+        Row: {
+          art_id: string | null
+          canal: string | null
+          cat_id: string | null
+          certificate_id: string | null
+          company_id: string
+          created_at: string
+          data: Json | null
+          data_evento: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          descricao: string | null
+          id: string
+          is_deleted: boolean
+          prazo: string | null
+          protocol_id: string | null
+          proximo_passo: string | null
+          responsavel: string | null
+          tipo: string | null
+          updated_at: string
+        }
+        Insert: {
+          art_id?: string | null
+          canal?: string | null
+          cat_id?: string | null
+          certificate_id?: string | null
+          company_id: string
+          created_at?: string
+          data?: Json | null
+          data_evento?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao?: string | null
+          id?: string
+          is_deleted?: boolean
+          prazo?: string | null
+          protocol_id?: string | null
+          proximo_passo?: string | null
+          responsavel?: string | null
+          tipo?: string | null
+          updated_at?: string
+        }
+        Update: {
+          art_id?: string | null
+          canal?: string | null
+          cat_id?: string | null
+          certificate_id?: string | null
+          company_id?: string
+          created_at?: string
+          data?: Json | null
+          data_evento?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao?: string | null
+          id?: string
+          is_deleted?: boolean
+          prazo?: string | null
+          protocol_id?: string | null
+          proximo_passo?: string | null
+          responsavel?: string | null
+          tipo?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_treatments_art_id_fkey"
+            columns: ["art_id"]
+            isOneToOne: false
+            referencedRelation: "crea_arts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_treatments_cat_id_fkey"
+            columns: ["cat_id"]
+            isOneToOne: false
+            referencedRelation: "crea_cats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_treatments_certificate_id_fkey"
+            columns: ["certificate_id"]
+            isOneToOne: false
+            referencedRelation: "crea_certificates"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_treatments_protocol_id_fkey"
+            columns: ["protocol_id"]
+            isOneToOne: false
+            referencedRelation: "crea_protocols"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       eng_admin_config: {
         Row: {
           key: string
@@ -4215,6 +5567,47 @@ export type Database = {
         Args: { _company_id: string }
         Returns: number
       }
+      crea_can: {
+        Args: { _action: string; _company: string; _uid: string }
+        Returns: boolean
+      }
+      crea_log_audit: {
+        Args: {
+          _action: string
+          _company: string
+          _entidade_id?: string
+          _entidade_tipo?: string
+          _modulo: string
+          _nome_entidade?: string
+          _observacoes?: string
+          _payload?: Json
+        }
+        Returns: undefined
+      }
+      crea_reveal_credential: {
+        Args: { _id: string; _reason: string }
+        Returns: Json
+      }
+      crea_save_credential: {
+        Args: {
+          _company: string
+          _empresa_crea: string
+          _id: string
+          _login: string
+          _obs: string
+          _portal: string
+          _rt: string
+          _senha: string
+          _status: string
+          _uf: string
+        }
+        Returns: Json
+      }
+      crea_set_master_key: { Args: { _pwd: string }; Returns: Json }
+      crea_soft_delete: {
+        Args: { _id: string; _reason: string; _table: string }
+        Returns: Json
+      }
       current_user_modules: { Args: { _uid: string }; Returns: string[] }
       eng_can_edit: { Args: { _uid: string }; Returns: boolean }
       eng_log_audit: {
@@ -4301,6 +5694,11 @@ export type Database = {
         | "gestor_area"
         | "colaborador"
         | "auditor_rh"
+        | "crea_admin"
+        | "crea_analista"
+        | "crea_responsavel_tecnico"
+        | "crea_auditor"
+        | "crea_visualizador"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -4443,6 +5841,11 @@ export const Constants = {
         "gestor_area",
         "colaborador",
         "auditor_rh",
+        "crea_admin",
+        "crea_analista",
+        "crea_responsavel_tecnico",
+        "crea_auditor",
+        "crea_visualizador",
       ],
     },
   },
