@@ -21,7 +21,7 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
   const [sites, setSites] = useState<any[]>([]);
 
   useEffect(() => { (async () => {
-    const { data } = await supabase.from("eng_sites").select("id,nome,site_id").order("nome");
+    const { data } = await supabase.from("eng_sites").select("id,nome,codigo").order("nome");
     setSites(data || []);
   })(); }, []);
 
