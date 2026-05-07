@@ -22,6 +22,8 @@ import { exportData, downloadTemplate, parseImportFile, type IOFormat } from "@/
 import { creaSoftDelete, mapAdaptive, type CreaTable } from "@/modules/crea/lib/creaCrud";
 import CreaAttachmentsField from "@/modules/crea/ui/CreaAttachmentsField";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ArtDetailSheet from "@/modules/crea/ui/ArtDetailSheet";
+import ImportColumnPickerModal from "@/modules/crea/ui/ImportColumnPickerModal";
 
 const sb: any = supabase;
 
