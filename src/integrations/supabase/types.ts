@@ -3966,6 +3966,7 @@ export type Database = {
           field_key: string
           id: string
           label: string | null
+          meta: Json
           ordem: number | null
           value: string
         }
@@ -3974,6 +3975,7 @@ export type Database = {
           field_key: string
           id?: string
           label?: string | null
+          meta?: Json
           ordem?: number | null
           value: string
         }
@@ -3982,6 +3984,7 @@ export type Database = {
           field_key?: string
           id?: string
           label?: string | null
+          meta?: Json
           ordem?: number | null
           value?: string
         }
