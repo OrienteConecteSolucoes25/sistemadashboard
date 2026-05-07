@@ -10,7 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
-import { KeyRound, Plus, Eye, EyeOff, Copy, ShieldAlert, Lock } from "lucide-react";
+import { KeyRound, Plus, Eye, EyeOff, Copy, ShieldAlert, Lock, Upload } from "lucide-react";
+import { parseImportFile } from "@/lib/dataIO";
 
 const sb: any = supabase;
 
