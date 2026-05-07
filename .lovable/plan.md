@@ -1,128 +1,86 @@
-# CREA & ART — Fechamento completo (F2→F7 + correções)
+## Objetivo
 
-Objetivo: corrigir os bugs do CRUD atual, completar todas as fases que faltam (F2 a F7) e deixar o módulo CREA com paridade total ao padrão Engenharia/Jurídico (toolbar global, anexos, sheet lateral de detalhes, IA com conhecimento do próprio módulo, seed-pack de normas/links).
+NÃO FAÇA OUTRAS ALTERAÇÕES ALÉM DO QUE FOI PEDIDO.  
+  
+Reformular a sub-aba **"Nova solicitação"** (Engenharia → Solicitações de Materiais) com os campos do anexo, e criar no **Admin · Engenharia** uma nova aba **"Cadastros gerais"** que alimenta os selects. Sem mexer em outros módulos.
 
----
+## 1. Admin · Engenharia → nova aba "Cadastros gerais"
 
-## 1. Correções críticas (bloqueiam uso hoje)
+Adicionar `<TabsTrigger value="cadastros">` em `EngAdminPage.tsx`. O conteúdo é um Tabs interno com 7 sub-abas:
 
-1.1. **Botão "Salvar" do formulário Novo não funciona** — auditar `CreaCrudPage` (insert/update via `creaCrud.ts`): garantir `await sb.from(table).insert(record)`, tratar erro com toast e fechar Sheet só em sucesso. Hoje o submit silencia.
+- **Cliente** (com Centro de Custo associado)
+- **Categoria** (com Comprador padrão e SLA dias opcionais)
+- **SLA** (catálogo de prazos)
+- **Centro de custo**
+- **Tipo de solicitação**
+- **Coordenador / Analista**
+- **Escopo**
 
-1.2. **Botão "Importar" some / não funciona** — depois do parse, o estado fecha o `DataActionsToolbar`. Manter toolbar sempre montada e não desmontar durante o ImportDataModal. Fazer o insert em lote (chunks de 200) chamando `mapAdaptive` + `sb.from(table).insert(rows)`.
+Cada uma usa um componente único `<CadastroSimplesCrud kind="..."/>` com:
 
-1.3. **Seleção de colunas ao importar** — estender `ImportDataModal` (ou criar `ImportColumnPickerModal` no CREA) com 3 passos: arquivo → preview com checkboxes por coluna (mapear para campo conhecido OU manter em `data` JSONB OU ignorar) → confirmar.
+- Tabela (valor + meta)
+- Adicionar / Editar / Excluir (com confirmação)
+- `**DataActionsToolbar**` (Importar xlsx/csv, Exportar xlsx/csv/docx, Modelo)
 
-1.4. **Status ART faltando "não iniciada"** — adicionar `nao_iniciada` em `STATUS_ART` (`creaCrudConfigs.ts`) e como default ao criar.
+**Armazenamento:** reaproveitar `eng_field_options` (já existe e tem realtime via `useFieldOptions`). Cada cadastro = um `field_key` (`cliente`, `categoria`, `sla`, `centro_custo`, `tipo`, `coordenador`, `escopo`). Para metadados (Cliente↔CC, Categoria↔SLA/Comprador) adicionar coluna `meta jsonb`.
 
-1.5. **ART: ID visível + datas em sheet lateral** — replicar padrão do módulo Engenharia (Obras): formulário "Novo" só pede campos essenciais (numero, UF, contratante, contratado, escopo, status); clicar no número/ID abre `ArtDetailSheet` com abas (Dados, Datas, Anexos, Histórico) onde se preenchem `data_emissao/pagamento/baixa/rascunho/validacao` etc.
+**Migração:**
 
----
+```sql
+ALTER TABLE public.eng_field_options
+  ADD COLUMN IF NOT EXISTS meta jsonb DEFAULT '{}'::jsonb;
+```
 
-## 2. Anexos em todo o módulo (F2 complemento)
+RLS já existente continua valendo.
 
-- Criar bucket Storage `crea-attachments` (privado) + RLS por `company_id`.
-- Tabela `crea_attachments (id, table_name, record_id, file_path, file_name, mime, size, uploaded_by, company_id, created_at, is_deleted)`.
-- Componente `CreaAttachmentsField.tsx` reutilizável (upload múltiplo, lista, download assinado, delete soft).
-- Plugar em **todos** os formulários: ARTs, Protocolos, **Certidões** (faltava), CATs, Baixas, Tratativas, RTs, Empresas, Documentações, Normas.
-- `CreaCrudPage` ganha aba "Anexos" no Sheet de edição.
+**Seed inicial (uma única vez):** popular `eng_field_options` com as listas hard-coded de `lib/constants.ts` (`CLIENTES_CC`, `CATEGORIA_COMPRADOR`, `CATEGORIA_SLA`, `COORDENADORES`, `TIPO_SOLICITACAO`, `ESCOPOS_ENGENHARIA`, compradores) — feito via INSERT ... ON CONFLICT DO NOTHING.
 
----
+## 2. Sub-aba "Nova solicitação" — refazer conforme anexo
 
-## 3. Credenciais — Exportar/Importar + UI completa (F4)
+Refatorar `SolicitanteTab.tsx` para o layout do print:
 
-- Adicionar `DataActionsToolbar` na `CredenciaisPage` (Exportar xlsx/csv com **senhas mascaradas** sempre — nunca exporta texto claro; Importar aceita CSV com senhas em claro e cifra no insert via `crea_save_credential`).
-- Auditar export: registrar em `crea_audit_logs` quem exportou e quantas linhas.
-- Manter "Revelar senha" exigindo motivo + auto-hide 30s (já existe).
+**Bloco "Dados gerais" (grid 2 colunas):**
 
----
+- Tipo de solicitação* | Coordenador/analista*
+- Cliente* | Centro de custo (auto, editável)
+- Categoria* | Comprador (auto pela categoria, editável)
+- Escopo de engenharia* | Site/obra* (datalist `eng_sites` — se não existir, cria em "Obras")
+- Cidade* | UF
+- Auxiliar (requisitante) | Data solicitação coordenador*
+- Data limite entrega coordenador* | Técnico
+- Endereço de entrega do material* (full width)
+- Observações (textarea)
+- Anexo (file)
 
-## 4. Dashboard avançado + filtros (F3)
+**Bloco "Itens / Materiais (n)":**
 
-- `CreaDashboard` com KPIs reais (queries agregadas): ARTs por status/UF/escopo/setor/empresa/RT, protocolos abertos/vencendo, CATs solic/emit, certidões vencendo/vencidas, baixas pendentes, prazos críticos.
-- Barra de filtros global (empresa, UF, CREA, RT, engenheiro, escopo, setor, status, período, tipo doc, tipo protocolo) com persistência em URL.
-- Gráficos via `recharts` respeitando preferências de `ChartPreferencesPanel` (Aparência).
+- Descrição (busca no catálogo `useMateriais`) | Unidade | Qtd | + Adicionar
+- Botão "Outros (novo material)" para item fora do catálogo
+- Lista dos itens adicionados com remover
 
----
+**Ações:** Enviar (grava em `eng_suprimentos` — campos extras vão em `data jsonb`) + Enviar por Outlook.
 
-## 5. Assistente IA — conhecimento do próprio módulo (F5+)
+**Comportamentos automáticos:**
 
-Hoje o `crea-ai-assist` só usa `crea_ai_sources`. Ampliar para **explicar o módulo**:
+- Cliente escolhido → preenche Centro de custo do `meta.cc`
+- Categoria escolhida → preenche Comprador (`meta.comprador`) e calcula SLA estimado (`meta.sla_dias`)
+- Site digitado e inexistente → cria em `eng_sites` no envio (mantém autocreate atual)
 
-- Adicionar fonte sintética `MODULE_DOCS` no system prompt: descrição de cada sub-aba, campos, status, fluxos (gerada de constantes em `creaModuleDocs.ts`).
-- Permitir perguntas operacionais: "como funciona a aba CATs?", "quais status uma ART pode ter?", "o que faz a aba Tratativas?".
-- Continuar respondendo perguntas de norma só com base em `crea_ai_sources` (sem inventar DN/PL).
-- UI: chip de modo ("Sobre o módulo" vs "Sobre normas") opcional.
+## 3. Estrutura de arquivos
 
----
+```text
+src/modules/engenharia/
+├── ui/
+│   ├── EngAdminPage.tsx                  (+ TabsTrigger + TabsContent "cadastros")
+│   ├── admin/
+│   │   ├── CadastrosGeraisTab.tsx        (NEW) Tabs 7 cadastros
+│   │   └── CadastroSimplesCrud.tsx       (NEW) tabela + form + DataActionsToolbar
+│   └── SolicitanteTab.tsx                (REWRITE conforme anexo)
+└── hooks/useFieldOptions.ts              (+ retornar { value, meta }[] opcional)
+```
 
-## 6. Seed-pack Normas + Links Oficiais (F6)
+## 4. Pontos a confirmar
 
-- Migration com seed de:
-  - `crea_links_oficiais`: 27 UFs + Confea (portal, serviços, consulta ART/CAT, certidões, protocolo, atendimento, normas).
-  - `crea_norms`: pacote inicial Confea (Resolução 1.025/2009 ART, 1.121/2023 atualizações, DN básicas) marcadas como "vigente, requer confirmação no portal".
-  - `crea_ai_sources`: as mesmas normas como conteúdo indexável.
-- Banner na UI: "Conteúdo de partida — confirme sempre no portal oficial do CREA da UF."
-
----
-
-## 7. Integrações & limites explícitos (F7)
-
-Documentar e bloquear no código com flags `crea_module_settings.feature_flags`:
-- `scraping`: **off** (nunca habilitado por padrão).
-- `rpa_portais`: **off** (placeholder visual "Solicitar habilitação").
-- `assinatura_digital`: **off** (placeholder).
-- `confea_api_oficial`: **off** até existir convênio.
-- `ia_externa_paga`: **off** — Lovable AI Gateway interno apenas.
-- `revelar_senha_sem_motivo`: **proibido por RPC** (já é, manter).
-
-Página em `/app/crea/admin` aba "Integrações" mostrando cada flag e estado, sem permitir ligar via UI (só via migration manual + auditoria).
-
----
-
-## 8. Detalhes técnicos
-
-### Arquivos novos
-- `src/modules/crea/ui/crud/ArtDetailSheet.tsx` — sheet lateral (abas Dados/Datas/Anexos/Histórico).
-- `src/modules/crea/ui/crud/ImportColumnPickerModal.tsx` — import com seleção de colunas.
-- `src/modules/crea/ui/CreaAttachmentsField.tsx` — upload reutilizável.
-- `src/modules/crea/lib/creaModuleDocs.ts` — descrição estruturada do módulo (alimenta IA).
-- `src/modules/crea/ui/IntegracoesPage.tsx` (sub-aba do admin).
-
-### Arquivos editados
-- `src/modules/crea/lib/creaCrud.ts` — `insertRecord`, `updateRecord`, `bulkInsert(table, rows)` com tratamento de erro.
-- `src/modules/crea/ui/crud/CreaCrudPage.tsx` — fix submit, toolbar persistente, integração com novo importer e `ArtDetailSheet` quando `table === 'crea_arts'`.
-- `src/modules/crea/ui/crud/creaCrudConfigs.ts` — status `nao_iniciada`, novos campos data ART, certidões com anexo.
-- `src/modules/crea/ui/CredenciaisPage.tsx` — DataActionsToolbar export/import mascarado.
-- `src/modules/crea/ui/CreaDashboard.tsx` — KPIs reais + filtros.
-- `supabase/functions/crea-ai-assist/index.ts` — injetar `MODULE_DOCS` no system prompt.
-
-### Backend (uma migration)
-- `crea_attachments` (+ RLS por empresa, soft delete).
-- Storage bucket `crea-attachments` privado + policies.
-- ALTER `crea_arts`: adicionar `data_rascunho`, `data_envio_validacao`, `data_validada` (datas finas).
-- Seed `crea_links_oficiais` (27 UFs) e `crea_norms`/`crea_ai_sources` (pacote Confea inicial).
-- ALTER `crea_module_settings`: coluna `feature_flags jsonb default '{...todas off...}'`.
-
-### Padrões reutilizados
-- `DataActionsToolbar`, `ImportDataModal` (estendido), `DeleteWithPasswordModal`, `EngPageHeader`/`KpiGrid`, `lib/dataIO`, Lovable AI Gateway, tokens HSL.
-
----
-
-## 9. Critérios de aceite
-
-- [ ] "Novo" salva e fecha Sheet em todas as 13 telas.
-- [ ] "Importar" funciona em todas as abas, com seletor de colunas.
-- [ ] Anexos funcionam em todos os formulários (incluindo Certidões).
-- [ ] ART tem status `nao_iniciada` e abre Sheet lateral com datas/anexos pelo ID.
-- [ ] Credenciais têm Exportar (mascarado) e Importar.
-- [ ] Dashboard mostra KPIs reais com filtros persistidos.
-- [ ] IA explica o que cada aba faz e responde sobre normas citando fontes.
-- [ ] 27 UFs com links oficiais e pacote inicial de normas carregados.
-- [ ] Flags de integrações off por padrão e visíveis no Admin.
-- [ ] Nenhuma cor hard-coded; tudo via tokens HSL; soft delete em todas as crea_*.
-
----
-
-## 10. Fora de escopo (mantido off por segurança)
-
-Scraping, RPA de portais, assinatura digital, integração Confea oficial, IA externa paga, revelação de senha sem motivo. Tudo documentado em `/app/crea/admin → Integrações` como "não disponível".
+1. OK usar `eng_field_options` **+ coluna** `meta jsonb` para todos os 7 cadastros (em vez de 7 tabelas novas)? Me mostre como seria
+2. OK fazer **seed automático** das listas legadas de `lib/constants.ts` na migração para já popular Cliente/Categoria/Coordenador/Escopo/Tipo? Para os clientes não porque eles tem diferentes pessoas e serviços nada de mokup
+3. O **Anexo** da Nova Solicitação deve ser salvo no Storage (bucket novo `eng-suprimentos`) ou apenas anexado ao e-mail Outlook por enquanto? deve poder ser anexado em nova solicitação e quando apertarem em salvar deve mandar para a aba de solicitações como solicitação pendente de SC/RC.
