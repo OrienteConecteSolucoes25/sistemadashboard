@@ -160,6 +160,7 @@ const App = () => (
                 <Route path="assistente" element={<CreaAssistentePage />} />
                 <Route path="auditoria" element={<CreaAuditoriaPage />} />
                 <Route path="admin" element={<CreaAdminPage />} />
+                <Route path="integracoes" element={<CreaIntegracoesPage />} />
                 <Route path="governanca" element={<GovernanceUniversalPage moduleKey="crea" />} />
               </Route>
               <Route path="rh-dp/governanca" element={<GovernanceUniversalPage moduleKey="rhdp" />} />
