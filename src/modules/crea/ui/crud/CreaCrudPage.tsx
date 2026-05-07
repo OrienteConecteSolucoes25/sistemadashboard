@@ -110,11 +110,17 @@ export default function CreaCrudPage({ config, isGlobal = false }: Props) {
     return out;
   }, [rows, search, filterUf, config]);
 
+  const isArts = config.table === "crea_arts";
   const startNew = () => {
     const empty: any = {};
     config.fields.forEach((f) => { empty[f.key] = f.type === "boolean" ? false : null; });
+    if (isArts) empty.status = "nao_iniciada";
     setEditing(empty); setOpenForm(true);
   };
+
+  const dateKeys = useMemo(() => config.fields.filter((f) => f.type === "date").map((f) => f.key), [config]);
+  const nonDateFields = useMemo(() => config.fields.filter((f) => f.type !== "date"), [config]);
+  const dateFields = useMemo(() => config.fields.filter((f) => f.type === "date"), [config]);
 
   const save = async () => {
     if (!editing) return;
