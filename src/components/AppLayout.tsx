@@ -99,7 +99,10 @@ const AppLayout = () => {
         >
           <Menu className="w-5 h-5" />
         </button>
-        <div className="font-bold">OCS</div>
+        <div className="leading-tight text-center">
+          <div className="font-display font-bold text-sm">ERP OCS</div>
+          <div className="text-[9px] text-muted-foreground -mt-0.5">Oriente Conecte Soluções</div>
+        </div>
         <NotificationsBell />
       </header>
 
