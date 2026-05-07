@@ -11,7 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
-import { Shield, Users, KeyRound, Activity, RefreshCw, ShieldAlert, Database, ListChecks } from "lucide-react";
+import { Shield, Users, KeyRound, Activity, RefreshCw, ShieldAlert, Database, ListChecks, FolderKanban } from "lucide-react";
+import { CadastrosGeraisTab } from "./admin/CadastrosGeraisTab";
 
 type Profile = { id: string; email: string | null; full_name: string | null };
 type RoleRow = { user_id: string; role: string };
