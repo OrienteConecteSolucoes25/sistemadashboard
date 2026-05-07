@@ -132,6 +132,13 @@ export default function CreaCrudPage({ config, isGlobal = false }: Props) {
     const payload: any = {};
     config.fields.forEach((f) => { payload[f.key] = editing[f.key] ?? null; });
     if (editing.data) payload.data = editing.data;
+    if (editing.anexo_url !== undefined) payload.anexo_url = editing.anexo_url;
+    // Datas extras de ART (não estão no config como visíveis na lista)
+    if (isArts) {
+      ["data_rascunho","data_envio_validacao","data_validada"].forEach((k) => {
+        if (editing[k] !== undefined) payload[k] = editing[k];
+      });
+    }
     if (!isGlobal) {
       // Tenta company do usuário; admin pode editar sem company
       const { data: cu } = await sb.from("company_users").select("company_id").eq("user_id", user?.id).maybeSingle();
