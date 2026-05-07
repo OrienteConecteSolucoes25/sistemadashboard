@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { UserPlus, Trash2, Users, Shield, CreditCard } from "lucide-react";
+import CompanyPermissionsMatrix from "./CompanyPermissionsMatrix";
 
 const sb: any = supabase;
 const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -147,44 +148,8 @@ export default function CompanySheet({ company, onClose, onChanged }: { company:
           </TabsContent>
 
           <TabsContent value="perms" className="space-y-3">
-            {!plan && <p className="text-sm text-muted-foreground">Configure o plano da empresa primeiro.</p>}
-            {plan && users.length === 0 && <p className="text-sm text-muted-foreground">Adicione usuários para definir permissões.</p>}
-            {plan && users.length > 0 && (
-              <>
-                <div className="overflow-x-auto">
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Usuário</TableHead>
-                        {planMods.map((m: string) => <TableHead key={m} className="text-center text-xs">{catalog.find(c => c.key === m)?.label ?? m}</TableHead>)}
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {users.map(u => (
-                        <TableRow key={u.user_id}>
-                          <TableCell className="text-xs">{u.profile?.full_name || u.profile?.email}</TableCell>
-                          {planMods.map((m: string) => {
-                            const p = perms[u.user_id]?.[m] ?? { v: false, e: false, d: false };
-                            const setP = (np: any) => setPerms({ ...perms, [u.user_id]: { ...(perms[u.user_id] ?? {}), [m]: np } });
-                            return (
-                              <TableCell key={m} className="text-center">
-                                <div className="flex gap-1 justify-center" title="V=Ver E=Editar D=Excluir">
-                                  <Checkbox checked={p.v} onCheckedChange={v => setP({ ...p, v: !!v })} />
-                                  <Checkbox checked={p.e} onCheckedChange={v => setP({ ...p, e: !!v })} />
-                                  <Checkbox checked={p.d} onCheckedChange={v => setP({ ...p, d: !!v })} />
-                                </div>
-                              </TableCell>
-                            );
-                          })}
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                </div>
-                <p className="text-xs text-muted-foreground">Colunas por permissão: V (Ver) · E (Editar) · D (Excluir).</p>
-                <Button onClick={savePerms}>Salvar permissões</Button>
-              </>
-            )}
+            <p className="text-xs text-muted-foreground">Cada empresa autoriza suas permissões por usuário. Marque <b>Ver</b>, <b>Editar</b> ou <b>Excluir</b> em cada módulo.</p>
+            <CompanyPermissionsMatrix companyId={company.id} />
           </TabsContent>
 
           <TabsContent value="plan" className="space-y-3">

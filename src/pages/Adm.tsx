@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Plus, Trash2, Copy } from "lucide-react";
+import CompanyPermissionsMatrix from "@/modules/planos/ui/CompanyPermissionsMatrix";
 
 type Group = { id: string; name: string; color: string; description: string | null };
 type Profile = { id: string; email: string | null; full_name: string | null };
@@ -36,11 +37,13 @@ const Adm = () => {
           <TabsTrigger value="grupos">Grupos</TabsTrigger>
           <TabsTrigger value="usuarios">Usuários</TabsTrigger>
           <TabsTrigger value="modulos">Módulos</TabsTrigger>
+          <TabsTrigger value="permissoes">Permissões por empresa</TabsTrigger>
           <TabsTrigger value="bulk">Cadastro em massa</TabsTrigger>
         </TabsList>
         <TabsContent value="grupos"><GruposTab /></TabsContent>
         <TabsContent value="usuarios"><UsuariosTab /></TabsContent>
         <TabsContent value="modulos"><ModulosTab /></TabsContent>
+        <TabsContent value="permissoes"><PermissoesTab /></TabsContent>
         <TabsContent value="bulk"><BulkTab /></TabsContent>
       </Tabs>
     </div>
@@ -349,6 +352,39 @@ const BulkTab = () => {
           )}
         </CardContent>
       </Card>
+    </div>
+  );
+};
+
+// ===== Permissões por empresa (matriz vertical Ver/Editar/Excluir) =====
+const PermissoesTab = () => {
+  const [companies, setCompanies] = useState<{ id: string; nome: string }[]>([]);
+  const [companyId, setCompanyId] = useState<string>("");
+  useEffect(() => {
+    (supabase as any).from("companies").select("id,nome").eq("ativo", true).order("nome").then(({ data }: any) => {
+      setCompanies(data || []);
+      if (data?.length && !companyId) setCompanyId(data[0].id);
+    });
+  }, []);
+  return (
+    <div className="space-y-3 mt-4">
+      <Card>
+        <CardContent className="py-3 flex items-end gap-3 flex-wrap">
+          <div className="flex-1 min-w-[260px]">
+            <Label>Empresa</Label>
+            <Select value={companyId} onValueChange={setCompanyId}>
+              <SelectTrigger><SelectValue placeholder="Selecionar empresa" /></SelectTrigger>
+              <SelectContent>
+                {companies.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <p className="text-xs text-muted-foreground flex-1 min-w-[260px]">
+            Cada empresa autoriza suas permissões por usuário (Ver / Editar / Excluir) por módulo do plano contratado.
+          </p>
+        </CardContent>
+      </Card>
+      {companyId && <CompanyPermissionsMatrix companyId={companyId} allModulesOverride />}
     </div>
   );
 };
