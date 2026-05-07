@@ -441,15 +441,12 @@ export default function ThemeStudioPage() {
 
         {/* GRÁFICOS */}
         <TabsContent value="graficos" className="mt-4">
-          {companyId ? (
-            <ChartPreferencesPanel companyId={companyId} onDirtyChange={setChartsDirty} />
-          ) : (
-            <Card className="card-elegant"><CardContent className="pt-6 text-sm text-muted-foreground">
-              {scope === "system_global"
-                ? "Preferências de gráfico são por empresa. Selecione 'Ambiente Interno' ou um cliente."
-                : "Selecione um ambiente para configurar os gráficos."}
-            </CardContent></Card>
+          {scope === "system_global" && (
+            <div className="mb-3 text-xs text-muted-foreground rounded-md border border-dashed p-2">
+              Editando <strong>preferências globais</strong> de gráficos. Valem para qualquer projeto/empresa sem configuração própria.
+            </div>
           )}
+          <ChartPreferencesPanel companyId={companyId} onDirtyChange={setChartsDirty} />
         </TabsContent>
 
         {/* PREVIEW */}
