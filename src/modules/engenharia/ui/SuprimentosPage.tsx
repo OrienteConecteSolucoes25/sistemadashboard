@@ -204,6 +204,7 @@ const SuprimentosPage = () => {
   const [loading, setLoading] = useState(true);
   const [busca, setBusca] = useState("");
   const [fStatus, setFStatus] = useState(ALL);
+  const [soPendentes, setSoPendentes] = useState(false);
   const [scrcCounts, setScrcCounts] = useState<Record<string, number>>({});
   const [allScRc, setAllScRc] = useState<ScRcRow[]>([]);
 
@@ -237,6 +238,7 @@ const SuprimentosPage = () => {
   useEffect(() => { load(); }, []);
 
   const filtered = useMemo(() => rows.filter((r) => {
+    if (soPendentes && (scrcCounts[r.id] || 0) > 0) return false;
     if (fStatus !== ALL && r.status !== fStatus) return false;
     if (busca.trim()) {
       const q = busca.toLowerCase();
@@ -244,7 +246,7 @@ const SuprimentosPage = () => {
       if (!hay.includes(q)) return false;
     }
     return true;
-  }), [rows, busca, fStatus]);
+  }), [rows, busca, fStatus, soPendentes, scrcCounts]);
 
   const isOverdue = (d: string | null) => d && new Date(d) < new Date(new Date().toDateString());
   const cnt = (st: string) => rows.filter((x) => String(x.status).toLowerCase() === st).length;
@@ -285,7 +287,10 @@ const SuprimentosPage = () => {
   const filtersBar = (
     <Card className="card-elegant p-3">
       <div className="flex flex-wrap items-center gap-2">
-        <Button onClick={openNew} className="shadow-elegant"><Plus className="h-4 w-4 mr-1" />Nova solicitação</Button>
+        <Button variant={soPendentes ? "default" : "outline"} onClick={() => setSoPendentes(v => !v)} className="shadow-elegant">
+          <AlertTriangle className="h-4 w-4 mr-1" />
+          {soPendentes ? "Mostrando pendentes" : "Solicitações pendentes"}
+        </Button>
         <div className="ml-auto flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -309,7 +314,7 @@ const SuprimentosPage = () => {
       <table className="w-full text-sm">
         <thead className="bg-muted/60 border-b">
           <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-            <th className="px-3 py-2.5">Nº</th><th className="px-3 py-2.5">Descrição</th>
+            <th className="px-3 py-2.5">ID</th><th className="px-3 py-2.5">Descrição</th>
             <th className="px-3 py-2.5">Solicitante</th><th className="px-3 py-2.5">Responsável</th>
             <th className="px-3 py-2.5">Prazo</th><th className="px-3 py-2.5">Status</th>
             <th className="px-3 py-2.5">SC/RC</th><th className="px-3 py-2.5 w-20"></th>
@@ -345,19 +350,34 @@ const SuprimentosPage = () => {
     </Card>
   );
 
+  // Solicitações pendentes = sem nenhum SC/RC vinculado
+  const solicitacoesPendentes = rows.filter(r => !scrcCounts[r.id]).length;
+  // Contagem por status SC/RC (normaliza)
+  const cntScRc = (s: string) => allScRc.filter(x => String(x.status || "").toUpperCase() === s).length;
+
   return (
     <div className="space-y-4">
       <EngPageHeader
-        title="Suprimentos"
+        title="Solicitações de Materiais"
         description="Solicitações de compra (SC) e requisições (RC) por demanda."
       />
 
       <KpiGrid>
-        <KpiCard label="Solicitações" value={rows.length} icon={ShoppingCart} tone="teal" />
-        <KpiCard label="SC/RC totais" value={allScRc.length} icon={FileText} tone="teal" />
-        <KpiCard label="SC/RC entregues" value={allScRc.filter(s => s.status === "ENTREGUE").length} icon={CheckCircle2} tone="success" />
-        <KpiCard label="SC/RC em rota" value={allScRc.filter(s => s.status === "EM ROTA" || s.status === "EM SEPARAÇÃO").length} icon={CalendarClock} tone="warn" />
-        <KpiCard label="SC/RC paralisados" value={allScRc.filter(s => s.status === "PARALISADO" || s.status === "PENDENTE").length} icon={AlertTriangle} tone="danger" />
+        <KpiCard label="Solicitações pendentes" value={solicitacoesPendentes} icon={AlertTriangle} tone="warn" hint="Sem SC/RC vinculados" />
+        <KpiCard label="TOTAL" value={allScRc.length} icon={FileText} tone="teal" />
+        <KpiCard label="ENTREGUE" value={cntScRc("ENTREGUE")} icon={CheckCircle2} tone="success" />
+        <KpiCard label="EM ROTA" value={cntScRc("EM ROTA")} icon={CalendarClock} tone="warn" />
+        <KpiCard label="PARALISADO" value={cntScRc("PARALISADO")} icon={AlertTriangle} tone="danger" />
+        <KpiCard label="SOLICITADO" value={cntScRc("SOLICITADO")} icon={ShoppingCart} tone="neutral" />
+        <KpiCard label="EM COTAÇÃO" value={cntScRc("EM COTAÇÃO")} icon={ShoppingCart} tone="neutral" />
+        <KpiCard label="APROV. COORD." value={cntScRc("AGUARDANDO APROV. COORD.")} icon={CalendarClock} tone="neutral" />
+        <KpiCard label="APROV. GERÊNCIA" value={cntScRc("AGUARDANDO APROV. GERÊNCIA")} icon={CalendarClock} tone="neutral" />
+        <KpiCard label="REMANEJAMENTO" value={cntScRc("REMANEJAMENTO")} icon={ShoppingCart} tone="neutral" />
+        <KpiCard label="EM FABRICAÇÃO" value={cntScRc("EM FABRICAÇÃO")} icon={ShoppingCart} tone="neutral" />
+        <KpiCard label="EM SEPARAÇÃO" value={cntScRc("EM SEPARAÇÃO")} icon={ShoppingCart} tone="neutral" />
+        <KpiCard label="DISPONÍVEL P/ RETIRA" value={cntScRc("DISPONÍVEL PARA RETIRA")} icon={CheckCircle2} tone="success" />
+        <KpiCard label="PENDENTE" value={cntScRc("PENDENTE")} icon={AlertTriangle} tone="warn" />
+        <KpiCard label="CANCELADO" value={cntScRc("CANCELADO")} icon={X} tone="danger" />
       </KpiGrid>
 
       <div className="flex justify-end gap-2">
@@ -365,7 +385,7 @@ const SuprimentosPage = () => {
           table="eng_suprimentos"
           title="Solicitações de Materiais"
           fields={[
-            { key: "numero", label: "Número", type: "text" },
+            { key: "numero", label: "ID", type: "text" },
             { key: "descricao", label: "Descrição", type: "textarea" },
             { key: "solicitante", label: "Solicitante", type: "text" },
             { key: "responsavel", label: "Responsável", type: "text" },
@@ -377,13 +397,17 @@ const SuprimentosPage = () => {
         />
       </div>
 
-      <Tabs defaultValue="list" className="space-y-3">
+      <Tabs defaultValue="nova" className="space-y-3">
         <TabsList>
-          <TabsTrigger value="list"><List className="w-4 h-4 mr-1.5" />Lista</TabsTrigger>
+          <TabsTrigger value="nova"><UserPlus className="w-4 h-4 mr-1.5" />Nova solicitação</TabsTrigger>
+          <TabsTrigger value="list"><List className="w-4 h-4 mr-1.5" />Solicitações</TabsTrigger>
           <TabsTrigger value="kanban"><LayoutGrid className="w-4 h-4 mr-1.5" />Kanban</TabsTrigger>
           <TabsTrigger value="dashboard"><BarChart3 className="w-4 h-4 mr-1.5" />Dashboard</TabsTrigger>
-          <TabsTrigger value="solicitante"><UserPlus className="w-4 h-4 mr-1.5" />Solicitante</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="nova" className="space-y-3 mt-0">
+          <SolicitanteTab rows={rows} onCreated={load} />
+        </TabsContent>
 
         <TabsContent value="list" className="space-y-3 mt-0">
           {filtersBar}
@@ -408,10 +432,6 @@ const SuprimentosPage = () => {
             <DistribuicaoCard title="Distribuição por status" rows={filtered} groupKey="status" />
             <RankingCard title="Top responsáveis (compras)" rows={filtered} groupKey="responsavel" />
           </div>
-        </TabsContent>
-
-        <TabsContent value="solicitante" className="space-y-3 mt-0">
-          <SolicitanteTab rows={rows} onCreated={load} />
         </TabsContent>
       </Tabs>
 
