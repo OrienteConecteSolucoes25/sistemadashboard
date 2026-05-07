@@ -104,12 +104,15 @@ export function ChartPreferencesPanel({ companyId, onDirtyChange }: Props) {
       user_can_switch: p.user_can_switch,
       is_active: true,
     }));
+    const onConflict = companyId
+      ? "company_id,module_key,tab_key,subtab_key,metric_key"
+      : "module_key,tab_key,subtab_key,metric_key";
     const { error } = await (supabase as any)
       .from("company_chart_preferences")
-      .upsert(rows, { onConflict: "company_id,module_key,tab_key,subtab_key,metric_key" });
+      .upsert(rows, { onConflict });
     setSaving(false);
     if (error) { toast.error("Erro ao salvar gráficos: " + error.message); return; }
-    toast.success("Preferências de gráficos salvas.");
+    toast.success(companyId ? "Preferências salvas para a empresa." : "Preferências GLOBAIS salvas (valem para todos).");
     onDirtyChange?.(false);
   };
 
