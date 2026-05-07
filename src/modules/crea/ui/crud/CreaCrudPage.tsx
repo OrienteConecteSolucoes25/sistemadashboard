@@ -293,8 +293,11 @@ export default function CreaCrudPage({ config, isGlobal = false }: Props) {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
-            <Upload className="w-4 h-4 mr-1" /> Importar
+          <Button variant="outline" size="sm" onClick={() => setPickerOpen(true)} title="Importar com seleção de colunas">
+            <Upload className="w-4 h-4 mr-1" /> Importar (selecionar colunas)
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setImportOpen(true)} title="Importação adaptativa">
+            Importar (adaptativo)
           </Button>
           <Button onClick={startNew}><Plus className="w-4 h-4 mr-1" /> Novo</Button>
         </div>
