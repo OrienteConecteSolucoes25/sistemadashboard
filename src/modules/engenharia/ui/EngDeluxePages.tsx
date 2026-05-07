@@ -454,229 +454,178 @@ export const EquipesDeluxePage = () => {
 };
 
 /* ============================================================ */
-/*  MATERIAIS DELUXE                                            */
+/*  MATERIAIS — CATÁLOGO                                        */
+/*  Itens cadastrados aqui aparecerão na sub-aba "Nova         */
+/*  solicitação" para o solicitante escolher.                   */
 /* ============================================================ */
 
-interface MatEstoque {
+interface CatMat {
   id: string;
+  codigo: string;
   descricao: string;
-  unidade: string | null;
-  estoque: number;
-  reservado: number;
-  data: any;
-  site_id: string | null;
+  categoria: string;
+  conta_financeira: string;
+  unidade: string;
 }
 
 export const MateriaisDeluxePage = () => {
-  const { items: catalogo, categorias, loading: loadingCat } = useMateriais();
-  const [estoque, setEstoque] = useState<MatEstoque[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [tab, setTab] = useState<"estoque" | "catalogo">("estoque");
+  const { items: catalogo, categorias, loading, } = useMateriais();
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState<string>("__all__");
   const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<Partial<MatEstoque> | null>(null);
+  const [editing, setEditing] = useState<Partial<CatMat> | null>(null);
+  const [reloadKey, setReloadKey] = useState(0);
 
-  const load = async () => {
-    setLoading(true);
-    const { data, error } = await supabase.from("eng_materiais").select("*").order("created_at", { ascending: false });
-    if (error) toast.error(error.message);
-    setEstoque((data ?? []) as MatEstoque[]);
-    setLoading(false);
+  // useMateriais não expõe reload — força via window.location? Melhor: refetch manual via supabase
+  const [localItems, setLocalItems] = useState<CatMat[] | null>(null);
+  const items = localItems ?? catalogo;
+
+  const refetch = async () => {
+    const all: CatMat[] = [];
+    let from = 0; const page = 1000;
+    while (true) {
+      const { data, error } = await supabase
+        .from("eng_shared_records").select("id,data")
+        .eq("kind", "cad_materiais").range(from, from + page - 1);
+      if (error || !data || data.length === 0) break;
+      data.forEach((row: any) => {
+        const d = row.data || {};
+        all.push({
+          id: row.id,
+          codigo: String(d.codigo ?? ""),
+          descricao: String(d.descricao ?? ""),
+          categoria: String(d.categoria ?? ""),
+          conta_financeira: String(d.conta_financeira ?? ""),
+          unidade: String(d.unidade ?? ""),
+        });
+      });
+      if (data.length < page) break;
+      from += page;
+    }
+    setLocalItems(all);
   };
-  useEffect(() => { load(); }, []);
 
-  const totEstoque = useMemo(() => estoque.reduce((a, x) => a + (Number(x.estoque) || 0), 0), [estoque]);
-  const totReservado = useMemo(() => estoque.reduce((a, x) => a + (Number(x.reservado) || 0), 0), [estoque]);
-  const ruptura = useMemo(() => estoque.filter((x) => Number(x.estoque) <= 0).length, [estoque]);
-  const cobertura = useMemo(() => totEstoque > 0 ? ((totEstoque - totReservado) / totEstoque) * 100 : 0, [totEstoque, totReservado]);
+  useEffect(() => { if (reloadKey > 0) refetch(); }, [reloadKey]);
 
-  const porCategoria = useMemo(() => {
-    const m = new Map<string, number>();
-    catalogo.forEach((c) => m.set(c.categoria || "—", (m.get(c.categoria || "—") ?? 0) + 1));
-    return Array.from(m.entries()).map(([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value).slice(0, 8);
-  }, [catalogo]);
-
-  const filteredCatalogo = useMemo(() => {
+  const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
-    return catalogo.filter((c) => {
+    return items.filter((c) => {
       if (catFilter !== "__all__" && c.categoria !== catFilter) return false;
       if (q && !`${c.codigo} ${c.descricao} ${c.categoria}`.toLowerCase().includes(q)) return false;
       return true;
     });
-  }, [catalogo, search, catFilter]);
+  }, [items, search, catFilter]);
 
-  const filteredEstoque = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    if (!q) return estoque;
-    return estoque.filter((x) => `${x.descricao} ${x.unidade ?? ""}`.toLowerCase().includes(q));
-  }, [estoque, search]);
-
-  const startNew = () => { setEditing({ estoque: 0, reservado: 0 }); setOpen(true); };
+  const startNew = () => { setEditing({ codigo: "", descricao: "", categoria: "", conta_financeira: "", unidade: "un" }); setOpen(true); };
+  const startEdit = (c: CatMat) => { setEditing({ ...c }); setOpen(true); };
 
   const save = async () => {
     if (!editing?.descricao) return toast.error("Descrição é obrigatória");
-    const payload: any = {
+    const dataPayload = {
+      codigo: editing.codigo ?? "",
       descricao: editing.descricao,
-      unidade: editing.unidade ?? null,
-      estoque: Number(editing.estoque) || 0,
-      reservado: Number(editing.reservado) || 0,
+      categoria: editing.categoria ?? "",
+      conta_financeira: editing.conta_financeira ?? "",
+      unidade: editing.unidade ?? "",
     };
-    const { error } = editing.id
-      ? await supabase.from("eng_materiais").update(payload).eq("id", editing.id)
-      : await supabase.from("eng_materiais").insert(payload);
-    if (error) return toast.error(error.message);
-    toast.success("Salvo"); setOpen(false); setEditing(null); load();
+    if (editing.id) {
+      const { error } = await supabase.from("eng_shared_records").update({ data: dataPayload } as any).eq("id", editing.id);
+      if (error) return toast.error(error.message);
+    } else {
+      const { data: u } = await supabase.auth.getUser();
+      const { error } = await supabase.from("eng_shared_records").insert({ kind: "cad_materiais", data: dataPayload, created_by: u.user?.id ?? null } as any);
+      if (error) return toast.error(error.message);
+    }
+    toast.success("Salvo"); setOpen(false); setEditing(null); setReloadKey(k => k + 1);
   };
 
   const del = async (id: string) => {
-    if (!confirm("Excluir item?")) return;
-    const { error } = await supabase.from("eng_materiais").delete().eq("id", id);
+    if (!confirm("Excluir item do catálogo?")) return;
+    const { error } = await supabase.from("eng_shared_records").delete().eq("id", id);
     if (error) return toast.error(error.message);
-    load();
+    toast.success("Excluído"); setReloadKey(k => k + 1);
   };
 
   return (
     <div className="space-y-4">
       <EngPageHeader
         title="Materiais"
-        description="Estoque operacional + catálogo de materiais (cad_materiais)."
-        actions={<Button onClick={startNew} className="shadow-elegant"><Plus className="w-4 h-4" /> Item de estoque</Button>}
+        description="Catálogo de materiais que aparecerão como opções na sub-aba Nova solicitação."
+        actions={<Button onClick={startNew} className="shadow-elegant"><Plus className="w-4 h-4" /> Novo material</Button>}
       />
 
       <KpiGrid>
-        <KpiCard label="Itens estoque" value={estoque.length} icon={Boxes} tone="teal" />
-        <KpiCard label="Catálogo" value={catalogo.length} icon={Wrench} tone="neutral" hint={loadingCat ? "carregando..." : `${categorias.length} categorias`} />
-        <KpiCard label="Total em estoque" value={totEstoque.toLocaleString("pt-BR")} icon={TrendingUp} tone="success" />
-        <KpiCard label="Reservado" value={totReservado.toLocaleString("pt-BR")} icon={CalendarClock} tone="warn" hint={`Cobertura ${cobertura.toFixed(0)}%`} />
-        <KpiCard label="Em ruptura" value={ruptura} icon={PackageX} tone="danger" />
+        <KpiCard label="Itens no catálogo" value={items.length} icon={Boxes} tone="teal" />
+        <KpiCard label="Categorias" value={categorias.length} icon={Wrench} tone="neutral" />
       </KpiGrid>
-
-      <Card className="card-elegant">
-        <CardHeader className="pb-2"><CardTitle className="text-sm font-display">Top categorias do catálogo</CardTitle></CardHeader>
-        <CardContent style={{ height: 220 }}>
-          <ResponsiveContainer>
-            <BarChart data={porCategoria} margin={{ left: 0, right: 16, top: 8, bottom: 24 }}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" stroke="hsl(var(--muted-foreground))" fontSize={10} angle={-15} textAnchor="end" height={50} interval={0} />
-              <YAxis stroke="hsl(var(--muted-foreground))" fontSize={11} allowDecimals={false} />
-              <Tooltip contentStyle={{ background: "hsl(var(--popover))", border: "1px solid hsl(var(--border))", borderRadius: 6 }} />
-              <Bar dataKey="value" fill={TEAL} radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
 
       <Card className="card-elegant p-3">
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="inline-flex rounded-md border bg-muted/40 p-0.5">
-            <button onClick={() => setTab("estoque")} className={`px-3 py-1.5 text-xs font-medium rounded ${tab === "estoque" ? "bg-background shadow-sm" : "text-muted-foreground"}`}>Estoque</button>
-            <button onClick={() => setTab("catalogo")} className={`px-3 py-1.5 text-xs font-medium rounded ${tab === "catalogo" ? "bg-background shadow-sm" : "text-muted-foreground"}`}>Catálogo</button>
-          </div>
           <div className="relative flex-1 min-w-[220px] max-w-md">
             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input className="pl-8 h-9" placeholder="Buscar..." value={search} onChange={(e) => setSearch(e.target.value)} />
+            <Input className="pl-8 h-9" placeholder="Buscar por código, descrição ou categoria..." value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
-          {tab === "catalogo" && (
-            <Select value={catFilter} onValueChange={setCatFilter}>
-              <SelectTrigger className="h-9 w-[200px]"><SelectValue placeholder="Categoria" /></SelectTrigger>
-              <SelectContent>
-                <SelectItem value="__all__">Categoria: todas</SelectItem>
-                {categorias.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-              </SelectContent>
-            </Select>
-          )}
-          <span className="ml-auto text-xs text-muted-foreground">
-            {tab === "estoque" ? `${filteredEstoque.length} de ${estoque.length}` : `${filteredCatalogo.length} de ${catalogo.length}`}
-          </span>
+          <Select value={catFilter} onValueChange={setCatFilter}>
+            <SelectTrigger className="h-9 w-[200px]"><SelectValue placeholder="Categoria" /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="__all__">Categoria: todas</SelectItem>
+              {categorias.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+            </SelectContent>
+          </Select>
+          <span className="ml-auto text-xs text-muted-foreground">{filtered.length} de {items.length}</span>
         </div>
       </Card>
 
-      {tab === "estoque" ? (
-        <Card className="card-elegant overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/60 border-b">
-              <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th className="px-3 py-2.5">Descrição</th>
-                <th className="px-3 py-2.5">Unidade</th>
-                <th className="px-3 py-2.5 text-right">Estoque</th>
-                <th className="px-3 py-2.5 text-right">Reservado</th>
-                <th className="px-3 py-2.5 text-right">Disponível</th>
-                <th className="px-3 py-2.5 w-10"></th>
+      <Card className="card-elegant overflow-x-auto">
+        <table className="w-full text-sm">
+          <thead className="bg-muted/60 border-b">
+            <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+              <th className="px-3 py-2.5">Código</th>
+              <th className="px-3 py-2.5">Descrição</th>
+              <th className="px-3 py-2.5">Categoria</th>
+              <th className="px-3 py-2.5">Conta financeira</th>
+              <th className="px-3 py-2.5">Unidade</th>
+              <th className="px-3 py-2.5 w-20"></th>
+            </tr>
+          </thead>
+          <tbody>
+            {loading && !localItems ? (
+              <tr><td colSpan={6} className="px-3 py-12 text-center text-muted-foreground">Carregando...</td></tr>
+            ) : filtered.length === 0 ? (
+              <tr><td colSpan={6} className="px-3 py-12 text-center text-muted-foreground">Nenhum material no catálogo.</td></tr>
+            ) : filtered.slice(0, 500).map((c) => (
+              <tr key={c.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => startEdit(c)}>
+                <td className="px-3 py-2 font-mono text-xs">{c.codigo || "—"}</td>
+                <td className="px-3 py-2 font-medium">{c.descricao}</td>
+                <td className="px-3 py-2"><Badge variant="outline" className="text-[10px] font-normal">{c.categoria || "—"}</Badge></td>
+                <td className="px-3 py-2 text-muted-foreground text-xs">{c.conta_financeira || "—"}</td>
+                <td className="px-3 py-2 text-muted-foreground">{c.unidade || "—"}</td>
+                <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => del(c.id)}>
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </td>
               </tr>
-            </thead>
-            <tbody>
-              {loading ? (
-                <tr><td colSpan={6} className="px-3 py-12 text-center text-muted-foreground">Carregando...</td></tr>
-              ) : filteredEstoque.length === 0 ? (
-                <tr><td colSpan={6} className="px-3 py-12 text-center text-muted-foreground">Nenhum item.</td></tr>
-              ) : filteredEstoque.map((m) => {
-                const disp = (Number(m.estoque) || 0) - (Number(m.reservado) || 0);
-                return (
-                  <tr key={m.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors"
-                      onClick={() => { setEditing(m); setOpen(true); }}>
-                    <td className="px-3 py-2.5 font-medium">{m.descricao}</td>
-                    <td className="px-3 py-2.5 text-muted-foreground">{m.unidade ?? "—"}</td>
-                    <td className="px-3 py-2.5 text-right font-mono">{Number(m.estoque).toLocaleString("pt-BR")}</td>
-                    <td className="px-3 py-2.5 text-right font-mono text-[hsl(var(--warn))]">{Number(m.reservado).toLocaleString("pt-BR")}</td>
-                    <td className={`px-3 py-2.5 text-right font-mono font-semibold ${disp <= 0 ? "text-destructive" : "text-[hsl(var(--success))]"}`}>{disp.toLocaleString("pt-BR")}</td>
-                    <td className="px-3 py-2">
-                      <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive"
-                              onClick={(e) => { e.stopPropagation(); del(m.id); }}>
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </Card>
-      ) : (
-        <Card className="card-elegant overflow-x-auto">
-          <table className="w-full text-sm">
-            <thead className="bg-muted/60 border-b">
-              <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-                <th className="px-3 py-2.5">Código</th>
-                <th className="px-3 py-2.5">Descrição</th>
-                <th className="px-3 py-2.5">Categoria</th>
-                <th className="px-3 py-2.5">Conta financeira</th>
-                <th className="px-3 py-2.5">Unidade</th>
-              </tr>
-            </thead>
-            <tbody>
-              {loadingCat ? (
-                <tr><td colSpan={5} className="px-3 py-12 text-center text-muted-foreground">Carregando catálogo...</td></tr>
-              ) : filteredCatalogo.length === 0 ? (
-                <tr><td colSpan={5} className="px-3 py-12 text-center text-muted-foreground">Nenhum item.</td></tr>
-              ) : filteredCatalogo.slice(0, 500).map((c) => (
-                <tr key={c.id} className="border-b last:border-0 hover:bg-accent/30 transition-colors">
-                  <td className="px-3 py-2 font-mono text-xs">{c.codigo}</td>
-                  <td className="px-3 py-2">{c.descricao}</td>
-                  <td className="px-3 py-2"><Badge variant="outline" className="text-[10px] font-normal">{c.categoria || "—"}</Badge></td>
-                  <td className="px-3 py-2 text-muted-foreground text-xs">{c.conta_financeira || "—"}</td>
-                  <td className="px-3 py-2 text-muted-foreground">{c.unidade || "—"}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {filteredCatalogo.length > 500 && (
-            <div className="px-3 py-2 text-xs text-muted-foreground border-t bg-muted/30 text-center">
-              Exibindo 500 de {filteredCatalogo.length}. Refine a busca para ver mais.
-            </div>
-          )}
-        </Card>
-      )}
+            ))}
+          </tbody>
+        </table>
+        {filtered.length > 500 && (
+          <div className="px-3 py-2 text-xs text-muted-foreground border-t bg-muted/30 text-center">
+            Exibindo 500 de {filtered.length}. Refine a busca para ver mais.
+          </div>
+        )}
+      </Card>
 
       <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
         <DialogContent className="max-w-xl">
-          <DialogHeader><DialogTitle className="font-display">{editing?.id ? "Editar item" : "Novo item de estoque"}</DialogTitle></DialogHeader>
+          <DialogHeader><DialogTitle className="font-display">{editing?.id ? "Editar material" : "Novo material"}</DialogTitle></DialogHeader>
           {editing && (
             <div className="grid gap-3 md:grid-cols-2">
-              <div className="md:col-span-2"><Label className="text-xs">Descrição *</Label><Input value={editing.descricao ?? ""} onChange={(e) => setEditing({ ...editing, descricao: e.target.value })} /></div>
+              <div><Label className="text-xs">Código</Label><Input value={editing.codigo ?? ""} onChange={(e) => setEditing({ ...editing, codigo: e.target.value })} /></div>
               <div><Label className="text-xs">Unidade</Label><Input value={editing.unidade ?? ""} onChange={(e) => setEditing({ ...editing, unidade: e.target.value })} /></div>
-              <div><Label className="text-xs">Estoque</Label><Input type="number" value={editing.estoque ?? 0} onChange={(e) => setEditing({ ...editing, estoque: Number(e.target.value) })} /></div>
-              <div><Label className="text-xs">Reservado</Label><Input type="number" value={editing.reservado ?? 0} onChange={(e) => setEditing({ ...editing, reservado: Number(e.target.value) })} /></div>
+              <div className="md:col-span-2"><Label className="text-xs">Descrição *</Label><Input value={editing.descricao ?? ""} onChange={(e) => setEditing({ ...editing, descricao: e.target.value })} /></div>
+              <div><Label className="text-xs">Categoria</Label><Input value={editing.categoria ?? ""} onChange={(e) => setEditing({ ...editing, categoria: e.target.value })} /></div>
+              <div><Label className="text-xs">Conta financeira</Label><Input value={editing.conta_financeira ?? ""} onChange={(e) => setEditing({ ...editing, conta_financeira: e.target.value })} /></div>
             </div>
           )}
           <DialogFooter>
