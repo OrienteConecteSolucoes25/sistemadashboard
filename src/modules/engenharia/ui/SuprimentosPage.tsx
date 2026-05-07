@@ -345,19 +345,34 @@ const SuprimentosPage = () => {
     </Card>
   );
 
+  // Solicitações pendentes = sem nenhum SC/RC vinculado
+  const solicitacoesPendentes = rows.filter(r => !scrcCounts[r.id]).length;
+  // Contagem por status SC/RC (normaliza)
+  const cntScRc = (s: string) => allScRc.filter(x => String(x.status || "").toUpperCase() === s).length;
+
   return (
     <div className="space-y-4">
       <EngPageHeader
-        title="Suprimentos"
+        title="Solicitações de Materiais"
         description="Solicitações de compra (SC) e requisições (RC) por demanda."
       />
 
       <KpiGrid>
-        <KpiCard label="Solicitações" value={rows.length} icon={ShoppingCart} tone="teal" />
-        <KpiCard label="SC/RC totais" value={allScRc.length} icon={FileText} tone="teal" />
-        <KpiCard label="SC/RC entregues" value={allScRc.filter(s => s.status === "ENTREGUE").length} icon={CheckCircle2} tone="success" />
-        <KpiCard label="SC/RC em rota" value={allScRc.filter(s => s.status === "EM ROTA" || s.status === "EM SEPARAÇÃO").length} icon={CalendarClock} tone="warn" />
-        <KpiCard label="SC/RC paralisados" value={allScRc.filter(s => s.status === "PARALISADO" || s.status === "PENDENTE").length} icon={AlertTriangle} tone="danger" />
+        <KpiCard label="Solicitações pendentes" value={solicitacoesPendentes} icon={AlertTriangle} tone="warn" hint="Sem SC/RC vinculados" />
+        <KpiCard label="TOTAL" value={allScRc.length} icon={FileText} tone="teal" />
+        <KpiCard label="ENTREGUE" value={cntScRc("ENTREGUE")} icon={CheckCircle2} tone="success" />
+        <KpiCard label="EM ROTA" value={cntScRc("EM ROTA")} icon={CalendarClock} tone="warn" />
+        <KpiCard label="PARALISADO" value={cntScRc("PARALISADO")} icon={AlertTriangle} tone="danger" />
+        <KpiCard label="SOLICITADO" value={cntScRc("SOLICITADO")} icon={ShoppingCart} tone="neutral" />
+        <KpiCard label="EM COTAÇÃO" value={cntScRc("EM COTAÇÃO")} icon={ShoppingCart} tone="neutral" />
+        <KpiCard label="APROV. COORD." value={cntScRc("AGUARDANDO APROV. COORD.")} icon={CalendarClock} tone="neutral" />
+        <KpiCard label="APROV. GERÊNCIA" value={cntScRc("AGUARDANDO APROV. GERÊNCIA")} icon={CalendarClock} tone="neutral" />
+        <KpiCard label="REMANEJAMENTO" value={cntScRc("REMANEJAMENTO")} icon={ShoppingCart} tone="neutral" />
+        <KpiCard label="EM FABRICAÇÃO" value={cntScRc("EM FABRICAÇÃO")} icon={ShoppingCart} tone="neutral" />
+        <KpiCard label="EM SEPARAÇÃO" value={cntScRc("EM SEPARAÇÃO")} icon={ShoppingCart} tone="neutral" />
+        <KpiCard label="DISPONÍVEL P/ RETIRA" value={cntScRc("DISPONÍVEL PARA RETIRA")} icon={CheckCircle2} tone="success" />
+        <KpiCard label="PENDENTE" value={cntScRc("PENDENTE")} icon={AlertTriangle} tone="warn" />
+        <KpiCard label="CANCELADO" value={cntScRc("CANCELADO")} icon={X} tone="danger" />
       </KpiGrid>
 
       <div className="flex justify-end gap-2">
@@ -365,7 +380,7 @@ const SuprimentosPage = () => {
           table="eng_suprimentos"
           title="Solicitações de Materiais"
           fields={[
-            { key: "numero", label: "Número", type: "text" },
+            { key: "numero", label: "ID", type: "text" },
             { key: "descricao", label: "Descrição", type: "textarea" },
             { key: "solicitante", label: "Solicitante", type: "text" },
             { key: "responsavel", label: "Responsável", type: "text" },
@@ -377,13 +392,17 @@ const SuprimentosPage = () => {
         />
       </div>
 
-      <Tabs defaultValue="list" className="space-y-3">
+      <Tabs defaultValue="nova" className="space-y-3">
         <TabsList>
-          <TabsTrigger value="list"><List className="w-4 h-4 mr-1.5" />Lista</TabsTrigger>
+          <TabsTrigger value="nova"><UserPlus className="w-4 h-4 mr-1.5" />Nova solicitação</TabsTrigger>
+          <TabsTrigger value="list"><List className="w-4 h-4 mr-1.5" />Solicitações</TabsTrigger>
           <TabsTrigger value="kanban"><LayoutGrid className="w-4 h-4 mr-1.5" />Kanban</TabsTrigger>
           <TabsTrigger value="dashboard"><BarChart3 className="w-4 h-4 mr-1.5" />Dashboard</TabsTrigger>
-          <TabsTrigger value="solicitante"><UserPlus className="w-4 h-4 mr-1.5" />Solicitante</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="nova" className="space-y-3 mt-0">
+          <SolicitanteTab rows={rows} onCreated={load} />
+        </TabsContent>
 
         <TabsContent value="list" className="space-y-3 mt-0">
           {filtersBar}
@@ -408,10 +427,6 @@ const SuprimentosPage = () => {
             <DistribuicaoCard title="Distribuição por status" rows={filtered} groupKey="status" />
             <RankingCard title="Top responsáveis (compras)" rows={filtered} groupKey="responsavel" />
           </div>
-        </TabsContent>
-
-        <TabsContent value="solicitante" className="space-y-3 mt-0">
-          <SolicitanteTab rows={rows} onCreated={load} />
         </TabsContent>
       </Tabs>
 
