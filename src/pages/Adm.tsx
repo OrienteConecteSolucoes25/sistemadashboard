@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Plus, Trash2, Copy } from "lucide-react";
+import CompanyPermissionsMatrix from "@/modules/planos/ui/CompanyPermissionsMatrix";
 
 type Group = { id: string; name: string; color: string; description: string | null };
 type Profile = { id: string; email: string | null; full_name: string | null };
