@@ -15,8 +15,9 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   MapPin, Plus, Trash2, Users, Boxes, Search, AlertTriangle, CheckCircle2,
-  CalendarClock, Wrench, UserPlus, X, TrendingUp, PackageX,
+  CalendarClock, Wrench, UserPlus, X, TrendingUp, PackageX, Pencil,
 } from "lucide-react";
+import { fireAudit } from "../lib/audit";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   PieChart, Pie, Cell, Legend,
@@ -530,20 +531,41 @@ export const MateriaisDeluxePage = () => {
       unidade: editing.unidade ?? "",
     };
     if (editing.id) {
+      const before = items.find((i) => i.id === editing.id);
       const { error } = await supabase.from("eng_shared_records").update({ data: dataPayload } as any).eq("id", editing.id);
       if (error) return toast.error(error.message);
+      fireAudit({
+        acao: "update", modulo: "engenharia.materiais",
+        entidade_tipo: "cad_materiais", entidade_id: editing.id,
+        nome_entidade: dataPayload.descricao,
+        dados_antes: before, dados_depois: dataPayload,
+        observacoes: "Edição de material no catálogo",
+      });
     } else {
       const { data: u } = await supabase.auth.getUser();
-      const { error } = await supabase.from("eng_shared_records").insert({ kind: "cad_materiais", data: dataPayload, created_by: u.user?.id ?? null } as any);
+      const { data: ins, error } = await supabase.from("eng_shared_records").insert({ kind: "cad_materiais", data: dataPayload, created_by: u.user?.id ?? null } as any).select().single();
       if (error) return toast.error(error.message);
+      fireAudit({
+        acao: "create", modulo: "engenharia.materiais",
+        entidade_tipo: "cad_materiais", entidade_id: ins?.id ?? null,
+        nome_entidade: dataPayload.descricao,
+        dados_depois: dataPayload,
+        observacoes: "Criação de material no catálogo",
+      });
     }
     toast.success("Salvo"); setOpen(false); setEditing(null); setReloadKey(k => k + 1);
   };
 
-  const del = async (id: string) => {
-    if (!confirm("Excluir item do catálogo?")) return;
-    const { error } = await supabase.from("eng_shared_records").delete().eq("id", id);
+  const del = async (c: CatMat) => {
+    if (!confirm(`Excluir "${c.descricao}" do catálogo?`)) return;
+    const { error } = await supabase.from("eng_shared_records").delete().eq("id", c.id);
     if (error) return toast.error(error.message);
+    fireAudit({
+      acao: "delete", modulo: "engenharia.materiais",
+      entidade_tipo: "cad_materiais", entidade_id: c.id,
+      nome_entidade: c.descricao, dados_antes: c,
+      observacoes: "Exclusão de material do catálogo",
+    });
     toast.success("Excluído"); setReloadKey(k => k + 1);
   };
 
@@ -606,8 +628,11 @@ export const MateriaisDeluxePage = () => {
                 <td className="px-3 py-2"><Badge variant="outline" className="text-[10px] font-normal">{c.categoria || "—"}</Badge></td>
                 <td className="px-3 py-2 text-muted-foreground text-xs">{c.conta_financeira || "—"}</td>
                 <td className="px-3 py-2 text-muted-foreground">{c.unidade || "—"}</td>
-                <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
-                  <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => del(c.id)}>
+                <td className="px-3 py-2 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" title="Editar" onClick={() => startEdit(c)}>
+                    <Pencil className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" title="Excluir" onClick={() => del(c)}>
                     <Trash2 className="w-3.5 h-3.5" />
                   </Button>
                 </td>
