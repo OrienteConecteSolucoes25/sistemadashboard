@@ -322,27 +322,61 @@ export default function CreaCrudPage({ config, isGlobal = false }: Props) {
             <DialogTitle>{editing?.id ? `Editar ${config.title}` : `Novo ${config.title}`}</DialogTitle>
           </DialogHeader>
           {editing && (
-            <div className="grid gap-3 md:grid-cols-2">
-              {config.fields.map((f) => (
-                <div key={f.key} className={f.full || f.type === "textarea" ? "md:col-span-2" : ""}>
-                  <Label>{f.label}{f.required && " *"}</Label>
-                  <FormField field={f} value={editing[f.key]} onChange={(v: any) => setEditing({ ...editing, [f.key]: v })} />
-                </div>
-              ))}
-              {editing.data && Object.keys(editing.data).length > 0 && (
-                <div className="md:col-span-2 border-t pt-3">
-                  <Label className="text-xs uppercase text-muted-foreground">Colunas extras (importadas)</Label>
-                  <div className="grid gap-2 md:grid-cols-2 mt-1">
-                    {Object.keys(editing.data).map((k) => (
-                      <div key={k}>
-                        <Label className="text-xs">{k}</Label>
-                        <Input value={editing.data[k] ?? ""} onChange={(e) => setEditing({ ...editing, data: { ...editing.data, [k]: e.target.value } })} />
-                      </div>
-                    ))}
+            <Tabs defaultValue="dados" className="w-full">
+              <TabsList>
+                <TabsTrigger value="dados">Dados</TabsTrigger>
+                {dateFields.length > 0 && <TabsTrigger value="datas">Datas</TabsTrigger>}
+                <TabsTrigger value="anexos">Anexos</TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="dados" className="grid gap-3 md:grid-cols-2 pt-3">
+                {nonDateFields.map((f) => (
+                  <div key={f.key} className={f.full || f.type === "textarea" ? "md:col-span-2" : ""}>
+                    <Label>{f.label}{f.required && " *"}</Label>
+                    <FormField field={f} value={editing[f.key]} onChange={(v: any) => setEditing({ ...editing, [f.key]: v })} />
                   </div>
-                </div>
+                ))}
+                {editing.data && Object.keys(editing.data).length > 0 && (
+                  <div className="md:col-span-2 border-t pt-3">
+                    <Label className="text-xs uppercase text-muted-foreground">Colunas extras (importadas)</Label>
+                    <div className="grid gap-2 md:grid-cols-2 mt-1">
+                      {Object.keys(editing.data).map((k) => (
+                        <div key={k}>
+                          <Label className="text-xs">{k}</Label>
+                          <Input value={editing.data[k] ?? ""} onChange={(e) => setEditing({ ...editing, data: { ...editing.data, [k]: e.target.value } })} />
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </TabsContent>
+
+              {dateFields.length > 0 && (
+                <TabsContent value="datas" className="grid gap-3 md:grid-cols-2 pt-3">
+                  {isArts && !editing.id && (
+                    <p className="md:col-span-2 text-xs text-muted-foreground">
+                      Dica: para ARTs novas, salve primeiro com status "nao_iniciada" e preencha as datas (rascunho, envio, validação, emissão, pagamento, baixa) conforme a ART avança.
+                    </p>
+                  )}
+                  {dateFields.map((f) => (
+                    <div key={f.key}>
+                      <Label>{f.label}</Label>
+                      <FormField field={f} value={editing[f.key]} onChange={(v: any) => setEditing({ ...editing, [f.key]: v })} />
+                    </div>
+                  ))}
+                </TabsContent>
               )}
-            </div>
+
+              <TabsContent value="anexos" className="pt-3">
+                <p className="text-xs text-muted-foreground mb-2">Anexe documentos relacionados a este registro. Arquivos ficam em bucket privado.</p>
+                <CreaAttachmentsField
+                  table={config.table}
+                  recordId={editing.id ?? null}
+                  value={editing.anexo_url}
+                  onChange={(paths) => setEditing({ ...editing, anexo_url: paths.join(",") })}
+                />
+              </TabsContent>
+            </Tabs>
           )}
           <DialogFooter><Button onClick={save}>Salvar</Button></DialogFooter>
         </DialogContent>
