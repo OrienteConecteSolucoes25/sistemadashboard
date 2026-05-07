@@ -379,6 +379,7 @@ const SuprimentosPage = () => {
           <TabsTrigger value="list"><List className="w-4 h-4 mr-1.5" />Lista</TabsTrigger>
           <TabsTrigger value="kanban"><LayoutGrid className="w-4 h-4 mr-1.5" />Kanban</TabsTrigger>
           <TabsTrigger value="dashboard"><BarChart3 className="w-4 h-4 mr-1.5" />Dashboard</TabsTrigger>
+          <TabsTrigger value="solicitante"><UserPlus className="w-4 h-4 mr-1.5" />Solicitante</TabsTrigger>
         </TabsList>
 
         <TabsContent value="list" className="space-y-3 mt-0">
