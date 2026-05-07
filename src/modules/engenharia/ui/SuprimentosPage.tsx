@@ -11,9 +11,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Plus, Pencil, Trash2, Search, FileText, X, ShoppingCart, AlertTriangle,
-  CheckCircle2, CalendarClock, List, LayoutGrid, BarChart3, UserPlus,
+  CheckCircle2, CalendarClock, List, LayoutGrid, BarChart3, UserPlus, Mail,
 } from "lucide-react";
 import { SolicitanteTab } from "./SolicitanteTab";
+import { EnviarOutlookRcDialog } from "./EnviarOutlookRcDialog";
 import { toast } from "sonner";
 import { fmtDate } from "../lib/storage";
 import { SCRC_STATUS, listScRcBySolicit, listScRcAll, createScRc, updateScRcStatus, updateScRc, deleteScRcMany, type ScRcRow } from "../lib/scrcStore";
@@ -216,6 +217,7 @@ const SuprimentosPage = () => {
   const [form, setForm] = useState<Solicit>(empty);
 
   const [scrcOpen, setScrcOpen] = useState<string | null>(null);
+  const [outlookId, setOutlookId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
@@ -332,6 +334,7 @@ const SuprimentosPage = () => {
                 </Button>
               </td>
               <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
+                <Button variant="ghost" size="icon" className="h-7 w-7" title="Enviar por Outlook" onClick={() => setOutlookId(r.id)}><Mail className="h-4 w-4" /></Button>
                 <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(r)}><Pencil className="h-4 w-4" /></Button>
                 <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => excluir(r.id)}><Trash2 className="h-4 w-4" /></Button>
               </td>
@@ -437,6 +440,13 @@ const SuprimentosPage = () => {
       </Dialog>
 
       {scrcOpen && <ScRcPanel solicitId={scrcOpen} onClose={() => { setScrcOpen(null); load(); }} />}
+
+      <EnviarOutlookRcDialog
+        open={!!outlookId}
+        onOpenChange={(v) => !v && setOutlookId(null)}
+        solicit={outlookId ? rows.find(x => x.id === outlookId) ?? null : null}
+        scRcs={outlookId ? allScRc.filter(s => s.solicit_id === outlookId) : []}
+      />
     </div>
   );
 };
