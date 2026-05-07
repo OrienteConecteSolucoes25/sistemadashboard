@@ -20,6 +20,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { exportData, downloadTemplate, parseImportFile, type IOFormat } from "@/lib/dataIO";
 import { creaSoftDelete, mapAdaptive, type CreaTable } from "@/modules/crea/lib/creaCrud";
+import CreaAttachmentsField from "@/modules/crea/ui/CreaAttachmentsField";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 const sb: any = supabase;
 
