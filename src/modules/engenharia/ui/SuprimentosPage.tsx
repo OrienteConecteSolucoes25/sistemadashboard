@@ -406,6 +406,10 @@ const SuprimentosPage = () => {
             <RankingCard title="Top responsáveis (compras)" rows={filtered} groupKey="responsavel" />
           </div>
         </TabsContent>
+
+        <TabsContent value="solicitante" className="space-y-3 mt-0">
+          <SolicitanteTab rows={rows} onCreated={load} />
+        </TabsContent>
       </Tabs>
 
       <Dialog open={open} onOpenChange={setOpen}>
