@@ -291,6 +291,7 @@ const SuprimentosPage = () => {
           <AlertTriangle className="h-4 w-4 mr-1" />
           {soPendentes ? "Mostrando pendentes" : "Solicitações pendentes"}
         </Button>
+        <div className="ml-auto flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input className="pl-8 w-56 h-9" placeholder="Buscar…" value={busca} onChange={(e) => setBusca(e.target.value)} />
