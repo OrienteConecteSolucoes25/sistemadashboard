@@ -6,201 +6,402 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
-import { Plus, Trash2, Mail, Send } from "lucide-react";
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from "@/components/ui/select";
+import { Plus, Trash2, Send, Paperclip } from "lucide-react";
 import { toast } from "sonner";
 import { useMateriais } from "../hooks/useMateriais";
+import { useFieldOptions } from "../hooks/useFieldOptions";
 
 interface Item {
   material_id?: string;
   descricao: string;
-  categoria: string;
-  conta_financeira?: string;
-  quantidade: string;
+  categoria?: string;
   unidade: string;
+  quantidade: string;
+  custom?: boolean;
 }
+
+const UNIDADES = ["UN", "PC", "M", "M²", "M³", "KG", "L", "CX", "PCT", "PAR", "RL", "BR"];
 
 export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCreated: () => void }) {
   const { items: catalogo } = useMateriais();
-  const [nome, setNome] = useState("");
-  const [email, setEmail] = useState("");
-  const [obra, setObra] = useState("");
+  const tipos = useFieldOptions("tipo");
+  const coords = useFieldOptions("coordenador");
+  const clientes = useFieldOptions("cliente");
+  const categorias = useFieldOptions("categoria");
+  const compradores = useFieldOptions("comprador");
+  const escopos = useFieldOptions("escopo");
+
+  const [tipo, setTipo] = useState("");
+  const [coord, setCoord] = useState("");
+  const [cliente, setCliente] = useState("");
+  const [cc, setCc] = useState("");
+  const [categoria, setCategoria] = useState("");
+  const [comprador, setComprador] = useState("");
+  const [escopo, setEscopo] = useState("");
+  const [site, setSite] = useState("");
+  const [cidade, setCidade] = useState("");
+  const [uf, setUf] = useState("");
+  const [auxiliar, setAuxiliar] = useState("");
+  const [dataSol, setDataSol] = useState("");
+  const [dataLimite, setDataLimite] = useState("");
+  const [tecnico, setTecnico] = useState("");
+  const [endereco, setEndereco] = useState("");
   const [obs, setObs] = useState("");
-  const [itens, setItens] = useState<Item[]>([{ descricao: "", categoria: "", quantidade: "1", unidade: "un" }]);
+  const [anexo, setAnexo] = useState<File | null>(null);
+
+  const [itens, setItens] = useState<Item[]>([]);
+  const [novoItem, setNovoItem] = useState<Item>({ descricao: "", unidade: "UN", quantidade: "1" });
+
   const [sites, setSites] = useState<any[]>([]);
+  const [tecnicos, setTecnicos] = useState<any[]>([]);
+  const [enviando, setEnviando] = useState(false);
 
   useEffect(() => { (async () => {
-    const { data } = await supabase.from("eng_sites").select("id,nome,codigo").order("nome");
+    const { data } = await supabase.from("eng_sites").select("id,nome,codigo,cidade,uf").order("nome");
     setSites(data || []);
+    // Técnicos: tenta buscar de hrdp_employees ou cargo
+    try {
+      const { data: techs } = await (supabase as any).from("hrdp_employees").select("id,nome,cargo").ilike("cargo","%técnic%").limit(200);
+      setTecnicos(techs || []);
+    } catch { /* opcional */ }
   })(); }, []);
 
-  const addItem = () => setItens([...itens, { descricao: "", categoria: "", quantidade: "1", unidade: "un" }]);
-  const removeItem = (i: number) => setItens(itens.filter((_, idx) => idx !== i));
-  const updItem = (i: number, patch: Partial<Item>) =>
-    setItens(itens.map((it, idx) => idx === i ? { ...it, ...patch } : it));
+  // Auto-preencher CC quando cliente muda
+  useEffect(() => {
+    if (!cliente) return;
+    const meta = clientes.findMeta(cliente);
+    if (meta?.cc) setCc(String(meta.cc));
+  }, [cliente, clientes]);
 
-  const escolheMaterial = (i: number, materialId: string) => {
-    const mat = catalogo.find(c => c.id === materialId);
-    if (!mat) return;
-    updItem(i, {
-      material_id: mat.id,
-      descricao: mat.descricao,
-      categoria: mat.categoria,
-      conta_financeira: mat.conta_financeira,
-      unidade: mat.unidade || "un",
-    });
-  };
-
-  const enviarSuprimentos = async () => {
-    if (!nome) return toast.error("Informe o nome do solicitante");
-    const validItens = itens.filter(i => i.descricao.trim());
-    if (validItens.length === 0) return toast.error("Adicione ao menos 1 item");
-    if (!obra.trim()) return toast.error("Informe a obra/site");
-
-    // Verifica se já existe solicitação aberta para essa obra
-    const { data: existentes } = await supabase
-      .from("eng_suprimentos")
-      .select("id, descricao, itens, data, status")
-      .eq("status", "aberta")
-      .order("created_at", { ascending: false });
-
-    const jaTem = (existentes || []).find((r: any) => (r?.data?.obra || "").trim().toLowerCase() === obra.trim().toLowerCase());
-
-    if (jaTem) {
-      // Acrescenta itens
-      const itensAtuais = Array.isArray(jaTem.itens) ? jaTem.itens : [];
-      const novos = [...itensAtuais, ...validItens];
-      const descricaoAdd = validItens.map(i => `• ${i.quantidade} ${i.unidade} - ${i.descricao}${i.categoria ? ` [${i.categoria}]` : ""}`).join("\n");
-      const { error } = await supabase.from("eng_suprimentos").update({
-        itens: novos as any,
-        descricao: `${jaTem.descricao || ""}\n${descricaoAdd}`,
-      } as any).eq("id", jaTem.id);
-      if (error) return toast.error(error.message);
-      toast.success(`Itens adicionados à solicitação existente da obra ${obra}`);
-    } else {
-      const numero = `SOL-${Date.now().toString().slice(-6)}`;
-      const descricao = validItens.map(i => `• ${i.quantidade} ${i.unidade} - ${i.descricao}${i.categoria ? ` [${i.categoria}]` : ""}`).join("\n");
-      const { error } = await supabase.from("eng_suprimentos").insert({
-        numero, descricao: `[${obra}]\n${descricao}${obs ? `\n\nObs: ${obs}` : ""}`,
-        solicitante: nome, status: "aberta", itens: validItens as any,
-        data: { email_solicitante: email, obra } as any,
-      });
-      if (error) return toast.error(error.message);
-      toast.success("Solicitação enviada para Suprimentos");
+  // Auto-preencher Comprador e SLA quando categoria muda
+  useEffect(() => {
+    if (!categoria) return;
+    const meta = categorias.findMeta(categoria);
+    if (meta?.comprador) setComprador(String(meta.comprador));
+    if (meta?.sla_dias && dataSol) {
+      const base = new Date(dataSol);
+      base.setDate(base.getDate() + Number(meta.sla_dias));
+      setDataLimite(base.toISOString().slice(0, 10));
     }
+  }, [categoria, dataSol, categorias]);
 
-    setItens([{ descricao: "", categoria: "", quantidade: "1", unidade: "un" }]);
-    setObs("");
-    onCreated();
+  // Auto cidade/UF do site
+  useEffect(() => {
+    const s = sites.find((x) => x.nome === site || x.codigo === site);
+    if (s) {
+      if (s.cidade) setCidade(s.cidade);
+      if (s.uf) setUf(s.uf);
+    }
+  }, [site, sites]);
+
+  const addItemAtual = () => {
+    if (!novoItem.descricao.trim()) return toast.error("Selecione/descreva o material");
+    setItens([...itens, novoItem]);
+    setNovoItem({ descricao: "", unidade: "UN", quantidade: "1" });
+  };
+  const removeItem = (i: number) => setItens(itens.filter((_, idx) => idx !== i));
+
+  const escolherDoCatalogo = (descricao: string) => {
+    const mat = catalogo.find((c) => c.descricao === descricao);
+    if (mat) {
+      setNovoItem({
+        material_id: mat.id,
+        descricao: mat.descricao,
+        categoria: mat.categoria,
+        unidade: mat.unidade || "UN",
+        quantidade: novoItem.quantidade || "1",
+      });
+    } else {
+      setNovoItem({ ...novoItem, descricao });
+    }
   };
 
-  const enviarOutlook = () => {
-    const validItens = itens.filter(i => i.descricao.trim());
-    const corpo = [
-      `Solicitante: ${nome}`,
-      email && `Email: ${email}`,
-      obra && `Obra: ${obra}`,
-      "",
-      "Itens:",
-      ...validItens.map(i => `- ${i.quantidade} ${i.unidade} - ${i.descricao}${i.categoria ? ` [${i.categoria}]` : ""}`),
-      obs && `\nObservações: ${obs}`,
-    ].filter(Boolean).join("\n");
-    const subject = encodeURIComponent(`Requisição de materiais${obra ? ` - ${obra}` : ""}`);
-    const body = encodeURIComponent(corpo);
-    window.location.href = `mailto:suprimentos@empresa.com?subject=${subject}&body=${body}`;
+  const adicionarOutroMaterial = () => {
+    const desc = prompt("Descrição do novo material (será adicionado ao catálogo)");
+    if (!desc) return;
+    setItens([...itens, { descricao: desc.trim(), unidade: "UN", quantidade: "1", custom: true }]);
   };
 
-  // Agrupa itens por categoria (visual: mesma categoria = mesma SC/RC)
-  const grupos = useMemo(() => {
-    const m = new Map<string, Item[]>();
-    itens.forEach(it => {
-      const cat = it.categoria || "Sem categoria";
-      if (!m.has(cat)) m.set(cat, []);
-      m.get(cat)!.push(it);
-    });
-    return Array.from(m.entries());
-  }, [itens]);
+  const enviar = async () => {
+    if (!tipo) return toast.error("Selecione o tipo de solicitação");
+    if (!coord) return toast.error("Selecione o coordenador/analista");
+    if (!cliente) return toast.error("Selecione o cliente");
+    if (!categoria) return toast.error("Selecione a categoria");
+    if (!escopo) return toast.error("Selecione o escopo de engenharia");
+    if (!site.trim()) return toast.error("Informe o site/obra");
+    if (!cidade.trim()) return toast.error("Informe a cidade");
+    if (!dataSol) return toast.error("Informe a data de solicitação");
+    if (!dataLimite) return toast.error("Informe a data limite");
+    if (!endereco.trim()) return toast.error("Informe o endereço de entrega");
+    if (itens.length === 0) return toast.error("Adicione ao menos 1 item");
+
+    setEnviando(true);
+    try {
+      // 1. Garante site
+      let siteId: string | null = null;
+      const exist = sites.find((s) => (s.nome || "").toLowerCase() === site.trim().toLowerCase()
+        || (s.codigo || "").toLowerCase() === site.trim().toLowerCase());
+      if (exist) {
+        siteId = exist.id;
+      } else {
+        const { data: novoSite } = await supabase.from("eng_sites").insert({
+          nome: site.trim(), cidade, uf,
+        } as any).select("id").single();
+        siteId = novoSite?.id ?? null;
+      }
+
+      // 2. Upload do anexo (se houver)
+      let anexoUrl: string | null = null;
+      if (anexo) {
+        const path = `${Date.now()}_${anexo.name.replace(/[^\w.\-]/g, "_")}`;
+        const { error: upErr } = await supabase.storage.from("eng-suprimentos").upload(path, anexo);
+        if (upErr) toast.warning("Anexo não enviado: " + upErr.message);
+        else anexoUrl = path;
+      }
+
+      // 3. Adiciona materiais "outros" ao catálogo
+      const customs = itens.filter((i) => i.custom && !i.material_id);
+      if (customs.length > 0) {
+        for (const c of customs) {
+          await supabase.from("eng_shared_records").insert({
+            kind: "cad_materiais",
+            data: {
+              CODIGO: "",
+              "CONTA FINANCEIRA": "",
+              CATEGORIA: categoria,
+              "DESCRIÇÃO": c.descricao,
+              UNIDADE: c.unidade,
+            },
+          } as any);
+        }
+      }
+
+      // 4. Cria solicitação
+      const numero = `SOL-${Date.now().toString().slice(-6)}`;
+      const descricao = itens.map((i) => `• ${i.quantidade} ${i.unidade} - ${i.descricao}`).join("\n");
+      const { error } = await supabase.from("eng_suprimentos").insert({
+        numero,
+        descricao,
+        solicitante: auxiliar || coord,
+        responsavel: comprador,
+        status: "pendente_sc",
+        prazo: dataLimite,
+        itens: itens as any,
+        data: {
+          tipo, coord, cliente, cc, categoria, comprador, escopo,
+          site, site_id: siteId, cidade, uf,
+          auxiliar, data_sol: dataSol, data_limite: dataLimite,
+          tecnico, endereco, obs, anexo: anexoUrl,
+        } as any,
+      });
+      if (error) throw error;
+      toast.success(`Solicitação ${numero} criada (pendente de SC/RC)`);
+
+      // reset
+      setTipo(""); setCoord(""); setCliente(""); setCc(""); setCategoria(""); setComprador("");
+      setEscopo(""); setSite(""); setCidade(""); setUf(""); setAuxiliar("");
+      setDataSol(""); setDataLimite(""); setTecnico(""); setEndereco(""); setObs("");
+      setAnexo(null); setItens([]);
+      onCreated();
+    } catch (e: any) {
+      toast.error("Erro: " + (e?.message ?? e));
+    } finally {
+      setEnviando(false);
+    }
+  };
+
+  const catalogoFiltrado = useMemo(() => catalogo.slice(0, 800), [catalogo]);
 
   return (
-    <div className="space-y-3">
-      <Card className="card-elegant">
-        <CardContent className="pt-4 space-y-3">
-          <div className="grid gap-3 md:grid-cols-3">
-            <div><Label className="text-xs">Nome do solicitante *</Label>
-              <Input value={nome} onChange={e => setNome(e.target.value)} placeholder="Seu nome" /></div>
-            <div><Label className="text-xs">Email</Label>
-              <Input type="email" value={email} onChange={e => setEmail(e.target.value)} /></div>
-            <div><Label className="text-xs">Obra / Site *</Label>
-              <Input list="sites-list" value={obra} onChange={e => setObra(e.target.value)} placeholder="Digite ou selecione…" />
-              <datalist id="sites-list">
-                {sites.map(s => <option key={s.id} value={s.nome || s.codigo} />)}
+    <Card className="card-elegant">
+      <CardContent className="pt-4 space-y-4">
+        <h3 className="font-display font-semibold text-base">Nova solicitação — Dados gerais</h3>
+
+        <div className="grid gap-3 md:grid-cols-2">
+          <Field label="Tipo de solicitação *">
+            <SelectBox value={tipo} onChange={setTipo} options={tipos.options} />
+          </Field>
+          <Field label="Coordenador / analista *">
+            <SelectBox value={coord} onChange={setCoord} options={coords.options} />
+          </Field>
+
+          <Field label="Cliente *">
+            <SelectBox value={cliente} onChange={setCliente} options={clientes.options} />
+          </Field>
+          <Field label="Centro de custo (auto)">
+            <Input value={cc} onChange={(e) => setCc(e.target.value)} />
+          </Field>
+
+          <Field label="Categoria *">
+            <SelectBox value={categoria} onChange={setCategoria} options={categorias.options} />
+          </Field>
+          <Field label="Comprador (editável)">
+            <SelectBox value={comprador} onChange={setComprador} options={compradores.options} />
+          </Field>
+
+          <Field label="Escopo de engenharia *">
+            <SelectBox value={escopo} onChange={setEscopo} options={escopos.options} />
+          </Field>
+          <Field label="Site / obra *" hint="Se já existe, cidade/UF preenchem automaticamente. Caso contrário, será criado em 'Obras'.">
+            <Input list="sites-list" value={site} onChange={(e) => setSite(e.target.value)} placeholder="Digite ou selecione…" />
+            <datalist id="sites-list">
+              {sites.map((s) => <option key={s.id} value={s.nome || s.codigo} />)}
+            </datalist>
+          </Field>
+
+          <Field label="Cidade *">
+            <Input value={cidade} onChange={(e) => setCidade(e.target.value)} />
+          </Field>
+          <Field label="UF">
+            <Input value={uf} onChange={(e) => setUf(e.target.value.toUpperCase().slice(0, 2))} maxLength={2} />
+          </Field>
+
+          <Field label="Auxiliar (requisitante)">
+            <Input value={auxiliar} onChange={(e) => setAuxiliar(e.target.value)} placeholder="Nome do auxiliar / requisitante" />
+          </Field>
+          <Field label="Data solicitação coordenador *">
+            <Input type="date" value={dataSol} onChange={(e) => setDataSol(e.target.value)} />
+          </Field>
+
+          <Field label="Data limite entrega coordenador *">
+            <Input type="date" value={dataLimite} onChange={(e) => setDataLimite(e.target.value)} />
+          </Field>
+          <Field label="Técnico">
+            {tecnicos.length > 0 ? (
+              <Select value={tecnico} onValueChange={setTecnico}>
+                <SelectTrigger><SelectValue placeholder="Selecione…" /></SelectTrigger>
+                <SelectContent>
+                  {tecnicos.map((t) => <SelectItem key={t.id} value={t.nome}>{t.nome}</SelectItem>)}
+                </SelectContent>
+              </Select>
+            ) : (
+              <Input value={tecnico} onChange={(e) => setTecnico(e.target.value)} placeholder="Nenhum técnico cadastrado" />
+            )}
+          </Field>
+        </div>
+
+        <Field label="Endereço de entrega do material *">
+          <Input value={endereco} onChange={(e) => setEndereco(e.target.value)} />
+        </Field>
+
+        <Field label="Observações">
+          <Textarea rows={3} value={obs} onChange={(e) => setObs(e.target.value)} />
+        </Field>
+
+        <Field label="Anexo">
+          <div className="flex items-center gap-2">
+            <Input type="file" onChange={(e) => setAnexo(e.target.files?.[0] || null)} />
+            {anexo && <Badge variant="secondary"><Paperclip className="w-3 h-3 mr-1" />{anexo.name}</Badge>}
+          </div>
+        </Field>
+
+        {/* Itens / Materiais */}
+        <div className="border rounded-md p-3 bg-muted/30 space-y-3">
+          <div className="flex items-center justify-between">
+            <h4 className="font-semibold text-sm">Itens / Materiais ({itens.length})</h4>
+            <Button size="sm" variant="outline" onClick={adicionarOutroMaterial}>
+              Outros (novo material)
+            </Button>
+          </div>
+
+          <div className="grid gap-2 md:grid-cols-12 items-end">
+            <div className="md:col-span-7">
+              <Label className="text-[10px]">Descrição do material</Label>
+              <Input
+                list="cat-mat-list"
+                value={novoItem.descricao}
+                onChange={(e) => escolherDoCatalogo(e.target.value)}
+                placeholder="Digite para buscar…"
+              />
+              <datalist id="cat-mat-list">
+                {catalogoFiltrado.map((m) => (
+                  <option key={m.id} value={m.descricao}>{m.codigo} — {m.categoria}</option>
+                ))}
               </datalist>
             </div>
-          </div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <Label className="text-xs">Materiais a solicitar *</Label>
-              <Button size="sm" variant="outline" onClick={addItem}><Plus className="h-3.5 w-3.5 mr-1" />Item</Button>
+            <div className="md:col-span-2">
+              <Label className="text-[10px]">Unidade</Label>
+              <Select value={novoItem.unidade} onValueChange={(v) => setNovoItem({ ...novoItem, unidade: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {UNIDADES.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                </SelectContent>
+              </Select>
             </div>
-            <div className="space-y-2">
-              {itens.map((it, i) => (
-                <div key={i} className="grid gap-2 md:grid-cols-12 items-end">
-                  <div className="md:col-span-5">
-                    <Label className="text-[10px] text-muted-foreground">Material (catálogo)</Label>
-                    <Input
-                      list={`mat-list-${i}`}
-                      placeholder="Digite ou escolha do catálogo…"
-                      value={it.descricao}
-                      onChange={e => {
-                        const v = e.target.value;
-                        const mat = catalogo.find(c => c.descricao === v || c.codigo === v);
-                        if (mat) escolheMaterial(i, mat.id);
-                        else updItem(i, { descricao: v });
-                      }}
-                    />
-                    <datalist id={`mat-list-${i}`}>
-                      {catalogo.slice(0, 500).map(m => (
-                        <option key={m.id} value={m.descricao}>{m.codigo ? `${m.codigo} — ` : ""}{m.categoria}</option>
-                      ))}
-                    </datalist>
-                  </div>
-                  <div className="md:col-span-3">
-                    <Label className="text-[10px] text-muted-foreground">Categoria</Label>
-                    <Input value={it.categoria} onChange={e => updItem(i, { categoria: e.target.value })} placeholder="Categoria" />
-                  </div>
-                  <div className="md:col-span-1">
-                    <Label className="text-[10px] text-muted-foreground">Qtd</Label>
-                    <Input value={it.quantidade} onChange={e => updItem(i, { quantidade: e.target.value })} />
-                  </div>
-                  <div className="md:col-span-2">
-                    <Label className="text-[10px] text-muted-foreground">Unid.</Label>
-                    <Input value={it.unidade} onChange={e => updItem(i, { unidade: e.target.value })} />
-                  </div>
-                  <div className="md:col-span-1">
-                    <Button variant="ghost" size="icon" onClick={() => removeItem(i)}><Trash2 className="h-4 w-4" /></Button>
-                  </div>
-                </div>
-              ))}
+            <div className="md:col-span-1">
+              <Label className="text-[10px]">Qtd</Label>
+              <Input value={novoItem.quantidade} onChange={(e) => setNovoItem({ ...novoItem, quantidade: e.target.value })} />
             </div>
-            {grupos.length > 1 && (
-              <div className="mt-2 flex flex-wrap gap-1.5">
-                <span className="text-[10px] text-muted-foreground">Agrupamento por categoria (1 SC/RC por grupo):</span>
-                {grupos.map(([cat, lst]) => (
-                  <Badge key={cat} variant="outline" className="text-[10px]">{cat}: {lst.length}</Badge>
-                ))}
-              </div>
-            )}
+            <div className="md:col-span-2">
+              <Button size="sm" onClick={addItemAtual} className="w-full">
+                <Plus className="w-4 h-4 mr-1" />Adicionar
+              </Button>
+            </div>
           </div>
 
-          <div><Label className="text-xs">Observações</Label>
-            <Textarea rows={2} value={obs} onChange={e => setObs(e.target.value)} /></div>
+          {itens.length > 0 && (
+            <div className="border rounded-md overflow-hidden bg-background">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/60">
+                  <tr>
+                    <th className="text-left px-2 py-1.5">Descrição</th>
+                    <th className="text-left px-2 py-1.5 w-20">Unid.</th>
+                    <th className="text-left px-2 py-1.5 w-16">Qtd</th>
+                    <th className="text-right px-2 py-1.5 w-12"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {itens.map((it, i) => (
+                    <tr key={i} className="border-t">
+                      <td className="px-2 py-1">
+                        {it.descricao} {it.custom && <Badge variant="outline" className="ml-1 text-[9px]">novo</Badge>}
+                      </td>
+                      <td className="px-2 py-1">{it.unidade}</td>
+                      <td className="px-2 py-1">{it.quantidade}</td>
+                      <td className="px-2 py-1 text-right">
+                        <Button size="icon" variant="ghost" onClick={() => removeItem(i)}>
+                          <Trash2 className="w-4 h-4 text-destructive" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
 
-          <div className="flex justify-end gap-2 pt-1">
-            <Button variant="outline" onClick={enviarOutlook}><Mail className="h-4 w-4 mr-1" />Enviar por Outlook</Button>
-            <Button onClick={enviarSuprimentos}><Send className="h-4 w-4 mr-1" />Enviar para Suprimentos</Button>
-          </div>
-        </CardContent>
-      </Card>
+        <div className="flex justify-end pt-1">
+          <Button onClick={enviar} disabled={enviando}>
+            <Send className="w-4 h-4 mr-1" />{enviando ? "Enviando…" : "Enviar"}
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
+  );
+}
+
+function Field({ label, hint, children }: { label: string; hint?: string; children: React.ReactNode }) {
+  return (
+    <div className="space-y-1">
+      <Label className="text-xs">{label}</Label>
+      {children}
+      {hint && <p className="text-[10px] text-muted-foreground">{hint}</p>}
     </div>
+  );
+}
+
+function SelectBox({ value, onChange, options }: { value: string; onChange: (v: string) => void; options: string[] }) {
+  return (
+    <Select value={value} onValueChange={onChange}>
+      <SelectTrigger><SelectValue placeholder="Selecione…" /></SelectTrigger>
+      <SelectContent>
+        {options.length === 0 && <SelectItem value="__empty" disabled>Nenhum cadastro</SelectItem>}
+        {options.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+      </SelectContent>
+    </Select>
   );
 }
