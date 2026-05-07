@@ -25,6 +25,7 @@ import { EngPageHeader } from "./components/EngPageHeader";
 import { KpiCard, KpiGrid } from "./components/KpiCard";
 import { StatusBadge } from "./components/StatusBadge";
 import { useMateriais } from "../hooks/useMateriais";
+import { MateriaisCatalogToolbar } from "./MateriaisCatalogToolbar";
 
 const TEAL = "hsl(181 65% 46%)";
 const WARN = "hsl(41 100% 47%)";
@@ -551,7 +552,12 @@ export const MateriaisDeluxePage = () => {
       <EngPageHeader
         title="Materiais"
         description="Catálogo de materiais que aparecerão como opções na sub-aba Nova solicitação."
-        actions={<Button onClick={startNew} className="shadow-elegant"><Plus className="w-4 h-4" /> Novo material</Button>}
+        actions={
+          <div className="flex items-center gap-2 flex-wrap">
+            <MateriaisCatalogToolbar items={items} onImported={() => setReloadKey((k) => k + 1)} />
+            <Button onClick={startNew} className="shadow-elegant"><Plus className="w-4 h-4" /> Novo material</Button>
+          </div>
+        }
       />
 
       <KpiGrid>
