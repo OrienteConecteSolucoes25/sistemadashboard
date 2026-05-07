@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Plus, Pencil, Trash2, Search, FileText, X, ShoppingCart, AlertTriangle,
-  CheckCircle2, CalendarClock, List, LayoutGrid, BarChart3, UserPlus,
+  CheckCircle2, CalendarClock, List, LayoutGrid, BarChart3, UserPlus, Mail,
 } from "lucide-react";
 import { SolicitanteTab } from "./SolicitanteTab";
 import { EnviarOutlookRcDialog } from "./EnviarOutlookRcDialog";
