@@ -108,36 +108,38 @@ export default function CredenciaisPage() {
           const blob = new Blob([tpl], { type: "text/csv" });
           const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "modelo-credenciais.csv"; a.click();
         }}>Modelo CSV</Button>
-        <label className="inline-flex">
-          <input type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={async (e) => {
-            const f = e.target.files?.[0]; if (!f) return;
-            try {
-              const p = await parseImportFile(f);
-              const idx = (h: string) => p.headers.findIndex(x => x.toLowerCase().trim() === h);
-              const ufI = idx("uf"), portalI = idx("portal_url"), loginI = idx("login"), senhaI = idx("senha"), statI = idx("status"), obsI = idx("observacoes");
-              if (ufI < 0 || loginI < 0) { toast.error("CSV precisa de colunas uf e login"); return; }
-              const { data: u } = await sb.auth.getUser();
-              const { data: cu } = await sb.from("company_users").select("company_id").eq("user_id", u.user?.id).maybeSingle();
-              let n = 0, fail = 0;
-              for (const row of p.rows as any[][]) {
-                const r = await sb.rpc("crea_save_credential", {
-                  _id: null, _company: cu?.company_id ?? null,
-                  _uf: String(row[ufI] ?? "").toUpperCase().slice(0,2),
-                  _empresa_crea: null, _rt: null,
-                  _portal: portalI >= 0 ? String(row[portalI] ?? "") : null,
-                  _login: String(row[loginI] ?? ""),
-                  _senha: senhaI >= 0 ? String(row[senhaI] ?? "") : null,
-                  _status: statI >= 0 ? String(row[statI] ?? "ativo") : "ativo",
-                  _obs: obsI >= 0 ? String(row[obsI] ?? "") : null,
-                });
-                if (r.error || !r.data?.ok) fail++; else n++;
-              }
-              toast.success(`Importadas ${n} (${fail} falhas)`);
-              load(); e.target.value = "";
-            } catch (err: any) { toast.error("Falha: " + (err?.message ?? err)); }
-          }} />
-          <Button variant="outline" size="sm" asChild><span><Upload className="w-4 h-4 mr-1" />Importar CSV</span></Button>
-        </label>
+        <Button variant="outline" size="sm" asChild>
+          <label className="cursor-pointer">
+            <Upload className="w-4 h-4 mr-1" />Importar CSV
+            <input type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={async (e) => {
+              const f = e.target.files?.[0]; if (!f) return;
+              try {
+                const p = await parseImportFile(f);
+                const idx = (h: string) => p.headers.findIndex(x => x.toLowerCase().trim() === h);
+                const ufI = idx("uf"), portalI = idx("portal_url"), loginI = idx("login"), senhaI = idx("senha"), statI = idx("status"), obsI = idx("observacoes");
+                if (ufI < 0 || loginI < 0) { toast.error("CSV precisa de colunas uf e login"); return; }
+                const { data: u } = await sb.auth.getUser();
+                const { data: cu } = await sb.from("company_users").select("company_id").eq("user_id", u.user?.id).maybeSingle();
+                let n = 0, fail = 0;
+                for (const row of p.rows as any[][]) {
+                  const r = await sb.rpc("crea_save_credential", {
+                    _id: null, _company: cu?.company_id ?? null,
+                    _uf: String(row[ufI] ?? "").toUpperCase().slice(0,2),
+                    _empresa_crea: null, _rt: null,
+                    _portal: portalI >= 0 ? String(row[portalI] ?? "") : null,
+                    _login: String(row[loginI] ?? ""),
+                    _senha: senhaI >= 0 ? String(row[senhaI] ?? "") : null,
+                    _status: statI >= 0 ? String(row[statI] ?? "ativo") : "ativo",
+                    _obs: obsI >= 0 ? String(row[obsI] ?? "") : null,
+                  });
+                  if (r.error || !r.data?.ok) fail++; else n++;
+                }
+                toast.success(`Importadas ${n} (${fail} falhas)`);
+                load(); e.target.value = "";
+              } catch (err: any) { toast.error("Falha: " + (err?.message ?? err)); }
+            }} />
+          </label>
+        </Button>
         <Button onClick={startNew} disabled={hasMaster === false}><Plus className="w-4 h-4 mr-1" /> Nova credencial</Button>
       </div>
 
