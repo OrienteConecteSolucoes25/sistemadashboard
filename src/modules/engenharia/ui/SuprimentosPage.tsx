@@ -204,6 +204,7 @@ const SuprimentosPage = () => {
   const [loading, setLoading] = useState(true);
   const [busca, setBusca] = useState("");
   const [fStatus, setFStatus] = useState(ALL);
+  const [soPendentes, setSoPendentes] = useState(false);
   const [scrcCounts, setScrcCounts] = useState<Record<string, number>>({});
   const [allScRc, setAllScRc] = useState<ScRcRow[]>([]);
 
