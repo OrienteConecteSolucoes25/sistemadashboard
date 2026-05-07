@@ -45,7 +45,10 @@ const AppLayout = () => {
   const SidebarContent = (
     <>
       <div className="flex items-center justify-between mb-4">
-        <div className="font-bold text-lg">OCS</div>
+        <div className="leading-tight">
+          <div className="font-display font-bold text-lg">ERP OCS</div>
+          <div className="text-[10px] text-muted-foreground -mt-0.5">Oriente Conecte Soluções</div>
+        </div>
         <button
           className="md:hidden p-1 rounded hover:bg-accent"
           onClick={() => setOpen(false)}
@@ -96,7 +99,10 @@ const AppLayout = () => {
         >
           <Menu className="w-5 h-5" />
         </button>
-        <div className="font-bold">OCS</div>
+        <div className="leading-tight text-center">
+          <div className="font-display font-bold text-sm">ERP OCS</div>
+          <div className="text-[9px] text-muted-foreground -mt-0.5">Oriente Conecte Soluções</div>
+        </div>
         <NotificationsBell />
       </header>
 
