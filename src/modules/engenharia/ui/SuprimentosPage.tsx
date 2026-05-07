@@ -14,6 +14,8 @@ import {
   CheckCircle2, CalendarClock, List, LayoutGrid, BarChart3, UserPlus,
 } from "lucide-react";
 import { SolicitanteTab } from "./SolicitanteTab";
+import { EnviarOutlookRcDialog } from "./EnviarOutlookRcDialog";
+import { Mail } from "lucide-react";
 import { toast } from "sonner";
 import { fmtDate } from "../lib/storage";
 import { SCRC_STATUS, listScRcBySolicit, listScRcAll, createScRc, updateScRcStatus, updateScRc, deleteScRcMany, type ScRcRow } from "../lib/scrcStore";
