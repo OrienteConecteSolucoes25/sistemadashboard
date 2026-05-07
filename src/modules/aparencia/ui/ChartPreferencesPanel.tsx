@@ -57,10 +57,10 @@ export function ChartPreferencesPanel({ companyId, onDirtyChange }: Props) {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!companyId) return;
     (async () => {
-      const { data } = await (supabase as any)
-        .from("company_chart_preferences").select("*").eq("company_id", companyId);
+      let q = (supabase as any).from("company_chart_preferences").select("*");
+      q = companyId ? q.eq("company_id", companyId) : q.is("company_id", null);
+      const { data } = await q;
       const map: Record<string, Pref> = {};
       CATALOG.forEach(c => {
         const row = (data || []).find((r: any) => r.module_key === c.module && r.tab_key === c.tab && r.metric_key === c.metric);
