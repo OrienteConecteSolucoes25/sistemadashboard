@@ -10,6 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
 import { UserPlus, Trash2, Users, Shield, CreditCard } from "lucide-react";
+import CompanyPermissionsMatrix from "./CompanyPermissionsMatrix";
 
 const sb: any = supabase;
 const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
