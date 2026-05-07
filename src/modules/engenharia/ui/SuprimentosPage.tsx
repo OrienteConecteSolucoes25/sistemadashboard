@@ -440,6 +440,13 @@ const SuprimentosPage = () => {
       </Dialog>
 
       {scrcOpen && <ScRcPanel solicitId={scrcOpen} onClose={() => { setScrcOpen(null); load(); }} />}
+
+      <EnviarOutlookRcDialog
+        open={!!outlookId}
+        onOpenChange={(v) => !v && setOutlookId(null)}
+        solicit={outlookId ? rows.find(x => x.id === outlookId) ?? null : null}
+        scRcs={outlookId ? allScRc.filter(s => s.solicit_id === outlookId) : []}
+      />
     </div>
   );
 };
