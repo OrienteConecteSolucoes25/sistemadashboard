@@ -9,6 +9,7 @@ export interface ScRcRow {
   categoria?: string | null; conta_financeira?: string | null;
   centro_custo?: string | null; observacao?: string | null;
   status?: string | null; created_by?: string | null;
+  data_solicitacao?: string | null;
   created_at: string; updated_at: string;
 }
 
@@ -21,6 +22,17 @@ export const SCRC_STATUS = [
 export async function updateScRcStatus(id: string, status: string) {
   const { error } = await (supabase.from(TABLE as any).update({ status } as any).eq("id", id) as any);
   if (error) throw error;
+}
+
+export async function updateScRc(id: string, patch: Partial<ScRcRow>) {
+  const { error } = await (supabase.from(TABLE as any).update(patch as any).eq("id", id) as any);
+  if (error) throw error;
+}
+
+export async function listScRcAll(): Promise<ScRcRow[]> {
+  const { data, error } = await (supabase.from(TABLE as any).select("*").order("created_at", { ascending: false }) as any);
+  if (error) throw error;
+  return (data ?? []) as ScRcRow[];
 }
 
 export async function listScRcBySolicit(solicitIds: string[]): Promise<ScRcRow[]> {

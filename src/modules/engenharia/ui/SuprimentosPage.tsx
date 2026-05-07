@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { fmtDate } from "../lib/storage";
-import { SCRC_STATUS, listScRcBySolicit, createScRc, updateScRcStatus, deleteScRcMany, type ScRcRow } from "../lib/scrcStore";
+import { SCRC_STATUS, listScRcBySolicit, listScRcAll, createScRc, updateScRcStatus, updateScRc, deleteScRcMany, type ScRcRow } from "../lib/scrcStore";
 import { EngPageHeader } from "./components/EngPageHeader";
 import { KpiCard, KpiGrid } from "./components/KpiCard";
 import { StatusBadge } from "./components/StatusBadge";
@@ -43,7 +43,13 @@ const ALL = "__all__";
 function ScRcPanel({ solicitId, onClose }: { solicitId: string; onClose: () => void }) {
   const [rows, setRows] = useState<ScRcRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [novo, setNovo] = useState({ tipo_documento: "SC", numero_documento: "", categoria: "", conta_financeira: "", centro_custo: "", observacao: "", status: "SOLICITADO" });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState<Partial<ScRcRow>>({});
+  const [novo, setNovo] = useState({
+    tipo_documento: "SC", numero_documento: "", categoria: "",
+    conta_financeira: "", centro_custo: "", observacao: "",
+    status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10),
+  });
 
   const load = async () => {
     setLoading(true);
@@ -55,20 +61,38 @@ function ScRcPanel({ solicitId, onClose }: { solicitId: string; onClose: () => v
   const adicionar = async () => {
     if (!novo.numero_documento) { toast.error("Número do documento é obrigatório"); return; }
     try {
-      await createScRc({ ...novo, solicit_id: solicitId });
+      await createScRc({ ...novo, solicit_id: solicitId } as any);
       toast.success("Documento adicionado");
-      setNovo({ tipo_documento: "SC", numero_documento: "", categoria: "", conta_financeira: "", centro_custo: "", observacao: "", status: "SOLICITADO" });
+      setNovo({ tipo_documento: "SC", numero_documento: "", categoria: "", conta_financeira: "", centro_custo: "", observacao: "", status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10) });
       load();
     } catch (e) { toast.error(String(e)); }
   };
 
+  const startEdit = (r: ScRcRow) => { setEditingId(r.id); setEditDraft({ ...r }); };
+  const saveEdit = async () => {
+    if (!editingId) return;
+    try {
+      await updateScRc(editingId, {
+        numero_documento: editDraft.numero_documento || "",
+        categoria: editDraft.categoria ?? null,
+        conta_financeira: editDraft.conta_financeira ?? null,
+        centro_custo: editDraft.centro_custo ?? null,
+        observacao: editDraft.observacao ?? null,
+        data_solicitacao: editDraft.data_solicitacao ?? null,
+      });
+      toast.success("Atualizado");
+      setEditingId(null); setEditDraft({});
+      load();
+    } catch (e: any) { toast.error(e?.message ?? "Falha ao atualizar"); }
+  };
+
   return (
     <Dialog open onOpenChange={(v) => !v && onClose()}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-display flex items-center gap-2"><FileText className="h-5 w-5 text-primary" />SC / RC vinculados</DialogTitle></DialogHeader>
 
         <Card className="card-elegant">
-          <CardContent className="pt-4 grid gap-2 md:grid-cols-7 items-end">
+          <CardContent className="pt-4 grid gap-2 md:grid-cols-8 items-end">
             <div>
               <Label className="text-xs">Tipo</Label>
               <Select value={novo.tipo_documento} onValueChange={(v) => setNovo({ ...novo, tipo_documento: v })}>
@@ -80,6 +104,7 @@ function ScRcPanel({ solicitId, onClose }: { solicitId: string; onClose: () => v
             <div><Label className="text-xs">Categoria</Label><Input value={novo.categoria} onChange={(e) => setNovo({ ...novo, categoria: e.target.value })} /></div>
             <div><Label className="text-xs">Conta fin.</Label><Input value={novo.conta_financeira} onChange={(e) => setNovo({ ...novo, conta_financeira: e.target.value })} /></div>
             <div><Label className="text-xs">Centro custo</Label><Input value={novo.centro_custo} onChange={(e) => setNovo({ ...novo, centro_custo: e.target.value })} /></div>
+            <div><Label className="text-xs">Data solicit.</Label><Input type="date" value={novo.data_solicitacao} onChange={(e) => setNovo({ ...novo, data_solicitacao: e.target.value })} /></div>
             <Button onClick={adicionar}><Plus className="h-4 w-4 mr-1" />Adicionar</Button>
           </CardContent>
         </Card>
@@ -89,20 +114,45 @@ function ScRcPanel({ solicitId, onClose }: { solicitId: string; onClose: () => v
             {loading ? <div className="text-center py-6 text-muted-foreground">Carregando…</div>
               : rows.length === 0 ? <div className="text-center py-6 text-muted-foreground">Nenhum SC/RC vinculado.</div>
               : (
-                <table className="w-full text-sm">
+                <table className="w-full text-sm min-w-[900px]">
                   <thead className="bg-muted/60 border-b">
                     <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
                       <th className="px-3 py-2">Tipo</th><th className="px-3 py-2">Nº</th>
-                      <th className="px-3 py-2">Categoria</th><th className="px-3 py-2">Status</th>
-                      <th className="px-3 py-2">Criado</th><th className="px-3 py-2 w-10"></th>
+                      <th className="px-3 py-2">Categoria</th>
+                      <th className="px-3 py-2">Conta fin.</th>
+                      <th className="px-3 py-2">Centro custo</th>
+                      <th className="px-3 py-2">Status</th>
+                      <th className="px-3 py-2">Data solicit.</th>
+                      <th className="px-3 py-2">Criado</th>
+                      <th className="px-3 py-2 w-24 text-right">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {rows.map((r) => (
+                    {rows.map((r) => {
+                      const isEditing = editingId === r.id;
+                      return (
                       <tr key={r.id} className="border-b last:border-0">
                         <td className="px-3 py-2"><Badge variant={r.tipo_documento === "SC" ? "default" : "secondary"}>{r.tipo_documento}</Badge></td>
-                        <td className="px-3 py-2 font-medium">{r.numero_documento}</td>
-                        <td className="px-3 py-2 text-xs">{r.categoria || "—"}</td>
+                        <td className="px-3 py-2 font-medium">
+                          {isEditing
+                            ? <Input className="h-8 w-28" value={editDraft.numero_documento ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, numero_documento: e.target.value }))} />
+                            : r.numero_documento}
+                        </td>
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing
+                            ? <Input className="h-8" value={editDraft.categoria ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, categoria: e.target.value }))} />
+                            : (r.categoria || "—")}
+                        </td>
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing
+                            ? <Input className="h-8" value={editDraft.conta_financeira ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, conta_financeira: e.target.value }))} />
+                            : (r.conta_financeira || "—")}
+                        </td>
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing
+                            ? <Input className="h-8" value={editDraft.centro_custo ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, centro_custo: e.target.value }))} />
+                            : (r.centro_custo || "—")}
+                        </td>
                         <td className="px-3 py-2">
                           <Select value={r.status || "SOLICITADO"} onValueChange={async (v) => {
                             try { await updateScRcStatus(r.id, v); toast.success("Status atualizado"); load(); } catch (e) { toast.error(String(e)); }
@@ -111,14 +161,29 @@ function ScRcPanel({ solicitId, onClose }: { solicitId: string; onClose: () => v
                             <SelectContent>{SCRC_STATUS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
                           </Select>
                         </td>
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing
+                            ? <Input type="date" className="h-8" value={editDraft.data_solicitacao ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, data_solicitacao: e.target.value }))} />
+                            : (r.data_solicitacao ? fmtDate(r.data_solicitacao) : "—")}
+                        </td>
                         <td className="px-3 py-2 text-xs text-muted-foreground">{fmtDate(r.created_at)}</td>
                         <td className="px-3 py-2 text-right">
-                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={async () => {
-                            if (confirm("Excluir?")) { await deleteScRcMany([r.id]); load(); }
-                          }}><Trash2 className="h-4 w-4" /></Button>
+                          {isEditing ? (
+                            <>
+                              <Button variant="ghost" size="sm" className="h-7" onClick={saveEdit}>Salvar</Button>
+                              <Button variant="ghost" size="sm" className="h-7" onClick={() => { setEditingId(null); setEditDraft({}); }}>X</Button>
+                            </>
+                          ) : (
+                            <>
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => startEdit(r)} title="Editar"><Pencil className="h-4 w-4" /></Button>
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={async () => {
+                                if (confirm("Excluir?")) { await deleteScRcMany([r.id]); load(); }
+                              }}><Trash2 className="h-4 w-4" /></Button>
+                            </>
+                          )}
                         </td>
                       </tr>
-                    ))}
+                    )})}
                   </tbody>
                 </table>
               )}

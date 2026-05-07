@@ -27,7 +27,7 @@ export const ENG_TABS: EngTab[] = [
   { to: "/app/engenharia/energia", label: "Ligações de Energia", icon: Zap, group: "Operação", moduleKey: "eng.energia" },
 
   { to: "/app/engenharia/materiais", label: "Materiais", icon: Boxes, group: "Suprimentos & Doc", moduleKey: "eng.materiais" },
-  { to: "/app/engenharia/suprimentos", label: "Suprimentos", icon: ShoppingCart, group: "Suprimentos & Doc", moduleKey: "eng.suprimentos" },
+  { to: "/app/engenharia/suprimentos", label: "Solicitações de Materiais", icon: ShoppingCart, group: "Suprimentos & Doc", moduleKey: "eng.suprimentos" },
   { to: "/app/engenharia/art", label: "ART", icon: FileSignature, group: "Suprimentos & Doc", moduleKey: "eng.art" },
   { to: "/app/engenharia/relatorios", label: "Relatórios", icon: FileText, group: "Suprimentos & Doc", moduleKey: "eng.relatorios" },
   { to: "/app/engenharia/emails", label: "E-mails (log)", icon: Mail, group: "Suprimentos & Doc", moduleKey: "eng.emails" },
