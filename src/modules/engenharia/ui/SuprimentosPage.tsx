@@ -349,12 +349,29 @@ const SuprimentosPage = () => {
       />
 
       <KpiGrid>
-        <KpiCard label="Total" value={rows.length} icon={ShoppingCart} tone="teal" />
-        <KpiCard label="Abertas" value={cnt("aberta")} icon={CalendarClock} tone="warn" />
-        <KpiCard label="Em cotação" value={cnt("em_cotacao")} icon={CalendarClock} tone="teal" />
-        <KpiCard label="Recebidas" value={cnt("recebida")} icon={CheckCircle2} tone="success" />
-        <KpiCard label="Atrasadas" value={rows.filter((r) => isOverdue(r.prazo) && !["recebida", "cancelada", "comprada"].includes(String(r.status))).length} icon={AlertTriangle} tone="danger" />
+        <KpiCard label="Solicitações" value={rows.length} icon={ShoppingCart} tone="teal" />
+        <KpiCard label="SC/RC totais" value={allScRc.length} icon={FileText} tone="teal" />
+        <KpiCard label="SC/RC entregues" value={allScRc.filter(s => s.status === "ENTREGUE").length} icon={CheckCircle2} tone="success" />
+        <KpiCard label="SC/RC em rota" value={allScRc.filter(s => s.status === "EM ROTA" || s.status === "EM SEPARAÇÃO").length} icon={CalendarClock} tone="warn" />
+        <KpiCard label="SC/RC paralisados" value={allScRc.filter(s => s.status === "PARALISADO" || s.status === "PENDENTE").length} icon={AlertTriangle} tone="danger" />
       </KpiGrid>
+
+      <div className="flex justify-end gap-2">
+        <DataActionsToolbar
+          table="eng_suprimentos"
+          title="Solicitações de Materiais"
+          fields={[
+            { key: "numero", label: "Número", type: "text" },
+            { key: "descricao", label: "Descrição", type: "textarea" },
+            { key: "solicitante", label: "Solicitante", type: "text" },
+            { key: "responsavel", label: "Responsável", type: "text" },
+            { key: "prazo", label: "Prazo", type: "date" },
+            { key: "status", label: "Status", type: "text" },
+          ]}
+          rows={filtered}
+          onImported={load}
+        />
+      </div>
 
       <Tabs defaultValue="list" className="space-y-3">
         <TabsList>
