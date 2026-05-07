@@ -1860,7 +1860,7 @@ export type Database = {
       company_chart_preferences: {
         Row: {
           allowed_chart_types: string[]
-          company_id: string
+          company_id: string | null
           created_at: string
           default_chart_type: string
           id: string
@@ -1875,7 +1875,7 @@ export type Database = {
         }
         Insert: {
           allowed_chart_types?: string[]
-          company_id: string
+          company_id?: string | null
           created_at?: string
           default_chart_type?: string
           id?: string
@@ -1890,7 +1890,7 @@ export type Database = {
         }
         Update: {
           allowed_chart_types?: string[]
-          company_id?: string
+          company_id?: string | null
           created_at?: string
           default_chart_type?: string
           id?: string
@@ -4884,6 +4884,7 @@ export type Database = {
           conta_financeira: string | null
           created_at: string
           created_by: string | null
+          data_solicitacao: string | null
           id: string
           numero_documento: string
           observacao: string | null
@@ -4898,6 +4899,7 @@ export type Database = {
           conta_financeira?: string | null
           created_at?: string
           created_by?: string | null
+          data_solicitacao?: string | null
           id?: string
           numero_documento: string
           observacao?: string | null
@@ -4912,6 +4914,7 @@ export type Database = {
           conta_financeira?: string | null
           created_at?: string
           created_by?: string | null
+          data_solicitacao?: string | null
           id?: string
           numero_documento?: string
           observacao?: string | null
