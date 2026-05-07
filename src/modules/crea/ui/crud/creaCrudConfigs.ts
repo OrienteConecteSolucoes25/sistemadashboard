@@ -1,7 +1,7 @@
 import type { CrudConfig } from "@/modules/engenharia/ui/crud/types";
 
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
-const STATUS_ART = ["em_emissao","emitida","paga","registrada","baixada","cancelada"];
+const STATUS_ART = ["nao_iniciada","em_emissao","emitida","paga","registrada","baixada","cancelada"];
 const STATUS_PROT = ["aberto","em_exigencia","deferido","indeferido","arquivado"];
 const STATUS_GEN = ["ativo","pendente","concluido","cancelado"];
 
