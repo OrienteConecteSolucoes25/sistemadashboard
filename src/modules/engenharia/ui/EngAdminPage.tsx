@@ -50,6 +50,7 @@ export default function EngAdminPage() {
           <TabsTrigger value="seguranca"><KeyRound className="w-4 h-4 mr-1" /> Segurança</TabsTrigger>
           <TabsTrigger value="sync"><Database className="w-4 h-4 mr-1" /> Sincronizações</TabsTrigger>
           <TabsTrigger value="auditoria"><ShieldAlert className="w-4 h-4 mr-1" /> Auditoria</TabsTrigger>
+          <TabsTrigger value="cadastros"><FolderKanban className="w-4 h-4 mr-1" /> Cadastros gerais</TabsTrigger>
         </TabsList>
         <TabsContent value="visao" className="mt-4"><VisaoGeralTab /></TabsContent>
         <TabsContent value="usuarios" className="mt-4"><UsuariosTab /></TabsContent>
@@ -57,6 +58,7 @@ export default function EngAdminPage() {
         <TabsContent value="seguranca" className="mt-4"><SegurancaTab /></TabsContent>
         <TabsContent value="sync" className="mt-4"><SyncTab /></TabsContent>
         <TabsContent value="auditoria" className="mt-4"><AuditoriaTab /></TabsContent>
+        <TabsContent value="cadastros" className="mt-4"><CadastrosGeraisTab /></TabsContent>
       </Tabs>
     </div>
   );
