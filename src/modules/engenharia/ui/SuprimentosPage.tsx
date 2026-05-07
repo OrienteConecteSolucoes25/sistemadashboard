@@ -21,6 +21,7 @@ import { KpiCard, KpiGrid } from "./components/KpiCard";
 import { StatusBadge } from "./components/StatusBadge";
 import { EngKanban } from "./components/EngKanban";
 import { DistribuicaoCard, RankingCard } from "./components/EngMiniCharts";
+import { DataActionsToolbar } from "@/components/DataActionsToolbar";
 
 interface Solicit {
   id: string;
