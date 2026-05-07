@@ -222,13 +222,13 @@ const SuprimentosPage = () => {
     if (error) toast.error(error.message);
     const list = (data || []) as Solicit[];
     setRows(list);
-    if (list.length) {
-      const ids = list.map((r) => r.id);
-      const { data: scrc } = await supabase.from("eng_solicitacao_sc_rc").select("solicit_id").in("solicit_id", ids);
+    try {
+      const all = await listScRcAll();
+      setAllScRc(all);
       const cnt: Record<string, number> = {};
-      (scrc || []).forEach((r: any) => { cnt[r.solicit_id] = (cnt[r.solicit_id] || 0) + 1; });
+      all.forEach((r) => { cnt[r.solicit_id] = (cnt[r.solicit_id] || 0) + 1; });
       setScrcCounts(cnt);
-    }
+    } catch (e: any) { /* ignore */ }
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
