@@ -628,8 +628,11 @@ export const MateriaisDeluxePage = () => {
                 <td className="px-3 py-2"><Badge variant="outline" className="text-[10px] font-normal">{c.categoria || "—"}</Badge></td>
                 <td className="px-3 py-2 text-muted-foreground text-xs">{c.conta_financeira || "—"}</td>
                 <td className="px-3 py-2 text-muted-foreground">{c.unidade || "—"}</td>
-                <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
-                  <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => del(c.id)}>
+                <td className="px-3 py-2 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                  <Button size="icon" variant="ghost" className="h-7 w-7" title="Editar" onClick={() => startEdit(c)}>
+                    <Pencil className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" title="Excluir" onClick={() => del(c)}>
                     <Trash2 className="w-3.5 h-3.5" />
                   </Button>
                 </td>
