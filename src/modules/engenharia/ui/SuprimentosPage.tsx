@@ -203,6 +203,7 @@ const SuprimentosPage = () => {
   const [busca, setBusca] = useState("");
   const [fStatus, setFStatus] = useState(ALL);
   const [scrcCounts, setScrcCounts] = useState<Record<string, number>>({});
+  const [allScRc, setAllScRc] = useState<ScRcRow[]>([]);
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Solicit | null>(null);
