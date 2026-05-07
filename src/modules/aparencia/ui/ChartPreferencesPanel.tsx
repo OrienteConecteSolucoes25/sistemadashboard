@@ -38,7 +38,8 @@ const CATALOG: { module: string; tab: string; metric: string; label: string; def
 ];
 
 interface Props {
-  companyId: string;
+  /** null = preferência global (vale para todos os projetos sem override) */
+  companyId: string | null;
   onDirtyChange?: (dirty: boolean) => void;
 }
 
