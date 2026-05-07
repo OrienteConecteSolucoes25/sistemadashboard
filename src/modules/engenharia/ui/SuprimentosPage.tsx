@@ -11,8 +11,9 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Plus, Pencil, Trash2, Search, FileText, X, ShoppingCart, AlertTriangle,
-  CheckCircle2, CalendarClock, List, LayoutGrid, BarChart3,
+  CheckCircle2, CalendarClock, List, LayoutGrid, BarChart3, UserPlus,
 } from "lucide-react";
+import { SolicitanteTab } from "./SolicitanteTab";
 import { toast } from "sonner";
 import { fmtDate } from "../lib/storage";
 import { SCRC_STATUS, listScRcBySolicit, listScRcAll, createScRc, updateScRcStatus, updateScRc, deleteScRcMany, type ScRcRow } from "../lib/scrcStore";
