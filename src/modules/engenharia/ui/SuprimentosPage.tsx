@@ -285,7 +285,6 @@ const SuprimentosPage = () => {
   const filtersBar = (
     <Card className="card-elegant p-3">
       <div className="flex flex-wrap items-center gap-2">
-        <Button onClick={openNew} className="shadow-elegant"><Plus className="h-4 w-4 mr-1" />Nova solicitação</Button>
         <div className="ml-auto flex items-center gap-2">
           <div className="relative">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -309,7 +308,7 @@ const SuprimentosPage = () => {
       <table className="w-full text-sm">
         <thead className="bg-muted/60 border-b">
           <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-            <th className="px-3 py-2.5">Nº</th><th className="px-3 py-2.5">Descrição</th>
+            <th className="px-3 py-2.5">ID</th><th className="px-3 py-2.5">Descrição</th>
             <th className="px-3 py-2.5">Solicitante</th><th className="px-3 py-2.5">Responsável</th>
             <th className="px-3 py-2.5">Prazo</th><th className="px-3 py-2.5">Status</th>
             <th className="px-3 py-2.5">SC/RC</th><th className="px-3 py-2.5 w-20"></th>
