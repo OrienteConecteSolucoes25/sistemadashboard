@@ -531,20 +531,41 @@ export const MateriaisDeluxePage = () => {
       unidade: editing.unidade ?? "",
     };
     if (editing.id) {
+      const before = items.find((i) => i.id === editing.id);
       const { error } = await supabase.from("eng_shared_records").update({ data: dataPayload } as any).eq("id", editing.id);
       if (error) return toast.error(error.message);
+      fireAudit({
+        acao: "update", modulo: "engenharia.materiais",
+        entidade_tipo: "cad_materiais", entidade_id: editing.id,
+        nome_entidade: dataPayload.descricao,
+        dados_antes: before, dados_depois: dataPayload,
+        observacoes: "Edição de material no catálogo",
+      });
     } else {
       const { data: u } = await supabase.auth.getUser();
-      const { error } = await supabase.from("eng_shared_records").insert({ kind: "cad_materiais", data: dataPayload, created_by: u.user?.id ?? null } as any);
+      const { data: ins, error } = await supabase.from("eng_shared_records").insert({ kind: "cad_materiais", data: dataPayload, created_by: u.user?.id ?? null } as any).select().single();
       if (error) return toast.error(error.message);
+      fireAudit({
+        acao: "create", modulo: "engenharia.materiais",
+        entidade_tipo: "cad_materiais", entidade_id: ins?.id ?? null,
+        nome_entidade: dataPayload.descricao,
+        dados_depois: dataPayload,
+        observacoes: "Criação de material no catálogo",
+      });
     }
     toast.success("Salvo"); setOpen(false); setEditing(null); setReloadKey(k => k + 1);
   };
 
-  const del = async (id: string) => {
-    if (!confirm("Excluir item do catálogo?")) return;
-    const { error } = await supabase.from("eng_shared_records").delete().eq("id", id);
+  const del = async (c: CatMat) => {
+    if (!confirm(`Excluir "${c.descricao}" do catálogo?`)) return;
+    const { error } = await supabase.from("eng_shared_records").delete().eq("id", c.id);
     if (error) return toast.error(error.message);
+    fireAudit({
+      acao: "delete", modulo: "engenharia.materiais",
+      entidade_tipo: "cad_materiais", entidade_id: c.id,
+      nome_entidade: c.descricao, dados_antes: c,
+      observacoes: "Exclusão de material do catálogo",
+    });
     toast.success("Excluído"); setReloadKey(k => k + 1);
   };
 
