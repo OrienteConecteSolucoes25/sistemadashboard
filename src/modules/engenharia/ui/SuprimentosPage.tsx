@@ -217,6 +217,7 @@ const SuprimentosPage = () => {
   const [form, setForm] = useState<Solicit>(empty);
 
   const [scrcOpen, setScrcOpen] = useState<string | null>(null);
+  const [outlookId, setOutlookId] = useState<string | null>(null);
 
   const load = async () => {
     setLoading(true);
