@@ -77,9 +77,16 @@ export default function CreaCrudPage({ config, isGlobal = false }: Props) {
   const [delBusy, setDelBusy] = useState(false);
 
   const [importOpen, setImportOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<{ records: any[]; headers: string[]; extras: string[] } | null>(null);
   const [importing, setImporting] = useState(false);
+  const [artSheetId, setArtSheetId] = useState<string | null>(null);
+  const [companyIdState, setCompanyIdState] = useState<string | null>(null);
+  useEffect(() => { (async () => {
+    const { data: cu } = await sb.from("company_users").select("company_id").eq("user_id", user?.id).maybeSingle();
+    setCompanyIdState(cu?.company_id ?? null);
+  })(); }, [user?.id]);
 
   const hasUf = useMemo(() => config.fields.some((f) => f.key === "uf"), [config]);
   // Colunas: campos conhecidos + chaves dinâmicas vindas do `data` (modo adaptativo)
