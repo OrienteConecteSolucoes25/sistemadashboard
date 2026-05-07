@@ -1,39 +1,102 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { HardHat } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import { HardHat, Filter, X } from "lucide-react";
 
 const sb: any = supabase;
 
-const KpiCard = ({ label, value }: { label: string; value: number | string }) => (
-  <Card>
+const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
+const ALL = "__all";
+
+const KpiCard = ({ label, value, accent }: { label: string; value: number | string; accent?: boolean }) => (
+  <Card className={accent ? "border-primary/40" : ""}>
     <CardHeader className="pb-2"><CardTitle className="text-xs text-muted-foreground font-medium">{label}</CardTitle></CardHeader>
     <CardContent><div className="text-2xl font-bold">{value}</div></CardContent>
   </Card>
 );
 
 export default function CreaDashboard() {
-  const [k, setK] = useState({ arts: 0, protAbertos: 0, certVenc: 0, baixaPend: 0, cats: 0, prazos: 0 });
+  const [params, setParams] = useSearchParams();
+  const fUf = params.get("uf") ?? ALL;
+  const fStatus = params.get("status") ?? ALL;
+  const fAno = params.get("ano") ?? "";
+  const fRT = params.get("rt") ?? "";
+
+  const setParam = (k: string, v: string) => {
+    const np = new URLSearchParams(params);
+    if (!v || v === ALL) np.delete(k); else np.set(k, v);
+    setParams(np, { replace: true });
+  };
+  const clear = () => setParams(new URLSearchParams(), { replace: true });
+
+  const [arts, setArts] = useState<any[]>([]);
+  const [prots, setProts] = useState<any[]>([]);
+  const [certs, setCerts] = useState<any[]>([]);
+  const [baixas, setBaixas] = useState<any[]>([]);
+  const [cats, setCats] = useState<any[]>([]);
+  const [prazos, setPrazos] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
-      const today = new Date().toISOString().slice(0,10);
-      const in30 = new Date(Date.now() + 30*864e5).toISOString().slice(0,10);
-      const [arts, prot, certVenc, baixa, cats, prazos] = await Promise.all([
-        sb.from("crea_arts").select("id", { count: "exact", head: true }).eq("is_deleted", false),
-        sb.from("crea_protocols").select("id", { count: "exact", head: true }).eq("is_deleted", false).eq("status","aberto"),
-        sb.from("crea_certificates").select("id", { count: "exact", head: true }).eq("is_deleted", false).lte("validade", in30).gte("validade", today),
-        sb.from("crea_deregistrations").select("id", { count: "exact", head: true }).eq("is_deleted", false).eq("status","pendente"),
-        sb.from("crea_cats").select("id", { count: "exact", head: true }).eq("is_deleted", false),
-        sb.from("crea_deadlines").select("id", { count: "exact", head: true }).eq("is_deleted", false).lte("prazo", in30),
+      setLoading(true);
+      const [a, p, c, b, ct, pr] = await Promise.all([
+        sb.from("crea_arts").select("id,uf,status,data_emissao,valor,created_at").eq("is_deleted", false).limit(2000),
+        sb.from("crea_protocols").select("id,uf,status,data_abertura,prazo_esperado").eq("is_deleted", false).limit(2000),
+        sb.from("crea_certificates").select("id,uf,status,validade,data_emissao").eq("is_deleted", false).limit(2000),
+        sb.from("crea_deregistrations").select("id,uf,status,created_at").eq("is_deleted", false).limit(2000),
+        sb.from("crea_cats").select("id,uf,status,data_emissao").eq("is_deleted", false).limit(2000),
+        sb.from("crea_deadlines").select("id,uf,status,prazo").eq("is_deleted", false).limit(2000),
       ]);
-      setK({
-        arts: arts.count ?? 0, protAbertos: prot.count ?? 0,
-        certVenc: certVenc.count ?? 0, baixaPend: baixa.count ?? 0,
-        cats: cats.count ?? 0, prazos: prazos.count ?? 0,
-      });
+      setArts(a.data ?? []); setProts(p.data ?? []); setCerts(c.data ?? []);
+      setBaixas(b.data ?? []); setCats(ct.data ?? []); setPrazos(pr.data ?? []);
+      setLoading(false);
     })();
   }, []);
+
+  const filt = (arr: any[], dateKey?: string) => arr.filter(r => {
+    if (fUf !== ALL && r.uf !== fUf) return false;
+    if (fStatus !== ALL && r.status !== fStatus) return false;
+    if (fAno && dateKey && r[dateKey]) { if (!String(r[dateKey]).startsWith(fAno)) return false; }
+    return true;
+  });
+
+  const today = new Date().toISOString().slice(0,10);
+  const in30 = new Date(Date.now() + 30*864e5).toISOString().slice(0,10);
+
+  const k = useMemo(() => {
+    const fArts = filt(arts, "data_emissao");
+    const fProts = filt(prots, "data_abertura");
+    const fCerts = filt(certs, "data_emissao");
+    return {
+      arts: fArts.length,
+      artsEmitidas: fArts.filter(x => x.status === "emitida" || x.status === "registrada").length,
+      protAbertos: fProts.filter(x => x.status === "aberto").length,
+      certVenc: fCerts.filter(x => x.validade && x.validade <= in30 && x.validade >= today).length,
+      certVencidas: fCerts.filter(x => x.validade && x.validade < today).length,
+      baixaPend: filt(baixas).filter(x => x.status === "pendente").length,
+      cats: filt(cats, "data_emissao").length,
+      prazos30: filt(prazos).filter(x => x.prazo && x.prazo <= in30).length,
+      valorTotal: fArts.reduce((s, x) => s + Number(x.valor ?? 0), 0),
+    };
+  }, [arts, prots, certs, baixas, cats, prazos, fUf, fStatus, fAno]);
+
+  const anosDisp = useMemo(() => {
+    const set = new Set<string>();
+    [...arts, ...prots, ...certs].forEach(r => {
+      const d = r.data_emissao ?? r.data_abertura ?? r.created_at;
+      if (d) set.add(String(d).slice(0,4));
+    });
+    return Array.from(set).sort().reverse();
+  }, [arts, prots, certs]);
+
+  const hasAny = fUf !== ALL || fStatus !== ALL || fAno || fRT;
 
   return (
     <div className="space-y-6">
@@ -41,23 +104,64 @@ export default function CreaDashboard() {
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <HardHat className="w-6 h-6 text-primary" /> CREA & ART — Dashboard
         </h1>
-        <p className="text-sm text-muted-foreground">Visão geral do módulo CREA, ARTs, CATs, certidões e prazos.</p>
+        <p className="text-sm text-muted-foreground">Visão geral filtrada (filtros persistem na URL).</p>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3">
-        <KpiCard label="Total de ARTs" value={k.arts} />
-        <KpiCard label="Protocolos abertos" value={k.protAbertos} />
-        <KpiCard label="Certidões vencendo (30d)" value={k.certVenc} />
-        <KpiCard label="Baixas pendentes" value={k.baixaPend} />
-        <KpiCard label="CATs" value={k.cats} />
-        <KpiCard label="Prazos próximos (30d)" value={k.prazos} />
+
+      <Card>
+        <CardHeader className="pb-3"><CardTitle className="text-sm flex items-center gap-2"><Filter className="w-4 h-4" /> Filtros</CardTitle></CardHeader>
+        <CardContent className="grid gap-3 md:grid-cols-5">
+          <div>
+            <Label className="text-xs">UF</Label>
+            <Select value={fUf} onValueChange={(v) => setParam("uf", v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent><SelectItem value={ALL}>Todas</SelectItem>{UFS.map(u => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Status</Label>
+            <Select value={fStatus} onValueChange={(v) => setParam("status", v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>
+                <SelectItem value={ALL}>Todos</SelectItem>
+                {["nao_iniciada","em_emissao","emitida","paga","registrada","baixada","aberto","deferido","pendente"].map(s => <SelectItem key={s} value={s}>{s}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">Ano</Label>
+            <Select value={fAno || ALL} onValueChange={(v) => setParam("ano", v === ALL ? "" : v)}>
+              <SelectTrigger><SelectValue placeholder="Ano" /></SelectTrigger>
+              <SelectContent><SelectItem value={ALL}>Todos</SelectItem>{anosDisp.map(a => <SelectItem key={a} value={a}>{a}</SelectItem>)}</SelectContent>
+            </Select>
+          </div>
+          <div>
+            <Label className="text-xs">RT (busca livre)</Label>
+            <Input value={fRT} onChange={(e) => setParam("rt", e.target.value)} placeholder="nome do RT…" />
+          </div>
+          <div className="flex items-end">
+            {hasAny && <Button variant="ghost" onClick={clear}><X className="w-4 h-4 mr-1" /> Limpar</Button>}
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+        <KpiCard label="ARTs (filtradas)" value={loading ? "…" : k.arts} accent />
+        <KpiCard label="ARTs emitidas/registradas" value={loading ? "…" : k.artsEmitidas} />
+        <KpiCard label="Valor total ARTs (R$)" value={loading ? "…" : k.valorTotal.toLocaleString("pt-BR", { minimumFractionDigits: 2 })} />
+        <KpiCard label="Protocolos abertos" value={loading ? "…" : k.protAbertos} />
+        <KpiCard label="Certidões vencendo (30d)" value={loading ? "…" : k.certVenc} />
+        <KpiCard label="Certidões vencidas" value={loading ? "…" : k.certVencidas} />
+        <KpiCard label="Baixas pendentes" value={loading ? "…" : k.baixaPend} />
+        <KpiCard label="CATs" value={loading ? "…" : k.cats} />
+        <KpiCard label="Prazos próximos (30d)" value={loading ? "…" : k.prazos30} />
       </div>
+
       <Card>
         <CardHeader><CardTitle className="text-base">Próximos passos</CardTitle></CardHeader>
         <CardContent className="text-sm text-muted-foreground space-y-1">
-          <p>• Cadastre suas empresas e CREAs em <strong>Cadastros → Empresas e CREAs</strong>.</p>
-          <p>• Cadastre Responsáveis Técnicos e Engenheiros.</p>
-          <p>• Importe ARTs e Protocolos com o botão <strong>Importar</strong> (modelo .xlsx disponível).</p>
-          <p>• Configure a chave-mestra de credenciais em <strong>Segurança → Credenciais</strong> antes de cadastrar logins de portais.</p>
+          <p>• Filtros aplicados: {hasAny ? <Badge variant="outline">{[fUf!==ALL&&`UF=${fUf}`, fStatus!==ALL&&`Status=${fStatus}`, fAno&&`Ano=${fAno}`, fRT&&`RT=${fRT}`].filter(Boolean).join(" · ")}</Badge> : "nenhum"}</p>
+          <p>• Use a aba <strong>Assistente IA</strong> para tirar dúvidas sobre normas e fluxos.</p>
+          <p>• Em <strong>Admin → Integrações</strong> habilite scraping/RPA quando autorizado.</p>
         </CardContent>
       </Card>
     </div>

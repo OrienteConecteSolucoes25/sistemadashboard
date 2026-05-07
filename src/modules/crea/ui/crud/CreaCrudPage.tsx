@@ -22,6 +22,8 @@ import { exportData, downloadTemplate, parseImportFile, type IOFormat } from "@/
 import { creaSoftDelete, mapAdaptive, type CreaTable } from "@/modules/crea/lib/creaCrud";
 import CreaAttachmentsField from "@/modules/crea/ui/CreaAttachmentsField";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import ArtDetailSheet from "@/modules/crea/ui/ArtDetailSheet";
+import ImportColumnPickerModal from "@/modules/crea/ui/ImportColumnPickerModal";
 
 const sb: any = supabase;
 
@@ -75,9 +77,16 @@ export default function CreaCrudPage({ config, isGlobal = false }: Props) {
   const [delBusy, setDelBusy] = useState(false);
 
   const [importOpen, setImportOpen] = useState(false);
+  const [pickerOpen, setPickerOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<{ records: any[]; headers: string[]; extras: string[] } | null>(null);
   const [importing, setImporting] = useState(false);
+  const [artSheetId, setArtSheetId] = useState<string | null>(null);
+  const [companyIdState, setCompanyIdState] = useState<string | null>(null);
+  useEffect(() => { (async () => {
+    const { data: cu } = await sb.from("company_users").select("company_id").eq("user_id", user?.id).maybeSingle();
+    setCompanyIdState(cu?.company_id ?? null);
+  })(); }, [user?.id]);
 
   const hasUf = useMemo(() => config.fields.some((f) => f.key === "uf"), [config]);
   // Colunas: campos conhecidos + chaves dinâmicas vindas do `data` (modo adaptativo)
@@ -284,8 +293,11 @@ export default function CreaCrudPage({ config, isGlobal = false }: Props) {
               ))}
             </DropdownMenuContent>
           </DropdownMenu>
-          <Button variant="outline" size="sm" onClick={() => setImportOpen(true)}>
-            <Upload className="w-4 h-4 mr-1" /> Importar
+          <Button variant="outline" size="sm" onClick={() => setPickerOpen(true)} title="Importar com seleção de colunas">
+            <Upload className="w-4 h-4 mr-1" /> Importar (selecionar colunas)
+          </Button>
+          <Button variant="ghost" size="sm" onClick={() => setImportOpen(true)} title="Importação adaptativa">
+            Importar (adaptativo)
           </Button>
           <Button onClick={startNew}><Plus className="w-4 h-4 mr-1" /> Novo</Button>
         </div>
@@ -307,7 +319,7 @@ export default function CreaCrudPage({ config, isGlobal = false }: Props) {
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={listFields.length + dynamicKeys.length + 1} className="px-3 py-8 text-center text-muted-foreground">Nenhum registro.</td></tr>
               ) : filtered.map((r) => (
-                <tr key={r.id} className="border-t hover:bg-accent/40 cursor-pointer" onClick={() => { setEditing(r); setOpenForm(true); }}>
+                <tr key={r.id} className="border-t hover:bg-accent/40 cursor-pointer" onClick={() => { if (isArts) { setArtSheetId(r.id); } else { setEditing(r); setOpenForm(true); } }}>
                   {listFields.map((f) => <td key={f.key} className="px-3 py-2 whitespace-nowrap">{fmt(r[f.key], f)}</td>)}
                   {dynamicKeys.map((k) => <td key={k} className="px-3 py-2 whitespace-nowrap text-xs">{String(r.data?.[k] ?? "—").slice(0,60)}</td>)}
                   <td className="px-3 py-2 text-right whitespace-nowrap">
@@ -456,6 +468,25 @@ export default function CreaCrudPage({ config, isGlobal = false }: Props) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ImportColumnPickerModal
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        table={config.table}
+        title={config.title}
+        fields={config.fields}
+        companyId={isGlobal ? null : companyIdState}
+        onImported={load}
+      />
+
+      {isArts && (
+        <ArtDetailSheet
+          artId={artSheetId}
+          open={!!artSheetId}
+          onOpenChange={(o) => { if (!o) setArtSheetId(null); }}
+          onSaved={load}
+        />
+      )}
     </div>
   );
 }

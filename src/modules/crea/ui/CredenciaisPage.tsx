@@ -10,7 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
-import { KeyRound, Plus, Eye, EyeOff, Copy, ShieldAlert, Lock } from "lucide-react";
+import { KeyRound, Plus, Eye, EyeOff, Copy, ShieldAlert, Lock, Upload } from "lucide-react";
+import { parseImportFile } from "@/lib/dataIO";
 
 const sb: any = supabase;
 
@@ -93,7 +94,7 @@ export default function CredenciaisPage() {
         </Alert>
       )}
 
-      <div className="flex justify-end gap-2">
+      <div className="flex justify-end gap-2 flex-wrap">
         <Button variant="outline" size="sm" onClick={() => {
           const csv = ["uf,portal,login,senha_mascarada,status",
             ...rows.map(r => `${r.uf},${r.portal_url ?? ""},${r.login},••••••••,${r.status}`)].join("\n");
@@ -102,6 +103,43 @@ export default function CredenciaisPage() {
           a.href = URL.createObjectURL(blob); a.download = "credenciais-crea.csv"; a.click();
           toast.success("Exportado (senhas mascaradas)");
         }}>Exportar (mascarado)</Button>
+        <Button variant="outline" size="sm" onClick={() => {
+          const tpl = "uf,portal_url,login,senha,status,observacoes\nSP,https://creanet.crea-sp.org.br,meu_login,minha_senha,ativo,";
+          const blob = new Blob([tpl], { type: "text/csv" });
+          const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "modelo-credenciais.csv"; a.click();
+        }}>Modelo CSV</Button>
+        <Button variant="outline" size="sm" asChild>
+          <label className="cursor-pointer">
+            <Upload className="w-4 h-4 mr-1" />Importar CSV
+            <input type="file" accept=".csv,.xlsx,.xls" className="hidden" onChange={async (e) => {
+              const f = e.target.files?.[0]; if (!f) return;
+              try {
+                const p = await parseImportFile(f);
+                const idx = (h: string) => p.headers.findIndex(x => x.toLowerCase().trim() === h);
+                const ufI = idx("uf"), portalI = idx("portal_url"), loginI = idx("login"), senhaI = idx("senha"), statI = idx("status"), obsI = idx("observacoes");
+                if (ufI < 0 || loginI < 0) { toast.error("CSV precisa de colunas uf e login"); return; }
+                const { data: u } = await sb.auth.getUser();
+                const { data: cu } = await sb.from("company_users").select("company_id").eq("user_id", u.user?.id).maybeSingle();
+                let n = 0, fail = 0;
+                for (const row of p.rows as any[][]) {
+                  const r = await sb.rpc("crea_save_credential", {
+                    _id: null, _company: cu?.company_id ?? null,
+                    _uf: String(row[ufI] ?? "").toUpperCase().slice(0,2),
+                    _empresa_crea: null, _rt: null,
+                    _portal: portalI >= 0 ? String(row[portalI] ?? "") : null,
+                    _login: String(row[loginI] ?? ""),
+                    _senha: senhaI >= 0 ? String(row[senhaI] ?? "") : null,
+                    _status: statI >= 0 ? String(row[statI] ?? "ativo") : "ativo",
+                    _obs: obsI >= 0 ? String(row[obsI] ?? "") : null,
+                  });
+                  if (r.error || !r.data?.ok) fail++; else n++;
+                }
+                toast.success(`Importadas ${n} (${fail} falhas)`);
+                load(); e.target.value = "";
+              } catch (err: any) { toast.error("Falha: " + (err?.message ?? err)); }
+            }} />
+          </label>
+        </Button>
         <Button onClick={startNew} disabled={hasMaster === false}><Plus className="w-4 h-4 mr-1" /> Nova credencial</Button>
       </div>
 

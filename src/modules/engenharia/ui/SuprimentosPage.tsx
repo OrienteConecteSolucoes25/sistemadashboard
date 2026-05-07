@@ -21,6 +21,7 @@ import { KpiCard, KpiGrid } from "./components/KpiCard";
 import { StatusBadge } from "./components/StatusBadge";
 import { EngKanban } from "./components/EngKanban";
 import { DistribuicaoCard, RankingCard } from "./components/EngMiniCharts";
+import { DataActionsToolbar } from "@/components/DataActionsToolbar";
 
 interface Solicit {
   id: string;
@@ -202,6 +203,7 @@ const SuprimentosPage = () => {
   const [busca, setBusca] = useState("");
   const [fStatus, setFStatus] = useState(ALL);
   const [scrcCounts, setScrcCounts] = useState<Record<string, number>>({});
+  const [allScRc, setAllScRc] = useState<ScRcRow[]>([]);
 
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Solicit | null>(null);
@@ -220,13 +222,13 @@ const SuprimentosPage = () => {
     if (error) toast.error(error.message);
     const list = (data || []) as Solicit[];
     setRows(list);
-    if (list.length) {
-      const ids = list.map((r) => r.id);
-      const { data: scrc } = await supabase.from("eng_solicitacao_sc_rc").select("solicit_id").in("solicit_id", ids);
+    try {
+      const all = await listScRcAll();
+      setAllScRc(all);
       const cnt: Record<string, number> = {};
-      (scrc || []).forEach((r: any) => { cnt[r.solicit_id] = (cnt[r.solicit_id] || 0) + 1; });
+      all.forEach((r) => { cnt[r.solicit_id] = (cnt[r.solicit_id] || 0) + 1; });
       setScrcCounts(cnt);
-    }
+    } catch (e: any) { /* ignore */ }
     setLoading(false);
   };
   useEffect(() => { load(); }, []);
@@ -347,12 +349,29 @@ const SuprimentosPage = () => {
       />
 
       <KpiGrid>
-        <KpiCard label="Total" value={rows.length} icon={ShoppingCart} tone="teal" />
-        <KpiCard label="Abertas" value={cnt("aberta")} icon={CalendarClock} tone="warn" />
-        <KpiCard label="Em cotação" value={cnt("em_cotacao")} icon={CalendarClock} tone="teal" />
-        <KpiCard label="Recebidas" value={cnt("recebida")} icon={CheckCircle2} tone="success" />
-        <KpiCard label="Atrasadas" value={rows.filter((r) => isOverdue(r.prazo) && !["recebida", "cancelada", "comprada"].includes(String(r.status))).length} icon={AlertTriangle} tone="danger" />
+        <KpiCard label="Solicitações" value={rows.length} icon={ShoppingCart} tone="teal" />
+        <KpiCard label="SC/RC totais" value={allScRc.length} icon={FileText} tone="teal" />
+        <KpiCard label="SC/RC entregues" value={allScRc.filter(s => s.status === "ENTREGUE").length} icon={CheckCircle2} tone="success" />
+        <KpiCard label="SC/RC em rota" value={allScRc.filter(s => s.status === "EM ROTA" || s.status === "EM SEPARAÇÃO").length} icon={CalendarClock} tone="warn" />
+        <KpiCard label="SC/RC paralisados" value={allScRc.filter(s => s.status === "PARALISADO" || s.status === "PENDENTE").length} icon={AlertTriangle} tone="danger" />
       </KpiGrid>
+
+      <div className="flex justify-end gap-2">
+        <DataActionsToolbar
+          table="eng_suprimentos"
+          title="Solicitações de Materiais"
+          fields={[
+            { key: "numero", label: "Número", type: "text" },
+            { key: "descricao", label: "Descrição", type: "textarea" },
+            { key: "solicitante", label: "Solicitante", type: "text" },
+            { key: "responsavel", label: "Responsável", type: "text" },
+            { key: "prazo", label: "Prazo", type: "date" },
+            { key: "status", label: "Status", type: "text" },
+          ]}
+          rows={filtered}
+          onImported={load}
+        />
+      </div>
 
       <Tabs defaultValue="list" className="space-y-3">
         <TabsList>
