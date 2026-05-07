@@ -468,6 +468,25 @@ export default function CreaCrudPage({ config, isGlobal = false }: Props) {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <ImportColumnPickerModal
+        open={pickerOpen}
+        onOpenChange={setPickerOpen}
+        table={config.table}
+        title={config.title}
+        fields={config.fields}
+        companyId={isGlobal ? null : companyIdState}
+        onImported={load}
+      />
+
+      {isArts && (
+        <ArtDetailSheet
+          artId={artSheetId}
+          open={!!artSheetId}
+          onOpenChange={(o) => { if (!o) setArtSheetId(null); }}
+          onSaved={load}
+        />
+      )}
     </div>
   );
 }
