@@ -251,12 +251,20 @@ export default function CreaCrudPage({ config, isGlobal = false }: Props) {
     }
   };
 
+  const isOfficialSource = ["crea_norms", "crea_links_oficiais", "crea_ai_sources"].includes(config.table);
+
   return (
     <div className="space-y-3">
       <div>
         <h2 className="text-xl font-semibold">{config.title}</h2>
         {config.description && <p className="text-xs text-muted-foreground">{config.description}</p>}
       </div>
+
+      {isOfficialSource && (
+        <div className="rounded-md border border-dashed border-primary/40 bg-primary/5 px-3 py-2 text-xs text-foreground/80">
+          ⚠️ Conteúdo de partida — <strong>sempre confirme no portal oficial do CREA da UF</strong> antes de usar profissionalmente. Resoluções e Decisões Normativas podem ser atualizadas pelo Confea/CREA a qualquer momento.
+        </div>
+      )}
 
       <div className="flex items-center gap-2 flex-wrap">
         <div className="relative flex-1 min-w-[200px] max-w-md">
