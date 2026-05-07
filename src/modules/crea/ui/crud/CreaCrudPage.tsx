@@ -319,7 +319,7 @@ export default function CreaCrudPage({ config, isGlobal = false }: Props) {
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={listFields.length + dynamicKeys.length + 1} className="px-3 py-8 text-center text-muted-foreground">Nenhum registro.</td></tr>
               ) : filtered.map((r) => (
-                <tr key={r.id} className="border-t hover:bg-accent/40 cursor-pointer" onClick={() => { setEditing(r); setOpenForm(true); }}>
+                <tr key={r.id} className="border-t hover:bg-accent/40 cursor-pointer" onClick={() => { if (isArts) { setArtSheetId(r.id); } else { setEditing(r); setOpenForm(true); } }}>
                   {listFields.map((f) => <td key={f.key} className="px-3 py-2 whitespace-nowrap">{fmt(r[f.key], f)}</td>)}
                   {dynamicKeys.map((k) => <td key={k} className="px-3 py-2 whitespace-nowrap text-xs">{String(r.data?.[k] ?? "—").slice(0,60)}</td>)}
                   <td className="px-3 py-2 text-right whitespace-nowrap">
