@@ -287,7 +287,10 @@ const SuprimentosPage = () => {
   const filtersBar = (
     <Card className="card-elegant p-3">
       <div className="flex flex-wrap items-center gap-2">
-        <div className="ml-auto flex items-center gap-2">
+        <Button variant={soPendentes ? "default" : "outline"} onClick={() => setSoPendentes(v => !v)} className="shadow-elegant">
+          <AlertTriangle className="h-4 w-4 mr-1" />
+          {soPendentes ? "Mostrando pendentes" : "Solicitações pendentes"}
+        </Button>
           <div className="relative">
             <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input className="pl-8 w-56 h-9" placeholder="Buscar…" value={busca} onChange={(e) => setBusca(e.target.value)} />
