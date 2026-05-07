@@ -20,8 +20,12 @@ const ALIAS: Record<string, string> = {
   compradores: "comprador",
   prioridades: "prioridade",
   tipos: "tipo",
+  tipo_de_solicitacao: "tipo",
   status_solicitacao: "status",
   status_da_solicitacao: "status",
+  centros_de_custo: "centro_custo",
+  centro_de_custo: "centro_custo",
+  slas: "sla",
 };
 
 export function resolveFieldKey(labelOrKey: string): string {
@@ -29,20 +33,22 @@ export function resolveFieldKey(labelOrKey: string): string {
   return ALIAS[k] ?? k;
 }
 
+export type FieldOption = { value: string; meta: Record<string, any> };
+
 export function useFieldOptions(labelOrKey: string) {
   const fieldKey = resolveFieldKey(labelOrKey);
-  const [options, setOptions] = useState<string[]>([]);
+  const [items, setItems] = useState<FieldOption[]>([]);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    if (!fieldKey) { setOptions([]); setLoading(false); return; }
+    if (!fieldKey) { setItems([]); setLoading(false); return; }
     const { data, error } = await supabase
       .from("eng_field_options")
-      .select("value")
+      .select("value, meta")
       .eq("field_key", fieldKey)
       .order("value", { ascending: true });
     if (error) console.error("useFieldOptions", fieldKey, error);
-    setOptions((data ?? []).map((r) => r.value as string));
+    setItems((data ?? []).map((r: any) => ({ value: r.value as string, meta: (r.meta ?? {}) as Record<string, any> })));
     setLoading(false);
   }, [fieldKey]);
 
@@ -60,12 +66,12 @@ export function useFieldOptions(labelOrKey: string) {
     return () => { supabase.removeChannel(channel); };
   }, [fieldKey, load]);
 
-  const addOption = useCallback(async (value: string) => {
+  const addOption = useCallback(async (value: string, meta?: Record<string, any>) => {
     const v = (value ?? "").toString().trim();
     if (!v || !fieldKey) return false;
     const { error } = await supabase
       .from("eng_field_options")
-      .insert({ field_key: fieldKey, value: v } as any);
+      .insert({ field_key: fieldKey, value: v, meta: meta ?? {} } as any);
     if (error && !String(error.message).toLowerCase().includes("duplicate")) {
       console.error("addOption", error);
       return false;
@@ -73,5 +79,8 @@ export function useFieldOptions(labelOrKey: string) {
     return true;
   }, [fieldKey]);
 
-  return { options, loading, addOption, fieldKey, reload: load };
+  const options = items.map((i) => i.value);
+  const findMeta = (value: string) => items.find((i) => i.value === value)?.meta ?? {};
+
+  return { options, items, loading, addOption, fieldKey, reload: load, findMeta };
 }
