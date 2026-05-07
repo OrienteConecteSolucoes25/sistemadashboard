@@ -15,8 +15,9 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import {
   MapPin, Plus, Trash2, Users, Boxes, Search, AlertTriangle, CheckCircle2,
-  CalendarClock, Wrench, UserPlus, X, TrendingUp, PackageX,
+  CalendarClock, Wrench, UserPlus, X, TrendingUp, PackageX, Pencil,
 } from "lucide-react";
+import { fireAudit } from "../lib/audit";
 import {
   ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip,
   PieChart, Pie, Cell, Legend,
