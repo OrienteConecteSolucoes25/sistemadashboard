@@ -93,7 +93,15 @@ export default function CredenciaisPage() {
         </Alert>
       )}
 
-      <div className="flex justify-end">
+      <div className="flex justify-end gap-2">
+        <Button variant="outline" size="sm" onClick={() => {
+          const csv = ["uf,portal,login,senha_mascarada,status",
+            ...rows.map(r => `${r.uf},${r.portal_url ?? ""},${r.login},••••••••,${r.status}`)].join("\n");
+          const blob = new Blob([csv], { type: "text/csv" });
+          const a = document.createElement("a");
+          a.href = URL.createObjectURL(blob); a.download = "credenciais-crea.csv"; a.click();
+          toast.success("Exportado (senhas mascaradas)");
+        }}>Exportar (mascarado)</Button>
         <Button onClick={startNew} disabled={hasMaster === false}><Plus className="w-4 h-4 mr-1" /> Nova credencial</Button>
       </div>
 

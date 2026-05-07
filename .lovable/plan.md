@@ -1,86 +1,128 @@
-# Finalizar Módulo CREA & ART
+# CREA & ART — Fechamento completo (F2→F7 + correções)
 
-Hoje o módulo tem estrutura, tabelas, RLS, RPCs de segurança, layout, dashboard e governança — mas as telas operacionais são **somente leitura** ("CRUD completo nas próximas iterações"), Credenciais e Assistente IA estão como placeholders, e ainda não há admin do CREA. Esta leva fecha tudo o que falta.
+Objetivo: corrigir os bugs do CRUD atual, completar todas as fases que faltam (F2 a F7) e deixar o módulo CREA com paridade total ao padrão Engenharia/Jurídico (toolbar global, anexos, sheet lateral de detalhes, IA com conhecimento do próprio módulo, seed-pack de normas/links).
 
-## Escopo (4 frentes)
+---
 
-### 1. CRUD completo nas 13 telas de cadastro/operação
+## 1. Correções críticas (bloqueiam uso hoje)
 
-Substituir o `GenericListPage` (read-only) por uma página real reaproveitando o padrão global do projeto:
+1.1. **Botão "Salvar" do formulário Novo não funciona** — auditar `CreaCrudPage` (insert/update via `creaCrud.ts`): garantir `await sb.from(table).insert(record)`, tratar erro com toast e fechar Sheet só em sucesso. Hoje o submit silencia.
 
-- **DataActionsToolbar** (Exportar xlsx/csv/docx + Modelo + Importar) — já existe no projeto, mesmo padrão de Engenharia/Jurídico. Exceto a parte de importar e modelo que deve seguir o modelo da sub-aba DADOS na aba governança do modulo de engenharia onde o sistema se adapta a planilha importada. ao fazer isso a parte exportar terá também que se adaptar ao formato de planilha que tiver na empresa e a empresa tiver importado.
-- Botão **Novo** abrindo Sheet/Dialog com formulário dinâmico por tabela.
-- Linha clicável → Sheet de edição.
-- **Excluir** via `DeleteWithPasswordModal` chamando RPC `crea_soft_delete(table, id, reason)`.
-- Filtros: busca textual + filtro por UF e por status (quando aplicável).
-- Ordenação por coluna e paginação (200/página).
-- Realtime opcional (subscribe na tabela) para refletir mudanças.
+1.2. **Botão "Importar" some / não funciona** — depois do parse, o estado fecha o `DataActionsToolbar`. Manter toolbar sempre montada e não desmontar durante o ImportDataModal. Fazer o insert em lote (chunks de 200) chamando `mapAdaptive` + `sb.from(table).insert(rows)`.
 
-Telas afetadas: ARTs, Protocolos, CATs, Certidões, Baixas, Tratativas, Prazos, RTs, Empresas e CREAs, Documentações, Normas, Links Oficiais, Auditoria (read-only só com filtros).
+1.3. **Seleção de colunas ao importar** — estender `ImportDataModal` (ou criar `ImportColumnPickerModal` no CREA) com 3 passos: arquivo → preview com checkboxes por coluna (mapear para campo conhecido OU manter em `data` JSONB OU ignorar) → confirmar.
 
-Implementação: criar `CreaCrudPage.tsx` parametrizável + `creaCrudConfigs.ts` com schema (campos, tipos, máscaras, opções) por tabela. Os Pages atuais passam a delegar para esse componente.
+1.4. **Status ART faltando "não iniciada"** — adicionar `nao_iniciada` em `STATUS_ART` (`creaCrudConfigs.ts`) e como default ao criar.
 
-### 2. Credenciais — UI segura funcional
+1.5. **ART: ID visível + datas em sheet lateral** — replicar padrão do módulo Engenharia (Obras): formulário "Novo" só pede campos essenciais (numero, UF, contratante, contratado, escopo, status); clicar no número/ID abre `ArtDetailSheet` com abas (Dados, Datas, Anexos, Histórico) onde se preenchem `data_emissao/pagamento/baixa/rascunho/validacao` etc.
 
-Construir `CredenciaisPage` real:
+---
 
-- Banner para definir a **chave-mestra** (admin OCS) via `crea_set_master_key` se ainda não definida.
-- Lista de credenciais (UF, empresa, RT, portal, login mascarado, última revelação).
-- Botão **Nova Credencial** → form (UF, empresa, RT, portal, login, senha) → `crea_save_credential` (cifragem AES no servidor).
-- Botão **Revelar Senha** → modal exigindo **motivo** (texto obrigatório) + senha do usuário logado → `crea_reveal_credential` → mostra senha por 30s com cópia única e auto-ocultação.
-- Toda revelação grava em `crea_audit_logs`.
-- Visível só com permissão `can_view_credentials` (resto do time só vê o login mascarado).
+## 2. Anexos em todo o módulo (F2 complemento)
 
-### 3. Assistente IA CREA
+- Criar bucket Storage `crea-attachments` (privado) + RLS por `company_id`.
+- Tabela `crea_attachments (id, table_name, record_id, file_path, file_name, mime, size, uploaded_by, company_id, created_at, is_deleted)`.
+- Componente `CreaAttachmentsField.tsx` reutilizável (upload múltiplo, lista, download assinado, delete soft).
+- Plugar em **todos** os formulários: ARTs, Protocolos, **Certidões** (faltava), CATs, Baixas, Tratativas, RTs, Empresas, Documentações, Normas.
+- `CreaCrudPage` ganha aba "Anexos" no Sheet de edição.
 
-- Criar edge function `**crea-ai-assist**` (Lovable AI Gateway, model `google/gemini-2.5-flash`) com RAG simples: busca em `crea_ai_sources` (filtro por UF + tema), monta contexto, devolve resposta + lista de fontes citadas.
-- UI em `AssistentePage`: chat (pergunta + resposta + fontes), histórico salvo em `crea_ai_questions`, filtro por UF.
-- Aviso explícito: "Responde apenas com base nas fontes cadastradas. Não inventa norma de CREA."
-- NotebookLM apenas como link de referência opcional no rodapé.
+---
 
-### 4. CreaAdminPage (admin OCS)
+## 3. Credenciais — Exportar/Importar + UI completa (F4)
 
-Nova rota `/app/crea/admin` (admin-only) com abas:
+- Adicionar `DataActionsToolbar` na `CredenciaisPage` (Exportar xlsx/csv com **senhas mascaradas** sempre — nunca exporta texto claro; Importar aceita CSV com senhas em claro e cifra no insert via `crea_save_credential`).
+- Auditar export: registrar em `crea_audit_logs` quem exportou e quantas linhas.
+- Manter "Revelar senha" exigindo motivo + auto-hide 30s (já existe).
 
-- **Papéis & Permissões**: gerenciar `user_roles` (crea_*) e `crea_module_permissions` por empresa/usuário.
-- **Chave-mestra**: status, rotação (re-cifra credenciais existentes).
-- **Fontes IA**: CRUD de `crea_ai_sources` (DN, PL, resoluções, checklists).
-- **Configurações**: `crea_module_settings` (defaults por empresa).
-- **Auditoria**: visão consolidada de `crea_audit_logs` com filtros.
+---
 
-## Detalhes técnicos
+## 4. Dashboard avançado + filtros (F3)
 
-### Novos arquivos
+- `CreaDashboard` com KPIs reais (queries agregadas): ARTs por status/UF/escopo/setor/empresa/RT, protocolos abertos/vencendo, CATs solic/emit, certidões vencendo/vencidas, baixas pendentes, prazos críticos.
+- Barra de filtros global (empresa, UF, CREA, RT, engenheiro, escopo, setor, status, período, tipo doc, tipo protocolo) com persistência em URL.
+- Gráficos via `recharts` respeitando preferências de `ChartPreferencesPanel` (Aparência).
 
-- `src/modules/crea/ui/crud/CreaCrudPage.tsx` — página parametrizável (lista + toolbar + form sheet + delete).
-- `src/modules/crea/ui/crud/creaCrudConfigs.ts` — schema de cada tabela CREA.
-- `src/modules/crea/ui/CredenciaisPage.tsx` — substitui placeholder.
-- `src/modules/crea/ui/RevealCredentialModal.tsx`.
-- `src/modules/crea/ui/AssistentePage.tsx` — substitui placeholder (chat real).
-- `src/modules/crea/ui/CreaAdminPage.tsx` — admin com tabs.
-- `src/modules/crea/lib/creaCrud.ts` — helpers (insert/update/soft-delete + audit).
-- `supabase/functions/crea-ai-assist/index.ts` — edge function RAG.
+---
 
-### Backend (migration)
+## 5. Assistente IA — conhecimento do próprio módulo (F5+)
 
-- Tabela auxiliar `crea_ai_questions` (se ainda não existir): pergunta, resposta, fontes_citadas, uf, user_id, company_id.
-- Garantir RPC `crea_save_credential` aceitar update (não só insert).
-- Garantir índice em `crea_ai_sources(uf, tema)` para RAG.
-- (Reaproveita `crea_can`, `crea_soft_delete`, `theme_audit_logs` patterns já existentes.)
+Hoje o `crea-ai-assist` só usa `crea_ai_sources`. Ampliar para **explicar o módulo**:
 
-### Padrões reutilizados (sem reimplementar)
+- Adicionar fonte sintética `MODULE_DOCS` no system prompt: descrição de cada sub-aba, campos, status, fluxos (gerada de constantes em `creaModuleDocs.ts`).
+- Permitir perguntas operacionais: "como funciona a aba CATs?", "quais status uma ART pode ter?", "o que faz a aba Tratativas?".
+- Continuar respondendo perguntas de norma só com base em `crea_ai_sources` (sem inventar DN/PL).
+- UI: chip de modo ("Sobre o módulo" vs "Sobre normas") opcional.
 
-- `DataActionsToolbar`, `ImportDataModal`, `lib/dataIO` (xlsx/csv/docx).
-- `DeleteWithPasswordModal`.
-- `CollapsibleModuleSidebar` (já em uso).
-- `EngPageHeader` / `KpiGrid` (mesmo padrão visual).
-- Lovable AI Gateway (sem API key extra).
+---
 
-## Critérios de aceite
+## 6. Seed-pack Normas + Links Oficiais (F6)
 
-- Em qualquer tela CREA: criar, editar, exportar, importar e excluir (com senha+motivo) funcionam.
-- Credenciais: definir master key, cadastrar e revelar senha (com motivo + auditoria) funcionam.
-- Assistente responde citando fontes de `crea_ai_sources` e grava histórico.
-- `/app/crea/admin` acessível só para admin OCS, com 5 abas operacionais.
-- Nenhuma cor hard-coded; tudo via tokens HSL.
-- Soft delete em todas as tabelas crea_* (nunca DELETE físico).
+- Migration com seed de:
+  - `crea_links_oficiais`: 27 UFs + Confea (portal, serviços, consulta ART/CAT, certidões, protocolo, atendimento, normas).
+  - `crea_norms`: pacote inicial Confea (Resolução 1.025/2009 ART, 1.121/2023 atualizações, DN básicas) marcadas como "vigente, requer confirmação no portal".
+  - `crea_ai_sources`: as mesmas normas como conteúdo indexável.
+- Banner na UI: "Conteúdo de partida — confirme sempre no portal oficial do CREA da UF."
+
+---
+
+## 7. Integrações & limites explícitos (F7)
+
+Documentar e bloquear no código com flags `crea_module_settings.feature_flags`:
+- `scraping`: **off** (nunca habilitado por padrão).
+- `rpa_portais`: **off** (placeholder visual "Solicitar habilitação").
+- `assinatura_digital`: **off** (placeholder).
+- `confea_api_oficial`: **off** até existir convênio.
+- `ia_externa_paga`: **off** — Lovable AI Gateway interno apenas.
+- `revelar_senha_sem_motivo`: **proibido por RPC** (já é, manter).
+
+Página em `/app/crea/admin` aba "Integrações" mostrando cada flag e estado, sem permitir ligar via UI (só via migration manual + auditoria).
+
+---
+
+## 8. Detalhes técnicos
+
+### Arquivos novos
+- `src/modules/crea/ui/crud/ArtDetailSheet.tsx` — sheet lateral (abas Dados/Datas/Anexos/Histórico).
+- `src/modules/crea/ui/crud/ImportColumnPickerModal.tsx` — import com seleção de colunas.
+- `src/modules/crea/ui/CreaAttachmentsField.tsx` — upload reutilizável.
+- `src/modules/crea/lib/creaModuleDocs.ts` — descrição estruturada do módulo (alimenta IA).
+- `src/modules/crea/ui/IntegracoesPage.tsx` (sub-aba do admin).
+
+### Arquivos editados
+- `src/modules/crea/lib/creaCrud.ts` — `insertRecord`, `updateRecord`, `bulkInsert(table, rows)` com tratamento de erro.
+- `src/modules/crea/ui/crud/CreaCrudPage.tsx` — fix submit, toolbar persistente, integração com novo importer e `ArtDetailSheet` quando `table === 'crea_arts'`.
+- `src/modules/crea/ui/crud/creaCrudConfigs.ts` — status `nao_iniciada`, novos campos data ART, certidões com anexo.
+- `src/modules/crea/ui/CredenciaisPage.tsx` — DataActionsToolbar export/import mascarado.
+- `src/modules/crea/ui/CreaDashboard.tsx` — KPIs reais + filtros.
+- `supabase/functions/crea-ai-assist/index.ts` — injetar `MODULE_DOCS` no system prompt.
+
+### Backend (uma migration)
+- `crea_attachments` (+ RLS por empresa, soft delete).
+- Storage bucket `crea-attachments` privado + policies.
+- ALTER `crea_arts`: adicionar `data_rascunho`, `data_envio_validacao`, `data_validada` (datas finas).
+- Seed `crea_links_oficiais` (27 UFs) e `crea_norms`/`crea_ai_sources` (pacote Confea inicial).
+- ALTER `crea_module_settings`: coluna `feature_flags jsonb default '{...todas off...}'`.
+
+### Padrões reutilizados
+- `DataActionsToolbar`, `ImportDataModal` (estendido), `DeleteWithPasswordModal`, `EngPageHeader`/`KpiGrid`, `lib/dataIO`, Lovable AI Gateway, tokens HSL.
+
+---
+
+## 9. Critérios de aceite
+
+- [ ] "Novo" salva e fecha Sheet em todas as 13 telas.
+- [ ] "Importar" funciona em todas as abas, com seletor de colunas.
+- [ ] Anexos funcionam em todos os formulários (incluindo Certidões).
+- [ ] ART tem status `nao_iniciada` e abre Sheet lateral com datas/anexos pelo ID.
+- [ ] Credenciais têm Exportar (mascarado) e Importar.
+- [ ] Dashboard mostra KPIs reais com filtros persistidos.
+- [ ] IA explica o que cada aba faz e responde sobre normas citando fontes.
+- [ ] 27 UFs com links oficiais e pacote inicial de normas carregados.
+- [ ] Flags de integrações off por padrão e visíveis no Admin.
+- [ ] Nenhuma cor hard-coded; tudo via tokens HSL; soft delete em todas as crea_*.
+
+---
+
+## 10. Fora de escopo (mantido off por segurança)
+
+Scraping, RPA de portais, assinatura digital, integração Confea oficial, IA externa paga, revelação de senha sem motivo. Tudo documentado em `/app/crea/admin → Integrações` como "não disponível".

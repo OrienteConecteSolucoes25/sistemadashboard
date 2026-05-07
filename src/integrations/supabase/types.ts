@@ -2299,7 +2299,10 @@ export type Database = {
           data: Json | null
           data_baixa: string | null
           data_emissao: string | null
+          data_envio_validacao: string | null
           data_pagamento: string | null
+          data_rascunho: string | null
+          data_validada: string | null
           delete_reason: string | null
           deleted_at: string | null
           deleted_by: string | null
@@ -2328,7 +2331,10 @@ export type Database = {
           data?: Json | null
           data_baixa?: string | null
           data_emissao?: string | null
+          data_envio_validacao?: string | null
           data_pagamento?: string | null
+          data_rascunho?: string | null
+          data_validada?: string | null
           delete_reason?: string | null
           deleted_at?: string | null
           deleted_by?: string | null
@@ -2357,7 +2363,10 @@ export type Database = {
           data?: Json | null
           data_baixa?: string | null
           data_emissao?: string | null
+          data_envio_validacao?: string | null
           data_pagamento?: string | null
+          data_rascunho?: string | null
+          data_validada?: string | null
           delete_reason?: string | null
           deleted_at?: string | null
           deleted_by?: string | null
@@ -2451,6 +2460,7 @@ export type Database = {
       }
       crea_cats: {
         Row: {
+          anexo_url: string | null
           art_id: string | null
           atestado: string | null
           company_id: string
@@ -2474,6 +2484,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          anexo_url?: string | null
           art_id?: string | null
           atestado?: string | null
           company_id: string
@@ -2497,6 +2508,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          anexo_url?: string | null
           art_id?: string | null
           atestado?: string | null
           company_id?: string
@@ -2629,6 +2641,7 @@ export type Database = {
       }
       crea_companies_crea: {
         Row: {
+          anexo_url: string | null
           cnpj: string | null
           company_id: string
           created_at: string
@@ -2650,6 +2663,7 @@ export type Database = {
           visto: string | null
         }
         Insert: {
+          anexo_url?: string | null
           cnpj?: string | null
           company_id: string
           created_at?: string
@@ -2671,6 +2685,7 @@ export type Database = {
           visto?: string | null
         }
         Update: {
+          anexo_url?: string | null
           cnpj?: string | null
           company_id?: string
           created_at?: string
@@ -2776,6 +2791,7 @@ export type Database = {
       }
       crea_deadlines: {
         Row: {
+          anexo_url: string | null
           company_id: string
           created_at: string
           data: Json | null
@@ -2793,6 +2809,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          anexo_url?: string | null
           company_id: string
           created_at?: string
           data?: Json | null
@@ -2810,6 +2827,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          anexo_url?: string | null
           company_id?: string
           created_at?: string
           data?: Json | null
@@ -2830,6 +2848,7 @@ export type Database = {
       }
       crea_deregistrations: {
         Row: {
+          anexo_url: string | null
           art_id: string | null
           company_id: string
           created_at: string
@@ -2851,6 +2870,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          anexo_url?: string | null
           art_id?: string | null
           company_id: string
           created_at?: string
@@ -2872,6 +2892,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          anexo_url?: string | null
           art_id?: string | null
           company_id?: string
           created_at?: string
@@ -2994,6 +3015,7 @@ export type Database = {
       }
       crea_engineers: {
         Row: {
+          anexo_url: string | null
           company_id: string
           cpf_mask: string | null
           crea: string | null
@@ -3014,6 +3036,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          anexo_url?: string | null
           company_id: string
           cpf_mask?: string | null
           crea?: string | null
@@ -3034,6 +3057,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          anexo_url?: string | null
           company_id?: string
           cpf_mask?: string | null
           crea?: string | null
@@ -3190,6 +3214,7 @@ export type Database = {
           created_at: string
           data: Json | null
           enabled: boolean
+          feature_flags: Json
           id: string
           updated_at: string
         }
@@ -3198,6 +3223,7 @@ export type Database = {
           created_at?: string
           data?: Json | null
           enabled?: boolean
+          feature_flags?: Json
           id?: string
           updated_at?: string
         }
@@ -3206,6 +3232,7 @@ export type Database = {
           created_at?: string
           data?: Json | null
           enabled?: boolean
+          feature_flags?: Json
           id?: string
           updated_at?: string
         }
@@ -3213,6 +3240,7 @@ export type Database = {
       }
       crea_norms: {
         Row: {
+          anexo_url: string | null
           ano: number | null
           arquivo_url: string | null
           created_at: string
@@ -3235,6 +3263,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          anexo_url?: string | null
           ano?: number | null
           arquivo_url?: string | null
           created_at?: string
@@ -3257,6 +3286,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          anexo_url?: string | null
           ano?: number | null
           arquivo_url?: string | null
           created_at?: string
@@ -3282,6 +3312,7 @@ export type Database = {
       }
       crea_protocols: {
         Row: {
+          anexo_url: string | null
           company_id: string
           created_at: string
           data: Json | null
@@ -3306,6 +3337,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          anexo_url?: string | null
           company_id: string
           created_at?: string
           data?: Json | null
@@ -3330,6 +3362,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          anexo_url?: string | null
           company_id?: string
           created_at?: string
           data?: Json | null
@@ -3372,6 +3405,7 @@ export type Database = {
       }
       crea_responsible_technicians: {
         Row: {
+          anexo_url: string | null
           company_id: string
           created_at: string
           data: Json | null
@@ -3390,6 +3424,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          anexo_url?: string | null
           company_id: string
           created_at?: string
           data?: Json | null
@@ -3408,6 +3443,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          anexo_url?: string | null
           company_id?: string
           created_at?: string
           data?: Json | null
@@ -3437,6 +3473,7 @@ export type Database = {
       }
       crea_treatments: {
         Row: {
+          anexo_url: string | null
           art_id: string | null
           canal: string | null
           cat_id: string | null
@@ -3459,6 +3496,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          anexo_url?: string | null
           art_id?: string | null
           canal?: string | null
           cat_id?: string | null
@@ -3481,6 +3519,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          anexo_url?: string | null
           art_id?: string | null
           canal?: string | null
           cat_id?: string | null

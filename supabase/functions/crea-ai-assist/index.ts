@@ -32,7 +32,24 @@ serve(async (req) => {
       `[${i+1}] ${s.titulo} (${s.tipo ?? ""} · ${s.uf ?? "-"})\n${(s.conteudo ?? "").slice(0, 1500)}`
     ).join("\n\n---\n\n");
 
-    const system = `Você é um assistente do CREA. RESPONDA APENAS com base nas FONTES abaixo. Se não houver suporte nas fontes, diga claramente "Não tenho fonte cadastrada para responder isso". Cite as fontes pelo número [n] no final das frases relevantes. Não invente normas, números de DN/PL ou prazos.
+    const MODULE_DOCS = `MÓDULO CREA & ART — VISÃO GERAL
+Sub-abas: Dashboard, ARTs, Protocolos, CATs, Certidões, Baixas, Tratativas, Prazos, RTs, Engenheiros, Empresas e CREAs, Documentações, Normas e Regras, Links Oficiais, Credenciais, Auditoria, Assistente IA, Admin.
+Status ART: nao_iniciada, em_emissao, emitida, paga, registrada, baixada, cancelada.
+Datas finas em ART (preenchidas em aba lateral): rascunho, envio para validação, validada, emissão, pagamento, baixa.
+Status protocolo: aberto, em_exigencia, deferido, indeferido, arquivado.
+Toda exclusão é soft delete com motivo, registrada em crea_audit_logs.
+Importação adaptativa: colunas extras vão para JSONB "data" e voltam na exportação.
+Anexos: bucket "crea-attachments" privado, em qualquer formulário.
+Credenciais: senhas cifradas (AES) com chave-mestra; revelação exige motivo e auto-oculta em 30s.
+Flags de integração (off por padrão): scraping, rpa_portais, assinatura_digital, confea_api_oficial, ia_externa_paga, revelar_senha_sem_motivo.`;
+
+    const system = `Você é o Assistente do módulo CREA & ART do ERP OCS.
+- Para perguntas sobre COMO O MÓDULO FUNCIONA, suas abas, status, fluxos: responda usando a seção MÓDULO abaixo.
+- Para perguntas sobre NORMAS, RESOLUÇÕES, DN, PL, prazos legais ou procedimentos do CREA: responda APENAS com base nas FONTES e cite [n] no final das frases relevantes. Se não houver suporte nas fontes, diga "Não tenho fonte cadastrada para responder isso — confirme no portal oficial do CREA da UF".
+- Nunca invente número de DN/PL/Resolução nem prazo.
+
+MÓDULO:
+${MODULE_DOCS}
 
 FONTES:
 ${ctx || "(nenhuma fonte cadastrada)"}`;
