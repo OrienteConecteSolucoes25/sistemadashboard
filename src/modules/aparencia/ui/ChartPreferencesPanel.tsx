@@ -38,7 +38,8 @@ const CATALOG: { module: string; tab: string; metric: string; label: string; def
 ];
 
 interface Props {
-  companyId: string;
+  /** null = preferência global (vale para todos os projetos sem override) */
+  companyId: string | null;
   onDirtyChange?: (dirty: boolean) => void;
 }
 
@@ -56,10 +57,10 @@ export function ChartPreferencesPanel({ companyId, onDirtyChange }: Props) {
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!companyId) return;
     (async () => {
-      const { data } = await (supabase as any)
-        .from("company_chart_preferences").select("*").eq("company_id", companyId);
+      let q = (supabase as any).from("company_chart_preferences").select("*");
+      q = companyId ? q.eq("company_id", companyId) : q.is("company_id", null);
+      const { data } = await q;
       const map: Record<string, Pref> = {};
       CATALOG.forEach(c => {
         const row = (data || []).find((r: any) => r.module_key === c.module && r.tab_key === c.tab && r.metric_key === c.metric);
@@ -103,12 +104,15 @@ export function ChartPreferencesPanel({ companyId, onDirtyChange }: Props) {
       user_can_switch: p.user_can_switch,
       is_active: true,
     }));
+    const onConflict = companyId
+      ? "company_id,module_key,tab_key,subtab_key,metric_key"
+      : "module_key,tab_key,subtab_key,metric_key";
     const { error } = await (supabase as any)
       .from("company_chart_preferences")
-      .upsert(rows, { onConflict: "company_id,module_key,tab_key,subtab_key,metric_key" });
+      .upsert(rows, { onConflict });
     setSaving(false);
     if (error) { toast.error("Erro ao salvar gráficos: " + error.message); return; }
-    toast.success("Preferências de gráficos salvas.");
+    toast.success(companyId ? "Preferências salvas para a empresa." : "Preferências GLOBAIS salvas (valem para todos).");
     onDirtyChange?.(false);
   };
 
