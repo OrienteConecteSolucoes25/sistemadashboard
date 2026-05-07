@@ -238,6 +238,7 @@ const SuprimentosPage = () => {
   useEffect(() => { load(); }, []);
 
   const filtered = useMemo(() => rows.filter((r) => {
+    if (soPendentes && (scrcCounts[r.id] || 0) > 0) return false;
     if (fStatus !== ALL && r.status !== fStatus) return false;
     if (busca.trim()) {
       const q = busca.toLowerCase();
@@ -245,7 +246,7 @@ const SuprimentosPage = () => {
       if (!hay.includes(q)) return false;
     }
     return true;
-  }), [rows, busca, fStatus]);
+  }), [rows, busca, fStatus, soPendentes, scrcCounts]);
 
   const isOverdue = (d: string | null) => d && new Date(d) < new Date(new Date().toDateString());
   const cnt = (st: string) => rows.filter((x) => String(x.status).toLowerCase() === st).length;
