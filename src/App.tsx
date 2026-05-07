@@ -51,6 +51,7 @@ import MinhaEmpresaPage from "./modules/planos/ui/MinhaEmpresaPage";
 import CreaGuard from "./modules/crea/ui/CreaGuard";
 import CreaDashboard from "./modules/crea/ui/CreaDashboard";
 import CreaAdminPage from "./modules/crea/ui/CreaAdminPage";
+import CreaIntegracoesPage from "./modules/crea/ui/CreaIntegracoesPage";
 import {
   ArtsPage as CreaArtsPage, ProtocolosPage as CreaProtocolosPage, CatsPage as CreaCatsPage,
   CertidoesPage as CreaCertidoesPage, BaixasPage as CreaBaixasPage, TratativasPage as CreaTratativasPage,
