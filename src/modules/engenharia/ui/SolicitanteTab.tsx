@@ -82,7 +82,7 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
             <div><Label className="text-xs">Obra / Site</Label>
               <Input list="sites-list" value={obra} onChange={e => setObra(e.target.value)} placeholder="Digite ou selecione…" />
               <datalist id="sites-list">
-                {sites.map(s => <option key={s.id} value={s.nome || s.site_id} />)}
+                {sites.map(s => <option key={s.id} value={s.nome || s.codigo} />)}
               </datalist>
             </div>
           </div>
