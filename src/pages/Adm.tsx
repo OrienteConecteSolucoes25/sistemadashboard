@@ -37,11 +37,13 @@ const Adm = () => {
           <TabsTrigger value="grupos">Grupos</TabsTrigger>
           <TabsTrigger value="usuarios">Usuários</TabsTrigger>
           <TabsTrigger value="modulos">Módulos</TabsTrigger>
+          <TabsTrigger value="permissoes">Permissões por empresa</TabsTrigger>
           <TabsTrigger value="bulk">Cadastro em massa</TabsTrigger>
         </TabsList>
         <TabsContent value="grupos"><GruposTab /></TabsContent>
         <TabsContent value="usuarios"><UsuariosTab /></TabsContent>
         <TabsContent value="modulos"><ModulosTab /></TabsContent>
+        <TabsContent value="permissoes"><PermissoesTab /></TabsContent>
         <TabsContent value="bulk"><BulkTab /></TabsContent>
       </Tabs>
     </div>
