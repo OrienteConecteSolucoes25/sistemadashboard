@@ -296,6 +296,7 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
       }
 
       const raw = XLSX.utils.sheet_to_json<any>(ws, { defval: "", raw: true });
+      console.log(`[SC/RC import] planilha lida: ${raw.length} linhas`);
       let ok = 0;
       let skip = 0;
       const errors: string[] = [];
