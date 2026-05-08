@@ -30,6 +30,7 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
   const tipos = useFieldOptions("tipo");
   const coords = useFieldOptions("coordenador");
   const clientes = useFieldOptions("cliente");
+  const ccCadastro = useFieldOptions("centro_custo"); // cliente -> { centro_custo }
   const categorias = useFieldOptions("categoria");
   const compradores = useFieldOptions("comprador");
   const escopos = useFieldOptions("escopo");
@@ -39,6 +40,7 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
   const [cliente, setCliente] = useState("");
   const [cc, setCc] = useState("");
   const [categoria, setCategoria] = useState("");
+  const [contaFin, setContaFin] = useState("");
   const [comprador, setComprador] = useState("");
   const [escopo, setEscopo] = useState("");
   const [site, setSite] = useState("");
