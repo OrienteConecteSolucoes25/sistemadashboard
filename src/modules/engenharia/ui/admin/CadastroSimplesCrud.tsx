@@ -228,8 +228,8 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
         {/* Form de adição */}
         <div className="grid gap-2 md:grid-cols-12 items-end border rounded-md p-2 bg-muted/40">
           <div className={`md:col-span-${Math.max(3, 12 - (metaFields.length * 3) - 2)}`}>
-            <Label className="text-[10px]">Nome *</Label>
-            <Input value={novoValor} onChange={(e) => setNovoValor(e.target.value)} placeholder="Ex: NEOENERGIA SP" />
+            <Label className="text-[10px]">{valueLabel} *</Label>
+            <Input value={novoValor} onChange={(e) => setNovoValor(e.target.value)} placeholder={valuePlaceholder} />
           </div>
           {metaFields.map((f) => (
             <div key={f.key} className="md:col-span-3">
