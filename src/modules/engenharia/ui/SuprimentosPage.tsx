@@ -624,12 +624,12 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                         <td className="px-3 py-2 text-right">
                           {isEditing ? (
                             <>
-                              <Button variant="ghost" size="sm" className="h-7" onClick={saveEdit}>Salvar</Button>
-                              <Button variant="ghost" size="sm" className="h-7" onClick={() => { setEditingId(null); setEditDraft({}); }}>X</Button>
+                              <Button variant="ghost" size="sm" className="h-7" onClick={saveEdit} title="Enter para salvar">Salvar</Button>
+                              <Button variant="ghost" size="sm" className="h-7" onClick={cancelEdit} title="Esc para cancelar">X</Button>
                             </>
                           ) : (
                             <>
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => startEdit(r)} title="Editar"><Pencil className="h-4 w-4" /></Button>
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => startEdit(r)} title="Editar (ou duplo-clique na linha)"><Pencil className="h-4 w-4" /></Button>
                               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={async () => {
                                 if (!confirm("Excluir?")) return;
                                 const snap = rows;
