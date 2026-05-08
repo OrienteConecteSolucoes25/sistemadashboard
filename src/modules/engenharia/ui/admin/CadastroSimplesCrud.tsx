@@ -253,7 +253,7 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
           <table className="w-full text-sm">
             <thead className="bg-muted/60">
               <tr>
-                <th className="text-left px-2 py-1.5">Nome</th>
+                <th className="text-left px-2 py-1.5">{valueLabel}</th>
                 {metaFields.map((f) => (
                   <th key={f.key} className="text-left px-2 py-1.5">{f.label}</th>
                 ))}
