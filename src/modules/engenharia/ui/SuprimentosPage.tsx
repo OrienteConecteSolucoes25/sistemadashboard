@@ -324,13 +324,18 @@ const SuprimentosPage = () => {
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={8} className="px-3 py-12 text-center text-muted-foreground">Carregando…</td></tr>
+            <tr><td colSpan={10} className="px-3 py-12 text-center text-muted-foreground">Carregando…</td></tr>
           ) : filtered.length === 0 ? (
-            <tr><td colSpan={8} className="px-3 py-12 text-center text-muted-foreground">Nenhuma solicitação.</td></tr>
-          ) : filtered.map((r) => (
+            <tr><td colSpan={10} className="px-3 py-12 text-center text-muted-foreground">Nenhuma solicitação.</td></tr>
+          ) : filtered.map((r) => {
+            const d = (r.data || {}) as any;
+            const cidUf = [d.cidade, d.uf].filter(Boolean).join(" / ");
+            return (
             <tr key={r.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => openEdit(r)}>
               <td className="px-3 py-2.5 font-medium">{r.numero || "—"}</td>
               <td className="px-3 py-2.5 max-w-[280px] truncate text-muted-foreground">{r.descricao || "—"}</td>
+              <td className="px-3 py-2.5">{d.cliente || "—"}</td>
+              <td className="px-3 py-2.5">{cidUf || "—"}</td>
               <td className="px-3 py-2.5">{r.solicitante || "—"}</td>
               <td className="px-3 py-2.5">{r.responsavel || "—"}</td>
               <td className={`px-3 py-2.5 ${isOverdue(r.prazo) && !["concluida", "comprada", "recebida", "cancelada"].includes(String(r.status)) ? "text-destructive font-medium" : ""}`}>{fmtDate(r.prazo)}</td>
