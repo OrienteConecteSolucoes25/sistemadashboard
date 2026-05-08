@@ -450,7 +450,7 @@ const SuprimentosPage = () => {
             const cidUf = [d.cidade, d.uf].filter(Boolean).join(" / ");
             return (
             <tr key={r.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => openEdit(r)}>
-              <td className="px-3 py-2.5 font-medium">{r.numero || "—"}</td>
+              <td className="px-3 py-2.5 font-medium">{d.site || r.numero || "—"}</td>
               <td className="px-3 py-2.5">{d.cliente || "—"}</td>
               <td className="px-3 py-2.5">{cidUf || "—"}</td>
               <td className="px-3 py-2.5">{r.solicitante || "—"}</td>
@@ -464,7 +464,6 @@ const SuprimentosPage = () => {
               </td>
               <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
                 <Button variant="ghost" size="icon" className="h-7 w-7" title="Enviar por Outlook" onClick={() => setOutlookId(r.id)}><Mail className="h-4 w-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(r)}><Pencil className="h-4 w-4" /></Button>
                 <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => excluir(r.id)}><Trash2 className="h-4 w-4" /></Button>
               </td>
             </tr>
