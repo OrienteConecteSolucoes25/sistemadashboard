@@ -483,6 +483,31 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                             ? <Input type="date" className="h-8" value={editDraft.data_solicitacao ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, data_solicitacao: e.target.value }))} />
                             : (r.data_solicitacao ? fmtDate(r.data_solicitacao) : "—")}
                         </td>
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing
+                            ? <Input className="h-8" value={editDraft.auxiliar ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, auxiliar: e.target.value }))} />
+                            : (r.auxiliar || "—")}
+                        </td>
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing
+                            ? <Input className="h-8" value={editDraft.responsavel ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, responsavel: e.target.value }))} />
+                            : (r.responsavel || "—")}
+                        </td>
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing
+                            ? <Input className="h-8" value={editDraft.coordenador ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, coordenador: e.target.value }))} />
+                            : (r.coordenador || "—")}
+                        </td>
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing
+                            ? <Input type="date" className="h-8" value={editDraft.data_finalizacao_compra ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, data_finalizacao_compra: e.target.value }))} />
+                            : (r.data_finalizacao_compra ? fmtDate(r.data_finalizacao_compra) : "—")}
+                        </td>
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing
+                            ? <Input type="date" className="h-8" value={editDraft.data_finalizacao_logistica ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, data_finalizacao_logistica: e.target.value }))} />
+                            : (r.data_finalizacao_logistica ? fmtDate(r.data_finalizacao_logistica) : "—")}
+                        </td>
                         <td className="px-3 py-2 text-right">
                           {isEditing ? (
                             <>
