@@ -62,6 +62,18 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
   const itens: any[] = Array.isArray(solicit?.itens) ? (solicit!.itens as any[]) : [];
   const tipoSol = String(sd.tipo || "").toLowerCase();
   const isRequisicao = tipoSol.includes("requisi");
+  const sel = useBulkSelection(rows);
+
+  const excluirSelecionados = async () => {
+    const ids = Array.from(sel.selected);
+    if (!ids.length) return;
+    if (!confirm(`Excluir ${ids.length} SC/RC selecionada(s)?`)) return;
+    const snap = rows;
+    setRows((prev) => prev.filter((x) => !sel.selected.has(x.id)));
+    sel.clear();
+    try { await deleteScRcMany(ids); toast.success(`${ids.length} excluída(s)`); }
+    catch (e: any) { setRows(snap); toast.error(String(e?.message ?? e)); }
+  };
 
   // Auto-fill helpers a partir do material escolhido
   const findItem = (desc: string) => itens.find((it) => String(it.descricao) === desc);
