@@ -398,7 +398,7 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
               />
               <datalist id="cat-mat-list">
                 {catalogoFiltrado.map((m) => (
-                  <option key={m.id} value={m.descricao}>{m.codigo} — {m.categoria}</option>
+                  <option key={m.id} value={`${m.codigo} — ${m.descricao}`}>{m.categoria || ""}</option>
                 ))}
               </datalist>
             </div>
