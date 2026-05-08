@@ -22,7 +22,8 @@ import {
   AtividadesPage, DemandasPage, RfiPage, PendenciasPage, EnergiaPage, ArtPage,
   RelatoriosPage, EmailsPage, IntegracoesPage, RoadmapPage, ConfiguracoesPage,
 } from "./modules/engenharia/ui/EngOperacaoPages";
-import { SitesDeluxePage, EquipesDeluxePage, MateriaisDeluxePage } from "./modules/engenharia/ui/EngDeluxePages";
+import { SitesDeluxePage, MateriaisDeluxePage } from "./modules/engenharia/ui/EngDeluxePages";
+import { FornecedoresPage } from "./modules/engenharia/ui/FornecedoresPage";
 import ObrasPage from "./modules/engenharia/ui/ObrasPage";
 import EngRastreabilidadePage from "./modules/engenharia/ui/EngRastreabilidadePage";
 import EngAdminPage from "./modules/engenharia/ui/EngAdminPage";
@@ -105,7 +106,8 @@ const App = () => (
                 <Route path="atividades" element={<AtividadesPage />} />
                 <Route path="rfi" element={<RfiPage />} />
                 <Route path="pendencias" element={<PendenciasPage />} />
-                <Route path="equipes" element={<EquipesDeluxePage />} />
+                <Route path="equipes" element={<FornecedoresPage />} />
+                <Route path="fornecedores" element={<FornecedoresPage />} />
                 <Route path="fibra" element={<FibraPage />} />
                 <Route path="energia" element={<EnergiaPage />} />
                 <Route path="materiais" element={<MateriaisDeluxePage />} />

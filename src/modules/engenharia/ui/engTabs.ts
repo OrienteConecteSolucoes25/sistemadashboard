@@ -22,7 +22,7 @@ export const ENG_TABS: EngTab[] = [
   { to: "/app/engenharia/atividades", label: "Atividades", icon: Activity, group: "Operação", moduleKey: "eng.atividades" },
   { to: "/app/engenharia/rfi", label: "RFI", icon: FileQuestion, group: "Operação", moduleKey: "eng.rfi" },
   { to: "/app/engenharia/pendencias", label: "Pendências", icon: AlertTriangle, group: "Operação", moduleKey: "eng.pendencias" },
-  { to: "/app/engenharia/equipes", label: "Equipes", icon: Users, group: "Operação", moduleKey: "eng.equipes" },
+  { to: "/app/engenharia/fornecedores", label: "Fornecedores", icon: Users, group: "Operação", moduleKey: "eng.equipes" },
   { to: "/app/engenharia/fibra", label: "Fibra (obras)", icon: Cable, group: "Operação", moduleKey: "eng.fibra" },
   { to: "/app/engenharia/energia", label: "Ligações de Energia", icon: Zap, group: "Operação", moduleKey: "eng.energia" },
 
