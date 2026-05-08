@@ -373,6 +373,8 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                             aria-label="Selecionar"
                           />
                         </td>
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing ? (
                             <Select
                               value={editDraft.item_descricao || ""}
                               onValueChange={(v) => {
