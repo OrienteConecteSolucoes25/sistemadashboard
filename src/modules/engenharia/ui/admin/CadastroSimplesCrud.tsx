@@ -12,6 +12,9 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
   DropdownMenuSeparator, DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { BulkActionsBar } from "@/components/BulkActionsBar";
 import * as XLSX from "xlsx";
 
 type MetaField = { key: string; label: string; type?: "text" | "number" };
@@ -68,6 +71,23 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
       JSON.stringify(r.meta || {}).toLowerCase().includes(s),
     );
   }, [rows, q]);
+
+  const sel = useBulkSelection(filtradas);
+
+  const excluirSelecionados = async () => {
+    const ids = Array.from(sel.selected);
+    if (!ids.length) return;
+    if (!confirm(`Excluir ${ids.length} cadastro(s)?`)) return;
+    const before = rows;
+    setRows((prev) => prev.filter((r) => !sel.selected.has(r.id)));
+    sel.clear();
+    const { error } = await supabase.from("eng_field_options").delete().in("id", ids);
+    if (error) {
+      setRows(before);
+      return toast.error(error.message);
+    }
+    toast.success(`${ids.length} cadastro(s) excluído(s)`);
+  };
 
   const adicionar = async () => {
     const v = novoValor.trim();
@@ -283,11 +303,26 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
           </div>
         </div>
 
+        {/* Barra de seleção em massa */}
+        <BulkActionsBar
+          count={sel.count}
+          onClear={sel.clear}
+          onDelete={excluirSelecionados}
+          deleteLabel={`Excluir ${sel.count} selecionado(s)`}
+        />
+
         {/* Lista */}
         <div className="border rounded-md overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-muted/60">
               <tr>
+                <th className="px-2 py-1.5 w-8">
+                  <Checkbox
+                    checked={sel.allChecked ? true : sel.someChecked ? "indeterminate" : false}
+                    onCheckedChange={() => sel.toggleAll()}
+                    aria-label="Selecionar todos"
+                  />
+                </th>
                 <th className="text-left px-2 py-1.5">{valueLabel}</th>
                 {metaFields.map((f) => (
                   <th key={f.key} className="text-left px-2 py-1.5">{f.label}</th>
@@ -297,13 +332,14 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
             </thead>
             <tbody>
               {loading && (
-                <tr><td colSpan={2 + metaFields.length} className="text-center py-4 text-muted-foreground">Carregando…</td></tr>
+                <tr><td colSpan={3 + metaFields.length} className="text-center py-4 text-muted-foreground">Carregando…</td></tr>
               )}
               {!loading && filtradas.length === 0 && (
-                <tr><td colSpan={2 + metaFields.length} className="text-center py-4 text-muted-foreground">Nenhum cadastro</td></tr>
+                <tr><td colSpan={3 + metaFields.length} className="text-center py-4 text-muted-foreground">Nenhum cadastro</td></tr>
               )}
               {filtradas.map((r) => editId === r.id ? (
                 <tr key={r.id} className="bg-amber-50 dark:bg-amber-950/20">
+                  <td className="px-2 py-1"></td>
                   <td className="px-2 py-1">
                     <Input
                       autoFocus
@@ -337,6 +373,13 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
                 </tr>
               ) : (
                 <tr key={r.id} className="border-t">
+                  <td className="px-2 py-1.5">
+                    <Checkbox
+                      checked={sel.isSelected(r.id)}
+                      onCheckedChange={() => sel.toggle(r.id)}
+                      aria-label={`Selecionar ${r.value}`}
+                    />
+                  </td>
                   <td className="px-2 py-1.5">{r.value}</td>
                   {metaFields.map((f) => (
                     <td key={f.key} className="px-2 py-1.5 text-muted-foreground">{r.meta?.[f.key] ?? "—"}</td>

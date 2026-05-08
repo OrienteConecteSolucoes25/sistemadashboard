@@ -28,6 +28,10 @@ import { StatusBadge } from "./components/StatusBadge";
 import { EngKanban } from "./components/EngKanban";
 import { DistribuicaoCard, RankingCard } from "./components/EngMiniCharts";
 import { DataActionsToolbar } from "@/components/DataActionsToolbar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { BulkActionsBar } from "@/components/BulkActionsBar";
+import { DeleteWithPasswordModal } from "@/components/DeleteWithPasswordModal";
 
 interface Solicit {
   id: string;
@@ -58,6 +62,18 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
   const itens: any[] = Array.isArray(solicit?.itens) ? (solicit!.itens as any[]) : [];
   const tipoSol = String(sd.tipo || "").toLowerCase();
   const isRequisicao = tipoSol.includes("requisi");
+  const sel = useBulkSelection(rows);
+
+  const excluirSelecionados = async () => {
+    const ids = Array.from(sel.selected);
+    if (!ids.length) return;
+    if (!confirm(`Excluir ${ids.length} SC/RC selecionada(s)?`)) return;
+    const snap = rows;
+    setRows((prev) => prev.filter((x) => !sel.selected.has(x.id)));
+    sel.clear();
+    try { await deleteScRcMany(ids); toast.success(`${ids.length} excluída(s)`); }
+    catch (e: any) { setRows(snap); toast.error(String(e?.message ?? e)); }
+  };
 
   // Auto-fill helpers a partir do material escolhido
   const findItem = (desc: string) => itens.find((it) => String(it.descricao) === desc);
@@ -314,12 +330,25 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
 
         <Card className="card-elegant mt-2">
           <CardContent className="pt-4 overflow-x-auto">
+            <BulkActionsBar
+              count={sel.count}
+              onClear={sel.clear}
+              onDelete={excluirSelecionados}
+              deleteLabel={`Excluir ${sel.count} SC/RC`}
+            />
             {loading ? <div className="text-center py-6 text-muted-foreground">Carregando…</div>
               : rows.length === 0 ? <div className="text-center py-6 text-muted-foreground">Nenhum SC/RC vinculado.</div>
               : (
                 <table className="w-full text-sm min-w-[1000px]">
                   <thead className="bg-muted/60 border-b">
                     <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+                      <th className="px-3 py-2 w-8">
+                        <Checkbox
+                          checked={sel.allChecked ? true : sel.someChecked ? "indeterminate" : false}
+                          onCheckedChange={() => sel.toggleAll()}
+                          aria-label="Selecionar todos"
+                        />
+                      </th>
                       <th className="px-3 py-2">Material (descrição)</th>
                       <th className="px-3 py-2">Tipo</th><th className="px-3 py-2">Nº</th>
                       <th className="px-3 py-2">Categoria</th>
@@ -337,6 +366,13 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                       const groupSize = groupedByNumber[groupKey]?.length || 1;
                       return (
                       <tr key={r.id} className="border-b last:border-0">
+                        <td className="px-3 py-2">
+                          <Checkbox
+                            checked={sel.isSelected(r.id)}
+                            onCheckedChange={() => sel.toggle(r.id)}
+                            aria-label="Selecionar"
+                          />
+                        </td>
                         <td className="px-3 py-2 text-xs">
                           {isEditing ? (
                             <Select
@@ -495,6 +531,15 @@ const SuprimentosPage = () => {
     return true;
   }), [rows, busca, fStatus, soPendentes, scrcCounts]);
 
+  const sel = useBulkSelection(filtered);
+  const [pendingDelete, setPendingDelete] = useState<string[]>([]);
+  const [delModalOpen, setDelModalOpen] = useState(false);
+  const askDelete = (ids: string[]) => {
+    if (!ids.length) return;
+    setPendingDelete(ids);
+    setDelModalOpen(true);
+  };
+
   const isOverdue = (d: string | null) => d && new Date(d) < new Date(new Date().toDateString());
   const cnt = (st: string) => rows.filter((x) => String(x.status).toLowerCase() === st).length;
 
@@ -519,15 +564,6 @@ const SuprimentosPage = () => {
       toast.success("Criado");
     }
     setOpen(false);
-    load();
-  };
-
-  const excluir = async (id: string) => {
-    if (!confirm("Excluir solicitação?")) return;
-    await supabase.from("eng_solicitacao_sc_rc").delete().eq("solicit_id", id);
-    const { error } = await supabase.from("eng_suprimentos").delete().eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Excluída");
     load();
   };
 
@@ -558,9 +594,24 @@ const SuprimentosPage = () => {
 
   const listView = (
     <Card className="card-elegant overflow-x-auto">
+      <div className="px-3 pt-3">
+        <BulkActionsBar
+          count={sel.count}
+          onClear={sel.clear}
+          onDelete={() => askDelete(Array.from(sel.selected))}
+          deleteLabel={`Excluir ${sel.count} solicitação(ões)`}
+        />
+      </div>
       <table className="w-full text-sm">
         <thead className="bg-muted/60 border-b">
           <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+            <th className="px-3 py-2.5 w-8">
+              <Checkbox
+                checked={sel.allChecked ? true : sel.someChecked ? "indeterminate" : false}
+                onCheckedChange={() => sel.toggleAll()}
+                aria-label="Selecionar todas"
+              />
+            </th>
             <th className="px-3 py-2.5">Site / Obra</th>
             <th className="px-3 py-2.5">Cliente</th>
             <th className="px-3 py-2.5">Cidade / UF</th>
@@ -571,14 +622,21 @@ const SuprimentosPage = () => {
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={9} className="px-3 py-12 text-center text-muted-foreground">Carregando…</td></tr>
+            <tr><td colSpan={10} className="px-3 py-12 text-center text-muted-foreground">Carregando…</td></tr>
           ) : filtered.length === 0 ? (
-            <tr><td colSpan={9} className="px-3 py-12 text-center text-muted-foreground">Nenhuma solicitação.</td></tr>
+            <tr><td colSpan={10} className="px-3 py-12 text-center text-muted-foreground">Nenhuma solicitação.</td></tr>
           ) : filtered.map((r) => {
             const d = (r.data || {}) as any;
             const cidUf = [d.cidade, d.uf].filter(Boolean).join(" / ");
             return (
             <tr key={r.id} className="border-b last:border-0 hover:bg-accent/20 transition-colors">
+              <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
+                <Checkbox
+                  checked={sel.isSelected(r.id)}
+                  onCheckedChange={() => sel.toggle(r.id)}
+                  aria-label={`Selecionar ${d.site || r.numero || r.id}`}
+                />
+              </td>
               <td className="px-3 py-2.5 font-medium">{d.site || r.numero || "—"}</td>
               <td className="px-3 py-2.5">{d.cliente || "—"}</td>
               <td className="px-3 py-2.5">{cidUf || "—"}</td>
@@ -593,7 +651,7 @@ const SuprimentosPage = () => {
               </td>
               <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
                 <Button variant="ghost" size="icon" className="h-7 w-7" title="Enviar por Outlook" onClick={() => setOutlookId(r.id)}><Mail className="h-4 w-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => excluir(r.id)}><Trash2 className="h-4 w-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => askDelete([r.id])}><Trash2 className="h-4 w-4" /></Button>
               </td>
             </tr>
           );})}
@@ -718,6 +776,20 @@ const SuprimentosPage = () => {
         onOpenChange={(v) => !v && setOutlookId(null)}
         solicit={outlookId ? rows.find(x => x.id === outlookId) ?? null : null}
         scRcs={outlookId ? allScRc.filter(s => s.solicit_id === outlookId) : []}
+      />
+
+      <DeleteWithPasswordModal
+        open={delModalOpen}
+        onOpenChange={(o) => { setDelModalOpen(o); if (!o) setPendingDelete([]); }}
+        table="eng_suprimentos"
+        recordIds={pendingDelete}
+        recordLabel={pendingDelete.length === 1
+          ? (rows.find(r => r.id === pendingDelete[0])?.numero
+             ?? (rows.find(r => r.id === pendingDelete[0])?.data as any)?.site
+             ?? null)
+          : null}
+        moduleLabel="Suprimentos"
+        onDeleted={() => { sel.clear(); setPendingDelete([]); load(); }}
       />
     </div>
   );
