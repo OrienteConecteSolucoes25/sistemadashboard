@@ -249,13 +249,9 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
             <Input value={cc} onChange={(e) => setCc(e.target.value)} />
           </Field>
 
-          <Field label="Categoria *">
-            <SelectBox value={categoria} onChange={setCategoria} options={categorias.options} />
-          </Field>
           <Field label="Comprador (editável)">
             <SelectBox value={comprador} onChange={setComprador} options={compradores.options} />
           </Field>
-
           <Field label="Escopo de engenharia *">
             <SelectBox value={escopo} onChange={setEscopo} options={escopos.options} />
           </Field>
