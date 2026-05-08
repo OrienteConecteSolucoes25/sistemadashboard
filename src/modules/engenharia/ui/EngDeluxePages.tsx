@@ -645,7 +645,7 @@ export const MateriaisDeluxePage = () => {
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={6} className="px-3 py-12 text-center text-muted-foreground">Nenhum material no catálogo.</td></tr>
               ) : pageItems.map((c) => (
-                <tr key={c.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => startEdit(c)}>
+                <tr key={c.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" title="Duplo-clique para editar" onDoubleClick={() => startEdit(c)}>
                   <td className="px-3 py-2 font-mono text-xs">{c.codigo || "—"}</td>
                   <td className="px-3 py-2 font-medium">{c.descricao}</td>
                   <td className="px-3 py-2"><Badge variant="outline" className="text-[10px] font-normal">{c.categoria || "—"}</Badge></td>
