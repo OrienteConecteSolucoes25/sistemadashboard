@@ -381,6 +381,8 @@ const PermissoesTab = () => {
           </div>
           <p className="text-xs text-muted-foreground flex-1 min-w-[260px]">
             Cada empresa autoriza suas permissões por usuário (Ver / Editar / Excluir) por módulo do plano contratado.
+            <br />
+            <strong>Admin ERP OCS:</strong> aqui você também pode liberar/ajustar permissões de qualquer usuário em qualquer empresa.
           </p>
         </CardContent>
       </Card>
