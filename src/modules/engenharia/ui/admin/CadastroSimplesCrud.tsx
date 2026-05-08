@@ -189,10 +189,11 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
       for (let i = 0; i < rowsToInsert.length; i += 500) {
         const slice = rowsToInsert.slice(i, i + 500);
         batches.push(
-          supabase.from("eng_field_options").insert(slice as any).then(({ error }) => {
+          (async () => {
+            const { error } = await supabase.from("eng_field_options").insert(slice as any);
             if (error && !error.message.toLowerCase().includes("duplicate")) return 0;
             return slice.length;
-          })
+          })()
         );
       }
       const results = await Promise.all(batches);
