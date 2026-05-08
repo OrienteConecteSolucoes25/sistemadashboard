@@ -4924,48 +4924,63 @@ export type Database = {
       }
       eng_solicitacao_sc_rc: {
         Row: {
+          auxiliar: string | null
           categoria: string | null
           centro_custo: string | null
           conta_financeira: string | null
+          coordenador: string | null
           created_at: string
           created_by: string | null
+          data_finalizacao_compra: string | null
+          data_finalizacao_logistica: string | null
           data_solicitacao: string | null
           id: string
           item_descricao: string | null
           numero_documento: string
           observacao: string | null
+          responsavel: string | null
           solicit_id: string
           status: string | null
           tipo_documento: string
           updated_at: string
         }
         Insert: {
+          auxiliar?: string | null
           categoria?: string | null
           centro_custo?: string | null
           conta_financeira?: string | null
+          coordenador?: string | null
           created_at?: string
           created_by?: string | null
+          data_finalizacao_compra?: string | null
+          data_finalizacao_logistica?: string | null
           data_solicitacao?: string | null
           id?: string
           item_descricao?: string | null
           numero_documento: string
           observacao?: string | null
+          responsavel?: string | null
           solicit_id: string
           status?: string | null
           tipo_documento: string
           updated_at?: string
         }
         Update: {
+          auxiliar?: string | null
           categoria?: string | null
           centro_custo?: string | null
           conta_financeira?: string | null
+          coordenador?: string | null
           created_at?: string
           created_by?: string | null
+          data_finalizacao_compra?: string | null
+          data_finalizacao_logistica?: string | null
           data_solicitacao?: string | null
           id?: string
           item_descricao?: string | null
           numero_documento?: string
           observacao?: string | null
+          responsavel?: string | null
           solicit_id?: string
           status?: string | null
           tipo_documento?: string

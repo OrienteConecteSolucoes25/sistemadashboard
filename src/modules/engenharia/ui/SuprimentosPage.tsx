@@ -96,6 +96,11 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
     observacao: "",
     status: "SOLICITADO",
     data_solicitacao: new Date().toISOString().slice(0, 10),
+    auxiliar: "",
+    responsavel: solicit?.responsavel || "",
+    coordenador: sd.coordenador || "",
+    data_finalizacao_compra: "",
+    data_finalizacao_logistica: "",
   });
 
   const onPickItem = (desc: string) => {
@@ -121,6 +126,11 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
       centro_custo: novo.centro_custo || null,
       observacao: novo.observacao || null,
       data_solicitacao: novo.data_solicitacao || null,
+      auxiliar: novo.auxiliar || null,
+      responsavel: novo.responsavel || null,
+      coordenador: novo.coordenador || null,
+      data_finalizacao_compra: novo.data_finalizacao_compra || null,
+      data_finalizacao_logistica: novo.data_finalizacao_logistica || null,
       solicit_id: solicitId,
     };
     // Optimistic
@@ -132,10 +142,13 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
       centro_custo: payload.centro_custo, observacao: payload.observacao,
       status: payload.status ?? "SOLICITADO", data_solicitacao: payload.data_solicitacao,
       item_descricao: payload.item_descricao,
+      auxiliar: payload.auxiliar, responsavel: payload.responsavel, coordenador: payload.coordenador,
+      data_finalizacao_compra: payload.data_finalizacao_compra,
+      data_finalizacao_logistica: payload.data_finalizacao_logistica,
       created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
     };
     setRows((prev) => [optimistic, ...prev]);
-    setNovo({ tipo_documento: isRequisicao ? "RC" : "SC", numero_documento: "", item_descricao: "", categoria: "", conta_financeira: "", centro_custo: sd.cc || "", observacao: "", status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10) });
+    setNovo({ tipo_documento: isRequisicao ? "RC" : "SC", numero_documento: "", item_descricao: "", categoria: "", conta_financeira: "", centro_custo: sd.cc || "", observacao: "", status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10), auxiliar: "", responsavel: solicit?.responsavel || "", coordenador: sd.coordenador || "", data_finalizacao_compra: "", data_finalizacao_logistica: "" });
     try {
       const created = await createScRc(payload);
       setRows((prev) => prev.map((r) => (r.id === tempId ? created : r)));
@@ -159,6 +172,11 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
       centro_custo: editDraft.centro_custo ?? null,
       observacao: editDraft.observacao ?? null,
       data_solicitacao: editDraft.data_solicitacao ?? null,
+      auxiliar: editDraft.auxiliar ?? null,
+      responsavel: editDraft.responsavel ?? null,
+      coordenador: editDraft.coordenador ?? null,
+      data_finalizacao_compra: editDraft.data_finalizacao_compra ?? null,
+      data_finalizacao_logistica: editDraft.data_finalizacao_logistica ?? null,
     } as any;
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
     setEditingId(null); setEditDraft({});
@@ -279,9 +297,10 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
           </span>
         </div>
 
-        {/* Cabeçalho com endereço/cidade/UF */}
+        {/* Cabeçalho com cliente/endereço/cidade/UF */}
         <Card className="card-elegant">
-          <CardContent className="pt-3 pb-3 grid gap-2 md:grid-cols-3 text-sm">
+          <CardContent className="pt-3 pb-3 grid gap-2 md:grid-cols-4 text-sm">
+            <div><div className="text-[10px] uppercase text-muted-foreground">Cliente</div><div className="font-medium">{sd.cliente || sd.empresa || "—"}</div></div>
             <div><div className="text-[10px] uppercase text-muted-foreground">Endereço</div><div className="font-medium">{sd.endereco || "—"}</div></div>
             <div><div className="text-[10px] uppercase text-muted-foreground">Cidade</div><div className="font-medium">{sd.cidade || "—"}</div></div>
             <div><div className="text-[10px] uppercase text-muted-foreground">UF</div><div className="font-medium">{sd.uf || "—"}</div></div>
@@ -325,6 +344,15 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
               <div className="md:col-span-3"><Label className="text-xs">Centro de custo</Label><Input value={novo.centro_custo} onChange={(e) => setNovo({ ...novo, centro_custo: e.target.value })} /></div>
               <div className="md:col-span-3"><Label className="text-xs">Data solicit.</Label><Input type="date" value={novo.data_solicitacao} onChange={(e) => setNovo({ ...novo, data_solicitacao: e.target.value })} /></div>
             </div>
+            <div className="grid gap-2 md:grid-cols-12 items-end">
+              <div className="md:col-span-3"><Label className="text-xs">Auxiliar</Label><Input value={novo.auxiliar} onChange={(e) => setNovo({ ...novo, auxiliar: e.target.value })} placeholder="Nome de quem fez" /></div>
+              <div className="md:col-span-3"><Label className="text-xs">Responsável</Label><Input value={novo.responsavel} onChange={(e) => setNovo({ ...novo, responsavel: e.target.value })} /></div>
+              <div className="md:col-span-3"><Label className="text-xs">Coordenador (solicitou)</Label><Input value={novo.coordenador} onChange={(e) => setNovo({ ...novo, coordenador: e.target.value })} /></div>
+              <div className="md:col-span-3 grid grid-cols-2 gap-2">
+                <div><Label className="text-xs">Fim compra</Label><Input type="date" value={novo.data_finalizacao_compra} onChange={(e) => setNovo({ ...novo, data_finalizacao_compra: e.target.value })} /></div>
+                <div><Label className="text-xs">Fim logística</Label><Input type="date" value={novo.data_finalizacao_logistica} onChange={(e) => setNovo({ ...novo, data_finalizacao_logistica: e.target.value })} /></div>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -356,6 +384,11 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                       <th className="px-3 py-2">CC</th>
                       <th className="px-3 py-2">Status</th>
                       <th className="px-3 py-2">Data solicit.</th>
+                      <th className="px-3 py-2">Auxiliar</th>
+                      <th className="px-3 py-2">Responsável</th>
+                      <th className="px-3 py-2">Coordenador</th>
+                      <th className="px-3 py-2">Fim compra</th>
+                      <th className="px-3 py-2">Fim logística</th>
                       <th className="px-3 py-2 w-24 text-right">Ações</th>
                     </tr>
                   </thead>
@@ -449,6 +482,31 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                           {isEditing
                             ? <Input type="date" className="h-8" value={editDraft.data_solicitacao ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, data_solicitacao: e.target.value }))} />
                             : (r.data_solicitacao ? fmtDate(r.data_solicitacao) : "—")}
+                        </td>
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing
+                            ? <Input className="h-8" value={editDraft.auxiliar ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, auxiliar: e.target.value }))} />
+                            : (r.auxiliar || "—")}
+                        </td>
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing
+                            ? <Input className="h-8" value={editDraft.responsavel ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, responsavel: e.target.value }))} />
+                            : (r.responsavel || "—")}
+                        </td>
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing
+                            ? <Input className="h-8" value={editDraft.coordenador ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, coordenador: e.target.value }))} />
+                            : (r.coordenador || "—")}
+                        </td>
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing
+                            ? <Input type="date" className="h-8" value={editDraft.data_finalizacao_compra ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, data_finalizacao_compra: e.target.value }))} />
+                            : (r.data_finalizacao_compra ? fmtDate(r.data_finalizacao_compra) : "—")}
+                        </td>
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing
+                            ? <Input type="date" className="h-8" value={editDraft.data_finalizacao_logistica ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, data_finalizacao_logistica: e.target.value }))} />
+                            : (r.data_finalizacao_logistica ? fmtDate(r.data_finalizacao_logistica) : "—")}
                         </td>
                         <td className="px-3 py-2 text-right">
                           {isEditing ? (
