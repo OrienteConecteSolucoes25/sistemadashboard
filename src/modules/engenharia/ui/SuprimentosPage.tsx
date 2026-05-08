@@ -292,9 +292,14 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
           categoria,
           conta_financeira: conta_financeira || null,
           centro_custo: centro_custo || null,
-          observacao: String(r.observacao || "") || null,
+          observacao: String(r.observacao || r["observação"] || "") || null,
           status: String(r.status || "SOLICITADO"),
-          data_solicitacao: String(r.data_solicitacao || "").slice(0, 10) || null,
+          data_solicitacao: String(r.data_solicitacao || r["data_solicitação"] || "").slice(0, 10) || null,
+          auxiliar: String(r.auxiliar || "") || null,
+          responsavel: String(r.responsavel || r["responsável"] || "") || null,
+          coordenador: String(r.coordenador || "") || null,
+          data_finalizacao_compra: String(r.data_finalizacao_compra || r["fim_compra"] || "").slice(0, 10) || null,
+          data_finalizacao_logistica: String(r.data_finalizacao_logistica || r["fim_logística"] || r["fim_logistica"] || "").slice(0, 10) || null,
         } as any);
         ok++;
       }
