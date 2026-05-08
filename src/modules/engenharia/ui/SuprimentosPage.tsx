@@ -96,6 +96,11 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
     observacao: "",
     status: "SOLICITADO",
     data_solicitacao: new Date().toISOString().slice(0, 10),
+    auxiliar: "",
+    responsavel: solicit?.responsavel || "",
+    coordenador: sd.coordenador || "",
+    data_finalizacao_compra: "",
+    data_finalizacao_logistica: "",
   });
 
   const onPickItem = (desc: string) => {
