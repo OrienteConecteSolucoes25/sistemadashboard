@@ -172,6 +172,11 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
       centro_custo: editDraft.centro_custo ?? null,
       observacao: editDraft.observacao ?? null,
       data_solicitacao: editDraft.data_solicitacao ?? null,
+      auxiliar: editDraft.auxiliar ?? null,
+      responsavel: editDraft.responsavel ?? null,
+      coordenador: editDraft.coordenador ?? null,
+      data_finalizacao_compra: editDraft.data_finalizacao_compra ?? null,
+      data_finalizacao_logistica: editDraft.data_finalizacao_logistica ?? null,
     } as any;
     setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
     setEditingId(null); setEditDraft({});
