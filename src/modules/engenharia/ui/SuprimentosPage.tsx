@@ -101,7 +101,37 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
   return (
     <Dialog open onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle className="font-display flex items-center gap-2"><FileText className="h-5 w-5 text-primary" />SC / RC vinculados</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="font-display flex items-center gap-2"><FileText className="h-5 w-5 text-primary" />SC / RC vinculados {solicit?.numero ? `— ${solicit.numero}` : ""}</DialogTitle></DialogHeader>
+
+        {itens.length > 0 && (
+          <Card className="card-elegant">
+            <CardContent className="pt-3">
+              <div className="text-xs font-semibold mb-1.5 flex items-center gap-2">
+                Materiais da solicitação ({itens.length})
+                {isRequisicao
+                  ? <Badge variant="secondary" className="text-[10px]">Requisição: vincule todos em uma única RC</Badge>
+                  : <Badge variant="outline" className="text-[10px]">Crie uma SC/RC por categoria</Badge>}
+              </div>
+              <div className="max-h-40 overflow-y-auto border rounded">
+                <table className="w-full text-xs">
+                  <thead className="bg-muted/50">
+                    <tr><th className="px-2 py-1 text-left">Descrição</th><th className="px-2 py-1 text-left">Categoria</th><th className="px-2 py-1 w-16">Unid.</th><th className="px-2 py-1 w-14">Qtd</th></tr>
+                  </thead>
+                  <tbody>
+                    {itens.map((it: any, i: number) => (
+                      <tr key={i} className="border-t">
+                        <td className="px-2 py-1">{it.descricao}</td>
+                        <td className="px-2 py-1 text-muted-foreground">{it.categoria || sd.categoria || "—"}</td>
+                        <td className="px-2 py-1">{it.unidade}</td>
+                        <td className="px-2 py-1">{it.quantidade}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="card-elegant">
           <CardContent className="pt-4 grid gap-2 md:grid-cols-8 items-end">
