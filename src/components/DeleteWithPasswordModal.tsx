@@ -87,7 +87,9 @@ export function DeleteWithPasswordModal({
           <AlertTitle>Atenção</AlertTitle>
           <AlertDescription className="text-xs space-y-1">
             <div><strong>Módulo:</strong> {moduleLabel ?? table}</div>
-            <div><strong>Registro:</strong> {recordLabel ?? recordId}</div>
+            <div><strong>Registro:</strong> {isBulk
+              ? `${ids.length} registros selecionados`
+              : (recordLabel ?? ids[0])}</div>
           </AlertDescription>
         </Alert>
 
