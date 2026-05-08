@@ -72,6 +72,23 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
     );
   }, [rows, q]);
 
+  const sel = useBulkSelection(filtradas);
+
+  const excluirSelecionados = async () => {
+    const ids = Array.from(sel.selected);
+    if (!ids.length) return;
+    if (!confirm(`Excluir ${ids.length} cadastro(s)?`)) return;
+    const before = rows;
+    setRows((prev) => prev.filter((r) => !sel.selected.has(r.id)));
+    sel.clear();
+    const { error } = await supabase.from("eng_field_options").delete().in("id", ids);
+    if (error) {
+      setRows(before);
+      return toast.error(error.message);
+    }
+    toast.success(`${ids.length} cadastro(s) excluído(s)`);
+  };
+
   const adicionar = async () => {
     const v = novoValor.trim();
     if (!v) return toast.error("Informe o nome");
