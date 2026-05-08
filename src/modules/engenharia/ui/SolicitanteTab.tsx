@@ -439,19 +439,41 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
         </div>
       </CardContent>
 
-      <SolicitacoesAbertas rows={rows} onChanged={onCreated} />
+      <SolicitacoesAbertas rows={rows} onChanged={onCreated} catalogo={catalogo} categoriasHook={categorias} />
     </Card>
   );
 }
 
 // Painel inferior: solicitações já criadas com materiais ainda não atrelados a SC/RC
-function SolicitacoesAbertas({ rows, onChanged }: { rows: any[]; onChanged: () => void }) {
+function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { rows: any[]; onChanged: () => void; catalogo: any[]; categoriasHook: ReturnType<typeof useFieldOptions> }) {
   const [scrcByNum, setScrcByNum] = useState<Record<string, Set<string>>>({});
   const [loading, setLoading] = useState(true);
   const [openId, setOpenId] = useState<string | null>(null);
   const [addingDesc, setAddingDesc] = useState("");
   const [addingQtd, setAddingQtd] = useState("1");
   const [addingUn, setAddingUn] = useState("UN");
+  const [addingCategoria, setAddingCategoria] = useState("");
+  const [addingConta, setAddingConta] = useState("");
+  const [addingMaterialId, setAddingMaterialId] = useState<string | undefined>(undefined);
+
+  const escolherMatPainel = (descricao: string) => {
+    setAddingDesc(descricao);
+    const mat = catalogo.find((c) => c.descricao === descricao);
+    if (!mat) return;
+    setAddingMaterialId(mat.id);
+    if (mat.unidade) setAddingUn(mat.unidade);
+    if (mat.categoria) setAddingCategoria(mat.categoria);
+    if (mat.conta_financeira) {
+      setAddingConta(mat.conta_financeira);
+    } else if (mat.categoria) {
+      const meta = categoriasHook.findMeta(mat.categoria);
+      if (meta?.conta_financeira) setAddingConta(String(meta.conta_financeira));
+      else {
+        const outro = catalogo.find((m: any) => m.categoria === mat.categoria && m.conta_financeira);
+        if (outro) setAddingConta(outro.conta_financeira);
+      }
+    }
+  };
 
   const load = async () => {
     setLoading(true);
