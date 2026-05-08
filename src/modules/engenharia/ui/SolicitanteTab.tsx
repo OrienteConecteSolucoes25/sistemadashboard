@@ -135,8 +135,27 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
   };
   const removeItem = (i: number) => setItens(itens.filter((_, idx) => idx !== i));
 
-  const escolherDoCatalogo = (descricao: string) => {
-    const mat = catalogo.find((c) => c.descricao === descricao);
+  const findCatalogoMatch = (input: string) => {
+    if (!input) return undefined;
+    const v = input.trim();
+    const lc = v.toLowerCase();
+    // 1) exact value "<codigo> — <descricao>"
+    let mat = catalogo.find((c) => `${c.codigo} — ${c.descricao}` === v);
+    if (mat) return mat;
+    // 2) por código exato (digitos)
+    mat = catalogo.find((c) => String(c.codigo).toLowerCase() === lc);
+    if (mat) return mat;
+    // 3) por descrição exata
+    mat = catalogo.find((c) => String(c.descricao).toLowerCase() === lc);
+    if (mat) return mat;
+    // 4) input começa com "<codigo> — ..."
+    const codePart = v.split(" — ")[0]?.trim().toLowerCase();
+    if (codePart) mat = catalogo.find((c) => String(c.codigo).toLowerCase() === codePart);
+    return mat;
+  };
+
+  const escolherDoCatalogo = (input: string) => {
+    const mat = findCatalogoMatch(input);
     if (mat) {
       setNovoItem({
         material_id: mat.id,
@@ -159,7 +178,7 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
         }
       }
     } else {
-      setNovoItem({ ...novoItem, descricao });
+      setNovoItem({ ...novoItem, descricao: input });
     }
   };
 
@@ -257,7 +276,7 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
     }
   };
 
-  const catalogoFiltrado = useMemo(() => catalogo.slice(0, 800), [catalogo]);
+  const catalogoFiltrado = useMemo(() => catalogo, [catalogo]);
 
   return (
     <Card className="card-elegant">
@@ -379,7 +398,7 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
               />
               <datalist id="cat-mat-list">
                 {catalogoFiltrado.map((m) => (
-                  <option key={m.id} value={m.descricao}>{m.codigo} — {m.categoria}</option>
+                  <option key={m.id} value={`${m.codigo} — ${m.descricao}`}>{m.categoria || ""}</option>
                 ))}
               </datalist>
             </div>
@@ -461,10 +480,26 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
   const [editingKey, setEditingKey] = useState<string | null>(null); // `${solicitId}|${index}`
   const [editDraft, setEditDraft] = useState<{ descricao: string; unidade: string; quantidade: string; categoria?: string; conta_financeira?: string; material_id?: string }>({ descricao: "", unidade: "UN", quantidade: "1" });
 
-  const escolherMatPainel = (descricao: string) => {
-    setAddingDesc(descricao);
-    const mat = catalogo.find((c) => c.descricao === descricao);
+  const findInCatalogo = (input: string) => {
+    if (!input) return undefined;
+    const v = input.trim();
+    const lc = v.toLowerCase();
+    let mat = catalogo.find((c: any) => `${c.codigo} — ${c.descricao}` === v);
+    if (mat) return mat;
+    mat = catalogo.find((c: any) => String(c.codigo).toLowerCase() === lc);
+    if (mat) return mat;
+    mat = catalogo.find((c: any) => String(c.descricao).toLowerCase() === lc);
+    if (mat) return mat;
+    const codePart = v.split(" — ")[0]?.trim().toLowerCase();
+    if (codePart) mat = catalogo.find((c: any) => String(c.codigo).toLowerCase() === codePart);
+    return mat;
+  };
+
+  const escolherMatPainel = (input: string) => {
+    setAddingDesc(input);
+    const mat = findInCatalogo(input);
     if (!mat) return;
+    setAddingDesc(mat.descricao);
     setAddingMaterialId(mat.id);
     if (mat.unidade) setAddingUn(mat.unidade);
     if (mat.categoria) setAddingCategoria(mat.categoria);
@@ -539,9 +574,9 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
     });
   };
 
-  const escolherEdit = (descricao: string) => {
-    const mat = catalogo.find((c: any) => c.descricao === descricao);
-    if (!mat) { setEditDraft((d) => ({ ...d, descricao })); return; }
+  const escolherEdit = (input: string) => {
+    const mat = findInCatalogo(input);
+    if (!mat) { setEditDraft((d) => ({ ...d, descricao: input })); return; }
     let conta = mat.conta_financeira;
     if (!conta && mat.categoria) {
       const meta = categoriasHook.findMeta(mat.categoria);
@@ -604,7 +639,7 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
   if (loading) return null;
   if (pendentesPorSolicit.length === 0) return null;
 
-  const catalogoFiltrado = catalogo.slice(0, 800);
+  const catalogoFiltrado = catalogo;
 
   return (
     <CardContent className="pt-0">
@@ -646,7 +681,7 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
                               />
                               <datalist id={`edit-mat-${s.id}`}>
                                 {catalogoFiltrado.map((m: any) => (
-                                  <option key={m.id} value={m.descricao}>{m.codigo} — {m.categoria}</option>
+                                <option key={m.id} value={`${m.codigo} — ${m.descricao}`}>{m.categoria || ""}</option>
                                 ))}
                               </datalist>
                               <Input value={editDraft.quantidade} onChange={(e) => setEditDraft(d => ({ ...d, quantidade: e.target.value }))} className="h-7 w-16" />
@@ -690,7 +725,7 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
                         />
                         <datalist id={`cat-mat-painel-${s.id}`}>
                           {catalogoFiltrado.map((m: any) => (
-                            <option key={m.id} value={m.descricao}>{m.codigo} — {m.categoria}</option>
+                            <option key={m.id} value={`${m.codigo} — ${m.descricao}`}>{m.categoria || ""}</option>
                           ))}
                         </datalist>
                       </div>
