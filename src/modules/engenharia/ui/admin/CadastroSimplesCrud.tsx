@@ -112,7 +112,7 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
 
   const exportar = (fmt: "xlsx" | "csv") => {
     const data = filtradas.map((r) => {
-      const o: any = { Nome: r.value };
+      const o: any = { [valueLabel]: r.value };
       metaFields.forEach((f) => { o[f.label] = r.meta?.[f.key] ?? ""; });
       return o;
     });
