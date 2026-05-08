@@ -384,6 +384,11 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                       <th className="px-3 py-2">CC</th>
                       <th className="px-3 py-2">Status</th>
                       <th className="px-3 py-2">Data solicit.</th>
+                      <th className="px-3 py-2">Auxiliar</th>
+                      <th className="px-3 py-2">Responsável</th>
+                      <th className="px-3 py-2">Coordenador</th>
+                      <th className="px-3 py-2">Fim compra</th>
+                      <th className="px-3 py-2">Fim logística</th>
                       <th className="px-3 py-2 w-24 text-right">Ações</th>
                     </tr>
                   </thead>
