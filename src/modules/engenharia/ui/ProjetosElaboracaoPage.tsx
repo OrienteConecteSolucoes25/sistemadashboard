@@ -23,6 +23,7 @@ import {
 import { exportXlsx, downloadTemplate, readXlsxFile, fmtDate, uid } from "../lib/storage";
 import { EngPageHeader } from "./components/EngPageHeader";
 import { KpiCard, KpiGrid } from "./components/KpiCard";
+import { makeEditKeyHandler } from "../lib/keyboardEdit";
 import { StatusBadge } from "./components/StatusBadge";
 import { EngKanban } from "./components/EngKanban";
 import { DistribuicaoCard, RankingCard } from "./components/EngMiniCharts";
