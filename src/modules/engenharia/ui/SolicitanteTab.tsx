@@ -125,9 +125,19 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
         unidade: mat.unidade || "UN",
         quantidade: novoItem.quantidade || "1",
       });
-      // Auto-define a categoria global quando ainda não escolhida
-      if (mat.categoria && !categoria) setCategoria(mat.categoria);
-      if (mat.categoria && mat.conta_financeira && !contaFin) setContaFin(mat.conta_financeira);
+      // Auto-define categoria e conta financeira a partir do material escolhido
+      if (mat.categoria) setCategoria(mat.categoria);
+      if (mat.conta_financeira) {
+        setContaFin(mat.conta_financeira);
+      } else if (mat.categoria) {
+        // fallback: pega conta da categoria cadastrada ou de outro material da mesma categoria
+        const metaCat = categorias.findMeta(mat.categoria);
+        if (metaCat?.conta_financeira) setContaFin(String(metaCat.conta_financeira));
+        else {
+          const outro = catalogo.find((m) => m.categoria === mat.categoria && m.conta_financeira);
+          if (outro) setContaFin(outro.conta_financeira);
+        }
+      }
     } else {
       setNovoItem({ ...novoItem, descricao });
     }
