@@ -574,9 +574,9 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
     });
   };
 
-  const escolherEdit = (descricao: string) => {
-    const mat = catalogo.find((c: any) => c.descricao === descricao);
-    if (!mat) { setEditDraft((d) => ({ ...d, descricao })); return; }
+  const escolherEdit = (input: string) => {
+    const mat = findInCatalogo(input);
+    if (!mat) { setEditDraft((d) => ({ ...d, descricao: input })); return; }
     let conta = mat.conta_financeira;
     if (!conta && mat.categoria) {
       const meta = categoriasHook.findMeta(mat.categoria);
