@@ -505,7 +505,7 @@ const SuprimentosPage = () => {
         </DialogContent>
       </Dialog>
 
-      {scrcOpen && <ScRcPanel solicitId={scrcOpen} onClose={() => { setScrcOpen(null); load(); }} />}
+      {scrcOpen && <ScRcPanel solicitId={scrcOpen} solicit={rows.find(x => x.id === scrcOpen) ?? null} onClose={() => { setScrcOpen(null); load(); }} />}
 
       <EnviarOutlookRcDialog
         open={!!outlookId}
