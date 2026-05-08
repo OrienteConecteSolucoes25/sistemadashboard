@@ -3801,6 +3801,9 @@ export type Database = {
           current_city: string | null
           current_site: string | null
           data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
           estados_atuacao: string[] | null
           id: string
           is_deleted: boolean | null
@@ -3823,6 +3826,9 @@ export type Database = {
           current_city?: string | null
           current_site?: string | null
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           estados_atuacao?: string[] | null
           id?: string
           is_deleted?: boolean | null
@@ -3845,6 +3851,9 @@ export type Database = {
           current_city?: string | null
           current_site?: string | null
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
           estados_atuacao?: string[] | null
           id?: string
           is_deleted?: boolean | null
