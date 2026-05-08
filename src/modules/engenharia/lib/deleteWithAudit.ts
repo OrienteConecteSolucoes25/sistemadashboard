@@ -10,6 +10,7 @@ export const SOFT_DELETE_TABLES = [
   "eng_suprimentos",
   "eng_materiais",
   "eng_rfi",
+  "eng_equipes",
 ] as const;
 
 export type SoftDeleteTable = (typeof SOFT_DELETE_TABLES)[number];
