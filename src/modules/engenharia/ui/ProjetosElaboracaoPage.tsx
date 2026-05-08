@@ -202,7 +202,7 @@ const ProjetosElaboracaoPage = () => {
           </thead>
           <tbody>
             {filtered.map((p) => (
-              <tr key={p.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => openEdit(p)}>
+              <tr key={p.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" title="Duplo-clique para editar" onDoubleClick={() => openEdit(p)}>
                 <td className="px-3 py-2.5 font-medium">{p.cliente}</td>
                 <td className="px-3 py-2.5">{p.site}</td>
                 <td className="px-3 py-2.5 text-muted-foreground">{[p.cidade, p.uf].filter(Boolean).join(" / ") || "—"}</td>
