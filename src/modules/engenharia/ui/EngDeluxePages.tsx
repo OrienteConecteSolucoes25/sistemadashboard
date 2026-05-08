@@ -28,6 +28,7 @@ import { StatusBadge } from "./components/StatusBadge";
 import { useMateriais } from "../hooks/useMateriais";
 import { useFieldOptions } from "../hooks/useFieldOptions";
 import { MateriaisCatalogToolbar } from "./MateriaisCatalogToolbar";
+import { makeEditKeyHandler } from "../lib/keyboardEdit";
 
 const TEAL = "hsl(181 65% 46%)";
 const WARN = "hsl(41 100% 47%)";
