@@ -90,13 +90,24 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [solicitId]);
 
   const adicionar = async () => {
-    if (!novo.numero_documento) { toast.error("Número do documento é obrigatório"); return; }
+    if (!novo.numero_documento.trim()) { toast.error("Número do documento é obrigatório"); return; }
     try {
-      await createScRc({ ...novo, solicit_id: solicitId } as any);
+      const payload: any = {
+        ...novo,
+        numero_documento: novo.numero_documento.trim(),
+        item_descricao: novo.item_descricao || null,
+        categoria: novo.categoria || null,
+        conta_financeira: novo.conta_financeira || null,
+        centro_custo: novo.centro_custo || null,
+        observacao: novo.observacao || null,
+        data_solicitacao: novo.data_solicitacao || null,
+        solicit_id: solicitId,
+      };
+      await createScRc(payload);
       toast.success("Documento adicionado");
       setNovo({ tipo_documento: isRequisicao ? "RC" : "SC", numero_documento: "", item_descricao: "", categoria: "", conta_financeira: "", centro_custo: sd.cc || "", observacao: "", status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10) });
       load();
-    } catch (e) { toast.error(String(e)); }
+    } catch (e: any) { console.error("createScRc", e); toast.error(e?.message ?? String(e)); }
   };
 
   const startEdit = (r: ScRcRow) => { setEditingId(r.id); setEditDraft({ ...r }); };
