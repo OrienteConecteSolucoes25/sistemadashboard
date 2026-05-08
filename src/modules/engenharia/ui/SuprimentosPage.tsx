@@ -196,26 +196,54 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
     groupedByNumber[k].push(r);
   });
 
-  // Exportar SC/RC para xlsx
+  // Colunas exportadas/importadas — espelham o formulário (mantém ordem)
+  const SCRC_COLUMNS: { key: keyof ScRcRow | "cliente" | "endereco" | "cidade" | "uf"; label: string }[] = [
+    { key: "tipo_documento", label: "Tipo" },
+    { key: "numero_documento", label: "Nº documento" },
+    { key: "item_descricao", label: "Material" },
+    { key: "categoria", label: "Categoria" },
+    { key: "conta_financeira", label: "Conta financeira" },
+    { key: "centro_custo", label: "Centro de custo" },
+    { key: "cliente", label: "Cliente" },
+    { key: "endereco", label: "Endereço" },
+    { key: "cidade", label: "Cidade" },
+    { key: "uf", label: "UF" },
+    { key: "status", label: "Status" },
+    { key: "data_solicitacao", label: "Data solicitação" },
+    { key: "auxiliar", label: "Auxiliar" },
+    { key: "responsavel", label: "Responsável" },
+    { key: "coordenador", label: "Coordenador" },
+    { key: "data_finalizacao_compra", label: "Fim compra" },
+    { key: "data_finalizacao_logistica", label: "Fim logística" },
+    { key: "observacao", label: "Observação" },
+  ];
+
+  const buildRowExport = (r?: ScRcRow) => {
+    const o: Record<string, any> = {};
+    SCRC_COLUMNS.forEach((c) => {
+      if (c.key === "cliente") o[c.label] = sd.cliente || sd.empresa || "";
+      else if (c.key === "endereco") o[c.label] = sd.endereco || "";
+      else if (c.key === "cidade") o[c.label] = sd.cidade || "";
+      else if (c.key === "uf") o[c.label] = sd.uf || "";
+      else o[c.label] = (r as any)?.[c.key] ?? "";
+    });
+    return o;
+  };
+
+  // Exportar SC/RC para xlsx (todas as colunas do formulário)
   const exportXlsx = () => {
-    const data = rows.map((r) => ({
-      tipo_documento: r.tipo_documento,
-      numero_documento: r.numero_documento,
-      item_descricao: r.item_descricao || "",
-      categoria: r.categoria || "",
-      conta_financeira: r.conta_financeira || "",
-      centro_custo: r.centro_custo || "",
-      status: r.status || "",
-      data_solicitacao: r.data_solicitacao || "",
-      observacao: r.observacao || "",
-    }));
-    const ws = XLSX.utils.json_to_sheet(data.length ? data : [{
-      tipo_documento: "SC", numero_documento: "", item_descricao: "", categoria: "",
-      conta_financeira: "", centro_custo: "", status: "SOLICITADO", data_solicitacao: "", observacao: "",
-    }]);
+    const data = rows.length ? rows.map((r) => buildRowExport(r)) : [buildRowExport()];
+    const ws = XLSX.utils.json_to_sheet(data);
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, "SC_RC");
     XLSX.writeFile(wb, `scrc_${solicit?.numero || solicitId}.xlsx`);
+  };
+
+  const downloadTemplate = () => {
+    const ws = XLSX.utils.json_to_sheet([buildRowExport()]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Modelo SC_RC");
+    XLSX.writeFile(wb, `modelo_scrc.xlsx`);
   };
 
   // Importar SC/RC com auto-fill por material/categoria
