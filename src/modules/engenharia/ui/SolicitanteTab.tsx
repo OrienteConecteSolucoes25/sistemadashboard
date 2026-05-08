@@ -71,24 +71,33 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
     } catch { /* opcional */ }
   })(); }, []);
 
-  // Auto-preencher CC quando cliente muda
+  // Auto-preencher CC quando cliente muda (prioriza cadastro centro_custo)
   useEffect(() => {
     if (!cliente) return;
-    const meta = clientes.findMeta(cliente);
-    if (meta?.cc) setCc(String(meta.cc));
-  }, [cliente, clientes]);
+    const ccMeta = ccCadastro.findMeta(cliente);
+    const cliMeta = clientes.findMeta(cliente);
+    const v = ccMeta?.centro_custo || cliMeta?.cc || "";
+    if (v) setCc(String(v));
+  }, [cliente, clientes, ccCadastro]);
 
-  // Auto-preencher Comprador e SLA quando categoria muda
+  // Auto-preencher Comprador, Conta Financeira e SLA quando categoria muda
   useEffect(() => {
     if (!categoria) return;
     const meta = categorias.findMeta(categoria);
     if (meta?.comprador) setComprador(String(meta.comprador));
+    let conta = meta?.conta_financeira ? String(meta.conta_financeira) : "";
+    if (!conta) {
+      // fallback: tenta do catálogo de materiais (primeiro material com essa categoria)
+      const mat = catalogo.find((m) => m.categoria === categoria && m.conta_financeira);
+      if (mat) conta = mat.conta_financeira;
+    }
+    if (conta) setContaFin(conta);
     if (meta?.sla_dias && dataSol) {
       const base = new Date(dataSol);
       base.setDate(base.getDate() + Number(meta.sla_dias));
       setDataLimite(base.toISOString().slice(0, 10));
     }
-  }, [categoria, dataSol, categorias]);
+  }, [categoria, dataSol, categorias, catalogo]);
 
   // Auto cidade/UF do site
   useEffect(() => {
