@@ -320,7 +320,7 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
               <Select value={equipe} onValueChange={setEquipe}>
                 <SelectTrigger><SelectValue placeholder="Selecione…" /></SelectTrigger>
                 <SelectContent>
-                  {equipes.map((t) => <SelectItem key={t.id} value={t.equipe || t.nome}>{t.equipe || t.nome}{t.cargo ? ` — ${t.cargo}` : ""}</SelectItem>)}
+                  {equipes.map((t) => <SelectItem key={t.id} value={t.nome}>{t.nome}{t.cargo ? ` — ${t.cargo}` : ""}</SelectItem>)}
                 </SelectContent>
               </Select>
             ) : (
