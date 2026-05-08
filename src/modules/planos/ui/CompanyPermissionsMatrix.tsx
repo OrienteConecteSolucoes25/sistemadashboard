@@ -31,13 +31,23 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
       sb.from("plan_modules_catalog").select("*").eq("ativo", true).order("ordem"),
       sb.from("company_plans").select("modules").eq("company_id", companyId).maybeSingle(),
     ]);
-    const ids = (cu ?? []).map((x: any) => x.user_id);
+    const linkedIds = new Set((cu ?? []).map((x: any) => x.user_id));
+
+    // Em modo admin global, mostra todos os perfis (mesmo que ainda não estejam vinculados à empresa).
     let profs: any[] = [];
-    if (ids.length) {
-      const { data } = await sb.from("profiles").select("id, email, full_name").in("id", ids);
+    if (allModulesOverride) {
+      const { data } = await sb.from("profiles").select("id, email, full_name");
+      profs = data ?? [];
+    } else if (linkedIds.size) {
+      const { data } = await sb.from("profiles").select("id, email, full_name").in("id", Array.from(linkedIds));
       profs = data ?? [];
     }
-    const usrs = (cu ?? []).map((x: any) => ({ ...x, profile: profs.find(p => p.id === x.user_id) }));
+
+    const usrs = profs.map((p: any) => ({
+      user_id: p.id,
+      profile: p,
+      _linked: linkedIds.has(p.id),
+    }));
     usrs.sort((a: any, b: any) => (a.profile?.full_name ?? a.profile?.email ?? "").localeCompare(b.profile?.full_name ?? b.profile?.email ?? ""));
     setUsers(usrs);
     setCatalog(cat ?? []);
