@@ -391,17 +391,12 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
           <div className="grid gap-2 md:grid-cols-12 items-end">
             <div className="md:col-span-7">
               <Label className="text-[10px]">Descrição do material</Label>
-              <Input
-                list="cat-mat-list"
+              <MaterialCombobox
+                catalogo={catalogo}
                 value={novoItem.descricao}
-                onChange={(e) => escolherDoCatalogo(e.target.value)}
-                placeholder="Digite para buscar…"
+                onChange={escolherDoCatalogo}
+                placeholder="Buscar por código, descrição ou categoria…"
               />
-              <datalist id="cat-mat-list">
-                {catalogoFiltrado.map((m) => (
-                  <option key={m.id} value={`${m.codigo} — ${m.descricao}`}>{m.categoria || ""}</option>
-                ))}
-              </datalist>
             </div>
             <div className="md:col-span-2">
               <Label className="text-[10px]">Unidade</Label>
