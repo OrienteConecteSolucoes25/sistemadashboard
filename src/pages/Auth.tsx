@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { toast } from "sonner";
 
 const Auth = () => {
@@ -16,6 +17,21 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [busy, setBusy] = useState(false);
+  const [forgotOpen, setForgotOpen] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotBusy, setForgotBusy] = useState(false);
+
+  const sendReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotBusy(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail, {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+    setForgotBusy(false);
+    if (error) return toast.error(error.message);
+    toast.success("Se o e-mail existir, enviaremos um link de recuperação.");
+    setForgotOpen(false);
+  };
 
   if (loading) return null;
   if (session) return <Navigate to="/app" replace />;
@@ -82,6 +98,15 @@ const Auth = () => {
               <form className="space-y-3 mt-4" onSubmit={signIn}>
                 <div><Label>E-mail</Label><Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required /></div>
                 <div><Label>Senha</Label><Input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required /></div>
+                <div className="text-right">
+                  <button
+                    type="button"
+                    onClick={() => { setForgotEmail(email); setForgotOpen(true); }}
+                    className="text-xs text-primary hover:underline"
+                  >
+                    Esqueci minha senha
+                  </button>
+                </div>
                 <Button type="submit" className="w-full" disabled={busy}>{busy ? "Entrando…" : "Entrar"}</Button>
               </form>
             </TabsContent>
@@ -104,6 +129,24 @@ const Auth = () => {
           </Button>
         </CardContent>
       </Card>
+
+      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Recuperar senha</DialogTitle></DialogHeader>
+          <form onSubmit={sendReset} className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Informe seu e-mail e enviaremos um link para redefinir sua senha.
+            </p>
+            <div>
+              <Label>E-mail</Label>
+              <Input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} required />
+            </div>
+            <DialogFooter>
+              <Button type="submit" disabled={forgotBusy}>{forgotBusy ? "Enviando…" : "Enviar link"}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
