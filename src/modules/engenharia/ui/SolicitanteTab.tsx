@@ -73,14 +73,14 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
     } catch { /* opcional */ }
   })(); }, []);
 
-  // Equipes vinculadas à empresa selecionada (busca por gestor/equipe em hrdp_employees, fallback livre)
+  // Equipes vinculadas à empresa selecionada (usa colaboradores da empresa, fallback livre)
   useEffect(() => {
     (async () => {
       if (!empresa) { setEquipes([]); return; }
       try {
         const { data } = await (supabase as any)
           .from("hrdp_employees")
-          .select("id,nome,cargo,equipe,company_id")
+          .select("id,nome,cargo,company_id")
           .eq("company_id", empresa)
           .limit(300);
         setEquipes(data || []);
