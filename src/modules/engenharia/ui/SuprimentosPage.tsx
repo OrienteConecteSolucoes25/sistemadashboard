@@ -153,32 +153,41 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
 
         {/* Form para adicionar nova linha SC/RC */}
         <Card className="card-elegant">
-          <CardContent className="pt-4 grid gap-2 md:grid-cols-12 items-end">
-            <div className="md:col-span-1">
-              <Label className="text-xs">Tipo</Label>
-              <Select value={novo.tipo_documento} onValueChange={(v) => setNovo({ ...novo, tipo_documento: v })}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent><SelectItem value="SC">SC</SelectItem><SelectItem value="RC">RC</SelectItem></SelectContent>
-              </Select>
+          <CardContent className="pt-4 space-y-2">
+            <div className="grid gap-2 md:grid-cols-12 items-end">
+              <div className="md:col-span-2">
+                <Label className="text-xs">Tipo</Label>
+                <Select value={novo.tipo_documento} onValueChange={(v) => setNovo({ ...novo, tipo_documento: v })}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent><SelectItem value="SC">SC</SelectItem><SelectItem value="RC">RC</SelectItem></SelectContent>
+                </Select>
+              </div>
+              <div className="md:col-span-6">
+                <Label className="text-xs">Material</Label>
+                <Select value={novo.item_descricao} onValueChange={onPickItem}>
+                  <SelectTrigger><SelectValue placeholder="Selecione…" /></SelectTrigger>
+                  <SelectContent>
+                    {itens.length === 0 && <SelectItem value="__none" disabled>Sem materiais</SelectItem>}
+                    {itens.map((it: any, i: number) => (
+                      <SelectItem key={i} value={String(it.descricao)}>{it.descricao}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="md:col-span-3">
+                <Label className="text-xs">Nº documento *</Label>
+                <Input value={novo.numero_documento} onChange={(e) => setNovo({ ...novo, numero_documento: e.target.value })} />
+              </div>
+              <div className="md:col-span-1">
+                <Button onClick={adicionar} className="w-full" title="Adicionar"><Plus className="h-4 w-4" /></Button>
+              </div>
             </div>
-            <div className="md:col-span-3">
-              <Label className="text-xs">Material</Label>
-              <Select value={novo.item_descricao} onValueChange={onPickItem}>
-                <SelectTrigger><SelectValue placeholder="Selecione…" /></SelectTrigger>
-                <SelectContent>
-                  {itens.length === 0 && <SelectItem value="__none" disabled>Sem materiais</SelectItem>}
-                  {itens.map((it: any, i: number) => (
-                    <SelectItem key={i} value={String(it.descricao)}>{it.descricao}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="grid gap-2 md:grid-cols-12 items-end">
+              <div className="md:col-span-3"><Label className="text-xs">Categoria (auto)</Label><Input value={novo.categoria} onChange={(e) => setNovo({ ...novo, categoria: e.target.value })} /></div>
+              <div className="md:col-span-3"><Label className="text-xs">Conta fin. (auto)</Label><Input value={novo.conta_financeira} onChange={(e) => setNovo({ ...novo, conta_financeira: e.target.value })} /></div>
+              <div className="md:col-span-3"><Label className="text-xs">Centro de custo</Label><Input value={novo.centro_custo} onChange={(e) => setNovo({ ...novo, centro_custo: e.target.value })} /></div>
+              <div className="md:col-span-3"><Label className="text-xs">Data solicit.</Label><Input type="date" value={novo.data_solicitacao} onChange={(e) => setNovo({ ...novo, data_solicitacao: e.target.value })} /></div>
             </div>
-            <div className="md:col-span-2"><Label className="text-xs">Nº documento *</Label><Input value={novo.numero_documento} onChange={(e) => setNovo({ ...novo, numero_documento: e.target.value })} /></div>
-            <div className="md:col-span-1"><Label className="text-xs">Categoria</Label><Input value={novo.categoria} onChange={(e) => setNovo({ ...novo, categoria: e.target.value })} /></div>
-            <div className="md:col-span-1"><Label className="text-xs">Conta fin.</Label><Input value={novo.conta_financeira} onChange={(e) => setNovo({ ...novo, conta_financeira: e.target.value })} /></div>
-            <div className="md:col-span-1"><Label className="text-xs">CC</Label><Input value={novo.centro_custo} onChange={(e) => setNovo({ ...novo, centro_custo: e.target.value })} /></div>
-            <div className="md:col-span-2"><Label className="text-xs">Data solicit.</Label><Input type="date" value={novo.data_solicitacao} onChange={(e) => setNovo({ ...novo, data_solicitacao: e.target.value })} /></div>
-            <div className="md:col-span-1"><Button onClick={adicionar} className="w-full"><Plus className="h-4 w-4" /></Button></div>
           </CardContent>
         </Card>
 
