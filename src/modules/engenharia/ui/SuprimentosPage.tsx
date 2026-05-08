@@ -297,9 +297,10 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
           </span>
         </div>
 
-        {/* Cabeçalho com endereço/cidade/UF */}
+        {/* Cabeçalho com cliente/endereço/cidade/UF */}
         <Card className="card-elegant">
-          <CardContent className="pt-3 pb-3 grid gap-2 md:grid-cols-3 text-sm">
+          <CardContent className="pt-3 pb-3 grid gap-2 md:grid-cols-4 text-sm">
+            <div><div className="text-[10px] uppercase text-muted-foreground">Cliente</div><div className="font-medium">{sd.cliente || sd.empresa || "—"}</div></div>
             <div><div className="text-[10px] uppercase text-muted-foreground">Endereço</div><div className="font-medium">{sd.endereco || "—"}</div></div>
             <div><div className="text-[10px] uppercase text-muted-foreground">Cidade</div><div className="font-medium">{sd.cidade || "—"}</div></div>
             <div><div className="text-[10px] uppercase text-muted-foreground">UF</div><div className="font-medium">{sd.uf || "—"}</div></div>
