@@ -299,7 +299,16 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
               {filtradas.map((r) => editId === r.id ? (
                 <tr key={r.id} className="bg-amber-50 dark:bg-amber-950/20">
                   <td className="px-2 py-1">
-                    <Input value={editValor} onChange={(e) => setEditValor(e.target.value)} className="h-8" />
+                    <Input
+                      autoFocus
+                      value={editValor}
+                      onChange={(e) => setEditValor(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") { e.preventDefault(); salvarEdicao(); }
+                        else if (e.key === "Escape") { e.preventDefault(); setEditId(null); }
+                      }}
+                      className="h-8"
+                    />
                   </td>
                   {metaFields.map((f) => (
                     <td key={f.key} className="px-2 py-1">
@@ -308,6 +317,10 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
                         type={f.type === "number" ? "number" : "text"}
                         value={editMeta[f.key] ?? ""}
                         onChange={(e) => setEditMeta({ ...editMeta, [f.key]: e.target.value })}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") { e.preventDefault(); salvarEdicao(); }
+                          else if (e.key === "Escape") { e.preventDefault(); setEditId(null); }
+                        }}
                       />
                     </td>
                   ))}
