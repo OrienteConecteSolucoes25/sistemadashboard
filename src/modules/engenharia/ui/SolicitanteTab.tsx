@@ -523,6 +523,80 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
     onChanged();
   };
 
+  const startEdit = (solicit: any, idx: number, it: any) => {
+    setEditingKey(`${solicit.id}|${idx}`);
+    setEditDraft({
+      descricao: String(it.descricao || ""),
+      unidade: String(it.unidade || "UN"),
+      quantidade: String(it.quantidade || "1"),
+      categoria: it.categoria,
+      conta_financeira: it.conta_financeira,
+      material_id: it.material_id,
+    });
+  };
+
+  const escolherEdit = (descricao: string) => {
+    const mat = catalogo.find((c: any) => c.descricao === descricao);
+    if (!mat) { setEditDraft((d) => ({ ...d, descricao })); return; }
+    let conta = mat.conta_financeira;
+    if (!conta && mat.categoria) {
+      const meta = categoriasHook.findMeta(mat.categoria);
+      conta = meta?.conta_financeira ? String(meta.conta_financeira) :
+        (catalogo.find((m: any) => m.categoria === mat.categoria && m.conta_financeira)?.conta_financeira || "");
+    }
+    setEditDraft({
+      material_id: mat.id,
+      descricao: mat.descricao,
+      unidade: mat.unidade || "UN",
+      quantidade: editDraft.quantidade || "1",
+      categoria: mat.categoria,
+      conta_financeira: conta,
+    });
+  };
+
+  const salvarEdit = async (solicit: any, idx: number) => {
+    const itensArr = Array.isArray(solicit.itens) ? [...solicit.itens] : [];
+    const antes = itensArr[idx];
+    itensArr[idx] = { ...antes, ...editDraft };
+    const { error } = await supabase.from("eng_suprimentos")
+      .update({ itens: itensArr } as any).eq("id", solicit.id);
+    if (error) { toast.error(error.message); return; }
+    fireAudit({
+      acao: "update",
+      modulo: "Suprimentos",
+      entidade_tipo: "eng_suprimentos.item",
+      entidade_id: `${solicit.id}#${idx}`,
+      nome_entidade: editDraft.descricao,
+      dados_antes: antes,
+      dados_depois: itensArr[idx],
+      observacoes: "Edição de material em solicitação aberta",
+    });
+    toast.success("Material atualizado");
+    setEditingKey(null);
+    onChanged();
+  };
+
+  const excluirItem = async (solicit: any, idx: number) => {
+    if (!confirm("Excluir este material da solicitação?")) return;
+    const itensArr = Array.isArray(solicit.itens) ? [...solicit.itens] : [];
+    const removido = itensArr[idx];
+    itensArr.splice(idx, 1);
+    const { error } = await supabase.from("eng_suprimentos")
+      .update({ itens: itensArr } as any).eq("id", solicit.id);
+    if (error) { toast.error(error.message); return; }
+    fireAudit({
+      acao: "delete",
+      modulo: "Suprimentos",
+      entidade_tipo: "eng_suprimentos.item",
+      entidade_id: `${solicit.id}#${idx}`,
+      nome_entidade: removido?.descricao || "",
+      dados_antes: removido,
+      observacoes: "Exclusão de material em solicitação aberta",
+    });
+    toast.success("Material removido");
+    onChanged();
+  };
+
   if (loading) return null;
   if (pendentesPorSolicit.length === 0) return null;
 
