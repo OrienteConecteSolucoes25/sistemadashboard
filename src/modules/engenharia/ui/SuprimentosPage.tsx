@@ -126,6 +126,11 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
       centro_custo: novo.centro_custo || null,
       observacao: novo.observacao || null,
       data_solicitacao: novo.data_solicitacao || null,
+      auxiliar: novo.auxiliar || null,
+      responsavel: novo.responsavel || null,
+      coordenador: novo.coordenador || null,
+      data_finalizacao_compra: novo.data_finalizacao_compra || null,
+      data_finalizacao_logistica: novo.data_finalizacao_logistica || null,
       solicit_id: solicitId,
     };
     // Optimistic
@@ -137,10 +142,13 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
       centro_custo: payload.centro_custo, observacao: payload.observacao,
       status: payload.status ?? "SOLICITADO", data_solicitacao: payload.data_solicitacao,
       item_descricao: payload.item_descricao,
+      auxiliar: payload.auxiliar, responsavel: payload.responsavel, coordenador: payload.coordenador,
+      data_finalizacao_compra: payload.data_finalizacao_compra,
+      data_finalizacao_logistica: payload.data_finalizacao_logistica,
       created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
     };
     setRows((prev) => [optimistic, ...prev]);
-    setNovo({ tipo_documento: isRequisicao ? "RC" : "SC", numero_documento: "", item_descricao: "", categoria: "", conta_financeira: "", centro_custo: sd.cc || "", observacao: "", status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10) });
+    setNovo({ tipo_documento: isRequisicao ? "RC" : "SC", numero_documento: "", item_descricao: "", categoria: "", conta_financeira: "", centro_custo: sd.cc || "", observacao: "", status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10), auxiliar: "", responsavel: solicit?.responsavel || "", coordenador: sd.coordenador || "", data_finalizacao_compra: "", data_finalizacao_logistica: "" });
     try {
       const created = await createScRc(payload);
       setRows((prev) => prev.map((r) => (r.id === tempId ? created : r)));
