@@ -122,6 +122,21 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
 
   return (
     <div className="space-y-3">
+      <div className="flex items-end gap-3 flex-wrap">
+        <div className="min-w-[260px]">
+          <Label className="text-xs">Filtrar por setor (módulo contratado)</Label>
+          <Select value={setorFilter} onValueChange={setSetorFilter}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os setores ({baseMods.length})</SelectItem>
+              {baseMods.map(m => <SelectItem key={m.key} value={m.key}>{m.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <p className="text-xs text-muted-foreground flex-1 min-w-[200px]">
+          Use o filtro por setor para ajustar permissões de um módulo específico sem ver a matriz inteira.
+        </p>
+      </div>
       <div className="overflow-x-auto border rounded-lg">
         <table className="min-w-full border-separate border-spacing-0 text-sm">
           <thead className="bg-muted/40 sticky top-0">
