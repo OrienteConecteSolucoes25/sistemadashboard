@@ -160,6 +160,11 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
   };
 
   const startEdit = (r: ScRcRow) => { setEditingId(r.id); setEditDraft({ ...r }); };
+  const cancelEdit = () => { setEditingId(null); setEditDraft({}); };
+  const editKeys = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") { e.preventDefault(); saveEdit(); }
+    else if (e.key === "Escape") { e.preventDefault(); cancelEdit(); }
+  };
   const saveEdit = async () => {
     if (!editingId) return;
     const id = editingId;
@@ -506,7 +511,7 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                       const groupKey = `${r.tipo_documento}|${r.numero_documento}`;
                       const groupSize = groupedByNumber[groupKey]?.length || 1;
                       return (
-                      <tr key={r.id} className="border-b last:border-0">
+                      <tr key={r.id} className="border-b last:border-0" onDoubleClick={() => { if (!isEditing) startEdit(r); }}>
                         <td className="px-3 py-2">
                           <Checkbox
                             checked={sel.isSelected(r.id)}
@@ -535,7 +540,7 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                         <td className="px-3 py-2"><Badge variant={r.tipo_documento === "SC" ? "default" : "secondary"}>{r.tipo_documento}</Badge></td>
                         <td className="px-3 py-2 font-medium">
                           {isEditing ? (
-                            <Input className="h-8 w-28" value={editDraft.numero_documento ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, numero_documento: e.target.value }))} />
+                            <Input className="h-8 w-28" value={editDraft.numero_documento ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, numero_documento: e.target.value }))}  onKeyDown={editKeys} />
                           ) : groupSize > 1 ? (
                             <Popover>
                               <PopoverTrigger asChild>
@@ -560,17 +565,17 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                         </td>
                         <td className="px-3 py-2 text-xs">
                           {isEditing
-                            ? <Input className="h-8" value={editDraft.categoria ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, categoria: e.target.value }))} />
+                            ? <Input className="h-8" value={editDraft.categoria ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, categoria: e.target.value }))}  onKeyDown={editKeys} />
                             : (r.categoria || "—")}
                         </td>
                         <td className="px-3 py-2 text-xs">
                           {isEditing
-                            ? <Input className="h-8" value={editDraft.conta_financeira ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, conta_financeira: e.target.value }))} />
+                            ? <Input className="h-8" value={editDraft.conta_financeira ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, conta_financeira: e.target.value }))}  onKeyDown={editKeys} />
                             : (r.conta_financeira || "—")}
                         </td>
                         <td className="px-3 py-2 text-xs">
                           {isEditing
-                            ? <Input className="h-8" value={editDraft.centro_custo ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, centro_custo: e.target.value }))} />
+                            ? <Input className="h-8" value={editDraft.centro_custo ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, centro_custo: e.target.value }))}  onKeyDown={editKeys} />
                             : (r.centro_custo || "—")}
                         </td>
                         <td className="px-3 py-2">
@@ -588,43 +593,43 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                         </td>
                         <td className="px-3 py-2 text-xs">
                           {isEditing
-                            ? <Input type="date" className="h-8" value={editDraft.data_solicitacao ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, data_solicitacao: e.target.value }))} />
+                            ? <Input type="date" className="h-8" value={editDraft.data_solicitacao ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, data_solicitacao: e.target.value }))}  onKeyDown={editKeys} />
                             : (r.data_solicitacao ? fmtDate(r.data_solicitacao) : "—")}
                         </td>
                         <td className="px-3 py-2 text-xs">
                           {isEditing
-                            ? <Input className="h-8" value={editDraft.auxiliar ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, auxiliar: e.target.value }))} />
+                            ? <Input className="h-8" value={editDraft.auxiliar ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, auxiliar: e.target.value }))}  onKeyDown={editKeys} />
                             : (r.auxiliar || "—")}
                         </td>
                         <td className="px-3 py-2 text-xs">
                           {isEditing
-                            ? <Input className="h-8" value={editDraft.responsavel ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, responsavel: e.target.value }))} />
+                            ? <Input className="h-8" value={editDraft.responsavel ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, responsavel: e.target.value }))}  onKeyDown={editKeys} />
                             : (r.responsavel || "—")}
                         </td>
                         <td className="px-3 py-2 text-xs">
                           {isEditing
-                            ? <Input className="h-8" value={editDraft.coordenador ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, coordenador: e.target.value }))} />
+                            ? <Input className="h-8" value={editDraft.coordenador ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, coordenador: e.target.value }))}  onKeyDown={editKeys} />
                             : (r.coordenador || "—")}
                         </td>
                         <td className="px-3 py-2 text-xs">
                           {isEditing
-                            ? <Input type="date" className="h-8" value={editDraft.data_finalizacao_compra ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, data_finalizacao_compra: e.target.value }))} />
+                            ? <Input type="date" className="h-8" value={editDraft.data_finalizacao_compra ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, data_finalizacao_compra: e.target.value }))}  onKeyDown={editKeys} />
                             : (r.data_finalizacao_compra ? fmtDate(r.data_finalizacao_compra) : "—")}
                         </td>
                         <td className="px-3 py-2 text-xs">
                           {isEditing
-                            ? <Input type="date" className="h-8" value={editDraft.data_finalizacao_logistica ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, data_finalizacao_logistica: e.target.value }))} />
+                            ? <Input type="date" className="h-8" value={editDraft.data_finalizacao_logistica ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, data_finalizacao_logistica: e.target.value }))}  onKeyDown={editKeys} />
                             : (r.data_finalizacao_logistica ? fmtDate(r.data_finalizacao_logistica) : "—")}
                         </td>
                         <td className="px-3 py-2 text-right">
                           {isEditing ? (
                             <>
-                              <Button variant="ghost" size="sm" className="h-7" onClick={saveEdit}>Salvar</Button>
-                              <Button variant="ghost" size="sm" className="h-7" onClick={() => { setEditingId(null); setEditDraft({}); }}>X</Button>
+                              <Button variant="ghost" size="sm" className="h-7" onClick={saveEdit} title="Enter para salvar">Salvar</Button>
+                              <Button variant="ghost" size="sm" className="h-7" onClick={cancelEdit} title="Esc para cancelar">X</Button>
                             </>
                           ) : (
                             <>
-                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => startEdit(r)} title="Editar"><Pencil className="h-4 w-4" /></Button>
+                              <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => startEdit(r)} title="Editar (ou duplo-clique na linha)"><Pencil className="h-4 w-4" /></Button>
                               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={async () => {
                                 if (!confirm("Excluir?")) return;
                                 const snap = rows;
@@ -793,7 +798,7 @@ const SuprimentosPage = () => {
             <th className="px-3 py-2.5">Site / Obra</th>
             <th className="px-3 py-2.5">Cliente</th>
             <th className="px-3 py-2.5">Cidade / UF</th>
-            <th className="px-3 py-2.5">Solicitante</th><th className="px-3 py-2.5">Responsável</th>
+            <th className="px-3 py-2.5">Solicitante</th><th className="px-3 py-2.5">Coordenador / Analista</th>
             <th className="px-3 py-2.5">Prazo</th><th className="px-3 py-2.5">Status</th>
             <th className="px-3 py-2.5">SC/RC</th><th className="px-3 py-2.5 w-20"></th>
           </tr>
@@ -820,7 +825,7 @@ const SuprimentosPage = () => {
               <td className="px-3 py-2.5">{d.cliente || "—"}</td>
               <td className="px-3 py-2.5">{cidUf || "—"}</td>
               <td className="px-3 py-2.5">{r.solicitante || "—"}</td>
-              <td className="px-3 py-2.5">{r.responsavel || "—"}</td>
+              <td className="px-3 py-2.5">{(r.data as any)?.coordenador || (r.data as any)?.analista || r.responsavel || "—"}</td>
               <td className={`px-3 py-2.5 ${isOverdue(r.prazo) && !["concluida", "comprada", "recebida", "cancelada"].includes(String(r.status)) ? "text-destructive font-medium" : ""}`}>{fmtDate(r.prazo)}</td>
               <td className="px-3 py-2.5">
                 {pendingSc ? (
