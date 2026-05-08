@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const sb: any = supabase;
@@ -13,9 +15,8 @@ type Props = {
 };
 
 /**
- * Matriz "estilo planilha" de permissões por usuário × módulo.
- * Cada célula mostra 3 switches verticais (Ver / Editar / Excluir) — igual ao mock do ADM.
- * Empresa autoriza suas permissões por usuário.
+ * Matriz "estilo planilha" de permissões por usuário × módulo (setor).
+ * Filtro por setor (módulo) evita lista gigante quando a empresa contratou muitos módulos.
  */
 export default function CompanyPermissionsMatrix({ companyId, allModulesOverride }: Props) {
   const [users, setUsers] = useState<any[]>([]);
@@ -23,6 +24,7 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
   const [planMods, setPlanMods] = useState<string[]>([]);
   const [perms, setPerms] = useState<Record<string, Record<string, { v: boolean; e: boolean; d: boolean }>>>({});
   const [loading, setLoading] = useState(true);
+  const [setorFilter, setSetorFilter] = useState<string>("all");
 
   async function load() {
     setLoading(true);
