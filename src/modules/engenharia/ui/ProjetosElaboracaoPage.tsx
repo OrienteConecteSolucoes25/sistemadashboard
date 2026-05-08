@@ -294,7 +294,7 @@ const ProjetosElaboracaoPage = () => {
       </Tabs>
 
       <Dialog open={open} onOpenChange={(v) => { if (!v) { setOpen(false); setEditId(null); } }}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" onKeyDown={makeEditKeyHandler(save, () => { setOpen(false); setEditId(null); })}>
           <DialogHeader><DialogTitle>{editId ? "Editar projeto" : "Novo projeto"}</DialogTitle></DialogHeader>
           <div className="grid gap-3 md:grid-cols-2">
             <div><Label>Cliente *</Label><SelectFree value={form.cliente} onChange={(v) => setForm({ ...form, cliente: v })} options={optionsCliente} /></div>
