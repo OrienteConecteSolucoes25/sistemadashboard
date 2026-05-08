@@ -365,7 +365,7 @@ const EngListPage = ({
       })()}
 
       <Dialog open={openForm} onOpenChange={(o) => { setOpenForm(o); if (!o) setEditing(null); }}>
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto" onKeyDown={makeEditKeyHandler(save, () => setOpenForm(false))}>
           <DialogHeader><DialogTitle className="font-display">{editing?.id ? `Editar ${config.title}` : `Novo ${config.title}`}</DialogTitle></DialogHeader>
           {editing && (
             <div className="grid gap-3 md:grid-cols-2">
