@@ -78,12 +78,21 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
       if (raw === undefined || raw === "") return;
       meta[f.key] = f.type === "number" ? Number(raw) : raw;
     });
-    const { error } = await supabase
-      .from("eng_field_options")
-      .insert({ field_key: fieldKey, value: v, meta } as any);
-    if (error) return toast.error(error.message);
+    // Optimistic insert
+    const tempId = `temp-${Date.now()}`;
+    const optimistic: Row = { id: tempId, field_key: fieldKey, value: v, meta };
+    setRows((prev) => [...prev, optimistic].sort((a, b) => a.value.localeCompare(b.value)));
     setNovoValor(""); setNovoMeta({});
-    toast.success("Adicionado");
+    const { data, error } = await supabase
+      .from("eng_field_options")
+      .insert({ field_key: fieldKey, value: v, meta } as any)
+      .select()
+      .single();
+    if (error) {
+      setRows((prev) => prev.filter((r) => r.id !== tempId));
+      return toast.error(error.message);
+    }
+    setRows((prev) => prev.map((r) => (r.id === tempId ? (data as any) : r)));
   };
 
   const salvarEdicao = async () => {
@@ -94,20 +103,31 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
       if (raw === undefined || raw === "") return;
       meta[f.key] = f.type === "number" ? Number(raw) : raw;
     });
+    const id = editId;
+    const novoValorEdit = editValor.trim();
+    const before = rows.find((r) => r.id === id);
+    // Optimistic update
+    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, value: novoValorEdit, meta } : r)));
+    setEditId(null);
     const { error } = await supabase
       .from("eng_field_options")
-      .update({ value: editValor.trim(), meta } as any)
-      .eq("id", editId);
-    if (error) return toast.error(error.message);
-    setEditId(null);
-    toast.success("Atualizado");
+      .update({ value: novoValorEdit, meta } as any)
+      .eq("id", id);
+    if (error) {
+      if (before) setRows((prev) => prev.map((r) => (r.id === id ? before : r)));
+      return toast.error(error.message);
+    }
   };
 
   const excluir = async (id: string) => {
     if (!confirm("Excluir este cadastro?")) return;
+    const before = rows.find((r) => r.id === id);
+    setRows((prev) => prev.filter((r) => r.id !== id));
     const { error } = await supabase.from("eng_field_options").delete().eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Excluído");
+    if (error) {
+      if (before) setRows((prev) => [...prev, before].sort((a, b) => a.value.localeCompare(b.value)));
+      return toast.error(error.message);
+    }
   };
 
   const exportar = (fmt: "xlsx" | "csv") => {
@@ -154,21 +174,30 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
         rowsToInsert.push({ field_key: fieldKey, value, meta });
       }
       if (rowsToInsert.length === 0) return toast.warning("Nenhuma linha válida");
-      // Upsert manualmente: insere ignorando duplicados
+      // Optimistic: mostra imediatamente
+      const optimisticRows: Row[] = rowsToInsert.map((r, i) => ({
+        id: `temp-import-${Date.now()}-${i}`,
+        field_key: fieldKey,
+        value: r.value,
+        meta: r.meta,
+      }));
+      setRows((prev) => [...prev, ...optimisticRows].sort((a, b) => a.value.localeCompare(b.value)));
+      toast.success(`${rowsToInsert.length} registros sendo salvos…`);
+      // Insere em paralelo (lotes maiores)
       let ok = 0;
-      for (let i = 0; i < rowsToInsert.length; i += 200) {
-        const slice = rowsToInsert.slice(i, i + 200);
-        const { error } = await supabase.from("eng_field_options").insert(slice as any);
-        if (error && !error.message.toLowerCase().includes("duplicate")) {
-          // tenta um a um para pular duplicados
-          for (const it of slice) {
-            const { error: e2 } = await supabase.from("eng_field_options").insert(it as any);
-            if (!e2) ok++;
-          }
-        } else {
-          ok += slice.length;
-        }
+      const batches: Promise<any>[] = [];
+      for (let i = 0; i < rowsToInsert.length; i += 500) {
+        const slice = rowsToInsert.slice(i, i + 500);
+        batches.push(
+          (async () => {
+            const { error } = await supabase.from("eng_field_options").insert(slice as any);
+            if (error && !error.message.toLowerCase().includes("duplicate")) return 0;
+            return slice.length;
+          })()
+        );
       }
+      const results = await Promise.all(batches);
+      ok = results.reduce((a: number, b: number) => a + b, 0);
       toast.success(`${ok} registros importados`);
     } catch (e: any) {
       toast.error("Falha ao importar: " + (e?.message ?? e));
@@ -229,7 +258,12 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
         <div className="grid gap-2 md:grid-cols-12 items-end border rounded-md p-2 bg-muted/40">
           <div className={`md:col-span-${Math.max(3, 12 - (metaFields.length * 3) - 2)}`}>
             <Label className="text-[10px]">{valueLabel} *</Label>
-            <Input value={novoValor} onChange={(e) => setNovoValor(e.target.value)} placeholder={valuePlaceholder} />
+            <Input
+              value={novoValor}
+              onChange={(e) => setNovoValor(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); adicionar(); } }}
+              placeholder={valuePlaceholder}
+            />
           </div>
           {metaFields.map((f) => (
             <div key={f.key} className="md:col-span-3">
@@ -238,6 +272,7 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
                 type={f.type === "number" ? "number" : "text"}
                 value={novoMeta[f.key] ?? ""}
                 onChange={(e) => setNovoMeta({ ...novoMeta, [f.key]: e.target.value })}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); adicionar(); } }}
               />
             </div>
           ))}
@@ -270,7 +305,16 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
               {filtradas.map((r) => editId === r.id ? (
                 <tr key={r.id} className="bg-amber-50 dark:bg-amber-950/20">
                   <td className="px-2 py-1">
-                    <Input value={editValor} onChange={(e) => setEditValor(e.target.value)} className="h-8" />
+                    <Input
+                      autoFocus
+                      value={editValor}
+                      onChange={(e) => setEditValor(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") { e.preventDefault(); salvarEdicao(); }
+                        else if (e.key === "Escape") { e.preventDefault(); setEditId(null); }
+                      }}
+                      className="h-8"
+                    />
                   </td>
                   {metaFields.map((f) => (
                     <td key={f.key} className="px-2 py-1">
@@ -279,6 +323,10 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
                         type={f.type === "number" ? "number" : "text"}
                         value={editMeta[f.key] ?? ""}
                         onChange={(e) => setEditMeta({ ...editMeta, [f.key]: e.target.value })}
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") { e.preventDefault(); salvarEdicao(); }
+                          else if (e.key === "Escape") { e.preventDefault(); setEditId(null); }
+                        }}
                       />
                     </td>
                   ))}
