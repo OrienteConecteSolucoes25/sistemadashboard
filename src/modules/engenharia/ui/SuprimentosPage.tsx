@@ -330,12 +330,25 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
 
         <Card className="card-elegant mt-2">
           <CardContent className="pt-4 overflow-x-auto">
+            <BulkActionsBar
+              count={sel.count}
+              onClear={sel.clear}
+              onDelete={excluirSelecionados}
+              deleteLabel={`Excluir ${sel.count} SC/RC`}
+            />
             {loading ? <div className="text-center py-6 text-muted-foreground">Carregando…</div>
               : rows.length === 0 ? <div className="text-center py-6 text-muted-foreground">Nenhum SC/RC vinculado.</div>
               : (
                 <table className="w-full text-sm min-w-[1000px]">
                   <thead className="bg-muted/60 border-b">
                     <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+                      <th className="px-3 py-2 w-8">
+                        <Checkbox
+                          checked={sel.allChecked ? true : sel.someChecked ? "indeterminate" : false}
+                          onCheckedChange={() => sel.toggleAll()}
+                          aria-label="Selecionar todos"
+                        />
+                      </th>
                       <th className="px-3 py-2">Material (descrição)</th>
                       <th className="px-3 py-2">Tipo</th><th className="px-3 py-2">Nº</th>
                       <th className="px-3 py-2">Categoria</th>
@@ -353,8 +366,13 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                       const groupSize = groupedByNumber[groupKey]?.length || 1;
                       return (
                       <tr key={r.id} className="border-b last:border-0">
-                        <td className="px-3 py-2 text-xs">
-                          {isEditing ? (
+                        <td className="px-3 py-2">
+                          <Checkbox
+                            checked={sel.isSelected(r.id)}
+                            onCheckedChange={() => sel.toggle(r.id)}
+                            aria-label="Selecionar"
+                          />
+                        </td>
                             <Select
                               value={editDraft.item_descricao || ""}
                               onValueChange={(v) => {
