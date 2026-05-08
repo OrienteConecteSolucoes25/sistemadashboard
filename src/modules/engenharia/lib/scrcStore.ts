@@ -10,6 +10,7 @@ export interface ScRcRow {
   centro_custo?: string | null; observacao?: string | null;
   status?: string | null; created_by?: string | null;
   data_solicitacao?: string | null;
+  item_descricao?: string | null;
   created_at: string; updated_at: string;
 }
 

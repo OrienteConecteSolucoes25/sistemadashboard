@@ -31,13 +31,23 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
       sb.from("plan_modules_catalog").select("*").eq("ativo", true).order("ordem"),
       sb.from("company_plans").select("modules").eq("company_id", companyId).maybeSingle(),
     ]);
-    const ids = (cu ?? []).map((x: any) => x.user_id);
+    const linkedIds = new Set((cu ?? []).map((x: any) => x.user_id));
+
+    // Em modo admin global, mostra todos os perfis (mesmo que ainda não estejam vinculados à empresa).
     let profs: any[] = [];
-    if (ids.length) {
-      const { data } = await sb.from("profiles").select("id, email, full_name").in("id", ids);
+    if (allModulesOverride) {
+      const { data } = await sb.from("profiles").select("id, email, full_name");
+      profs = data ?? [];
+    } else if (linkedIds.size) {
+      const { data } = await sb.from("profiles").select("id, email, full_name").in("id", Array.from(linkedIds));
       profs = data ?? [];
     }
-    const usrs = (cu ?? []).map((x: any) => ({ ...x, profile: profs.find(p => p.id === x.user_id) }));
+
+    const usrs = profs.map((p: any) => ({
+      user_id: p.id,
+      profile: p,
+      _linked: linkedIds.has(p.id),
+    }));
     usrs.sort((a: any, b: any) => (a.profile?.full_name ?? a.profile?.email ?? "").localeCompare(b.profile?.full_name ?? b.profile?.email ?? ""));
     setUsers(usrs);
     setCatalog(cat ?? []);
@@ -64,13 +74,27 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
 
   async function save() {
     const rows: any[] = [];
+    const usersToLink = new Set<string>();
     Object.entries(perms).forEach(([user_id, mp]) => {
       Object.entries(mp).forEach(([module_key, v]) => {
         if (allModulesOverride || planMods.includes(module_key)) {
           rows.push({ company_id: companyId, user_id, module_key, can_view: v.v, can_edit: v.e, can_delete: v.d });
+          if (v.v || v.e || v.d) usersToLink.add(user_id);
         }
       });
     });
+
+    // Auto-vincula à empresa qualquer usuário que tenha pelo menos uma permissão
+    if (usersToLink.size) {
+      const linkedExisting = new Set(users.filter((u: any) => u._linked).map((u: any) => u.user_id));
+      const toInsert = Array.from(usersToLink)
+        .filter((uid) => !linkedExisting.has(uid))
+        .map((user_id) => ({ company_id: companyId, user_id }));
+      if (toInsert.length) {
+        await sb.from("company_users").insert(toInsert);
+      }
+    }
+
     await sb.from("company_module_permissions").delete().eq("company_id", companyId);
     if (rows.length) {
       const { error } = await sb.from("company_module_permissions").insert(rows);
@@ -103,7 +127,10 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
             {users.map(u => (
               <tr key={u.user_id} className="hover:bg-muted/20">
                 <td className="px-4 py-3 sticky left-0 bg-background z-10 border-b align-top">
-                  <div className="font-medium text-sm">{u.profile?.full_name || "—"}</div>
+                  <div className="font-medium text-sm flex items-center gap-1.5">
+                    {u.profile?.full_name || "—"}
+                    {!u._linked && <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-400">não vinculado</span>}
+                  </div>
                   <div className="text-xs text-muted-foreground truncate max-w-[200px]">{u.profile?.email}</div>
                 </td>
                 {visibleMods.map(m => {

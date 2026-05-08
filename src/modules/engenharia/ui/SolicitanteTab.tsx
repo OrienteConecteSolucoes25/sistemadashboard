@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
+import { listScRcAll } from "../lib/scrcStore";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -25,7 +26,7 @@ interface Item {
 
 const UNIDADES = ["UN", "PC", "M", "M²", "M³", "KG", "L", "CX", "PCT", "PAR", "RL", "BR"];
 
-export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCreated: () => void }) {
+export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: () => void }) {
   const { items: catalogo } = useMateriais();
   const tipos = useFieldOptions("tipo");
   const coords = useFieldOptions("coordenador");
@@ -49,7 +50,8 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
   const [auxiliar, setAuxiliar] = useState("");
   const [dataSol, setDataSol] = useState("");
   const [dataLimite, setDataLimite] = useState("");
-  const [tecnico, setTecnico] = useState("");
+  const [equipe, setEquipe] = useState("");
+  const [empresa, setEmpresa] = useState("");
   const [endereco, setEndereco] = useState("");
   const [obs, setObs] = useState("");
   const [anexo, setAnexo] = useState<File | null>(null);
@@ -58,18 +60,33 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
   const [novoItem, setNovoItem] = useState<Item>({ descricao: "", unidade: "UN", quantidade: "1" });
 
   const [sites, setSites] = useState<any[]>([]);
-  const [tecnicos, setTecnicos] = useState<any[]>([]);
+  const [empresas, setEmpresas] = useState<any[]>([]);
+  const [equipes, setEquipes] = useState<any[]>([]);
   const [enviando, setEnviando] = useState(false);
 
   useEffect(() => { (async () => {
     const { data } = await supabase.from("eng_sites").select("id,nome,codigo,cidade,uf").order("nome");
     setSites(data || []);
-    // Técnicos: tenta buscar de hrdp_employees ou cargo
     try {
-      const { data: techs } = await (supabase as any).from("hrdp_employees").select("id,nome,cargo").ilike("cargo","%técnic%").limit(200);
-      setTecnicos(techs || []);
+      const { data: cs } = await (supabase as any).from("companies").select("id,nome").eq("ativo", true).order("nome");
+      setEmpresas(cs || []);
     } catch { /* opcional */ }
   })(); }, []);
+
+  // Equipes vinculadas à empresa selecionada (usa colaboradores da empresa, fallback livre)
+  useEffect(() => {
+    (async () => {
+      if (!empresa) { setEquipes([]); return; }
+      try {
+        const { data } = await (supabase as any)
+          .from("hrdp_employees")
+          .select("id,nome,cargo,company_id")
+          .eq("company_id", empresa)
+          .limit(300);
+        setEquipes(data || []);
+      } catch { setEquipes([]); }
+    })();
+  }, [empresa]);
 
   // Auto-preencher CC quando cliente muda (prioriza cadastro centro_custo)
   useEffect(() => {
@@ -218,7 +235,7 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
           tipo, coord, cliente, cc, categoria, conta_financeira: contaFin, comprador, escopo,
           site, site_id: siteId, cidade, uf,
           auxiliar, data_sol: dataSol, data_limite: dataLimite,
-          tecnico, endereco, obs, anexo: anexoUrl,
+          equipe, empresa, endereco, obs, anexo: anexoUrl,
         } as any,
       });
       if (error) throw error;
@@ -227,7 +244,7 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
       // reset
       setTipo(""); setCoord(""); setCliente(""); setCc(""); setCategoria(""); setContaFin(""); setComprador("");
       setEscopo(""); setSite(""); setCidade(""); setUf(""); setAuxiliar("");
-      setDataSol(""); setDataLimite(""); setTecnico(""); setEndereco(""); setObs("");
+      setDataSol(""); setDataLimite(""); setEquipe(""); setEmpresa(""); setEndereco(""); setObs("");
       setAnexo(null); setItens([]);
       onCreated();
     } catch (e: any) {
@@ -289,16 +306,25 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
           <Field label="Data limite entrega coordenador *">
             <Input type="date" value={dataLimite} onChange={(e) => setDataLimite(e.target.value)} />
           </Field>
-          <Field label="Técnico">
-            {tecnicos.length > 0 ? (
-              <Select value={tecnico} onValueChange={setTecnico}>
+          <Field label="Empresa">
+            <Select value={empresa} onValueChange={setEmpresa}>
+              <SelectTrigger><SelectValue placeholder="Selecione…" /></SelectTrigger>
+              <SelectContent>
+                {empresas.length === 0 && <SelectItem value="__none" disabled>Nenhuma empresa</SelectItem>}
+                {empresas.map((c) => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Equipe">
+            {equipes.length > 0 ? (
+              <Select value={equipe} onValueChange={setEquipe}>
                 <SelectTrigger><SelectValue placeholder="Selecione…" /></SelectTrigger>
                 <SelectContent>
-                  {tecnicos.map((t) => <SelectItem key={t.id} value={t.nome}>{t.nome}</SelectItem>)}
+                  {equipes.map((t) => <SelectItem key={t.id} value={t.nome}>{t.nome}{t.cargo ? ` — ${t.cargo}` : ""}</SelectItem>)}
                 </SelectContent>
               </Select>
             ) : (
-              <Input value={tecnico} onChange={(e) => setTecnico(e.target.value)} placeholder="Nenhum técnico cadastrado" />
+              <Input value={equipe} onChange={(e) => setEquipe(e.target.value)} placeholder={empresa ? "Sem equipes vinculadas" : "Selecione a empresa primeiro (opcional)"} />
             )}
           </Field>
         </div>
@@ -412,7 +438,122 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
           </Button>
         </div>
       </CardContent>
+
+      <SolicitacoesAbertas rows={rows} onChanged={onCreated} />
     </Card>
+  );
+}
+
+// Painel inferior: solicitações já criadas com materiais ainda não atrelados a SC/RC
+function SolicitacoesAbertas({ rows, onChanged }: { rows: any[]; onChanged: () => void }) {
+  const [scrcByNum, setScrcByNum] = useState<Record<string, Set<string>>>({});
+  const [loading, setLoading] = useState(true);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [addingDesc, setAddingDesc] = useState("");
+  const [addingQtd, setAddingQtd] = useState("1");
+  const [addingUn, setAddingUn] = useState("UN");
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const all = await listScRcAll();
+      const m: Record<string, Set<string>> = {};
+      all.forEach((r: any) => {
+        const key = r.solicit_id;
+        m[key] ??= new Set();
+        if (r.item_descricao) m[key].add(String(r.item_descricao).toLowerCase());
+      });
+      setScrcByNum(m);
+    } catch { /* */ }
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, [rows.length]);
+
+  const pendentesPorSolicit = useMemo(() => {
+    return rows.map((r) => {
+      const linked = scrcByNum[r.id] || new Set();
+      const itens = Array.isArray(r.itens) ? r.itens : [];
+      const pendentes = itens.filter((it: any) => !linked.has(String(it.descricao || "").toLowerCase()));
+      return { ...r, pendentes };
+    }).filter((r) => r.pendentes.length > 0);
+  }, [rows, scrcByNum]);
+
+  const adicionarItem = async (solicit: any) => {
+    if (!addingDesc.trim()) { toast.error("Descrição obrigatória"); return; }
+    const novosItens = [...(Array.isArray(solicit.itens) ? solicit.itens : []), {
+      descricao: addingDesc.trim(), unidade: addingUn, quantidade: addingQtd,
+    }];
+    const { error } = await supabase.from("eng_suprimentos")
+      .update({ itens: novosItens } as any).eq("id", solicit.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Material adicionado à solicitação");
+    setAddingDesc(""); setAddingQtd("1"); setAddingUn("UN"); setOpenId(null);
+    onChanged();
+  };
+
+  if (loading) return null;
+  if (pendentesPorSolicit.length === 0) return null;
+
+  return (
+    <CardContent className="pt-0">
+      <div className="border-t pt-4 space-y-3">
+        <h3 className="font-display font-semibold text-base">Solicitações em aberto — materiais sem SC/RC</h3>
+        <p className="text-[11px] text-muted-foreground">Clique para adicionar mais materiais a uma solicitação existente desta obra.</p>
+        <div className="space-y-2">
+          {pendentesPorSolicit.map((s) => {
+            const d = (s.data || {}) as any;
+            const isOpen = openId === s.id;
+            return (
+              <div key={s.id} className="border rounded-md p-3 bg-muted/20">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="text-sm">
+                    <span className="font-semibold">{s.numero}</span>
+                    <span className="text-muted-foreground"> — {d.cliente || "—"} • {d.site || "—"} {d.cidade ? `(${d.cidade}/${d.uf || ""})` : ""}</span>
+                  </div>
+                  <Button size="sm" variant={isOpen ? "secondary" : "outline"} onClick={() => setOpenId(isOpen ? null : s.id)}>
+                    {isOpen ? "Fechar" : "Adicionar mais materiais"}
+                  </Button>
+                </div>
+                <div className="mt-2 text-xs">
+                  <div className="font-medium mb-1">Materiais sem SC/RC ({s.pendentes.length}):</div>
+                  <ul className="list-disc ml-5 space-y-0.5">
+                    {s.pendentes.map((it: any, i: number) => (
+                      <li key={i} className="text-muted-foreground">{it.quantidade} {it.unidade} — {it.descricao}</li>
+                    ))}
+                  </ul>
+                </div>
+                {isOpen && (
+                  <div className="mt-3 grid gap-2 md:grid-cols-12 items-end">
+                    <div className="md:col-span-7">
+                      <Label className="text-[10px]">Descrição</Label>
+                      <Input value={addingDesc} onChange={(e) => setAddingDesc(e.target.value)} placeholder="Material a adicionar…" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label className="text-[10px]">Unidade</Label>
+                      <Select value={addingUn} onValueChange={setAddingUn}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {UNIDADES.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="md:col-span-1">
+                      <Label className="text-[10px]">Qtd</Label>
+                      <Input value={addingQtd} onChange={(e) => setAddingQtd(e.target.value)} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Button size="sm" className="w-full" onClick={() => adicionarItem(s)}>
+                        <Plus className="w-4 h-4 mr-1" />Adicionar
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </CardContent>
   );
 }
 

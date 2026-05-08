@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Plus, Pencil, Trash2, Search, FileText, X, ShoppingCart, AlertTriangle,
@@ -49,19 +50,37 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<Partial<ScRcRow>>({});
   const sd = (solicit?.data || {}) as any;
-  const itens = Array.isArray(solicit?.itens) ? (solicit!.itens as any[]) : [];
+  const itens: any[] = Array.isArray(solicit?.itens) ? (solicit!.itens as any[]) : [];
   const tipoSol = String(sd.tipo || "").toLowerCase();
-  const isRequisicao = tipoSol.includes("requisi"); // requisição → uma RC junta
+  const isRequisicao = tipoSol.includes("requisi");
+
+  // Auto-fill helpers a partir do material escolhido
+  const findItem = (desc: string) => itens.find((it) => String(it.descricao) === desc);
+  const fillFromItem = (desc: string) => {
+    const it = findItem(desc);
+    return {
+      categoria: it?.categoria || sd.categoria || "",
+      conta_financeira: it?.conta_financeira || sd.conta_financeira || "",
+      centro_custo: sd.cc || "",
+    };
+  };
+
   const [novo, setNovo] = useState({
     tipo_documento: isRequisicao ? "RC" : "SC",
     numero_documento: "",
-    categoria: sd.categoria || "",
-    conta_financeira: sd.conta_financeira || "",
+    item_descricao: "",
+    categoria: "",
+    conta_financeira: "",
     centro_custo: sd.cc || "",
     observacao: "",
     status: "SOLICITADO",
     data_solicitacao: new Date().toISOString().slice(0, 10),
   });
+
+  const onPickItem = (desc: string) => {
+    const f = fillFromItem(desc);
+    setNovo((n) => ({ ...n, item_descricao: desc, ...f }));
+  };
 
   const load = async () => {
     setLoading(true);
@@ -75,7 +94,7 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
     try {
       await createScRc({ ...novo, solicit_id: solicitId } as any);
       toast.success("Documento adicionado");
-      setNovo({ tipo_documento: isRequisicao ? "RC" : "SC", numero_documento: "", categoria: sd.categoria || "", conta_financeira: sd.conta_financeira || "", centro_custo: sd.cc || "", observacao: "", status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10) });
+      setNovo({ tipo_documento: isRequisicao ? "RC" : "SC", numero_documento: "", item_descricao: "", categoria: "", conta_financeira: "", centro_custo: sd.cc || "", observacao: "", status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10) });
       load();
     } catch (e) { toast.error(String(e)); }
   };
@@ -86,68 +105,69 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
     try {
       await updateScRc(editingId, {
         numero_documento: editDraft.numero_documento || "",
+        item_descricao: editDraft.item_descricao ?? null,
         categoria: editDraft.categoria ?? null,
         conta_financeira: editDraft.conta_financeira ?? null,
         centro_custo: editDraft.centro_custo ?? null,
         observacao: editDraft.observacao ?? null,
         data_solicitacao: editDraft.data_solicitacao ?? null,
-      });
+      } as any);
       toast.success("Atualizado");
       setEditingId(null); setEditDraft({});
       load();
     } catch (e: any) { toast.error(e?.message ?? "Falha ao atualizar"); }
   };
 
+  // Agrupa SC/RC pelo mesmo número (para popover)
+  const groupedByNumber: Record<string, ScRcRow[]> = {};
+  rows.forEach((r) => {
+    const k = `${r.tipo_documento}|${r.numero_documento}`;
+    groupedByNumber[k] ??= [];
+    groupedByNumber[k].push(r);
+  });
+
   return (
     <Dialog open onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-display flex items-center gap-2"><FileText className="h-5 w-5 text-primary" />SC / RC vinculados {solicit?.numero ? `— ${solicit.numero}` : ""}</DialogTitle></DialogHeader>
 
-        {itens.length > 0 && (
-          <Card className="card-elegant">
-            <CardContent className="pt-3">
-              <div className="text-xs font-semibold mb-1.5 flex items-center gap-2">
-                Materiais da solicitação ({itens.length})
-                {isRequisicao
-                  ? <Badge variant="secondary" className="text-[10px]">Requisição: vincule todos em uma única RC</Badge>
-                  : <Badge variant="outline" className="text-[10px]">Crie uma SC/RC por categoria</Badge>}
-              </div>
-              <div className="max-h-40 overflow-y-auto border rounded">
-                <table className="w-full text-xs">
-                  <thead className="bg-muted/50">
-                    <tr><th className="px-2 py-1 text-left">Descrição</th><th className="px-2 py-1 text-left">Categoria</th><th className="px-2 py-1 w-16">Unid.</th><th className="px-2 py-1 w-14">Qtd</th></tr>
-                  </thead>
-                  <tbody>
-                    {itens.map((it: any, i: number) => (
-                      <tr key={i} className="border-t">
-                        <td className="px-2 py-1">{it.descricao}</td>
-                        <td className="px-2 py-1 text-muted-foreground">{it.categoria || sd.categoria || "—"}</td>
-                        <td className="px-2 py-1">{it.unidade}</td>
-                        <td className="px-2 py-1">{it.quantidade}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
+        {/* Cabeçalho com endereço/cidade/UF */}
         <Card className="card-elegant">
-          <CardContent className="pt-4 grid gap-2 md:grid-cols-8 items-end">
-            <div>
+          <CardContent className="pt-3 pb-3 grid gap-2 md:grid-cols-3 text-sm">
+            <div><div className="text-[10px] uppercase text-muted-foreground">Endereço</div><div className="font-medium">{sd.endereco || "—"}</div></div>
+            <div><div className="text-[10px] uppercase text-muted-foreground">Cidade</div><div className="font-medium">{sd.cidade || "—"}</div></div>
+            <div><div className="text-[10px] uppercase text-muted-foreground">UF</div><div className="font-medium">{sd.uf || "—"}</div></div>
+          </CardContent>
+        </Card>
+
+        {/* Form para adicionar nova linha SC/RC */}
+        <Card className="card-elegant">
+          <CardContent className="pt-4 grid gap-2 md:grid-cols-12 items-end">
+            <div className="md:col-span-1">
               <Label className="text-xs">Tipo</Label>
               <Select value={novo.tipo_documento} onValueChange={(v) => setNovo({ ...novo, tipo_documento: v })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent><SelectItem value="SC">SC</SelectItem><SelectItem value="RC">RC</SelectItem></SelectContent>
               </Select>
             </div>
+            <div className="md:col-span-3">
+              <Label className="text-xs">Material</Label>
+              <Select value={novo.item_descricao} onValueChange={onPickItem}>
+                <SelectTrigger><SelectValue placeholder="Selecione…" /></SelectTrigger>
+                <SelectContent>
+                  {itens.length === 0 && <SelectItem value="__none" disabled>Sem materiais</SelectItem>}
+                  {itens.map((it: any, i: number) => (
+                    <SelectItem key={i} value={String(it.descricao)}>{it.descricao}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
             <div className="md:col-span-2"><Label className="text-xs">Nº documento *</Label><Input value={novo.numero_documento} onChange={(e) => setNovo({ ...novo, numero_documento: e.target.value })} /></div>
-            <div><Label className="text-xs">Categoria</Label><Input value={novo.categoria} onChange={(e) => setNovo({ ...novo, categoria: e.target.value })} /></div>
-            <div><Label className="text-xs">Conta fin.</Label><Input value={novo.conta_financeira} onChange={(e) => setNovo({ ...novo, conta_financeira: e.target.value })} /></div>
-            <div><Label className="text-xs">Centro custo</Label><Input value={novo.centro_custo} onChange={(e) => setNovo({ ...novo, centro_custo: e.target.value })} /></div>
-            <div><Label className="text-xs">Data solicit.</Label><Input type="date" value={novo.data_solicitacao} onChange={(e) => setNovo({ ...novo, data_solicitacao: e.target.value })} /></div>
-            <Button onClick={adicionar}><Plus className="h-4 w-4 mr-1" />Adicionar</Button>
+            <div className="md:col-span-1"><Label className="text-xs">Categoria</Label><Input value={novo.categoria} onChange={(e) => setNovo({ ...novo, categoria: e.target.value })} /></div>
+            <div className="md:col-span-1"><Label className="text-xs">Conta fin.</Label><Input value={novo.conta_financeira} onChange={(e) => setNovo({ ...novo, conta_financeira: e.target.value })} /></div>
+            <div className="md:col-span-1"><Label className="text-xs">CC</Label><Input value={novo.centro_custo} onChange={(e) => setNovo({ ...novo, centro_custo: e.target.value })} /></div>
+            <div className="md:col-span-2"><Label className="text-xs">Data solicit.</Label><Input type="date" value={novo.data_solicitacao} onChange={(e) => setNovo({ ...novo, data_solicitacao: e.target.value })} /></div>
+            <div className="md:col-span-1"><Button onClick={adicionar} className="w-full"><Plus className="h-4 w-4" /></Button></div>
           </CardContent>
         </Card>
 
@@ -156,29 +176,69 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
             {loading ? <div className="text-center py-6 text-muted-foreground">Carregando…</div>
               : rows.length === 0 ? <div className="text-center py-6 text-muted-foreground">Nenhum SC/RC vinculado.</div>
               : (
-                <table className="w-full text-sm min-w-[900px]">
+                <table className="w-full text-sm min-w-[1000px]">
                   <thead className="bg-muted/60 border-b">
                     <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+                      <th className="px-3 py-2">Material (descrição)</th>
                       <th className="px-3 py-2">Tipo</th><th className="px-3 py-2">Nº</th>
                       <th className="px-3 py-2">Categoria</th>
                       <th className="px-3 py-2">Conta fin.</th>
-                      <th className="px-3 py-2">Centro custo</th>
+                      <th className="px-3 py-2">CC</th>
                       <th className="px-3 py-2">Status</th>
                       <th className="px-3 py-2">Data solicit.</th>
-                      <th className="px-3 py-2">Criado</th>
                       <th className="px-3 py-2 w-24 text-right">Ações</th>
                     </tr>
                   </thead>
                   <tbody>
                     {rows.map((r) => {
                       const isEditing = editingId === r.id;
+                      const groupKey = `${r.tipo_documento}|${r.numero_documento}`;
+                      const groupSize = groupedByNumber[groupKey]?.length || 1;
                       return (
                       <tr key={r.id} className="border-b last:border-0">
+                        <td className="px-3 py-2 text-xs">
+                          {isEditing ? (
+                            <Select
+                              value={editDraft.item_descricao || ""}
+                              onValueChange={(v) => {
+                                const f = fillFromItem(v);
+                                setEditDraft((d) => ({ ...d, item_descricao: v, ...f }));
+                              }}
+                            >
+                              <SelectTrigger className="h-8"><SelectValue placeholder="Material…" /></SelectTrigger>
+                              <SelectContent>
+                                {itens.map((it: any, i: number) => (
+                                  <SelectItem key={i} value={String(it.descricao)}>{it.descricao}</SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          ) : (r.item_descricao || <span className="text-muted-foreground italic">—</span>)}
+                        </td>
                         <td className="px-3 py-2"><Badge variant={r.tipo_documento === "SC" ? "default" : "secondary"}>{r.tipo_documento}</Badge></td>
                         <td className="px-3 py-2 font-medium">
-                          {isEditing
-                            ? <Input className="h-8 w-28" value={editDraft.numero_documento ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, numero_documento: e.target.value }))} />
-                            : r.numero_documento}
+                          {isEditing ? (
+                            <Input className="h-8 w-28" value={editDraft.numero_documento ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, numero_documento: e.target.value }))} />
+                          ) : groupSize > 1 ? (
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <button className="text-primary hover:underline inline-flex items-center gap-1">
+                                  {r.numero_documento}
+                                  <Badge variant="outline" className="text-[9px] h-4">{groupSize}</Badge>
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent className="w-72">
+                                <div className="text-xs font-semibold mb-2">Materiais vinculados a {r.tipo_documento} {r.numero_documento}</div>
+                                <ul className="space-y-1 text-xs">
+                                  {groupedByNumber[groupKey].map((g) => (
+                                    <li key={g.id} className="flex items-start gap-1">
+                                      <span className="text-primary">•</span>
+                                      <span>{g.item_descricao || "(sem material)"}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </PopoverContent>
+                            </Popover>
+                          ) : r.numero_documento}
                         </td>
                         <td className="px-3 py-2 text-xs">
                           {isEditing
@@ -208,7 +268,6 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                             ? <Input type="date" className="h-8" value={editDraft.data_solicitacao ?? ""} onChange={(e) => setEditDraft(d => ({ ...d, data_solicitacao: e.target.value }))} />
                             : (r.data_solicitacao ? fmtDate(r.data_solicitacao) : "—")}
                         </td>
-                        <td className="px-3 py-2 text-xs text-muted-foreground">{fmtDate(r.created_at)}</td>
                         <td className="px-3 py-2 text-right">
                           {isEditing ? (
                             <>
@@ -353,7 +412,7 @@ const SuprimentosPage = () => {
       <table className="w-full text-sm">
         <thead className="bg-muted/60 border-b">
           <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-            <th className="px-3 py-2.5">ID</th><th className="px-3 py-2.5">Descrição</th>
+            <th className="px-3 py-2.5">ID</th>
             <th className="px-3 py-2.5">Cliente</th>
             <th className="px-3 py-2.5">Cidade / UF</th>
             <th className="px-3 py-2.5">Solicitante</th><th className="px-3 py-2.5">Responsável</th>
@@ -363,16 +422,15 @@ const SuprimentosPage = () => {
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={10} className="px-3 py-12 text-center text-muted-foreground">Carregando…</td></tr>
+            <tr><td colSpan={9} className="px-3 py-12 text-center text-muted-foreground">Carregando…</td></tr>
           ) : filtered.length === 0 ? (
-            <tr><td colSpan={10} className="px-3 py-12 text-center text-muted-foreground">Nenhuma solicitação.</td></tr>
+            <tr><td colSpan={9} className="px-3 py-12 text-center text-muted-foreground">Nenhuma solicitação.</td></tr>
           ) : filtered.map((r) => {
             const d = (r.data || {}) as any;
             const cidUf = [d.cidade, d.uf].filter(Boolean).join(" / ");
             return (
             <tr key={r.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => openEdit(r)}>
               <td className="px-3 py-2.5 font-medium">{r.numero || "—"}</td>
-              <td className="px-3 py-2.5 max-w-[280px] truncate text-muted-foreground">{r.descricao || "—"}</td>
               <td className="px-3 py-2.5">{d.cliente || "—"}</td>
               <td className="px-3 py-2.5">{cidUf || "—"}</td>
               <td className="px-3 py-2.5">{r.solicitante || "—"}</td>
