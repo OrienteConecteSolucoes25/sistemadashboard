@@ -522,6 +522,22 @@ export const MateriaisDeluxePage = () => {
     });
   }, [items, search, catFilter]);
 
+  // Reset para a primeira página quando filtros mudam
+  useEffect(() => { setPage(1); }, [search, catFilter, items.length]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+
+  // Categorias do filtro = união do catálogo + cadastradas em eng_field_options
+  const categoriasFiltro = useMemo(() => {
+    const set = new Set<string>();
+    categorias.forEach((c) => c && set.add(c));
+    catCadastro.options.forEach((c) => c && set.add(c));
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [categorias, catCadastro.options]);
+
   const startNew = () => { setEditing({ codigo: "", descricao: "", categoria: "", conta_financeira: "", unidade: "un" }); setOpen(true); };
   const startEdit = (c: CatMat) => { setEditing({ ...c }); setOpen(true); };
 
