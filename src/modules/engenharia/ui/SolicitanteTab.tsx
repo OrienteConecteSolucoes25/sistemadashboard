@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { listScRcAll } from "../lib/scrcStore";
+import { fireAudit } from "../lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Send, Paperclip } from "lucide-react";
+import { Plus, Trash2, Send, Paperclip, Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useMateriais } from "../hooks/useMateriais";
 import { useFieldOptions } from "../hooks/useFieldOptions";
