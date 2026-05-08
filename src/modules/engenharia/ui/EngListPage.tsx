@@ -382,6 +382,15 @@ const EngListPage = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <DeleteWithPasswordModal
+        open={delOpen}
+        onOpenChange={(o) => { setDelOpen(o); if (!o) sel.clear(); }}
+        table={config.table as any}
+        recordIds={Array.from(sel.selected)}
+        moduleLabel={config.title}
+        onDeleted={() => { load(); sel.clear(); }}
+      />
     </div>
   );
 };
