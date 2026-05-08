@@ -383,7 +383,7 @@ export const EquipesDeluxePage = () => {
         ) : filtered.length === 0 ? (
           <Card className="card-elegant col-span-full p-12 text-center text-muted-foreground">Nenhuma equipe.</Card>
         ) : filtered.map((e) => (
-          <Card key={e.id} className="card-elegant cursor-pointer" onClick={() => { setEditing(e); setOpen(true); }}>
+          <Card key={e.id} className="card-elegant cursor-pointer" title="Duplo-clique para editar" onDoubleClick={() => { setEditing(e); setOpen(true); }}>
             <CardHeader className="pb-2 flex-row items-start justify-between space-y-0">
               <div className="min-w-0">
                 <CardTitle className="text-base font-display truncate">{e.nome}</CardTitle>
