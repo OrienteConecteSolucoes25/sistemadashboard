@@ -315,6 +315,8 @@ const SuprimentosPage = () => {
         <thead className="bg-muted/60 border-b">
           <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
             <th className="px-3 py-2.5">ID</th><th className="px-3 py-2.5">Descrição</th>
+            <th className="px-3 py-2.5">Cliente</th>
+            <th className="px-3 py-2.5">Cidade / UF</th>
             <th className="px-3 py-2.5">Solicitante</th><th className="px-3 py-2.5">Responsável</th>
             <th className="px-3 py-2.5">Prazo</th><th className="px-3 py-2.5">Status</th>
             <th className="px-3 py-2.5">SC/RC</th><th className="px-3 py-2.5 w-20"></th>
