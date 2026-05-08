@@ -242,7 +242,7 @@ export const SitesDeluxePage = () => {
       </Card>
 
       <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl" onKeyDown={makeEditKeyHandler(save, () => setOpen(false))}>
           <DialogHeader><DialogTitle className="font-display">{editing?.id ? "Editar site" : "Novo site"}</DialogTitle></DialogHeader>
           {editing && (
             <div className="grid gap-3 md:grid-cols-2">
