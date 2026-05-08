@@ -141,7 +141,7 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
       const norm = (s: string) => s.toString().toLowerCase().trim();
       for (const r of json) {
         const keys = Object.keys(r);
-        const nameKey = keys.find((k) => norm(k) === "nome" || norm(k) === "value");
+        const nameKey = keys.find((k) => norm(k) === "nome" || norm(k) === "value" || norm(k) === norm(valueLabel));
         const value = nameKey ? String(r[nameKey] ?? "").trim() : "";
         if (!value) continue;
         const meta: Record<string, any> = {};
