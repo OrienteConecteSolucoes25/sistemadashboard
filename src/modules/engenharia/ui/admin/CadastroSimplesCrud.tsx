@@ -78,12 +78,21 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
       if (raw === undefined || raw === "") return;
       meta[f.key] = f.type === "number" ? Number(raw) : raw;
     });
-    const { error } = await supabase
-      .from("eng_field_options")
-      .insert({ field_key: fieldKey, value: v, meta } as any);
-    if (error) return toast.error(error.message);
+    // Optimistic insert
+    const tempId = `temp-${Date.now()}`;
+    const optimistic: Row = { id: tempId, field_key: fieldKey, value: v, meta };
+    setRows((prev) => [...prev, optimistic].sort((a, b) => a.value.localeCompare(b.value)));
     setNovoValor(""); setNovoMeta({});
-    toast.success("Adicionado");
+    const { data, error } = await supabase
+      .from("eng_field_options")
+      .insert({ field_key: fieldKey, value: v, meta } as any)
+      .select()
+      .single();
+    if (error) {
+      setRows((prev) => prev.filter((r) => r.id !== tempId));
+      return toast.error(error.message);
+    }
+    setRows((prev) => prev.map((r) => (r.id === tempId ? (data as any) : r)));
   };
 
   const salvarEdicao = async () => {
@@ -94,20 +103,31 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
       if (raw === undefined || raw === "") return;
       meta[f.key] = f.type === "number" ? Number(raw) : raw;
     });
+    const id = editId;
+    const novoValorEdit = editValor.trim();
+    const before = rows.find((r) => r.id === id);
+    // Optimistic update
+    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, value: novoValorEdit, meta } : r)));
+    setEditId(null);
     const { error } = await supabase
       .from("eng_field_options")
-      .update({ value: editValor.trim(), meta } as any)
-      .eq("id", editId);
-    if (error) return toast.error(error.message);
-    setEditId(null);
-    toast.success("Atualizado");
+      .update({ value: novoValorEdit, meta } as any)
+      .eq("id", id);
+    if (error) {
+      if (before) setRows((prev) => prev.map((r) => (r.id === id ? before : r)));
+      return toast.error(error.message);
+    }
   };
 
   const excluir = async (id: string) => {
     if (!confirm("Excluir este cadastro?")) return;
+    const before = rows.find((r) => r.id === id);
+    setRows((prev) => prev.filter((r) => r.id !== id));
     const { error } = await supabase.from("eng_field_options").delete().eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Excluído");
+    if (error) {
+      if (before) setRows((prev) => [...prev, before].sort((a, b) => a.value.localeCompare(b.value)));
+      return toast.error(error.message);
+    }
   };
 
   const exportar = (fmt: "xlsx" | "csv") => {
