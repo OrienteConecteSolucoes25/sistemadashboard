@@ -28,6 +28,10 @@ import { StatusBadge } from "./components/StatusBadge";
 import { EngKanban } from "./components/EngKanban";
 import { DistribuicaoCard, RankingCard } from "./components/EngMiniCharts";
 import { DataActionsToolbar } from "@/components/DataActionsToolbar";
+import { Checkbox } from "@/components/ui/checkbox";
+import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { BulkActionsBar } from "@/components/BulkActionsBar";
+import { DeleteWithPasswordModal } from "@/components/DeleteWithPasswordModal";
 
 interface Solicit {
   id: string;
