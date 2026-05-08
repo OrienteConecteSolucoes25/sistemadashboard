@@ -245,38 +245,60 @@ const EngListPage = ({
         );
 
         const listView = (
-          <Card className="card-elegant overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/60 border-b">
-                <tr>
-                  {listFields.map((f) => (
-                    <th key={f.key} className="text-left px-3 py-2.5 font-medium text-xs uppercase tracking-wide text-muted-foreground">
-                      {f.label}
+          <div className="space-y-2">
+            <BulkActionsBar
+              count={sel.count}
+              onClear={sel.clear}
+              onDelete={() => del(Array.from(sel.selected))}
+              deleteLabel={`Excluir ${sel.count} selecionado(s)`}
+            />
+            <Card className="card-elegant overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/60 border-b">
+                  <tr>
+                    <th className="px-3 py-2.5 w-8">
+                      <Checkbox
+                        checked={sel.allChecked ? true : sel.someChecked ? "indeterminate" : false}
+                        onCheckedChange={() => sel.toggleAll()}
+                        aria-label="Selecionar todos"
+                      />
                     </th>
-                  ))}
-                  <th className="px-3 py-2 w-10"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr><td colSpan={listFields.length + 1} className="px-3 py-12 text-center text-muted-foreground">Carregando...</td></tr>
-                ) : filtered.length === 0 ? (
-                  <tr><td colSpan={listFields.length + 1} className="px-3 py-12 text-center text-muted-foreground">Nenhum registro.</td></tr>
-                ) : filtered.map((r) => (
-                  <tr key={r.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => { setEditing(r); setOpenForm(true); }}>
                     {listFields.map((f) => (
-                      <td key={f.key} className="px-3 py-2.5 max-w-[280px]">{formatCell(r[f.key], f, statusKeys)}</td>
+                      <th key={f.key} className="text-left px-3 py-2.5 font-medium text-xs uppercase tracking-wide text-muted-foreground">
+                        {f.label}
+                      </th>
                     ))}
-                    <td className="px-3 py-2">
-                      <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={(e) => { e.stopPropagation(); del(r.id); }}>
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </td>
+                    <th className="px-3 py-2 w-10"></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr><td colSpan={listFields.length + 2} className="px-3 py-12 text-center text-muted-foreground">Carregando...</td></tr>
+                  ) : filtered.length === 0 ? (
+                    <tr><td colSpan={listFields.length + 2} className="px-3 py-12 text-center text-muted-foreground">Nenhum registro.</td></tr>
+                  ) : filtered.map((r) => (
+                    <tr key={r.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => { setEditing(r); setOpenForm(true); }}>
+                      <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={sel.isSelected(r.id)}
+                          onCheckedChange={() => sel.toggle(r.id)}
+                          aria-label={`Selecionar ${r.id}`}
+                        />
+                      </td>
+                      {listFields.map((f) => (
+                        <td key={f.key} className="px-3 py-2.5 max-w-[280px]">{formatCell(r[f.key], f, statusKeys)}</td>
+                      ))}
+                      <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={(e) => { e.stopPropagation(); del([r.id]); }}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Card>
+          </div>
         );
 
         if (views.length <= 1) {
