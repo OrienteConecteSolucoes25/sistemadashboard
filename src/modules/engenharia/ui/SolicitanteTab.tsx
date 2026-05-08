@@ -438,7 +438,122 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
           </Button>
         </div>
       </CardContent>
+
+      <SolicitacoesAbertas rows={rows} onChanged={onCreated} />
     </Card>
+  );
+}
+
+// Painel inferior: solicitações já criadas com materiais ainda não atrelados a SC/RC
+function SolicitacoesAbertas({ rows, onChanged }: { rows: any[]; onChanged: () => void }) {
+  const [scrcByNum, setScrcByNum] = useState<Record<string, Set<string>>>({});
+  const [loading, setLoading] = useState(true);
+  const [openId, setOpenId] = useState<string | null>(null);
+  const [addingDesc, setAddingDesc] = useState("");
+  const [addingQtd, setAddingQtd] = useState("1");
+  const [addingUn, setAddingUn] = useState("UN");
+
+  const load = async () => {
+    setLoading(true);
+    try {
+      const all = await listScRcAll();
+      const m: Record<string, Set<string>> = {};
+      all.forEach((r: any) => {
+        const key = r.solicit_id;
+        m[key] ??= new Set();
+        if (r.item_descricao) m[key].add(String(r.item_descricao).toLowerCase());
+      });
+      setScrcByNum(m);
+    } catch { /* */ }
+    setLoading(false);
+  };
+  useEffect(() => { load(); }, [rows.length]);
+
+  const pendentesPorSolicit = useMemo(() => {
+    return rows.map((r) => {
+      const linked = scrcByNum[r.id] || new Set();
+      const itens = Array.isArray(r.itens) ? r.itens : [];
+      const pendentes = itens.filter((it: any) => !linked.has(String(it.descricao || "").toLowerCase()));
+      return { ...r, pendentes };
+    }).filter((r) => r.pendentes.length > 0);
+  }, [rows, scrcByNum]);
+
+  const adicionarItem = async (solicit: any) => {
+    if (!addingDesc.trim()) { toast.error("Descrição obrigatória"); return; }
+    const novosItens = [...(Array.isArray(solicit.itens) ? solicit.itens : []), {
+      descricao: addingDesc.trim(), unidade: addingUn, quantidade: addingQtd,
+    }];
+    const { error } = await supabase.from("eng_suprimentos")
+      .update({ itens: novosItens } as any).eq("id", solicit.id);
+    if (error) { toast.error(error.message); return; }
+    toast.success("Material adicionado à solicitação");
+    setAddingDesc(""); setAddingQtd("1"); setAddingUn("UN"); setOpenId(null);
+    onChanged();
+  };
+
+  if (loading) return null;
+  if (pendentesPorSolicit.length === 0) return null;
+
+  return (
+    <CardContent className="pt-0">
+      <div className="border-t pt-4 space-y-3">
+        <h3 className="font-display font-semibold text-base">Solicitações em aberto — materiais sem SC/RC</h3>
+        <p className="text-[11px] text-muted-foreground">Clique para adicionar mais materiais a uma solicitação existente desta obra.</p>
+        <div className="space-y-2">
+          {pendentesPorSolicit.map((s) => {
+            const d = (s.data || {}) as any;
+            const isOpen = openId === s.id;
+            return (
+              <div key={s.id} className="border rounded-md p-3 bg-muted/20">
+                <div className="flex items-center justify-between gap-2 flex-wrap">
+                  <div className="text-sm">
+                    <span className="font-semibold">{s.numero}</span>
+                    <span className="text-muted-foreground"> — {d.cliente || "—"} • {d.site || "—"} {d.cidade ? `(${d.cidade}/${d.uf || ""})` : ""}</span>
+                  </div>
+                  <Button size="sm" variant={isOpen ? "secondary" : "outline"} onClick={() => setOpenId(isOpen ? null : s.id)}>
+                    {isOpen ? "Fechar" : "Adicionar mais materiais"}
+                  </Button>
+                </div>
+                <div className="mt-2 text-xs">
+                  <div className="font-medium mb-1">Materiais sem SC/RC ({s.pendentes.length}):</div>
+                  <ul className="list-disc ml-5 space-y-0.5">
+                    {s.pendentes.map((it: any, i: number) => (
+                      <li key={i} className="text-muted-foreground">{it.quantidade} {it.unidade} — {it.descricao}</li>
+                    ))}
+                  </ul>
+                </div>
+                {isOpen && (
+                  <div className="mt-3 grid gap-2 md:grid-cols-12 items-end">
+                    <div className="md:col-span-7">
+                      <Label className="text-[10px]">Descrição</Label>
+                      <Input value={addingDesc} onChange={(e) => setAddingDesc(e.target.value)} placeholder="Material a adicionar…" />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Label className="text-[10px]">Unidade</Label>
+                      <Select value={addingUn} onValueChange={setAddingUn}>
+                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectContent>
+                          {UNIDADES.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="md:col-span-1">
+                      <Label className="text-[10px]">Qtd</Label>
+                      <Input value={addingQtd} onChange={(e) => setAddingQtd(e.target.value)} />
+                    </div>
+                    <div className="md:col-span-2">
+                      <Button size="sm" className="w-full" onClick={() => adicionarItem(s)}>
+                        <Plus className="w-4 h-4 mr-1" />Adicionar
+                      </Button>
+                    </div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </CardContent>
   );
 }
 
