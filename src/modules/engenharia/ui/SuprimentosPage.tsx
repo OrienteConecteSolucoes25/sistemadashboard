@@ -820,7 +820,7 @@ const SuprimentosPage = () => {
               <td className="px-3 py-2.5">{d.cliente || "—"}</td>
               <td className="px-3 py-2.5">{cidUf || "—"}</td>
               <td className="px-3 py-2.5">{r.solicitante || "—"}</td>
-              <td className="px-3 py-2.5">{r.responsavel || "—"}</td>
+              <td className="px-3 py-2.5">{(r.data as any)?.coordenador || (r.data as any)?.analista || r.responsavel || "—"}</td>
               <td className={`px-3 py-2.5 ${isOverdue(r.prazo) && !["concluida", "comprada", "recebida", "cancelada"].includes(String(r.status)) ? "text-destructive font-medium" : ""}`}>{fmtDate(r.prazo)}</td>
               <td className="px-3 py-2.5">
                 {pendingSc ? (
