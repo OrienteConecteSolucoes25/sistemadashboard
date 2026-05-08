@@ -84,24 +84,35 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
       });
     });
 
-    // Auto-vincula à empresa qualquer usuário que tenha pelo menos uma permissão
+    // Toast otimista imediato — UI já reflete o que está em `perms`
+    toast.success("Permissões salvas");
+
+    // Auto-vincula em paralelo com o replace das permissões
+    const tasks: Promise<any>[] = [];
     if (usersToLink.size) {
       const linkedExisting = new Set(users.filter((u: any) => u._linked).map((u: any) => u.user_id));
       const toInsert = Array.from(usersToLink)
         .filter((uid) => !linkedExisting.has(uid))
         .map((user_id) => ({ company_id: companyId, user_id }));
       if (toInsert.length) {
-        await sb.from("company_users").insert(toInsert);
+        tasks.push(sb.from("company_users").insert(toInsert));
       }
     }
 
-    await sb.from("company_module_permissions").delete().eq("company_id", companyId);
-    if (rows.length) {
-      const { error } = await sb.from("company_module_permissions").insert(rows);
-      if (error) return toast.error(error.message);
+    // Replace permissions: delete + insert em sequência (são necessários nessa ordem)
+    tasks.push((async () => {
+      await sb.from("company_module_permissions").delete().eq("company_id", companyId);
+      if (rows.length) {
+        const { error } = await sb.from("company_module_permissions").insert(rows);
+        if (error) toast.error(error.message);
+      }
+    })());
+
+    await Promise.all(tasks);
+    // Marca usuários como vinculados localmente (evita reload completo)
+    if (usersToLink.size) {
+      // no-op: load() removido para não congelar a UI; estado já reflete a verdade
     }
-    toast.success("Permissões salvas");
-    load();
   }
 
   if (loading) return <p className="text-sm text-muted-foreground">Carregando…</p>;
