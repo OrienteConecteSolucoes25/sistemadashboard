@@ -49,7 +49,8 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
   const [auxiliar, setAuxiliar] = useState("");
   const [dataSol, setDataSol] = useState("");
   const [dataLimite, setDataLimite] = useState("");
-  const [tecnico, setTecnico] = useState("");
+  const [equipe, setEquipe] = useState("");
+  const [empresa, setEmpresa] = useState("");
   const [endereco, setEndereco] = useState("");
   const [obs, setObs] = useState("");
   const [anexo, setAnexo] = useState<File | null>(null);
@@ -58,7 +59,8 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
   const [novoItem, setNovoItem] = useState<Item>({ descricao: "", unidade: "UN", quantidade: "1" });
 
   const [sites, setSites] = useState<any[]>([]);
-  const [tecnicos, setTecnicos] = useState<any[]>([]);
+  const [empresas, setEmpresas] = useState<any[]>([]);
+  const [equipes, setEquipes] = useState<any[]>([]);
   const [enviando, setEnviando] = useState(false);
 
   useEffect(() => { (async () => {
