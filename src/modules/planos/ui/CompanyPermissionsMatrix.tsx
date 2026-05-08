@@ -2,6 +2,8 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 
 const sb: any = supabase;
@@ -13,9 +15,8 @@ type Props = {
 };
 
 /**
- * Matriz "estilo planilha" de permissões por usuário × módulo.
- * Cada célula mostra 3 switches verticais (Ver / Editar / Excluir) — igual ao mock do ADM.
- * Empresa autoriza suas permissões por usuário.
+ * Matriz "estilo planilha" de permissões por usuário × módulo (setor).
+ * Filtro por setor (módulo) evita lista gigante quando a empresa contratou muitos módulos.
  */
 export default function CompanyPermissionsMatrix({ companyId, allModulesOverride }: Props) {
   const [users, setUsers] = useState<any[]>([]);
@@ -23,6 +24,7 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
   const [planMods, setPlanMods] = useState<string[]>([]);
   const [perms, setPerms] = useState<Record<string, Record<string, { v: boolean; e: boolean; d: boolean }>>>({});
   const [loading, setLoading] = useState(true);
+  const [setorFilter, setSetorFilter] = useState<string>("all");
 
   async function load() {
     setLoading(true);
@@ -63,9 +65,8 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
   }
   useEffect(() => { load(); }, [companyId]);
 
-  const visibleMods = allModulesOverride
-    ? catalog
-    : catalog.filter(c => planMods.includes(c.key));
+  const baseMods = allModulesOverride ? catalog : catalog.filter(c => planMods.includes(c.key));
+  const visibleMods = setorFilter === "all" ? baseMods : baseMods.filter(c => c.key === setorFilter);
 
   function setCell(uid: string, mod: string, patch: Partial<{ v: boolean; e: boolean; d: boolean }>) {
     const cur = perms[uid]?.[mod] ?? { v: false, e: false, d: false };
@@ -121,6 +122,21 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
 
   return (
     <div className="space-y-3">
+      <div className="flex items-end gap-3 flex-wrap">
+        <div className="min-w-[260px]">
+          <Label className="text-xs">Filtrar por setor (módulo contratado)</Label>
+          <Select value={setorFilter} onValueChange={setSetorFilter}>
+            <SelectTrigger><SelectValue /></SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Todos os setores ({baseMods.length})</SelectItem>
+              {baseMods.map(m => <SelectItem key={m.key} value={m.key}>{m.label}</SelectItem>)}
+            </SelectContent>
+          </Select>
+        </div>
+        <p className="text-xs text-muted-foreground flex-1 min-w-[200px]">
+          Use o filtro por setor para ajustar permissões de um módulo específico sem ver a matriz inteira.
+        </p>
+      </div>
       <div className="overflow-x-auto border rounded-lg">
         <table className="min-w-full border-separate border-spacing-0 text-sm">
           <thead className="bg-muted/40 sticky top-0">
