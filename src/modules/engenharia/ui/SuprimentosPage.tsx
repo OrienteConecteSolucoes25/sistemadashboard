@@ -562,9 +562,24 @@ const SuprimentosPage = () => {
 
   const listView = (
     <Card className="card-elegant overflow-x-auto">
+      <div className="px-3 pt-3">
+        <BulkActionsBar
+          count={sel.count}
+          onClear={sel.clear}
+          onDelete={() => askDelete(Array.from(sel.selected))}
+          deleteLabel={`Excluir ${sel.count} solicitação(ões)`}
+        />
+      </div>
       <table className="w-full text-sm">
         <thead className="bg-muted/60 border-b">
           <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+            <th className="px-3 py-2.5 w-8">
+              <Checkbox
+                checked={sel.allChecked ? true : sel.someChecked ? "indeterminate" : false}
+                onCheckedChange={() => sel.toggleAll()}
+                aria-label="Selecionar todas"
+              />
+            </th>
             <th className="px-3 py-2.5">Site / Obra</th>
             <th className="px-3 py-2.5">Cliente</th>
             <th className="px-3 py-2.5">Cidade / UF</th>
@@ -575,14 +590,21 @@ const SuprimentosPage = () => {
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={9} className="px-3 py-12 text-center text-muted-foreground">Carregando…</td></tr>
+            <tr><td colSpan={10} className="px-3 py-12 text-center text-muted-foreground">Carregando…</td></tr>
           ) : filtered.length === 0 ? (
-            <tr><td colSpan={9} className="px-3 py-12 text-center text-muted-foreground">Nenhuma solicitação.</td></tr>
+            <tr><td colSpan={10} className="px-3 py-12 text-center text-muted-foreground">Nenhuma solicitação.</td></tr>
           ) : filtered.map((r) => {
             const d = (r.data || {}) as any;
             const cidUf = [d.cidade, d.uf].filter(Boolean).join(" / ");
             return (
             <tr key={r.id} className="border-b last:border-0 hover:bg-accent/20 transition-colors">
+              <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
+                <Checkbox
+                  checked={sel.isSelected(r.id)}
+                  onCheckedChange={() => sel.toggle(r.id)}
+                  aria-label={`Selecionar ${d.site || r.numero || r.id}`}
+                />
+              </td>
               <td className="px-3 py-2.5 font-medium">{d.site || r.numero || "—"}</td>
               <td className="px-3 py-2.5">{d.cliente || "—"}</td>
               <td className="px-3 py-2.5">{cidUf || "—"}</td>
@@ -597,7 +619,7 @@ const SuprimentosPage = () => {
               </td>
               <td className="px-3 py-2 text-right" onClick={(e) => e.stopPropagation()}>
                 <Button variant="ghost" size="icon" className="h-7 w-7" title="Enviar por Outlook" onClick={() => setOutlookId(r.id)}><Mail className="h-4 w-4" /></Button>
-                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => excluir(r.id)}><Trash2 className="h-4 w-4" /></Button>
+                <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => askDelete([r.id])}><Trash2 className="h-4 w-4" /></Button>
               </td>
             </tr>
           );})}
