@@ -476,6 +476,8 @@ export const MateriaisDeluxePage = () => {
   const catCadastro = useFieldOptions("categoria");
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState<string>("__all__");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 50;
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Partial<CatMat> | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
