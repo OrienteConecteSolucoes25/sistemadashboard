@@ -174,21 +174,29 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
         rowsToInsert.push({ field_key: fieldKey, value, meta });
       }
       if (rowsToInsert.length === 0) return toast.warning("Nenhuma linha válida");
-      // Upsert manualmente: insere ignorando duplicados
+      // Optimistic: mostra imediatamente
+      const optimisticRows: Row[] = rowsToInsert.map((r, i) => ({
+        id: `temp-import-${Date.now()}-${i}`,
+        field_key: fieldKey,
+        value: r.value,
+        meta: r.meta,
+      }));
+      setRows((prev) => [...prev, ...optimisticRows].sort((a, b) => a.value.localeCompare(b.value)));
+      toast.success(`${rowsToInsert.length} registros sendo salvos…`);
+      // Insere em paralelo (lotes maiores)
       let ok = 0;
-      for (let i = 0; i < rowsToInsert.length; i += 200) {
-        const slice = rowsToInsert.slice(i, i + 200);
-        const { error } = await supabase.from("eng_field_options").insert(slice as any);
-        if (error && !error.message.toLowerCase().includes("duplicate")) {
-          // tenta um a um para pular duplicados
-          for (const it of slice) {
-            const { error: e2 } = await supabase.from("eng_field_options").insert(it as any);
-            if (!e2) ok++;
-          }
-        } else {
-          ok += slice.length;
-        }
+      const batches: Promise<any>[] = [];
+      for (let i = 0; i < rowsToInsert.length; i += 500) {
+        const slice = rowsToInsert.slice(i, i + 500);
+        batches.push(
+          supabase.from("eng_field_options").insert(slice as any).then(({ error }) => {
+            if (error && !error.message.toLowerCase().includes("duplicate")) return 0;
+            return slice.length;
+          })
+        );
       }
+      const results = await Promise.all(batches);
+      ok = results.reduce((a: number, b: number) => a + b, 0);
       toast.success(`${ok} registros importados`);
     } catch (e: any) {
       toast.error("Falha ao importar: " + (e?.message ?? e));
