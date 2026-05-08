@@ -149,32 +149,20 @@ const EngListPage = ({
     setEditing(empty); setOpenForm(true);
   };
 
-  const save = async () => {
-    if (!editing) return;
-    for (const f of config.fields) {
-      if (f.required && (editing[f.key] === null || editing[f.key] === undefined || editing[f.key] === "")) {
-        toast.error(`${f.label} é obrigatório`); return;
-      }
+  const del = async (ids: string[]) => {
+    if (!ids.length) return;
+    if (isSoftDelete) {
+      setDelOpen(true);
+      return;
     }
-    const payload: any = {};
-    config.fields.forEach((f) => { payload[f.key] = editing[f.key] ?? null; });
-    if (editing.id) {
-      const { error } = await (supabase.from(config.table as any).update(payload).eq("id", editing.id) as any);
-      if (error) return toast.error(error.message);
-    } else {
-      const { error } = await (supabase.from(config.table as any).insert(payload) as any);
-      if (error) return toast.error(error.message);
-    }
-    toast.success("Salvo");
-    setOpenForm(false); setEditing(null); load();
-  };
-
-  const del = async (id: string) => {
-    if (!confirm("Excluir registro?")) return;
-    const { error } = await (supabase.from(config.table as any).delete().eq("id", id) as any);
+    if (!confirm(`Excluir ${ids.length} registro(s)?`)) return;
+    const { error } = await (supabase.from(config.table as any).delete().in("id", ids) as any);
     if (error) return toast.error(error.message);
     load();
+    sel.clear();
   };
+
+  const onItemClick = (r: any) => { setEditing(r); setOpenForm(true); };
 
   return (
     <div className="space-y-4">
