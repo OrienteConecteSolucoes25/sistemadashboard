@@ -23,6 +23,7 @@ import { DistribuicaoCard, RankingCard } from "./components/EngMiniCharts";
 import { useBulkSelection } from "@/hooks/useBulkSelection";
 import { BulkActionsBar } from "@/components/BulkActionsBar";
 import { DeleteWithPasswordModal } from "@/components/DeleteWithPasswordModal";
+import { makeEditKeyHandler } from "../lib/keyboardEdit";
 import { SOFT_DELETE_TABLES } from "../lib/deleteWithAudit";
 
 type Tone = "teal" | "warn" | "danger" | "success" | "neutral";
@@ -277,7 +278,7 @@ const EngListPage = ({
                   ) : filtered.length === 0 ? (
                     <tr><td colSpan={listFields.length + 2} className="px-3 py-12 text-center text-muted-foreground">Nenhum registro.</td></tr>
                   ) : filtered.map((r) => (
-                    <tr key={r.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => { setEditing(r); setOpenForm(true); }}>
+                    <tr key={r.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" title="Duplo-clique para editar" onDoubleClick={() => { setEditing(r); setOpenForm(true); }}>
                       <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
                         <Checkbox
                           checked={sel.isSelected(r.id)}
@@ -364,7 +365,7 @@ const EngListPage = ({
       })()}
 
       <Dialog open={openForm} onOpenChange={(o) => { setOpenForm(o); if (!o) setEditing(null); }}>
-        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[85vh] overflow-y-auto" onKeyDown={makeEditKeyHandler(save, () => setOpenForm(false))}>
           <DialogHeader><DialogTitle className="font-display">{editing?.id ? `Editar ${config.title}` : `Novo ${config.title}`}</DialogTitle></DialogHeader>
           {editing && (
             <div className="grid gap-3 md:grid-cols-2">

@@ -28,6 +28,7 @@ import { StatusBadge } from "./components/StatusBadge";
 import { useMateriais } from "../hooks/useMateriais";
 import { useFieldOptions } from "../hooks/useFieldOptions";
 import { MateriaisCatalogToolbar } from "./MateriaisCatalogToolbar";
+import { makeEditKeyHandler } from "../lib/keyboardEdit";
 
 const TEAL = "hsl(181 65% 46%)";
 const WARN = "hsl(41 100% 47%)";
@@ -218,7 +219,8 @@ export const SitesDeluxePage = () => {
               <tr><td colSpan={7} className="px-3 py-12 text-center text-muted-foreground">Nenhum site.</td></tr>
             ) : filtered.map((s) => (
               <tr key={s.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors"
-                  onClick={() => { setEditing(s); setOpen(true); }}>
+                  title="Duplo-clique para editar"
+                  onDoubleClick={() => { setEditing(s); setOpen(true); }}>
                 <td className="px-3 py-2.5 font-mono text-xs">{s.codigo ?? "—"}</td>
                 <td className="px-3 py-2.5 font-medium">{s.nome}</td>
                 <td className="px-3 py-2.5 text-muted-foreground">{s.cidade ?? "—"} {s.uf && <Badge variant="outline" className="ml-1 text-[10px]">{s.uf}</Badge>}</td>
@@ -240,7 +242,7 @@ export const SitesDeluxePage = () => {
       </Card>
 
       <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl" onKeyDown={makeEditKeyHandler(save, () => setOpen(false))}>
           <DialogHeader><DialogTitle className="font-display">{editing?.id ? "Editar site" : "Novo site"}</DialogTitle></DialogHeader>
           {editing && (
             <div className="grid gap-3 md:grid-cols-2">
@@ -381,7 +383,7 @@ export const EquipesDeluxePage = () => {
         ) : filtered.length === 0 ? (
           <Card className="card-elegant col-span-full p-12 text-center text-muted-foreground">Nenhuma equipe.</Card>
         ) : filtered.map((e) => (
-          <Card key={e.id} className="card-elegant cursor-pointer" onClick={() => { setEditing(e); setOpen(true); }}>
+          <Card key={e.id} className="card-elegant cursor-pointer" title="Duplo-clique para editar" onDoubleClick={() => { setEditing(e); setOpen(true); }}>
             <CardHeader className="pb-2 flex-row items-start justify-between space-y-0">
               <div className="min-w-0">
                 <CardTitle className="text-base font-display truncate">{e.nome}</CardTitle>
@@ -411,7 +413,7 @@ export const EquipesDeluxePage = () => {
       </div>
 
       <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto" onKeyDown={makeEditKeyHandler(save, () => setOpen(false))}>
           <DialogHeader><DialogTitle className="font-display">{editing?.id ? "Editar equipe" : "Nova equipe"}</DialogTitle></DialogHeader>
           {editing && (
             <div className="space-y-4">
@@ -643,7 +645,7 @@ export const MateriaisDeluxePage = () => {
               ) : filtered.length === 0 ? (
                 <tr><td colSpan={6} className="px-3 py-12 text-center text-muted-foreground">Nenhum material no catálogo.</td></tr>
               ) : pageItems.map((c) => (
-                <tr key={c.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => startEdit(c)}>
+                <tr key={c.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" title="Duplo-clique para editar" onDoubleClick={() => startEdit(c)}>
                   <td className="px-3 py-2 font-mono text-xs">{c.codigo || "—"}</td>
                   <td className="px-3 py-2 font-medium">{c.descricao}</td>
                   <td className="px-3 py-2"><Badge variant="outline" className="text-[10px] font-normal">{c.categoria || "—"}</Badge></td>
@@ -687,7 +689,7 @@ export const MateriaisDeluxePage = () => {
       </Card>
 
       <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
-        <DialogContent className="max-w-xl">
+        <DialogContent className="max-w-xl" onKeyDown={makeEditKeyHandler(save, () => setOpen(false))}>
           <DialogHeader><DialogTitle className="font-display">{editing?.id ? "Editar material" : "Novo material"}</DialogTitle></DialogHeader>
           {editing && (
             <div className="grid gap-3 md:grid-cols-2">

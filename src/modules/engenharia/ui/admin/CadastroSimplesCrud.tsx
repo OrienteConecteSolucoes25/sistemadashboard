@@ -372,7 +372,8 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
                   </td>
                 </tr>
               ) : (
-                <tr key={r.id} className="border-t">
+                <tr key={r.id} className="border-t hover:bg-accent/30 cursor-pointer" title="Duplo-clique para editar"
+                    onDoubleClick={() => { setEditId(r.id); setEditValor(r.value); setEditMeta({ ...(r.meta || {}) }); }}>
                   <td className="px-2 py-1.5">
                     <Checkbox
                       checked={sel.isSelected(r.id)}

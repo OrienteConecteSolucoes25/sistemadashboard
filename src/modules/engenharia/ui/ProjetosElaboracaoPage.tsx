@@ -23,6 +23,7 @@ import {
 import { exportXlsx, downloadTemplate, readXlsxFile, fmtDate, uid } from "../lib/storage";
 import { EngPageHeader } from "./components/EngPageHeader";
 import { KpiCard, KpiGrid } from "./components/KpiCard";
+import { makeEditKeyHandler } from "../lib/keyboardEdit";
 import { StatusBadge } from "./components/StatusBadge";
 import { EngKanban } from "./components/EngKanban";
 import { DistribuicaoCard, RankingCard } from "./components/EngMiniCharts";
@@ -201,7 +202,7 @@ const ProjetosElaboracaoPage = () => {
           </thead>
           <tbody>
             {filtered.map((p) => (
-              <tr key={p.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => openEdit(p)}>
+              <tr key={p.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" title="Duplo-clique para editar" onDoubleClick={() => openEdit(p)}>
                 <td className="px-3 py-2.5 font-medium">{p.cliente}</td>
                 <td className="px-3 py-2.5">{p.site}</td>
                 <td className="px-3 py-2.5 text-muted-foreground">{[p.cidade, p.uf].filter(Boolean).join(" / ") || "—"}</td>
@@ -293,7 +294,7 @@ const ProjetosElaboracaoPage = () => {
       </Tabs>
 
       <Dialog open={open} onOpenChange={(v) => { if (!v) { setOpen(false); setEditId(null); } }}>
-        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto" onKeyDown={makeEditKeyHandler(save, () => { setOpen(false); setEditId(null); })}>
           <DialogHeader><DialogTitle>{editId ? "Editar projeto" : "Novo projeto"}</DialogTitle></DialogHeader>
           <div className="grid gap-3 md:grid-cols-2">
             <div><Label>Cliente *</Label><SelectFree value={form.cliente} onChange={(v) => setForm({ ...form, cliente: v })} options={optionsCliente} /></div>
