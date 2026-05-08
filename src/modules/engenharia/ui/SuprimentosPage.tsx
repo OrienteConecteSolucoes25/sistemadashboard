@@ -43,15 +43,24 @@ interface Solicit {
 const STATUS_SOL = ["aberta", "em_cotacao", "comprada", "recebida", "cancelada"];
 const ALL = "__all__";
 
-function ScRcPanel({ solicitId, onClose }: { solicitId: string; onClose: () => void }) {
+function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit?: Solicit | null; onClose: () => void }) {
   const [rows, setRows] = useState<ScRcRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<Partial<ScRcRow>>({});
+  const sd = (solicit?.data || {}) as any;
+  const itens = Array.isArray(solicit?.itens) ? (solicit!.itens as any[]) : [];
+  const tipoSol = String(sd.tipo || "").toLowerCase();
+  const isRequisicao = tipoSol.includes("requisi"); // requisição → uma RC junta
   const [novo, setNovo] = useState({
-    tipo_documento: "SC", numero_documento: "", categoria: "",
-    conta_financeira: "", centro_custo: "", observacao: "",
-    status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10),
+    tipo_documento: isRequisicao ? "RC" : "SC",
+    numero_documento: "",
+    categoria: sd.categoria || "",
+    conta_financeira: sd.conta_financeira || "",
+    centro_custo: sd.cc || "",
+    observacao: "",
+    status: "SOLICITADO",
+    data_solicitacao: new Date().toISOString().slice(0, 10),
   });
 
   const load = async () => {
