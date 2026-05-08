@@ -69,11 +69,18 @@ export function useFieldOptions(labelOrKey: string) {
   const addOption = useCallback(async (value: string, meta?: Record<string, any>) => {
     const v = (value ?? "").toString().trim();
     if (!v || !fieldKey) return false;
+    // Optimistic: aparece imediatamente na UI
+    setItems((prev) => {
+      if (prev.some((p) => p.value.toLowerCase() === v.toLowerCase())) return prev;
+      return [...prev, { value: v, meta: meta ?? {} }].sort((a, b) => a.value.localeCompare(b.value));
+    });
     const { error } = await supabase
       .from("eng_field_options")
       .insert({ field_key: fieldKey, value: v, meta: meta ?? {} } as any);
     if (error && !String(error.message).toLowerCase().includes("duplicate")) {
       console.error("addOption", error);
+      // Rollback
+      setItems((prev) => prev.filter((p) => p.value !== v));
       return false;
     }
     return true;
