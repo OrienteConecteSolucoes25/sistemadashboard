@@ -215,7 +215,7 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
       toast.success(`Solicitação ${numero} criada (pendente de SC/RC)`);
 
       // reset
-      setTipo(""); setCoord(""); setCliente(""); setCc(""); setCategoria(""); setComprador("");
+      setTipo(""); setCoord(""); setCliente(""); setCc(""); setCategoria(""); setContaFin(""); setComprador("");
       setEscopo(""); setSite(""); setCidade(""); setUf(""); setAuxiliar("");
       setDataSol(""); setDataLimite(""); setTecnico(""); setEndereco(""); setObs("");
       setAnexo(null); setItens([]);
