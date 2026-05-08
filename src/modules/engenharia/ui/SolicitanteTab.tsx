@@ -276,7 +276,7 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
     }
   };
 
-  const catalogoFiltrado = useMemo(() => catalogo.slice(0, 800), [catalogo]);
+  const catalogoFiltrado = useMemo(() => catalogo, [catalogo]);
 
   return (
     <Card className="card-elegant">
