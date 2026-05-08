@@ -456,6 +456,8 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
   const [addingCategoria, setAddingCategoria] = useState("");
   const [addingConta, setAddingConta] = useState("");
   const [addingMaterialId, setAddingMaterialId] = useState<string | undefined>(undefined);
+  const [editingKey, setEditingKey] = useState<string | null>(null); // `${solicitId}|${index}`
+  const [editDraft, setEditDraft] = useState<{ descricao: string; unidade: string; quantidade: string; categoria?: string; conta_financeira?: string; material_id?: string }>({ descricao: "", unidade: "UN", quantidade: "1" });
 
   const escolherMatPainel = (descricao: string) => {
     setAddingDesc(descricao);
