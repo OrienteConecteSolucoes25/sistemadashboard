@@ -20,6 +20,8 @@ type Props = {
   fieldKey: string;
   title: string;
   metaFields?: MetaField[]; // colunas extras (Centro de Custo, Comprador, SLA, etc.)
+  valueLabel?: string;      // rótulo da coluna principal (default "Nome")
+  valuePlaceholder?: string;
 };
 
 type Row = { id: string; field_key: string; value: string; meta: Record<string, any> };
