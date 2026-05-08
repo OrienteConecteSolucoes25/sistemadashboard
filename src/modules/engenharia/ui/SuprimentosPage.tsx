@@ -52,6 +52,8 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<Partial<ScRcRow>>({});
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const { items: catalogo } = useMateriais();
   const sd = (solicit?.data || {}) as any;
   const itens: any[] = Array.isArray(solicit?.itens) ? (solicit!.itens as any[]) : [];
   const tipoSol = String(sd.tipo || "").toLowerCase();
