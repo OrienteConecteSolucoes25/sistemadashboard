@@ -15,6 +15,7 @@ import { Plus, Trash2, Send, Paperclip, Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useMateriais } from "../hooks/useMateriais";
 import { useFieldOptions } from "../hooks/useFieldOptions";
+import { MaterialCombobox } from "./MaterialCombobox";
 
 interface Item {
   material_id?: string;
@@ -390,17 +391,12 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
           <div className="grid gap-2 md:grid-cols-12 items-end">
             <div className="md:col-span-7">
               <Label className="text-[10px]">Descrição do material</Label>
-              <Input
-                list="cat-mat-list"
+              <MaterialCombobox
+                catalogo={catalogo}
                 value={novoItem.descricao}
-                onChange={(e) => escolherDoCatalogo(e.target.value)}
-                placeholder="Digite para buscar…"
+                onChange={escolherDoCatalogo}
+                placeholder="Buscar por código, descrição ou categoria…"
               />
-              <datalist id="cat-mat-list">
-                {catalogoFiltrado.map((m) => (
-                  <option key={m.id} value={`${m.codigo} — ${m.descricao}`}>{m.categoria || ""}</option>
-                ))}
-              </datalist>
             </div>
             <div className="md:col-span-2">
               <Label className="text-[10px]">Unidade</Label>
@@ -672,18 +668,15 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
                         <li key={idx} className="flex items-center gap-2 border rounded px-2 py-1 bg-background/40">
                           {editing ? (
                             <>
-                              <Input
-                                list={`edit-mat-${s.id}`}
-                                value={editDraft.descricao}
-                                onChange={(e) => escolherEdit(e.target.value)}
-                                className="h-7 flex-1"
-                                placeholder="Material…"
-                              />
-                              <datalist id={`edit-mat-${s.id}`}>
-                                {catalogoFiltrado.map((m: any) => (
-                                <option key={m.id} value={`${m.codigo} — ${m.descricao}`}>{m.categoria || ""}</option>
-                                ))}
-                              </datalist>
+                              <div className="flex-1">
+                                <MaterialCombobox
+                                  catalogo={catalogo}
+                                  value={editDraft.descricao}
+                                  onChange={escolherEdit}
+                                  placeholder="Material…"
+                                  triggerClassName="h-7 text-xs"
+                                />
+                              </div>
                               <Input value={editDraft.quantidade} onChange={(e) => setEditDraft(d => ({ ...d, quantidade: e.target.value }))} className="h-7 w-16" />
                               <Select value={editDraft.unidade} onValueChange={(v) => setEditDraft(d => ({ ...d, unidade: v }))}>
                                 <SelectTrigger className="h-7 w-20"><SelectValue /></SelectTrigger>
@@ -717,17 +710,12 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
                     <div className="grid gap-2 md:grid-cols-12 items-end">
                       <div className="md:col-span-7">
                         <Label className="text-[10px]">Descrição do material</Label>
-                        <Input
-                          list={`cat-mat-painel-${s.id}`}
+                        <MaterialCombobox
+                          catalogo={catalogo}
                           value={addingDesc}
-                          onChange={(e) => escolherMatPainel(e.target.value)}
-                          placeholder="Digite para buscar no catálogo…"
+                          onChange={escolherMatPainel}
+                          placeholder="Buscar no catálogo (código, descrição, categoria)…"
                         />
-                        <datalist id={`cat-mat-painel-${s.id}`}>
-                          {catalogoFiltrado.map((m: any) => (
-                            <option key={m.id} value={`${m.codigo} — ${m.descricao}`}>{m.categoria || ""}</option>
-                          ))}
-                        </datalist>
                       </div>
                       <div className="md:col-span-2">
                         <Label className="text-[10px]">Unidade</Label>
