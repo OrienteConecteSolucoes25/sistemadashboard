@@ -74,13 +74,27 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
 
   async function save() {
     const rows: any[] = [];
+    const usersToLink = new Set<string>();
     Object.entries(perms).forEach(([user_id, mp]) => {
       Object.entries(mp).forEach(([module_key, v]) => {
         if (allModulesOverride || planMods.includes(module_key)) {
           rows.push({ company_id: companyId, user_id, module_key, can_view: v.v, can_edit: v.e, can_delete: v.d });
+          if (v.v || v.e || v.d) usersToLink.add(user_id);
         }
       });
     });
+
+    // Auto-vincula à empresa qualquer usuário que tenha pelo menos uma permissão
+    if (usersToLink.size) {
+      const linkedExisting = new Set(users.filter((u: any) => u._linked).map((u: any) => u.user_id));
+      const toInsert = Array.from(usersToLink)
+        .filter((uid) => !linkedExisting.has(uid))
+        .map((user_id) => ({ company_id: companyId, user_id }));
+      if (toInsert.length) {
+        await sb.from("company_users").insert(toInsert);
+      }
+    }
+
     await sb.from("company_module_permissions").delete().eq("company_id", companyId);
     if (rows.length) {
       const { error } = await sb.from("company_module_permissions").insert(rows);
