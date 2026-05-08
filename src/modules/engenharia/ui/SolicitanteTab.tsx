@@ -725,7 +725,7 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
                         />
                         <datalist id={`cat-mat-painel-${s.id}`}>
                           {catalogoFiltrado.map((m: any) => (
-                            <option key={m.id} value={m.descricao}>{m.codigo} — {m.categoria}</option>
+                            <option key={m.id} value={`${m.codigo} — ${m.descricao}`}>{m.categoria || ""}</option>
                           ))}
                         </datalist>
                       </div>
