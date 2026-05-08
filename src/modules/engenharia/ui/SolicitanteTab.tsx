@@ -668,18 +668,15 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
                         <li key={idx} className="flex items-center gap-2 border rounded px-2 py-1 bg-background/40">
                           {editing ? (
                             <>
-                              <Input
-                                list={`edit-mat-${s.id}`}
-                                value={editDraft.descricao}
-                                onChange={(e) => escolherEdit(e.target.value)}
-                                className="h-7 flex-1"
-                                placeholder="Material…"
-                              />
-                              <datalist id={`edit-mat-${s.id}`}>
-                                {catalogoFiltrado.map((m: any) => (
-                                <option key={m.id} value={`${m.codigo} — ${m.descricao}`}>{m.categoria || ""}</option>
-                                ))}
-                              </datalist>
+                              <div className="flex-1">
+                                <MaterialCombobox
+                                  catalogo={catalogo}
+                                  value={editDraft.descricao}
+                                  onChange={escolherEdit}
+                                  placeholder="Material…"
+                                  triggerClassName="h-7 text-xs"
+                                />
+                              </div>
                               <Input value={editDraft.quantidade} onChange={(e) => setEditDraft(d => ({ ...d, quantidade: e.target.value }))} className="h-7 w-16" />
                               <Select value={editDraft.unidade} onValueChange={(v) => setEditDraft(d => ({ ...d, unidade: v }))}>
                                 <SelectTrigger className="h-7 w-20"><SelectValue /></SelectTrigger>
