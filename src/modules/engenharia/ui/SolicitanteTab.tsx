@@ -69,25 +69,27 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
     const { data } = await supabase.from("eng_sites").select("id,nome,codigo,cidade,uf").order("nome");
     setSites(data || []);
     try {
-      const { data: cs } = await (supabase as any).from("companies").select("id,nome").eq("ativo", true).order("nome");
-      setEmpresas(cs || []);
+      // Empresas = Fornecedores cadastrados na aba Fornecedores (antiga Equipes)
+      const { data: cs } = await supabase
+        .from("eng_equipes")
+        .select("id,nome,technicians,lider,leader_phone")
+        .eq("is_deleted", false)
+        .order("nome");
+      setEmpresas((cs || []).map((c: any) => ({ ...c })));
     } catch { /* opcional */ }
   })(); }, []);
 
-  // Equipes vinculadas à empresa selecionada (usa colaboradores da empresa, fallback livre)
+  // Técnicos do fornecedor selecionado
   useEffect(() => {
-    (async () => {
-      if (!empresa) { setEquipes([]); return; }
-      try {
-        const { data } = await (supabase as any)
-          .from("hrdp_employees")
-          .select("id,nome,cargo,company_id")
-          .eq("company_id", empresa)
-          .limit(300);
-        setEquipes(data || []);
-      } catch { setEquipes([]); }
-    })();
-  }, [empresa]);
+    if (!empresa) { setEquipes([]); return; }
+    const f = empresas.find((e: any) => e.id === empresa);
+    const techs = Array.isArray(f?.technicians) ? f.technicians : [];
+    setEquipes(techs.map((t: any, i: number) => ({
+      id: `${empresa}-${i}`,
+      nome: t.nome || "—",
+      cargo: t.telefone || "",
+    })));
+  }, [empresa, empresas]);
 
   // Auto-preencher CC quando cliente muda (prioriza cadastro centro_custo)
   useEffect(() => {
