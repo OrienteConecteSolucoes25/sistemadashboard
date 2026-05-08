@@ -1,4 +1,5 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useRef } from "react";
+import * as XLSX from "xlsx";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -13,12 +14,14 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import {
   Plus, Pencil, Trash2, Search, FileText, X, ShoppingCart, AlertTriangle,
   CheckCircle2, CalendarClock, List, LayoutGrid, BarChart3, UserPlus, Mail,
+  Upload, Download,
 } from "lucide-react";
 import { SolicitanteTab } from "./SolicitanteTab";
 import { EnviarOutlookRcDialog } from "./EnviarOutlookRcDialog";
 import { toast } from "sonner";
 import { fmtDate } from "../lib/storage";
 import { SCRC_STATUS, listScRcBySolicit, listScRcAll, createScRc, updateScRcStatus, updateScRc, deleteScRcMany, type ScRcRow } from "../lib/scrcStore";
+import { useMateriais } from "../hooks/useMateriais";
 import { EngPageHeader } from "./components/EngPageHeader";
 import { KpiCard, KpiGrid } from "./components/KpiCard";
 import { StatusBadge } from "./components/StatusBadge";
