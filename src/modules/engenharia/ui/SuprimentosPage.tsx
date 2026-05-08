@@ -629,8 +629,20 @@ const SuprimentosPage = () => {
   };
   useEffect(() => { load(); }, []);
 
+  const hasPendingScRc = (r: Solicit) => {
+    const itens: any[] = Array.isArray(r.itens) ? r.itens : [];
+    if (!itens.length) return (scrcCounts[r.id] || 0) === 0;
+    const linked = new Set(
+      allScRc
+        .filter((x) => x.solicit_id === r.id)
+        .map((x) => String(x.item_descricao || "").trim().toLowerCase())
+        .filter(Boolean)
+    );
+    return itens.some((it: any) => !linked.has(String(it?.descricao || "").trim().toLowerCase()));
+  };
+
   const filtered = useMemo(() => rows.filter((r) => {
-    if (soPendentes && (scrcCounts[r.id] || 0) > 0) return false;
+    if (soPendentes && !hasPendingScRc(r)) return false;
     if (fStatus !== ALL && r.status !== fStatus) return false;
     if (busca.trim()) {
       const q = busca.toLowerCase();
@@ -638,7 +650,7 @@ const SuprimentosPage = () => {
       if (!hay.includes(q)) return false;
     }
     return true;
-  }), [rows, busca, fStatus, soPendentes, scrcCounts]);
+  }), [rows, busca, fStatus, soPendentes, scrcCounts, allScRc]);
 
   const sel = useBulkSelection(filtered);
   const [pendingDelete, setPendingDelete] = useState<string[]>([]);
@@ -737,6 +749,7 @@ const SuprimentosPage = () => {
           ) : filtered.map((r) => {
             const d = (r.data || {}) as any;
             const cidUf = [d.cidade, d.uf].filter(Boolean).join(" / ");
+            const pendingSc = hasPendingScRc(r);
             return (
             <tr key={r.id} className="border-b last:border-0 hover:bg-accent/20 transition-colors">
               <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
@@ -752,7 +765,15 @@ const SuprimentosPage = () => {
               <td className="px-3 py-2.5">{r.solicitante || "—"}</td>
               <td className="px-3 py-2.5">{r.responsavel || "—"}</td>
               <td className={`px-3 py-2.5 ${isOverdue(r.prazo) && !["concluida", "comprada", "recebida", "cancelada"].includes(String(r.status)) ? "text-destructive font-medium" : ""}`}>{fmtDate(r.prazo)}</td>
-              <td className="px-3 py-2.5"><StatusBadge value={r.status} /></td>
+              <td className="px-3 py-2.5">
+                {pendingSc ? (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md border text-xs font-medium whitespace-nowrap bg-destructive/15 text-destructive border-destructive/30 animate-pulse">
+                    Pendente SC
+                  </span>
+                ) : (
+                  <StatusBadge value={r.status} />
+                )}
+              </td>
               <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                 <Button size="sm" variant="outline" className="h-7" onClick={() => setScrcOpen(r.id)}>
                   <FileText className="h-3.5 w-3.5 mr-1" /> {scrcCounts[r.id] || 0}
@@ -769,8 +790,8 @@ const SuprimentosPage = () => {
     </Card>
   );
 
-  // Solicitações pendentes = sem nenhum SC/RC vinculado
-  const solicitacoesPendentes = rows.filter(r => !scrcCounts[r.id]).length;
+  // Solicitações pendentes = ainda há material sem SC/RC vinculado
+  const solicitacoesPendentes = rows.filter((r) => hasPendingScRc(r)).length;
   // Contagem por status SC/RC (normaliza)
   const cntScRc = (s: string) => allScRc.filter(x => String(x.status || "").toUpperCase() === s).length;
 
