@@ -117,11 +117,25 @@ export const ObrasPage = () => {
         <Button onClick={startNew}><Plus className="w-4 h-4 mr-1" /> Nova obra</Button>
       </div>
 
+      <BulkActionsBar
+        count={sel.count}
+        onClear={sel.clear}
+        onDelete={() => setDelOpen(true)}
+        deleteLabel={`Excluir ${sel.count} selecionado(s)`}
+      />
+
       <Card>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-8">
+                  <Checkbox
+                    checked={sel.allChecked ? true : sel.someChecked ? "indeterminate" : false}
+                    onCheckedChange={() => sel.toggleAll()}
+                    aria-label="Selecionar todos"
+                  />
+                </TableHead>
                 <TableHead>Nome</TableHead>
                 <TableHead>Cidade/UF</TableHead>
                 <TableHead>Endereço</TableHead>
@@ -132,12 +146,19 @@ export const ObrasPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading && <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-6">Carregando…</TableCell></TableRow>}
+              {loading && <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-6">Carregando…</TableCell></TableRow>}
               {!loading && filtered.length === 0 && (
-                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-6">Nenhuma obra.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-6">Nenhuma obra.</TableCell></TableRow>
               )}
               {filtered.map((o) => (
                 <TableRow key={o.id} className="cursor-pointer hover:bg-muted/30" onClick={() => setSelected(o)}>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={sel.isSelected(o.id)}
+                      onCheckedChange={() => sel.toggle(o.id)}
+                      aria-label={`Selecionar ${o.nome}`}
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{o.nome}</TableCell>
                   <TableCell>{[o.cidade, o.uf].filter(Boolean).join(" / ")}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">
