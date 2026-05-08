@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { listScRcAll } from "../lib/scrcStore";
+import { fireAudit } from "../lib/audit";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -10,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from "@/components/ui/select";
-import { Plus, Trash2, Send, Paperclip } from "lucide-react";
+import { Plus, Trash2, Send, Paperclip, Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useMateriais } from "../hooks/useMateriais";
 import { useFieldOptions } from "../hooks/useFieldOptions";
@@ -455,6 +456,8 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
   const [addingCategoria, setAddingCategoria] = useState("");
   const [addingConta, setAddingConta] = useState("");
   const [addingMaterialId, setAddingMaterialId] = useState<string | undefined>(undefined);
+  const [editingKey, setEditingKey] = useState<string | null>(null); // `${solicitId}|${index}`
+  const [editDraft, setEditDraft] = useState<{ descricao: string; unidade: string; quantidade: string; categoria?: string; conta_financeira?: string; material_id?: string }>({ descricao: "", unidade: "UN", quantidade: "1" });
 
   const escolherMatPainel = (descricao: string) => {
     setAddingDesc(descricao);
@@ -494,8 +497,10 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
   const pendentesPorSolicit = useMemo(() => {
     return rows.map((r) => {
       const linked = scrcByNum[r.id] || new Set();
-      const itens = Array.isArray(r.itens) ? r.itens : [];
-      const pendentes = itens.filter((it: any) => !linked.has(String(it.descricao || "").toLowerCase()));
+      const itens: any[] = Array.isArray(r.itens) ? r.itens : [];
+      const pendentes = itens
+        .map((it, idx) => ({ ...it, _origIdx: idx }))
+        .filter((it: any) => !linked.has(String(it.descricao || "").toLowerCase()));
       return { ...r, pendentes };
     }).filter((r) => r.pendentes.length > 0);
   }, [rows, scrcByNum]);
@@ -517,6 +522,80 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
     setAddingDesc(""); setAddingQtd("1"); setAddingUn("UN");
     setAddingCategoria(""); setAddingConta(""); setAddingMaterialId(undefined);
     setOpenId(null);
+    onChanged();
+  };
+
+  const startEdit = (solicit: any, idx: number, it: any) => {
+    setEditingKey(`${solicit.id}|${idx}`);
+    setEditDraft({
+      descricao: String(it.descricao || ""),
+      unidade: String(it.unidade || "UN"),
+      quantidade: String(it.quantidade || "1"),
+      categoria: it.categoria,
+      conta_financeira: it.conta_financeira,
+      material_id: it.material_id,
+    });
+  };
+
+  const escolherEdit = (descricao: string) => {
+    const mat = catalogo.find((c: any) => c.descricao === descricao);
+    if (!mat) { setEditDraft((d) => ({ ...d, descricao })); return; }
+    let conta = mat.conta_financeira;
+    if (!conta && mat.categoria) {
+      const meta = categoriasHook.findMeta(mat.categoria);
+      conta = meta?.conta_financeira ? String(meta.conta_financeira) :
+        (catalogo.find((m: any) => m.categoria === mat.categoria && m.conta_financeira)?.conta_financeira || "");
+    }
+    setEditDraft({
+      material_id: mat.id,
+      descricao: mat.descricao,
+      unidade: mat.unidade || "UN",
+      quantidade: editDraft.quantidade || "1",
+      categoria: mat.categoria,
+      conta_financeira: conta,
+    });
+  };
+
+  const salvarEdit = async (solicit: any, idx: number) => {
+    const itensArr = Array.isArray(solicit.itens) ? [...solicit.itens] : [];
+    const antes = itensArr[idx];
+    itensArr[idx] = { ...antes, ...editDraft };
+    const { error } = await supabase.from("eng_suprimentos")
+      .update({ itens: itensArr } as any).eq("id", solicit.id);
+    if (error) { toast.error(error.message); return; }
+    fireAudit({
+      acao: "update",
+      modulo: "Suprimentos",
+      entidade_tipo: "eng_suprimentos.item",
+      entidade_id: `${solicit.id}#${idx}`,
+      nome_entidade: editDraft.descricao,
+      dados_antes: antes,
+      dados_depois: itensArr[idx],
+      observacoes: "Edição de material em solicitação aberta",
+    });
+    toast.success("Material atualizado");
+    setEditingKey(null);
+    onChanged();
+  };
+
+  const excluirItem = async (solicit: any, idx: number) => {
+    if (!confirm("Excluir este material da solicitação?")) return;
+    const itensArr = Array.isArray(solicit.itens) ? [...solicit.itens] : [];
+    const removido = itensArr[idx];
+    itensArr.splice(idx, 1);
+    const { error } = await supabase.from("eng_suprimentos")
+      .update({ itens: itensArr } as any).eq("id", solicit.id);
+    if (error) { toast.error(error.message); return; }
+    fireAudit({
+      acao: "delete",
+      modulo: "Suprimentos",
+      entidade_tipo: "eng_suprimentos.item",
+      entidade_id: `${solicit.id}#${idx}`,
+      nome_entidade: removido?.descricao || "",
+      dados_antes: removido,
+      observacoes: "Exclusão de material em solicitação aberta",
+    });
+    toast.success("Material removido");
     onChanged();
   };
 
@@ -547,10 +626,53 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
                 </div>
                 <div className="mt-2 text-xs">
                   <div className="font-medium mb-1">Materiais sem SC/RC ({s.pendentes.length}):</div>
-                  <ul className="list-disc ml-5 space-y-0.5">
-                    {s.pendentes.map((it: any, i: number) => (
-                      <li key={i} className="text-muted-foreground">{it.quantidade} {it.unidade} — {it.descricao}</li>
-                    ))}
+                  <ul className="ml-1 space-y-1">
+                    {s.pendentes.map((it: any) => {
+                      const idx = it._origIdx;
+                      const key = `${s.id}|${idx}`;
+                      const editing = editingKey === key;
+                      return (
+                        <li key={idx} className="flex items-center gap-2 border rounded px-2 py-1 bg-background/40">
+                          {editing ? (
+                            <>
+                              <Input
+                                list={`edit-mat-${s.id}`}
+                                value={editDraft.descricao}
+                                onChange={(e) => escolherEdit(e.target.value)}
+                                className="h-7 flex-1"
+                                placeholder="Material…"
+                              />
+                              <datalist id={`edit-mat-${s.id}`}>
+                                {catalogoFiltrado.map((m: any) => (
+                                  <option key={m.id} value={m.descricao}>{m.codigo} — {m.categoria}</option>
+                                ))}
+                              </datalist>
+                              <Input value={editDraft.quantidade} onChange={(e) => setEditDraft(d => ({ ...d, quantidade: e.target.value }))} className="h-7 w-16" />
+                              <Select value={editDraft.unidade} onValueChange={(v) => setEditDraft(d => ({ ...d, unidade: v }))}>
+                                <SelectTrigger className="h-7 w-20"><SelectValue /></SelectTrigger>
+                                <SelectContent>{UNIDADES.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent>
+                              </Select>
+                              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => salvarEdit(s, idx)} title="Salvar">
+                                <Check className="w-4 h-4 text-primary" />
+                              </Button>
+                              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditingKey(null)} title="Cancelar">
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <span className="flex-1 text-muted-foreground">{it.quantidade} {it.unidade} — {it.descricao}</span>
+                              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEdit(s, idx, it)} title="Editar">
+                                <Pencil className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => excluirItem(s, idx)} title="Excluir">
+                                <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                              </Button>
+                            </>
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
                 {isOpen && (
