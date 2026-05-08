@@ -497,8 +497,10 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
   const pendentesPorSolicit = useMemo(() => {
     return rows.map((r) => {
       const linked = scrcByNum[r.id] || new Set();
-      const itens = Array.isArray(r.itens) ? r.itens : [];
-      const pendentes = itens.filter((it: any) => !linked.has(String(it.descricao || "").toLowerCase()));
+      const itens: any[] = Array.isArray(r.itens) ? r.itens : [];
+      const pendentes = itens
+        .map((it, idx) => ({ ...it, _origIdx: idx }))
+        .filter((it: any) => !linked.has(String(it.descricao || "").toLowerCase()));
       return { ...r, pendentes };
     }).filter((r) => r.pendentes.length > 0);
   }, [rows, scrcByNum]);
