@@ -65,9 +65,8 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
   }
   useEffect(() => { load(); }, [companyId]);
 
-  const visibleMods = allModulesOverride
-    ? catalog
-    : catalog.filter(c => planMods.includes(c.key));
+  const baseMods = allModulesOverride ? catalog : catalog.filter(c => planMods.includes(c.key));
+  const visibleMods = setorFilter === "all" ? baseMods : baseMods.filter(c => c.key === setorFilter);
 
   function setCell(uid: string, mod: string, patch: Partial<{ v: boolean; e: boolean; d: boolean }>) {
     const cur = perms[uid]?.[mod] ?? { v: false, e: false, d: false };
