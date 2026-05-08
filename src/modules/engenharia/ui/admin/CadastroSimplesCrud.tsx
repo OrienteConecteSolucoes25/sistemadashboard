@@ -303,11 +303,26 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
           </div>
         </div>
 
+        {/* Barra de seleção em massa */}
+        <BulkActionsBar
+          count={sel.count}
+          onClear={sel.clear}
+          onDelete={excluirSelecionados}
+          deleteLabel={`Excluir ${sel.count} selecionado(s)`}
+        />
+
         {/* Lista */}
         <div className="border rounded-md overflow-hidden">
           <table className="w-full text-sm">
             <thead className="bg-muted/60">
               <tr>
+                <th className="px-2 py-1.5 w-8">
+                  <Checkbox
+                    checked={sel.allChecked ? true : sel.someChecked ? "indeterminate" : false}
+                    onCheckedChange={() => sel.toggleAll()}
+                    aria-label="Selecionar todos"
+                  />
+                </th>
                 <th className="text-left px-2 py-1.5">{valueLabel}</th>
                 {metaFields.map((f) => (
                   <th key={f.key} className="text-left px-2 py-1.5">{f.label}</th>
@@ -317,13 +332,14 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
             </thead>
             <tbody>
               {loading && (
-                <tr><td colSpan={2 + metaFields.length} className="text-center py-4 text-muted-foreground">Carregando…</td></tr>
+                <tr><td colSpan={3 + metaFields.length} className="text-center py-4 text-muted-foreground">Carregando…</td></tr>
               )}
               {!loading && filtradas.length === 0 && (
-                <tr><td colSpan={2 + metaFields.length} className="text-center py-4 text-muted-foreground">Nenhum cadastro</td></tr>
+                <tr><td colSpan={3 + metaFields.length} className="text-center py-4 text-muted-foreground">Nenhum cadastro</td></tr>
               )}
               {filtradas.map((r) => editId === r.id ? (
                 <tr key={r.id} className="bg-amber-50 dark:bg-amber-950/20">
+                  <td className="px-2 py-1"></td>
                   <td className="px-2 py-1">
                     <Input
                       autoFocus
@@ -357,6 +373,13 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
                 </tr>
               ) : (
                 <tr key={r.id} className="border-t">
+                  <td className="px-2 py-1.5">
+                    <Checkbox
+                      checked={sel.isSelected(r.id)}
+                      onCheckedChange={() => sel.toggle(r.id)}
+                      aria-label={`Selecionar ${r.value}`}
+                    />
+                  </td>
                   <td className="px-2 py-1.5">{r.value}</td>
                   {metaFields.map((f) => (
                     <td key={f.key} className="px-2 py-1.5 text-muted-foreground">{r.meta?.[f.key] ?? "—"}</td>
