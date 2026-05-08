@@ -75,7 +75,7 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
     try {
       await createScRc({ ...novo, solicit_id: solicitId } as any);
       toast.success("Documento adicionado");
-      setNovo({ tipo_documento: "SC", numero_documento: "", categoria: "", conta_financeira: "", centro_custo: "", observacao: "", status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10) });
+      setNovo({ tipo_documento: isRequisicao ? "RC" : "SC", numero_documento: "", categoria: sd.categoria || "", conta_financeira: sd.conta_financeira || "", centro_custo: sd.cc || "", observacao: "", status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10) });
       load();
     } catch (e) { toast.error(String(e)); }
   };
