@@ -129,6 +129,24 @@ const Auth = () => {
           </Button>
         </CardContent>
       </Card>
+
+      <Dialog open={forgotOpen} onOpenChange={setForgotOpen}>
+        <DialogContent>
+          <DialogHeader><DialogTitle>Recuperar senha</DialogTitle></DialogHeader>
+          <form onSubmit={sendReset} className="space-y-3">
+            <p className="text-sm text-muted-foreground">
+              Informe seu e-mail e enviaremos um link para redefinir sua senha.
+            </p>
+            <div>
+              <Label>E-mail</Label>
+              <Input type="email" value={forgotEmail} onChange={(e) => setForgotEmail(e.target.value)} required />
+            </div>
+            <DialogFooter>
+              <Button type="submit" disabled={forgotBusy}>{forgotBusy ? "Enviando…" : "Enviar link"}</Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
