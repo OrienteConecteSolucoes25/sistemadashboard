@@ -23,6 +23,7 @@ import { DistribuicaoCard, RankingCard } from "./components/EngMiniCharts";
 import { useBulkSelection } from "@/hooks/useBulkSelection";
 import { BulkActionsBar } from "@/components/BulkActionsBar";
 import { DeleteWithPasswordModal } from "@/components/DeleteWithPasswordModal";
+import { makeEditKeyHandler } from "../lib/keyboardEdit";
 import { SOFT_DELETE_TABLES } from "../lib/deleteWithAudit";
 
 type Tone = "teal" | "warn" | "danger" | "success" | "neutral";
