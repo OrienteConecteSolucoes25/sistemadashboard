@@ -153,13 +153,13 @@ export function usePixelAdminData() {
 
       const groupMap = new Map((groupsR.data ?? []).map((g) => [g.id, g]));
       const deskByOwner = new Map<string, AdminDeskRow>();
-      (desksR.data ?? []).forEach((d) => {
+      scopedDesks.forEach((d) => {
         if (d.user_id) deskByOwner.set(d.user_id, d as AdminDeskRow);
       });
       const posMap = new Map<string, any>();
-      (posR.data ?? []).forEach((p) => posMap.set(p.user_id, p));
+      (posR.data ?? []).filter((p) => scopedUserIds.has(p.user_id)).forEach((p) => posMap.set(p.user_id, p));
 
-      const chars: AdminCharacterRow[] = (profilesR.data ?? []).map((p) => {
+      const chars: AdminCharacterRow[] = scopedProfiles.map((p) => {
         const g = p.visibility_group_id ? groupMap.get(p.visibility_group_id) : null;
         const desk = deskByOwner.get(p.user_id);
         const pos = posMap.get(p.user_id);
@@ -175,20 +175,23 @@ export function usePixelAdminData() {
         };
       });
 
-      const profMap = new Map((profilesR.data ?? []).map((p) => [p.user_id, p.display_name]));
-      const msgs: AdminMessageRow[] = (messagesR.data ?? []).map((m) => ({
+      const profMap = new Map(scopedProfiles.map((p) => [p.user_id, p.display_name]));
+      const scopedGroups = allowedGroupIds === null
+        ? (groupsR.data ?? [])
+        : (groupsR.data ?? []).filter((g) => allowedGroupIds!.includes(g.id));
+      const msgs: AdminMessageRow[] = scopedMsgs.map((m) => ({
         ...m,
         sender_display_name: profMap.get(m.sender_user_id) ?? null,
       }));
-      const acts: AdminActionRow[] = (actionsR.data ?? []).map((a) => ({
+      const acts: AdminActionRow[] = scopedActions.map((a: any) => ({
         ...a,
         admin_name: profMap.get(a.admin_user_id) ?? null,
       }));
 
       setCharacters(chars);
-      setGroups((groupsR.data ?? []) as AdminGroupRow[]);
-      setWorkspaces((wsR.data ?? []) as AdminWorkspaceRow[]);
-      setDesks((desksR.data ?? []) as AdminDeskRow[]);
+      setGroups(scopedGroups as AdminGroupRow[]);
+      setWorkspaces(scopedWs as AdminWorkspaceRow[]);
+      setDesks(scopedDesks as AdminDeskRow[]);
       setMessages(msgs);
       setActions(acts);
       setLoading(false);
