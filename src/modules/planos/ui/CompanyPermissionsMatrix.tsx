@@ -127,7 +127,10 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
             {users.map(u => (
               <tr key={u.user_id} className="hover:bg-muted/20">
                 <td className="px-4 py-3 sticky left-0 bg-background z-10 border-b align-top">
-                  <div className="font-medium text-sm">{u.profile?.full_name || "—"}</div>
+                  <div className="font-medium text-sm flex items-center gap-1.5">
+                    {u.profile?.full_name || "—"}
+                    {!u._linked && <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-400">não vinculado</span>}
+                  </div>
                   <div className="text-xs text-muted-foreground truncate max-w-[200px]">{u.profile?.email}</div>
                 </td>
                 {visibleMods.map(m => {
