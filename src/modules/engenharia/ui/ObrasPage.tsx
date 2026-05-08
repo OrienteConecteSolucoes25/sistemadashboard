@@ -44,7 +44,7 @@ export const ObrasPage = () => {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Partial<ObraRow> | null>(null);
   const [selected, setSelected] = useState<ObraRow | null>(null);
-  const [delOpen, setDelOpen] = useState<ObraRow | null>(null);
+  const [delOpen, setDelOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
