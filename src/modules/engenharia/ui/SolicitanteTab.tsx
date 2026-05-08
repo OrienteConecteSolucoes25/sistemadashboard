@@ -66,12 +66,26 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
   useEffect(() => { (async () => {
     const { data } = await supabase.from("eng_sites").select("id,nome,codigo,cidade,uf").order("nome");
     setSites(data || []);
-    // Técnicos: tenta buscar de hrdp_employees ou cargo
     try {
-      const { data: techs } = await (supabase as any).from("hrdp_employees").select("id,nome,cargo").ilike("cargo","%técnic%").limit(200);
-      setTecnicos(techs || []);
+      const { data: cs } = await (supabase as any).from("companies").select("id,nome").eq("ativo", true).order("nome");
+      setEmpresas(cs || []);
     } catch { /* opcional */ }
   })(); }, []);
+
+  // Equipes vinculadas à empresa selecionada (busca por gestor/equipe em hrdp_employees, fallback livre)
+  useEffect(() => {
+    (async () => {
+      if (!empresa) { setEquipes([]); return; }
+      try {
+        const { data } = await (supabase as any)
+          .from("hrdp_employees")
+          .select("id,nome,cargo,equipe,company_id")
+          .eq("company_id", empresa)
+          .limit(300);
+        setEquipes(data || []);
+      } catch { setEquipes([]); }
+    })();
+  }, [empresa]);
 
   // Auto-preencher CC quando cliente muda (prioriza cadastro centro_custo)
   useEffect(() => {
