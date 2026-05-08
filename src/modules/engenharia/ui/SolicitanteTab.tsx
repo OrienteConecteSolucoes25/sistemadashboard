@@ -178,7 +178,7 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
         }
       }
     } else {
-      setNovoItem({ ...novoItem, descricao });
+      setNovoItem({ ...novoItem, descricao: input });
     }
   };
 
