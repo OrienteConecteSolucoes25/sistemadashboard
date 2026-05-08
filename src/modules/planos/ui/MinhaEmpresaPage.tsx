@@ -18,7 +18,7 @@ type Permission = { user_id: string; module_key: string; can_view: boolean; can_
 type Member = { id: string; user_id: string; is_company_admin: boolean; email?: string; nome?: string };
 
 export default function MinhaEmpresaPage() {
-  const { isCompanyAdmin, companyId, checking } = usePlanosAccess();
+  const { isCompanyAdmin, companyId, canSeeMinhaEmpresa, checking } = usePlanosAccess();
   const [company, setCompany] = useState<any>(null);
   const [plan, setPlan] = useState<any>(null);
   const [pays, setPays] = useState<any[]>([]);
