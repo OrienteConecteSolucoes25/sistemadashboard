@@ -26,6 +26,7 @@ import { EngPageHeader } from "./components/EngPageHeader";
 import { KpiCard, KpiGrid } from "./components/KpiCard";
 import { StatusBadge } from "./components/StatusBadge";
 import { useMateriais } from "../hooks/useMateriais";
+import { useFieldOptions } from "../hooks/useFieldOptions";
 import { MateriaisCatalogToolbar } from "./MateriaisCatalogToolbar";
 
 const TEAL = "hsl(181 65% 46%)";
