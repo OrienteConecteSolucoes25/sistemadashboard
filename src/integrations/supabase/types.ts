@@ -3795,36 +3795,78 @@ export type Database = {
       }
       eng_equipes: {
         Row: {
+          base: string | null
+          cnpj: string | null
           created_at: string
+          current_city: string | null
+          current_site: string | null
           data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          estados_atuacao: string[] | null
           id: string
+          is_deleted: boolean | null
+          leader_phone: string | null
           lider: string | null
           membros: Json | null
           nome: string
+          quantidade_equipes: number | null
+          scopes: string[] | null
           site_id: string | null
           status: string | null
+          technicians: Json | null
+          uf_base: string | null
           updated_at: string
         }
         Insert: {
+          base?: string | null
+          cnpj?: string | null
           created_at?: string
+          current_city?: string | null
+          current_site?: string | null
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          estados_atuacao?: string[] | null
           id?: string
+          is_deleted?: boolean | null
+          leader_phone?: string | null
           lider?: string | null
           membros?: Json | null
           nome: string
+          quantidade_equipes?: number | null
+          scopes?: string[] | null
           site_id?: string | null
           status?: string | null
+          technicians?: Json | null
+          uf_base?: string | null
           updated_at?: string
         }
         Update: {
+          base?: string | null
+          cnpj?: string | null
           created_at?: string
+          current_city?: string | null
+          current_site?: string | null
           data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          estados_atuacao?: string[] | null
           id?: string
+          is_deleted?: boolean | null
+          leader_phone?: string | null
           lider?: string | null
           membros?: Json | null
           nome?: string
+          quantidade_equipes?: number | null
+          scopes?: string[] | null
           site_id?: string | null
           status?: string | null
+          technicians?: Json | null
+          uf_base?: string | null
           updated_at?: string
         }
         Relationships: []
