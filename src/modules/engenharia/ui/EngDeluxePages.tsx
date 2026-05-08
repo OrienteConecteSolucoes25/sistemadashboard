@@ -219,7 +219,8 @@ export const SitesDeluxePage = () => {
               <tr><td colSpan={7} className="px-3 py-12 text-center text-muted-foreground">Nenhum site.</td></tr>
             ) : filtered.map((s) => (
               <tr key={s.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors"
-                  onClick={() => { setEditing(s); setOpen(true); }}>
+                  title="Duplo-clique para editar"
+                  onDoubleClick={() => { setEditing(s); setOpen(true); }}>
                 <td className="px-3 py-2.5 font-mono text-xs">{s.codigo ?? "—"}</td>
                 <td className="px-3 py-2.5 font-medium">{s.nome}</td>
                 <td className="px-3 py-2.5 text-muted-foreground">{s.cidade ?? "—"} {s.uf && <Badge variant="outline" className="ml-1 text-[10px]">{s.uf}</Badge>}</td>
