@@ -30,6 +30,7 @@ export function CadastrosGeraisTab() {
             fieldKey="categoria"
             title="Categorias"
             metaFields={[
+              { key: "conta_financeira", label: "Conta financeira" },
               { key: "comprador", label: "Comprador padrão" },
               { key: "sla_dias", label: "SLA (dias)", type: "number" },
             ]}
@@ -43,7 +44,13 @@ export function CadastrosGeraisTab() {
           />
         </TabsContent>
         <TabsContent value="centro_custo" className="mt-3">
-          <CadastroSimplesCrud fieldKey="centro_custo" title="Centros de custo" />
+          <CadastroSimplesCrud
+            fieldKey="centro_custo"
+            title="Clientes × Centros de custo"
+            valueLabel="Cliente"
+            valuePlaceholder="Ex: NEOENERGIA SP"
+            metaFields={[{ key: "centro_custo", label: "Centro de custo" }]}
+          />
         </TabsContent>
         <TabsContent value="tipo" className="mt-3">
           <CadastroSimplesCrud fieldKey="tipo" title="Tipos de solicitação" />
