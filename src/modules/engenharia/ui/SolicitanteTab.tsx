@@ -25,7 +25,7 @@ interface Item {
 
 const UNIDADES = ["UN", "PC", "M", "M²", "M³", "KG", "L", "CX", "PCT", "PAR", "RL", "BR"];
 
-export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCreated: () => void }) {
+export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: () => void }) {
   const { items: catalogo } = useMateriais();
   const tipos = useFieldOptions("tipo");
   const coords = useFieldOptions("coordenador");
