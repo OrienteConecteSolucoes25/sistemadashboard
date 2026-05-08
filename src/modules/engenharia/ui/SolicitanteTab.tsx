@@ -243,7 +243,7 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
       // reset
       setTipo(""); setCoord(""); setCliente(""); setCc(""); setCategoria(""); setContaFin(""); setComprador("");
       setEscopo(""); setSite(""); setCidade(""); setUf(""); setAuxiliar("");
-      setDataSol(""); setDataLimite(""); setTecnico(""); setEndereco(""); setObs("");
+      setDataSol(""); setDataLimite(""); setEquipe(""); setEmpresa(""); setEndereco(""); setObs("");
       setAnexo(null); setItens([]);
       onCreated();
     } catch (e: any) {
