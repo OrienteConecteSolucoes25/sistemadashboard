@@ -1,0 +1,2 @@
+ALTER TABLE public.eng_solicitacao_sc_rc ADD COLUMN IF NOT EXISTS item_descricao text;
+CREATE INDEX IF NOT EXISTS idx_scrc_solicit_numero ON public.eng_solicitacao_sc_rc (solicit_id, numero_documento);

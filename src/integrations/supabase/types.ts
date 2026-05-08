@@ -4889,6 +4889,7 @@ export type Database = {
           created_by: string | null
           data_solicitacao: string | null
           id: string
+          item_descricao: string | null
           numero_documento: string
           observacao: string | null
           solicit_id: string
@@ -4904,6 +4905,7 @@ export type Database = {
           created_by?: string | null
           data_solicitacao?: string | null
           id?: string
+          item_descricao?: string | null
           numero_documento: string
           observacao?: string | null
           solicit_id: string
@@ -4919,6 +4921,7 @@ export type Database = {
           created_by?: string | null
           data_solicitacao?: string | null
           id?: string
+          item_descricao?: string | null
           numero_documento?: string
           observacao?: string | null
           solicit_id?: string
