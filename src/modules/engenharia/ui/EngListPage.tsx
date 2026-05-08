@@ -102,6 +102,8 @@ const EngListPage = ({
   const [facets, setFacets] = useState<Record<string, string>>({});
   const [openForm, setOpenForm] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
+  const [delOpen, setDelOpen] = useState(false);
+  const isSoftDelete = SOFT_DELETE_TABLES.includes(config.table as any);
 
   const listFields = useMemo(() => config.fields.filter((f) => f.inList !== false).slice(0, 7), [config]);
   const searchKeys = config.searchKeys ?? config.fields.filter((f) => f.type === "text" || f.type === "textarea").map((f) => f.key);
