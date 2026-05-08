@@ -11,6 +11,11 @@ export interface ScRcRow {
   status?: string | null; created_by?: string | null;
   data_solicitacao?: string | null;
   item_descricao?: string | null;
+  auxiliar?: string | null;
+  responsavel?: string | null;
+  coordenador?: string | null;
+  data_finalizacao_compra?: string | null;
+  data_finalizacao_logistica?: string | null;
   created_at: string; updated_at: string;
 }
 
