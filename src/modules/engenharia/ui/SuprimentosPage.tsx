@@ -398,7 +398,12 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                         </td>
                         <td className="px-3 py-2">
                           <Select value={r.status || "SOLICITADO"} onValueChange={async (v) => {
-                            try { await updateScRcStatus(r.id, v); toast.success("Status atualizado"); load(); } catch (e) { toast.error(String(e)); }
+                            const before = r.status;
+                            setRows((prev) => prev.map((x) => (x.id === r.id ? { ...x, status: v } : x)));
+                            try { await updateScRcStatus(r.id, v); } catch (e) {
+                              setRows((prev) => prev.map((x) => (x.id === r.id ? { ...x, status: before } : x)));
+                              toast.error(String(e));
+                            }
                           }}>
                             <SelectTrigger className="h-8 text-xs w-[140px]"><SelectValue /></SelectTrigger>
                             <SelectContent>{SCRC_STATUS.map((s) => <SelectItem key={s} value={s}>{s}</SelectItem>)}</SelectContent>
@@ -419,7 +424,10 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                             <>
                               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => startEdit(r)} title="Editar"><Pencil className="h-4 w-4" /></Button>
                               <Button variant="ghost" size="icon" className="h-7 w-7" onClick={async () => {
-                                if (confirm("Excluir?")) { await deleteScRcMany([r.id]); load(); }
+                                if (!confirm("Excluir?")) return;
+                                const snap = rows;
+                                setRows((prev) => prev.filter((x) => x.id !== r.id));
+                                try { await deleteScRcMany([r.id]); } catch (e) { setRows(snap); toast.error(String(e)); }
                               }}><Trash2 className="h-4 w-4" /></Button>
                             </>
                           )}
