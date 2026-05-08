@@ -258,7 +258,12 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
         <div className="grid gap-2 md:grid-cols-12 items-end border rounded-md p-2 bg-muted/40">
           <div className={`md:col-span-${Math.max(3, 12 - (metaFields.length * 3) - 2)}`}>
             <Label className="text-[10px]">{valueLabel} *</Label>
-            <Input value={novoValor} onChange={(e) => setNovoValor(e.target.value)} placeholder={valuePlaceholder} />
+            <Input
+              value={novoValor}
+              onChange={(e) => setNovoValor(e.target.value)}
+              onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); adicionar(); } }}
+              placeholder={valuePlaceholder}
+            />
           </div>
           {metaFields.map((f) => (
             <div key={f.key} className="md:col-span-3">
@@ -267,6 +272,7 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
                 type={f.type === "number" ? "number" : "text"}
                 value={novoMeta[f.key] ?? ""}
                 onChange={(e) => setNovoMeta({ ...novoMeta, [f.key]: e.target.value })}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); adicionar(); } }}
               />
             </div>
           ))}
