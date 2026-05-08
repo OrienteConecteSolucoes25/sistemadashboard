@@ -153,7 +153,7 @@ export const ObrasPage = () => {
                   <TableCell className="text-right">{fmtMoney(o.total_value)}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <Button size="icon" variant="ghost" onClick={() => startEdit(o)}><Pencil className="w-4 h-4" /></Button>
-                    <Button size="icon" variant="ghost" onClick={() => setDelOpen(o)}><Trash2 className="w-4 h-4" /></Button>
+                    <Button size="icon" variant="ghost" onClick={() => { sel.toggle(o.id); setDelOpen(true); }}><Trash2 className="w-4 h-4" /></Button>
                   </TableCell>
                 </TableRow>
               ))}
