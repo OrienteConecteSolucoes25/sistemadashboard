@@ -33,14 +33,6 @@ const Auth = () => {
     setForgotOpen(false);
   };
 
-const Auth = () => {
-  const { session, loading } = useAuth();
-  const [tab, setTab] = useState<"signin" | "signup">("signin");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [fullName, setFullName] = useState("");
-  const [busy, setBusy] = useState(false);
-
   if (loading) return null;
   if (session) return <Navigate to="/app" replace />;
 
