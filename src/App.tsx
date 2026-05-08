@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import AppLayout from "@/components/AppLayout";
 import Auth from "./pages/Auth";
+import ResetPassword from "./pages/ResetPassword";
 import Projetos from "./pages/Projetos";
 import Adm from "./pages/Adm";
 import MyCharacterPage from "./modules/pixel/ui/MyCharacterPage";
