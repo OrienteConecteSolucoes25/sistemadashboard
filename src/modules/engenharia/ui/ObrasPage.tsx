@@ -66,6 +66,8 @@ export const ObrasPage = () => {
       `${s.nome} ${s.cidade ?? ""} ${s.uf ?? ""} ${s.cep ?? ""} ${s.endereco ?? ""}`.toLowerCase().includes(q));
   }, [items, search]);
 
+  const sel = useBulkSelection(filtered);
+
   const startNew = () => { setEditing({}); setOpen(true); };
   const startEdit = (o: ObraRow) => { setEditing(o); setOpen(true); };
 
