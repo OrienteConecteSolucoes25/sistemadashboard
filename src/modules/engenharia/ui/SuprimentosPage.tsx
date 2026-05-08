@@ -745,6 +745,20 @@ const SuprimentosPage = () => {
         solicit={outlookId ? rows.find(x => x.id === outlookId) ?? null : null}
         scRcs={outlookId ? allScRc.filter(s => s.solicit_id === outlookId) : []}
       />
+
+      <DeleteWithPasswordModal
+        open={delModalOpen}
+        onOpenChange={(o) => { setDelModalOpen(o); if (!o) setPendingDelete([]); }}
+        table="eng_suprimentos"
+        recordIds={pendingDelete}
+        recordLabel={pendingDelete.length === 1
+          ? (rows.find(r => r.id === pendingDelete[0])?.numero
+             ?? (rows.find(r => r.id === pendingDelete[0])?.data as any)?.site
+             ?? null)
+          : null}
+        moduleLabel="Suprimentos"
+        onDeleted={() => { sel.clear(); setPendingDelete([]); load(); }}
+      />
     </div>
   );
 };
