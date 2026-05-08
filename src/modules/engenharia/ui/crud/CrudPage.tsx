@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { Plus, Search, Trash2, Pencil } from "lucide-react";
 import type { CrudConfig, FieldSchema } from "./types";
 import { DeleteWithPasswordModal } from "@/components/DeleteWithPasswordModal";
+import { makeEditKeyHandler } from "../../lib/keyboardEdit";
 import { SOFT_DELETE_TABLES, type SoftDeleteTable } from "@/modules/engenharia/lib/deleteWithAudit";
 import { DataActionsToolbar } from "@/components/DataActionsToolbar";
 
