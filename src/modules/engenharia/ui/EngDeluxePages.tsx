@@ -476,6 +476,8 @@ export const MateriaisDeluxePage = () => {
   const catCadastro = useFieldOptions("categoria");
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState<string>("__all__");
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 50;
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Partial<CatMat> | null>(null);
   const [reloadKey, setReloadKey] = useState(0);
@@ -519,6 +521,22 @@ export const MateriaisDeluxePage = () => {
       return true;
     });
   }, [items, search, catFilter]);
+
+  // Reset para a primeira página quando filtros mudam
+  useEffect(() => { setPage(1); }, [search, catFilter, items.length]);
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const pageItems = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+
+  // Categorias do filtro = união do catálogo + cadastradas em eng_field_options
+  const categoriasFiltro = useMemo(() => {
+    const set = new Set<string>();
+    categorias.forEach((c) => c && set.add(c));
+    catCadastro.options.forEach((c) => c && set.add(c));
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [categorias, catCadastro.options]);
 
   const startNew = () => { setEditing({ codigo: "", descricao: "", categoria: "", conta_financeira: "", unidade: "un" }); setOpen(true); };
   const startEdit = (c: CatMat) => { setEditing({ ...c }); setOpen(true); };
@@ -596,55 +614,74 @@ export const MateriaisDeluxePage = () => {
             <Input className="pl-8 h-9" placeholder="Buscar por código, descrição ou categoria..." value={search} onChange={(e) => setSearch(e.target.value)} />
           </div>
           <Select value={catFilter} onValueChange={setCatFilter}>
-            <SelectTrigger className="h-9 w-[200px]"><SelectValue placeholder="Categoria" /></SelectTrigger>
-            <SelectContent>
-              <SelectItem value="__all__">Categoria: todas</SelectItem>
-              {categorias.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+            <SelectTrigger className="h-9 w-[220px]"><SelectValue placeholder="Categoria" /></SelectTrigger>
+            <SelectContent className="max-h-[60vh]">
+              <SelectItem value="__all__">Categoria: todas ({categoriasFiltro.length})</SelectItem>
+              {categoriasFiltro.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
             </SelectContent>
           </Select>
           <span className="ml-auto text-xs text-muted-foreground">{filtered.length} de {items.length}</span>
         </div>
       </Card>
 
-      <Card className="card-elegant overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/60 border-b">
-            <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-              <th className="px-3 py-2.5">Código</th>
-              <th className="px-3 py-2.5">Descrição</th>
-              <th className="px-3 py-2.5">Categoria</th>
-              <th className="px-3 py-2.5">Conta financeira</th>
-              <th className="px-3 py-2.5">Unidade</th>
-              <th className="px-3 py-2.5 w-20"></th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading && !localItems ? (
-              <tr><td colSpan={6} className="px-3 py-12 text-center text-muted-foreground">Carregando...</td></tr>
-            ) : filtered.length === 0 ? (
-              <tr><td colSpan={6} className="px-3 py-12 text-center text-muted-foreground">Nenhum material no catálogo.</td></tr>
-            ) : filtered.slice(0, 500).map((c) => (
-              <tr key={c.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => startEdit(c)}>
-                <td className="px-3 py-2 font-mono text-xs">{c.codigo || "—"}</td>
-                <td className="px-3 py-2 font-medium">{c.descricao}</td>
-                <td className="px-3 py-2"><Badge variant="outline" className="text-[10px] font-normal">{c.categoria || "—"}</Badge></td>
-                <td className="px-3 py-2 text-muted-foreground text-xs">{c.conta_financeira || "—"}</td>
-                <td className="px-3 py-2 text-muted-foreground">{c.unidade || "—"}</td>
-                <td className="px-3 py-2 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
-                  <Button size="icon" variant="ghost" className="h-7 w-7" title="Editar" onClick={() => startEdit(c)}>
-                    <Pencil className="w-3.5 h-3.5" />
-                  </Button>
-                  <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" title="Excluir" onClick={() => del(c)}>
-                    <Trash2 className="w-3.5 h-3.5" />
-                  </Button>
-                </td>
+      <Card className="card-elegant">
+        <div className="max-h-[60vh] overflow-auto">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/60 border-b sticky top-0 z-10">
+              <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
+                <th className="px-3 py-2.5">Código</th>
+                <th className="px-3 py-2.5">Descrição</th>
+                <th className="px-3 py-2.5">Categoria</th>
+                <th className="px-3 py-2.5">Conta financeira</th>
+                <th className="px-3 py-2.5">Unidade</th>
+                <th className="px-3 py-2.5 w-20"></th>
               </tr>
-            ))}
-          </tbody>
-        </table>
-        {filtered.length > 500 && (
-          <div className="px-3 py-2 text-xs text-muted-foreground border-t bg-muted/30 text-center">
-            Exibindo 500 de {filtered.length}. Refine a busca para ver mais.
+            </thead>
+            <tbody>
+              {loading && !localItems ? (
+                <tr><td colSpan={6} className="px-3 py-12 text-center text-muted-foreground">Carregando...</td></tr>
+              ) : filtered.length === 0 ? (
+                <tr><td colSpan={6} className="px-3 py-12 text-center text-muted-foreground">Nenhum material no catálogo.</td></tr>
+              ) : pageItems.map((c) => (
+                <tr key={c.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => startEdit(c)}>
+                  <td className="px-3 py-2 font-mono text-xs">{c.codigo || "—"}</td>
+                  <td className="px-3 py-2 font-medium">{c.descricao}</td>
+                  <td className="px-3 py-2"><Badge variant="outline" className="text-[10px] font-normal">{c.categoria || "—"}</Badge></td>
+                  <td className="px-3 py-2 text-muted-foreground text-xs">{c.conta_financeira || "—"}</td>
+                  <td className="px-3 py-2 text-muted-foreground">{c.unidade || "—"}</td>
+                  <td className="px-3 py-2 text-right whitespace-nowrap" onClick={(e) => e.stopPropagation()}>
+                    <Button size="icon" variant="ghost" className="h-7 w-7" title="Editar" onClick={() => startEdit(c)}>
+                      <Pencil className="w-3.5 h-3.5" />
+                    </Button>
+                    <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" title="Excluir" onClick={() => del(c)}>
+                      <Trash2 className="w-3.5 h-3.5" />
+                    </Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {filtered.length > 0 && (
+          <div className="flex items-center justify-between gap-2 px-3 py-2 border-t bg-muted/30 text-xs">
+            <span className="text-muted-foreground">
+              Mostrando {pageStart + 1}–{Math.min(pageStart + PAGE_SIZE, filtered.length)} de {filtered.length}
+            </span>
+            <div className="flex items-center gap-1">
+              <Button size="sm" variant="outline" className="h-7 px-2" disabled={currentPage <= 1} onClick={() => setPage(1)}>«</Button>
+              <Button size="sm" variant="outline" className="h-7 px-2" disabled={currentPage <= 1} onClick={() => setPage(currentPage - 1)}>‹ Anterior</Button>
+              {(() => {
+                const pages: number[] = [];
+                const start = Math.max(1, currentPage - 2);
+                const end = Math.min(totalPages, start + 4);
+                for (let i = start; i <= end; i++) pages.push(i);
+                return pages.map((p) => (
+                  <Button key={p} size="sm" variant={p === currentPage ? "default" : "outline"} className="h-7 min-w-[32px] px-2" onClick={() => setPage(p)}>{p}</Button>
+                ));
+              })()}
+              <Button size="sm" variant="outline" className="h-7 px-2" disabled={currentPage >= totalPages} onClick={() => setPage(currentPage + 1)}>Próxima ›</Button>
+              <Button size="sm" variant="outline" className="h-7 px-2" disabled={currentPage >= totalPages} onClick={() => setPage(totalPages)}>»</Button>
+            </div>
           </div>
         )}
       </Card>
