@@ -15,6 +15,7 @@ import { Plus, Trash2, Send, Paperclip, Pencil, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useMateriais } from "../hooks/useMateriais";
 import { useFieldOptions } from "../hooks/useFieldOptions";
+import { MaterialCombobox } from "./MaterialCombobox";
 
 interface Item {
   material_id?: string;
