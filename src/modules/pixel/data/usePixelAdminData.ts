@@ -84,6 +84,26 @@ export function usePixelAdminData() {
     let cancelled = false;
     (async () => {
       setLoading(true);
+
+      // Escopo por empresa: equipe OCS (admin/financeiro_ocs sem vínculo) vê tudo;
+      // demais usuários só veem grupos de visibilidade aos quais pertencem.
+      const { data: { user } } = await supabase.auth.getUser();
+      let allowedGroupIds: string[] | null = null;
+      if (user) {
+        const [{ data: rolesData }, { data: cu }, { data: ugs }] = await Promise.all([
+          supabase.from("user_roles").select("role").eq("user_id", user.id),
+          (supabase as any).from("company_users").select("company_id").eq("user_id", user.id).maybeSingle(),
+          supabase.from("user_visibility_groups").select("group_id").eq("user_id", user.id),
+        ]);
+        const rs = (rolesData ?? []).map((r: any) => r.role);
+        const isOcsStaff = (rs.includes("admin") || rs.includes("financeiro_ocs")) && !cu?.company_id;
+        if (!isOcsStaff) {
+          allowedGroupIds = (ugs ?? []).map((g: any) => g.group_id);
+        }
+      } else {
+        allowedGroupIds = [];
+      }
+
       const [profilesR, groupsR, wsR, desksR, posR, messagesR, actionsR] = await Promise.all([
         supabase
           .from("pixel_profiles")
@@ -115,6 +135,21 @@ export function usePixelAdminData() {
           .limit(50),
       ]);
       if (cancelled) return;
+
+      // Aplica escopo por grupos permitidos
+      const inScope = (gid: string | null | undefined) =>
+        allowedGroupIds === null ? true : !!gid && allowedGroupIds.includes(gid);
+      const scopedProfiles = (profilesR.data ?? []).filter((p) => inScope(p.visibility_group_id));
+      const scopedWs = (wsR.data ?? []).filter((w) => inScope(w.visibility_group_id));
+      const scopedWsIds = new Set(scopedWs.map((w) => w.id));
+      const scopedUserIds = new Set(scopedProfiles.map((p) => p.user_id));
+      const scopedDesks = (desksR.data ?? []).filter(
+        (d) => scopedWsIds.has(d.workspace_id) || (d.user_id && scopedUserIds.has(d.user_id)),
+      );
+      const scopedMsgs = (messagesR.data ?? []).filter((m) => scopedWsIds.has(m.workspace_id));
+      const scopedActions = (actionsR.data ?? []).filter(
+        (a: any) => !a.target_user_id || scopedUserIds.has(a.target_user_id),
+      );
 
       const groupMap = new Map((groupsR.data ?? []).map((g) => [g.id, g]));
       const deskByOwner = new Map<string, AdminDeskRow>();
