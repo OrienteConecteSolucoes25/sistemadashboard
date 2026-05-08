@@ -160,6 +160,11 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
   };
 
   const startEdit = (r: ScRcRow) => { setEditingId(r.id); setEditDraft({ ...r }); };
+  const cancelEdit = () => { setEditingId(null); setEditDraft({}); };
+  const editKeys = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter") { e.preventDefault(); saveEdit(); }
+    else if (e.key === "Escape") { e.preventDefault(); cancelEdit(); }
+  };
   const saveEdit = async () => {
     if (!editingId) return;
     const id = editingId;
