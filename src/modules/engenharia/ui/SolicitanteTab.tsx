@@ -626,10 +626,53 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
                 </div>
                 <div className="mt-2 text-xs">
                   <div className="font-medium mb-1">Materiais sem SC/RC ({s.pendentes.length}):</div>
-                  <ul className="list-disc ml-5 space-y-0.5">
-                    {s.pendentes.map((it: any, i: number) => (
-                      <li key={i} className="text-muted-foreground">{it.quantidade} {it.unidade} — {it.descricao}</li>
-                    ))}
+                  <ul className="ml-1 space-y-1">
+                    {s.pendentes.map((it: any) => {
+                      const idx = it._origIdx;
+                      const key = `${s.id}|${idx}`;
+                      const editing = editingKey === key;
+                      return (
+                        <li key={idx} className="flex items-center gap-2 border rounded px-2 py-1 bg-background/40">
+                          {editing ? (
+                            <>
+                              <Input
+                                list={`edit-mat-${s.id}`}
+                                value={editDraft.descricao}
+                                onChange={(e) => escolherEdit(e.target.value)}
+                                className="h-7 flex-1"
+                                placeholder="Material…"
+                              />
+                              <datalist id={`edit-mat-${s.id}`}>
+                                {catalogoFiltrado.map((m: any) => (
+                                  <option key={m.id} value={m.descricao}>{m.codigo} — {m.categoria}</option>
+                                ))}
+                              </datalist>
+                              <Input value={editDraft.quantidade} onChange={(e) => setEditDraft(d => ({ ...d, quantidade: e.target.value }))} className="h-7 w-16" />
+                              <Select value={editDraft.unidade} onValueChange={(v) => setEditDraft(d => ({ ...d, unidade: v }))}>
+                                <SelectTrigger className="h-7 w-20"><SelectValue /></SelectTrigger>
+                                <SelectContent>{UNIDADES.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent>
+                              </Select>
+                              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => salvarEdit(s, idx)} title="Salvar">
+                                <Check className="w-4 h-4 text-primary" />
+                              </Button>
+                              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => setEditingKey(null)} title="Cancelar">
+                                <X className="w-4 h-4" />
+                              </Button>
+                            </>
+                          ) : (
+                            <>
+                              <span className="flex-1 text-muted-foreground">{it.quantidade} {it.unidade} — {it.descricao}</span>
+                              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => startEdit(s, idx, it)} title="Editar">
+                                <Pencil className="w-3.5 h-3.5" />
+                              </Button>
+                              <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => excluirItem(s, idx)} title="Excluir">
+                                <Trash2 className="w-3.5 h-3.5 text-destructive" />
+                              </Button>
+                            </>
+                          )}
+                        </li>
+                      );
+                    })}
                   </ul>
                 </div>
                 {isOpen && (
