@@ -253,7 +253,22 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
       const wb = XLSX.read(buf);
       const ws = wb.Sheets[wb.SheetNames[0]];
       const raw = XLSX.utils.sheet_to_json<any>(ws, { defval: "" });
-      const norm = (s: string) => String(s || "").trim().toLowerCase().replace(/\s+/g, "_");
+      const norm = (s: string) => String(s || "")
+        .trim()
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[º°]/g, "o")
+        .replace(/[^a-z0-9]+/g, "_")
+        .replace(/^_+|_+$/g, "");
+      const pick = (obj: Record<string, any>, keys: string[]) => {
+        for (const key of keys) {
+          const value = obj[key];
+          if (value !== undefined && value !== null && String(value).trim() !== "") return value;
+        }
+        return "";
+      };
+      const isBlankRow = (obj: Record<string, any>) => Object.values(obj).every((v) => String(v ?? "").trim() === "");
 
       let ok = 0, skip = 0;
       for (const row of raw) {
@@ -261,14 +276,14 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
         const r: Record<string, any> = {};
         for (const [k, v] of Object.entries(row)) r[norm(k)] = typeof v === "string" ? v.trim() : v;
 
-        const tipo = String(r.tipo_documento || r.tipo || (isRequisicao ? "RC" : "SC")).toUpperCase();
-        const numero = String(r.numero_documento || r.numero || r["nº"] || r.n || "").trim();
-        let categoria = String(r.categoria || "").trim();
-        let item_descricao = String(r.item_descricao || r.material || r.descricao || "").trim() || null;
-        let conta_financeira = String(r.conta_financeira || r["conta_fin."] || "").trim();
-        let centro_custo = String(r.centro_custo || r.cc || sd.cc || "").trim();
+        if (isBlankRow(r)) { skip++; continue; }
 
-        if (!numero || !categoria) { skip++; continue; }
+        const tipo = String(pick(r, ["tipo_documento", "tipo"]) || (isRequisicao ? "RC" : "SC")).toUpperCase();
+        const numero = String(pick(r, ["numero_documento", "numero", "no_documento", "n_documento", "n_doc", "documento"])).trim();
+        let categoria = String(pick(r, ["categoria"])).trim();
+        let item_descricao = String(pick(r, ["item_descricao", "material", "descricao"])).trim() || null;
+        let conta_financeira = String(pick(r, ["conta_financeira", "conta_fin", "conta"])).trim();
+        let centro_custo = String(pick(r, ["centro_custo", "cc"]) || sd.cc || "").trim();
 
         // Auto-fill via catálogo se houver material
         if (item_descricao) {
@@ -289,21 +304,21 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
           tipo_documento: tipo,
           numero_documento: numero,
           item_descricao,
-          categoria,
+          categoria: categoria || null,
           conta_financeira: conta_financeira || null,
           centro_custo: centro_custo || null,
-          observacao: String(r.observacao || r["observação"] || "") || null,
-          status: String(r.status || "SOLICITADO"),
-          data_solicitacao: String(r.data_solicitacao || r["data_solicitação"] || "").slice(0, 10) || null,
-          auxiliar: String(r.auxiliar || "") || null,
-          responsavel: String(r.responsavel || r["responsável"] || "") || null,
-          coordenador: String(r.coordenador || "") || null,
-          data_finalizacao_compra: String(r.data_finalizacao_compra || r["fim_compra"] || "").slice(0, 10) || null,
-          data_finalizacao_logistica: String(r.data_finalizacao_logistica || r["fim_logística"] || r["fim_logistica"] || "").slice(0, 10) || null,
+          observacao: String(pick(r, ["observacao"]) || "") || null,
+          status: String(pick(r, ["status"]) || "SOLICITADO"),
+          data_solicitacao: String(pick(r, ["data_solicitacao"]) || "").slice(0, 10) || null,
+          auxiliar: String(pick(r, ["auxiliar"]) || "") || null,
+          responsavel: String(pick(r, ["responsavel"]) || "") || null,
+          coordenador: String(pick(r, ["coordenador"]) || "") || null,
+          data_finalizacao_compra: String(pick(r, ["data_finalizacao_compra", "fim_compra"]) || "").slice(0, 10) || null,
+          data_finalizacao_logistica: String(pick(r, ["data_finalizacao_logistica", "fim_logistica"]) || "").slice(0, 10) || null,
         } as any);
         ok++;
       }
-      toast.success(`${ok} importados${skip ? ` · ${skip} ignorados (faltou nº ou categoria)` : ""}`);
+      toast.success(`${ok} importados${skip ? ` · ${skip} linha(s) vazia(s) ignorada(s)` : ""}`);
       load();
     } catch (e: any) {
       toast.error("Falha ao importar: " + (e?.message ?? e));
@@ -329,7 +344,7 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
             <FileText className="h-4 w-4 mr-1" /> Modelo
           </Button>
           <span className="text-[11px] text-muted-foreground ml-2">
-            Modelo / exportação incluem todas as colunas do formulário. Obrigatório: <strong>nº SC/RC</strong> e <strong>categoria</strong>.
+            Modelo / exportação incluem todas as colunas do formulário. Campos vazios podem ser importados e ajustados depois.
           </span>
         </div>
 
@@ -614,8 +629,20 @@ const SuprimentosPage = () => {
   };
   useEffect(() => { load(); }, []);
 
+  const hasPendingScRc = (r: Solicit) => {
+    const itens: any[] = Array.isArray(r.itens) ? r.itens : [];
+    if (!itens.length) return (scrcCounts[r.id] || 0) === 0;
+    const linked = new Set(
+      allScRc
+        .filter((x) => x.solicit_id === r.id)
+        .map((x) => String(x.item_descricao || "").trim().toLowerCase())
+        .filter(Boolean)
+    );
+    return itens.some((it: any) => !linked.has(String(it?.descricao || "").trim().toLowerCase()));
+  };
+
   const filtered = useMemo(() => rows.filter((r) => {
-    if (soPendentes && (scrcCounts[r.id] || 0) > 0) return false;
+    if (soPendentes && !hasPendingScRc(r)) return false;
     if (fStatus !== ALL && r.status !== fStatus) return false;
     if (busca.trim()) {
       const q = busca.toLowerCase();
@@ -623,7 +650,7 @@ const SuprimentosPage = () => {
       if (!hay.includes(q)) return false;
     }
     return true;
-  }), [rows, busca, fStatus, soPendentes, scrcCounts]);
+  }), [rows, busca, fStatus, soPendentes, scrcCounts, allScRc]);
 
   const sel = useBulkSelection(filtered);
   const [pendingDelete, setPendingDelete] = useState<string[]>([]);
@@ -722,6 +749,7 @@ const SuprimentosPage = () => {
           ) : filtered.map((r) => {
             const d = (r.data || {}) as any;
             const cidUf = [d.cidade, d.uf].filter(Boolean).join(" / ");
+            const pendingSc = hasPendingScRc(r);
             return (
             <tr key={r.id} className="border-b last:border-0 hover:bg-accent/20 transition-colors">
               <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
@@ -737,7 +765,15 @@ const SuprimentosPage = () => {
               <td className="px-3 py-2.5">{r.solicitante || "—"}</td>
               <td className="px-3 py-2.5">{r.responsavel || "—"}</td>
               <td className={`px-3 py-2.5 ${isOverdue(r.prazo) && !["concluida", "comprada", "recebida", "cancelada"].includes(String(r.status)) ? "text-destructive font-medium" : ""}`}>{fmtDate(r.prazo)}</td>
-              <td className="px-3 py-2.5"><StatusBadge value={r.status} /></td>
+              <td className="px-3 py-2.5">
+                {pendingSc ? (
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md border text-xs font-medium whitespace-nowrap bg-destructive/15 text-destructive border-destructive/30 animate-pulse">
+                    Pendente SC
+                  </span>
+                ) : (
+                  <StatusBadge value={r.status} />
+                )}
+              </td>
               <td className="px-3 py-2.5" onClick={(e) => e.stopPropagation()}>
                 <Button size="sm" variant="outline" className="h-7" onClick={() => setScrcOpen(r.id)}>
                   <FileText className="h-3.5 w-3.5 mr-1" /> {scrcCounts[r.id] || 0}
@@ -754,8 +790,8 @@ const SuprimentosPage = () => {
     </Card>
   );
 
-  // Solicitações pendentes = sem nenhum SC/RC vinculado
-  const solicitacoesPendentes = rows.filter(r => !scrcCounts[r.id]).length;
+  // Solicitações pendentes = ainda há material sem SC/RC vinculado
+  const solicitacoesPendentes = rows.filter((r) => hasPendingScRc(r)).length;
   // Contagem por status SC/RC (normaliza)
   const cntScRc = (s: string) => allScRc.filter(x => String(x.status || "").toUpperCase() === s).length;
 
