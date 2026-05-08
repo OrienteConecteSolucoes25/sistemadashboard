@@ -473,6 +473,7 @@ interface CatMat {
 
 export const MateriaisDeluxePage = () => {
   const { items: catalogo, categorias, loading, } = useMateriais();
+  const catCadastro = useFieldOptions("categoria");
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState<string>("__all__");
   const [open, setOpen] = useState(false);
