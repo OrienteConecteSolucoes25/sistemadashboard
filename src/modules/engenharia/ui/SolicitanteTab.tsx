@@ -305,16 +305,25 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
           <Field label="Data limite entrega coordenador *">
             <Input type="date" value={dataLimite} onChange={(e) => setDataLimite(e.target.value)} />
           </Field>
-          <Field label="Técnico">
-            {tecnicos.length > 0 ? (
-              <Select value={tecnico} onValueChange={setTecnico}>
+          <Field label="Empresa">
+            <Select value={empresa} onValueChange={setEmpresa}>
+              <SelectTrigger><SelectValue placeholder="Selecione…" /></SelectTrigger>
+              <SelectContent>
+                {empresas.length === 0 && <SelectItem value="__none" disabled>Nenhuma empresa</SelectItem>}
+                {empresas.map((c) => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </Field>
+          <Field label="Equipe">
+            {equipes.length > 0 ? (
+              <Select value={equipe} onValueChange={setEquipe}>
                 <SelectTrigger><SelectValue placeholder="Selecione…" /></SelectTrigger>
                 <SelectContent>
-                  {tecnicos.map((t) => <SelectItem key={t.id} value={t.nome}>{t.nome}</SelectItem>)}
+                  {equipes.map((t) => <SelectItem key={t.id} value={t.equipe || t.nome}>{t.equipe || t.nome}{t.cargo ? ` — ${t.cargo}` : ""}</SelectItem>)}
                 </SelectContent>
               </Select>
             ) : (
-              <Input value={tecnico} onChange={(e) => setTecnico(e.target.value)} placeholder="Nenhum técnico cadastrado" />
+              <Input value={equipe} onChange={(e) => setEquipe(e.target.value)} placeholder={empresa ? "Sem equipes vinculadas" : "Selecione a empresa primeiro (opcional)"} />
             )}
           </Field>
         </div>
