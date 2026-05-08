@@ -639,7 +639,7 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
   if (loading) return null;
   if (pendentesPorSolicit.length === 0) return null;
 
-  const catalogoFiltrado = catalogo.slice(0, 800);
+  const catalogoFiltrado = catalogo;
 
   return (
     <CardContent className="pt-0">
