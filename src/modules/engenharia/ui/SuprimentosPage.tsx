@@ -142,10 +142,106 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
     groupedByNumber[k].push(r);
   });
 
+  // Exportar SC/RC para xlsx
+  const exportXlsx = () => {
+    const data = rows.map((r) => ({
+      tipo_documento: r.tipo_documento,
+      numero_documento: r.numero_documento,
+      item_descricao: r.item_descricao || "",
+      categoria: r.categoria || "",
+      conta_financeira: r.conta_financeira || "",
+      centro_custo: r.centro_custo || "",
+      status: r.status || "",
+      data_solicitacao: r.data_solicitacao || "",
+      observacao: r.observacao || "",
+    }));
+    const ws = XLSX.utils.json_to_sheet(data.length ? data : [{
+      tipo_documento: "SC", numero_documento: "", item_descricao: "", categoria: "",
+      conta_financeira: "", centro_custo: "", status: "SOLICITADO", data_solicitacao: "", observacao: "",
+    }]);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "SC_RC");
+    XLSX.writeFile(wb, `scrc_${solicit?.numero || solicitId}.xlsx`);
+  };
+
+  // Importar SC/RC com auto-fill por material/categoria
+  const handleImport = async (file: File) => {
+    try {
+      const buf = await file.arrayBuffer();
+      const wb = XLSX.read(buf);
+      const ws = wb.Sheets[wb.SheetNames[0]];
+      const raw = XLSX.utils.sheet_to_json<any>(ws, { defval: "" });
+      const norm = (s: string) => String(s || "").trim().toLowerCase().replace(/\s+/g, "_");
+
+      let ok = 0, skip = 0;
+      for (const row of raw) {
+        // normaliza cabeçalhos
+        const r: Record<string, any> = {};
+        for (const [k, v] of Object.entries(row)) r[norm(k)] = typeof v === "string" ? v.trim() : v;
+
+        const tipo = String(r.tipo_documento || r.tipo || (isRequisicao ? "RC" : "SC")).toUpperCase();
+        const numero = String(r.numero_documento || r.numero || r["nº"] || r.n || "").trim();
+        let categoria = String(r.categoria || "").trim();
+        let item_descricao = String(r.item_descricao || r.material || r.descricao || "").trim() || null;
+        let conta_financeira = String(r.conta_financeira || r["conta_fin."] || "").trim();
+        let centro_custo = String(r.centro_custo || r.cc || sd.cc || "").trim();
+
+        if (!numero || !categoria) { skip++; continue; }
+
+        // Auto-fill via catálogo se houver material
+        if (item_descricao) {
+          const mat = catalogo.find((m) => m.descricao.toLowerCase() === String(item_descricao).toLowerCase());
+          if (mat) {
+            if (!categoria && mat.categoria) categoria = mat.categoria;
+            if (!conta_financeira && mat.conta_financeira) conta_financeira = mat.conta_financeira;
+          }
+        }
+        // Se não veio conta, tenta achar pelo primeiro material da categoria
+        if (!conta_financeira && categoria) {
+          const mat = catalogo.find((m) => m.categoria === categoria && m.conta_financeira);
+          if (mat) conta_financeira = mat.conta_financeira;
+        }
+
+        await createScRc({
+          solicit_id: solicitId,
+          tipo_documento: tipo,
+          numero_documento: numero,
+          item_descricao,
+          categoria,
+          conta_financeira: conta_financeira || null,
+          centro_custo: centro_custo || null,
+          observacao: String(r.observacao || "") || null,
+          status: String(r.status || "SOLICITADO"),
+          data_solicitacao: String(r.data_solicitacao || "").slice(0, 10) || null,
+        } as any);
+        ok++;
+      }
+      toast.success(`${ok} importados${skip ? ` · ${skip} ignorados (faltou nº ou categoria)` : ""}`);
+      load();
+    } catch (e: any) {
+      toast.error("Falha ao importar: " + (e?.message ?? e));
+    }
+  };
+
   return (
     <Dialog open onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
         <DialogHeader><DialogTitle className="font-display flex items-center gap-2"><FileText className="h-5 w-5 text-primary" />SC / RC vinculados {solicit?.numero ? `— ${solicit.numero}` : ""}</DialogTitle></DialogHeader>
+
+        {/* Toolbar Importar/Exportar */}
+        <div className="flex items-center gap-2 -mt-1">
+          <input ref={fileInputRef} type="file" accept=".xlsx,.xls,.csv" className="hidden"
+            onChange={(e) => { const f = e.target.files?.[0]; if (f) handleImport(f); e.currentTarget.value = ""; }} />
+          <Button size="sm" variant="outline" onClick={() => fileInputRef.current?.click()}>
+            <Upload className="h-4 w-4 mr-1" /> Importar
+          </Button>
+          <Button size="sm" variant="outline" onClick={exportXlsx}>
+            <Download className="h-4 w-4 mr-1" /> Exportar
+          </Button>
+          <span className="text-[11px] text-muted-foreground ml-2">
+            Obrigatório: <strong>nº SC/RC</strong> e <strong>categoria</strong>. Material/conta/CC preenchem automaticamente quando possível.
+          </span>
+        </div>
 
         {/* Cabeçalho com endereço/cidade/UF */}
         <Card className="card-elegant">
