@@ -499,6 +499,15 @@ const SuprimentosPage = () => {
     return true;
   }), [rows, busca, fStatus, soPendentes, scrcCounts]);
 
+  const sel = useBulkSelection(filtered);
+  const [pendingDelete, setPendingDelete] = useState<string[]>([]);
+  const [delModalOpen, setDelModalOpen] = useState(false);
+  const askDelete = (ids: string[]) => {
+    if (!ids.length) return;
+    setPendingDelete(ids);
+    setDelModalOpen(true);
+  };
+
   const isOverdue = (d: string | null) => d && new Date(d) < new Date(new Date().toDateString());
   const cnt = (st: string) => rows.filter((x) => String(x.status).toLowerCase() === st).length;
 
@@ -523,15 +532,6 @@ const SuprimentosPage = () => {
       toast.success("Criado");
     }
     setOpen(false);
-    load();
-  };
-
-  const excluir = async (id: string) => {
-    if (!confirm("Excluir solicitação?")) return;
-    await supabase.from("eng_solicitacao_sc_rc").delete().eq("solicit_id", id);
-    const { error } = await supabase.from("eng_suprimentos").delete().eq("id", id);
-    if (error) return toast.error(error.message);
-    toast.success("Excluída");
     load();
   };
 
