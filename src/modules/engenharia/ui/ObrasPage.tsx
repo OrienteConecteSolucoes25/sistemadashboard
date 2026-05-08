@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
@@ -13,6 +14,8 @@ import { EngPageHeader } from "./components/EngPageHeader";
 import { DataActionsToolbar } from "@/components/DataActionsToolbar";
 import { DeleteWithPasswordModal } from "@/components/DeleteWithPasswordModal";
 import { ObraDetailSheet, type ObraRow } from "./components/ObraDetailSheet";
+import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { BulkActionsBar } from "@/components/BulkActionsBar";
 import type { FieldSchema } from "./crud/types";
 
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
@@ -41,7 +44,7 @@ export const ObrasPage = () => {
   const [open, setOpen] = useState(false);
   const [editing, setEditing] = useState<Partial<ObraRow> | null>(null);
   const [selected, setSelected] = useState<ObraRow | null>(null);
-  const [delOpen, setDelOpen] = useState<ObraRow | null>(null);
+  const [delOpen, setDelOpen] = useState(false);
 
   const load = async () => {
     setLoading(true);
@@ -62,6 +65,8 @@ export const ObrasPage = () => {
     return items.filter((s) =>
       `${s.nome} ${s.cidade ?? ""} ${s.uf ?? ""} ${s.cep ?? ""} ${s.endereco ?? ""}`.toLowerCase().includes(q));
   }, [items, search]);
+
+  const sel = useBulkSelection(filtered);
 
   const startNew = () => { setEditing({}); setOpen(true); };
   const startEdit = (o: ObraRow) => { setEditing(o); setOpen(true); };
@@ -112,11 +117,25 @@ export const ObrasPage = () => {
         <Button onClick={startNew}><Plus className="w-4 h-4 mr-1" /> Nova obra</Button>
       </div>
 
+      <BulkActionsBar
+        count={sel.count}
+        onClear={sel.clear}
+        onDelete={() => setDelOpen(true)}
+        deleteLabel={`Excluir ${sel.count} selecionado(s)`}
+      />
+
       <Card>
         <CardContent className="p-0">
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead className="w-8">
+                  <Checkbox
+                    checked={sel.allChecked ? true : sel.someChecked ? "indeterminate" : false}
+                    onCheckedChange={() => sel.toggleAll()}
+                    aria-label="Selecionar todos"
+                  />
+                </TableHead>
                 <TableHead>Nome</TableHead>
                 <TableHead>Cidade/UF</TableHead>
                 <TableHead>Endereço</TableHead>
@@ -127,12 +146,19 @@ export const ObrasPage = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {loading && <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-6">Carregando…</TableCell></TableRow>}
+              {loading && <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-6">Carregando…</TableCell></TableRow>}
               {!loading && filtered.length === 0 && (
-                <TableRow><TableCell colSpan={7} className="text-center text-muted-foreground py-6">Nenhuma obra.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={8} className="text-center text-muted-foreground py-6">Nenhuma obra.</TableCell></TableRow>
               )}
               {filtered.map((o) => (
                 <TableRow key={o.id} className="cursor-pointer hover:bg-muted/30" onClick={() => setSelected(o)}>
+                  <TableCell onClick={(e) => e.stopPropagation()}>
+                    <Checkbox
+                      checked={sel.isSelected(o.id)}
+                      onCheckedChange={() => sel.toggle(o.id)}
+                      aria-label={`Selecionar ${o.nome}`}
+                    />
+                  </TableCell>
                   <TableCell className="font-medium">{o.nome}</TableCell>
                   <TableCell>{[o.cidade, o.uf].filter(Boolean).join(" / ")}</TableCell>
                   <TableCell className="text-sm text-muted-foreground">
@@ -150,7 +176,7 @@ export const ObrasPage = () => {
                   <TableCell className="text-right">{fmtMoney(o.total_value)}</TableCell>
                   <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                     <Button size="icon" variant="ghost" onClick={() => startEdit(o)}><Pencil className="w-4 h-4" /></Button>
-                    <Button size="icon" variant="ghost" onClick={() => setDelOpen(o)}><Trash2 className="w-4 h-4" /></Button>
+                    <Button size="icon" variant="ghost" onClick={() => { sel.toggle(o.id); setDelOpen(true); }}><Trash2 className="w-4 h-4" /></Button>
                   </TableCell>
                 </TableRow>
               ))}
@@ -231,13 +257,12 @@ export const ObrasPage = () => {
 
       {/* Exclusão segura */}
       <DeleteWithPasswordModal
-        open={!!delOpen}
-        onOpenChange={(o) => !o && setDelOpen(null)}
+        open={delOpen}
+        onOpenChange={(o) => { setDelOpen(o); if (!o) sel.clear(); }}
         table="eng_sites"
-        recordId={delOpen?.id ?? null}
-        recordLabel={delOpen?.nome}
+        recordIds={Array.from(sel.selected)}
         moduleLabel="Obras"
-        onDeleted={() => { setDelOpen(null); load(); }}
+        onDeleted={() => { load(); sel.clear(); }}
       />
     </div>
   );

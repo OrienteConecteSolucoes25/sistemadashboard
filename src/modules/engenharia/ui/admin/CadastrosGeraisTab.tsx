@@ -8,9 +8,8 @@ export function CadastrosGeraisTab() {
         Gerencie os cadastros usados nos selects da <strong>Nova Solicitação</strong> de materiais e em outras telas da Engenharia.
         Tudo o que for adicionado aqui aparecerá automaticamente para os solicitantes.
       </p>
-      <Tabs defaultValue="cliente">
+      <Tabs defaultValue="categoria">
         <TabsList className="flex-wrap h-auto">
-          <TabsTrigger value="cliente">Cliente</TabsTrigger>
           <TabsTrigger value="categoria">Categoria</TabsTrigger>
           <TabsTrigger value="sla">SLA</TabsTrigger>
           <TabsTrigger value="centro_custo">Centro de custo</TabsTrigger>
@@ -18,13 +17,6 @@ export function CadastrosGeraisTab() {
           <TabsTrigger value="coordenador">Coordenador / Analista</TabsTrigger>
           <TabsTrigger value="escopo">Escopo</TabsTrigger>
         </TabsList>
-        <TabsContent value="cliente" className="mt-3">
-          <CadastroSimplesCrud
-            fieldKey="cliente"
-            title="Clientes"
-            metaFields={[{ key: "cc", label: "Centro de custo padrão" }]}
-          />
-        </TabsContent>
         <TabsContent value="categoria" className="mt-3">
           <CadastroSimplesCrud
             fieldKey="categoria"

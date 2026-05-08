@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
@@ -19,6 +20,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { EngKanban } from "./components/EngKanban";
 import { EngTimeline } from "./components/EngTimeline";
 import { DistribuicaoCard, RankingCard } from "./components/EngMiniCharts";
+import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { BulkActionsBar } from "@/components/BulkActionsBar";
+import { DeleteWithPasswordModal } from "@/components/DeleteWithPasswordModal";
+import { SOFT_DELETE_TABLES } from "../lib/deleteWithAudit";
 
 type Tone = "teal" | "warn" | "danger" | "success" | "neutral";
 export type KpiDef = {
@@ -97,6 +102,8 @@ const EngListPage = ({
   const [facets, setFacets] = useState<Record<string, string>>({});
   const [openForm, setOpenForm] = useState(false);
   const [editing, setEditing] = useState<any | null>(null);
+  const [delOpen, setDelOpen] = useState(false);
+  const isSoftDelete = SOFT_DELETE_TABLES.includes(config.table as any);
 
   const listFields = useMemo(() => config.fields.filter((f) => f.inList !== false).slice(0, 7), [config]);
   const searchKeys = config.searchKeys ?? config.fields.filter((f) => f.type === "text" || f.type === "textarea").map((f) => f.key);
@@ -123,6 +130,8 @@ const EngListPage = ({
     });
     return r;
   }, [rows, search, facets, searchKeys]);
+
+  const sel = useBulkSelection(filtered);
 
   const facetOptions = useMemo(() => {
     const out: Record<string, string[]> = {};
@@ -158,14 +167,23 @@ const EngListPage = ({
     }
     toast.success("Salvo");
     setOpenForm(false); setEditing(null); load();
+    sel.clear();
   };
 
-  const del = async (id: string) => {
-    if (!confirm("Excluir registro?")) return;
-    const { error } = await (supabase.from(config.table as any).delete().eq("id", id) as any);
+  const del = async (ids: string[]) => {
+    if (!ids.length) return;
+    if (isSoftDelete) {
+      setDelOpen(true);
+      return;
+    }
+    if (!confirm(`Excluir ${ids.length} registro(s)?`)) return;
+    const { error } = await (supabase.from(config.table as any).delete().in("id", ids) as any);
     if (error) return toast.error(error.message);
     load();
+    sel.clear();
   };
+
+  const onItemClick = (r: any) => { setEditing(r); setOpenForm(true); };
 
   return (
     <div className="space-y-4">
@@ -227,38 +245,60 @@ const EngListPage = ({
         );
 
         const listView = (
-          <Card className="card-elegant overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead className="bg-muted/60 border-b">
-                <tr>
-                  {listFields.map((f) => (
-                    <th key={f.key} className="text-left px-3 py-2.5 font-medium text-xs uppercase tracking-wide text-muted-foreground">
-                      {f.label}
+          <div className="space-y-2">
+            <BulkActionsBar
+              count={sel.count}
+              onClear={sel.clear}
+              onDelete={() => del(Array.from(sel.selected))}
+              deleteLabel={`Excluir ${sel.count} selecionado(s)`}
+            />
+            <Card className="card-elegant overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-muted/60 border-b">
+                  <tr>
+                    <th className="px-3 py-2.5 w-8">
+                      <Checkbox
+                        checked={sel.allChecked ? true : sel.someChecked ? "indeterminate" : false}
+                        onCheckedChange={() => sel.toggleAll()}
+                        aria-label="Selecionar todos"
+                      />
                     </th>
-                  ))}
-                  <th className="px-3 py-2 w-10"></th>
-                </tr>
-              </thead>
-              <tbody>
-                {loading ? (
-                  <tr><td colSpan={listFields.length + 1} className="px-3 py-12 text-center text-muted-foreground">Carregando...</td></tr>
-                ) : filtered.length === 0 ? (
-                  <tr><td colSpan={listFields.length + 1} className="px-3 py-12 text-center text-muted-foreground">Nenhum registro.</td></tr>
-                ) : filtered.map((r) => (
-                  <tr key={r.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => { setEditing(r); setOpenForm(true); }}>
                     {listFields.map((f) => (
-                      <td key={f.key} className="px-3 py-2.5 max-w-[280px]">{formatCell(r[f.key], f, statusKeys)}</td>
+                      <th key={f.key} className="text-left px-3 py-2.5 font-medium text-xs uppercase tracking-wide text-muted-foreground">
+                        {f.label}
+                      </th>
                     ))}
-                    <td className="px-3 py-2">
-                      <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={(e) => { e.stopPropagation(); del(r.id); }}>
-                        <Trash2 className="w-3.5 h-3.5" />
-                      </Button>
-                    </td>
+                    <th className="px-3 py-2 w-10"></th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </Card>
+                </thead>
+                <tbody>
+                  {loading ? (
+                    <tr><td colSpan={listFields.length + 2} className="px-3 py-12 text-center text-muted-foreground">Carregando...</td></tr>
+                  ) : filtered.length === 0 ? (
+                    <tr><td colSpan={listFields.length + 2} className="px-3 py-12 text-center text-muted-foreground">Nenhum registro.</td></tr>
+                  ) : filtered.map((r) => (
+                    <tr key={r.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => { setEditing(r); setOpenForm(true); }}>
+                      <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+                        <Checkbox
+                          checked={sel.isSelected(r.id)}
+                          onCheckedChange={() => sel.toggle(r.id)}
+                          aria-label={`Selecionar ${r.id}`}
+                        />
+                      </td>
+                      {listFields.map((f) => (
+                        <td key={f.key} className="px-3 py-2.5 max-w-[280px]">{formatCell(r[f.key], f, statusKeys)}</td>
+                      ))}
+                      <td className="px-3 py-2" onClick={(e) => e.stopPropagation()}>
+                        <Button size="icon" variant="ghost" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={(e) => { e.stopPropagation(); del([r.id]); }}>
+                          <Trash2 className="w-3.5 h-3.5" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </Card>
+          </div>
         );
 
         if (views.length <= 1) {
@@ -342,6 +382,15 @@ const EngListPage = ({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <DeleteWithPasswordModal
+        open={delOpen}
+        onOpenChange={(o) => { setDelOpen(o); if (!o) sel.clear(); }}
+        table={config.table as any}
+        recordIds={Array.from(sel.selected)}
+        moduleLabel={config.title}
+        onDeleted={() => { load(); sel.clear(); }}
+      />
     </div>
   );
 };
