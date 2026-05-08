@@ -413,7 +413,7 @@ export const EquipesDeluxePage = () => {
       </div>
 
       <Dialog open={open} onOpenChange={(o) => { setOpen(o); if (!o) setEditing(null); }}>
-        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto" onKeyDown={makeEditKeyHandler(save, () => setOpen(false))}>
           <DialogHeader><DialogTitle className="font-display">{editing?.id ? "Editar equipe" : "Nova equipe"}</DialogTitle></DialogHeader>
           {editing && (
             <div className="space-y-4">
