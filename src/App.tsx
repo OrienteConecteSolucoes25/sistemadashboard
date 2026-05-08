@@ -89,6 +89,7 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Navigate to="/app" replace />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/app" element={<AppLayout />}>
               <Route index element={<Projetos />} />
               <Route path="pixel-office" element={<PixelOfficePage />} />
