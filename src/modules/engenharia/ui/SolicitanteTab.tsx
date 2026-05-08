@@ -317,6 +317,18 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
             </Button>
           </div>
 
+          {/* Categoria + Conta financeira atrelados aos itens */}
+          <div className="grid gap-2 md:grid-cols-12">
+            <div className="md:col-span-6">
+              <Label className="text-[10px]">Categoria *</Label>
+              <SelectBox value={categoria} onChange={setCategoria} options={categorias.options} />
+            </div>
+            <div className="md:col-span-6">
+              <Label className="text-[10px]">Conta financeira (auto)</Label>
+              <Input value={contaFin} onChange={(e) => setContaFin(e.target.value)} placeholder="Preenchido automaticamente pela categoria/material" />
+            </div>
+          </div>
+
           <div className="grid gap-2 md:grid-cols-12 items-end">
             <div className="md:col-span-7">
               <Label className="text-[10px]">Descrição do material</Label>
