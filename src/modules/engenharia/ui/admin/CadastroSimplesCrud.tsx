@@ -123,7 +123,7 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLab
   };
 
   const baixarModelo = (fmt: "xlsx" | "csv") => {
-    const headers: any = { Nome: "" };
+    const headers: any = { [valueLabel]: "" };
     metaFields.forEach((f) => { headers[f.label] = ""; });
     const ws = XLSX.utils.json_to_sheet([headers]);
     const wb = XLSX.utils.book_new();
