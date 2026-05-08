@@ -550,7 +550,7 @@ const SuprimentosPage = () => {
             const d = (r.data || {}) as any;
             const cidUf = [d.cidade, d.uf].filter(Boolean).join(" / ");
             return (
-            <tr key={r.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => openEdit(r)}>
+            <tr key={r.id} className="border-b last:border-0 hover:bg-accent/20 transition-colors">
               <td className="px-3 py-2.5 font-medium">{d.site || r.numero || "—"}</td>
               <td className="px-3 py-2.5">{d.cliente || "—"}</td>
               <td className="px-3 py-2.5">{cidUf || "—"}</td>
