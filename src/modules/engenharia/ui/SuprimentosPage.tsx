@@ -325,8 +325,11 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
           <Button size="sm" variant="outline" onClick={exportXlsx}>
             <Download className="h-4 w-4 mr-1" /> Exportar
           </Button>
+          <Button size="sm" variant="ghost" onClick={downloadTemplate}>
+            <FileText className="h-4 w-4 mr-1" /> Modelo
+          </Button>
           <span className="text-[11px] text-muted-foreground ml-2">
-            Obrigatório: <strong>nº SC/RC</strong> e <strong>categoria</strong>. Material/conta/CC preenchem automaticamente quando possível.
+            Modelo / exportação incluem todas as colunas do formulário. Obrigatório: <strong>nº SC/RC</strong> e <strong>categoria</strong>.
           </span>
         </div>
 
