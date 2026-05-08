@@ -344,6 +344,15 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
               <div className="md:col-span-3"><Label className="text-xs">Centro de custo</Label><Input value={novo.centro_custo} onChange={(e) => setNovo({ ...novo, centro_custo: e.target.value })} /></div>
               <div className="md:col-span-3"><Label className="text-xs">Data solicit.</Label><Input type="date" value={novo.data_solicitacao} onChange={(e) => setNovo({ ...novo, data_solicitacao: e.target.value })} /></div>
             </div>
+            <div className="grid gap-2 md:grid-cols-12 items-end">
+              <div className="md:col-span-3"><Label className="text-xs">Auxiliar</Label><Input value={novo.auxiliar} onChange={(e) => setNovo({ ...novo, auxiliar: e.target.value })} placeholder="Nome de quem fez" /></div>
+              <div className="md:col-span-3"><Label className="text-xs">Responsável</Label><Input value={novo.responsavel} onChange={(e) => setNovo({ ...novo, responsavel: e.target.value })} /></div>
+              <div className="md:col-span-3"><Label className="text-xs">Coordenador (solicitou)</Label><Input value={novo.coordenador} onChange={(e) => setNovo({ ...novo, coordenador: e.target.value })} /></div>
+              <div className="md:col-span-3 grid grid-cols-2 gap-2">
+                <div><Label className="text-xs">Fim compra</Label><Input type="date" value={novo.data_finalizacao_compra} onChange={(e) => setNovo({ ...novo, data_finalizacao_compra: e.target.value })} /></div>
+                <div><Label className="text-xs">Fim logística</Label><Input type="date" value={novo.data_finalizacao_logistica} onChange={(e) => setNovo({ ...novo, data_finalizacao_logistica: e.target.value })} /></div>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
