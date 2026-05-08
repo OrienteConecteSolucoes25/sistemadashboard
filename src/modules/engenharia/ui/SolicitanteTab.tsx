@@ -480,10 +480,26 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
   const [editingKey, setEditingKey] = useState<string | null>(null); // `${solicitId}|${index}`
   const [editDraft, setEditDraft] = useState<{ descricao: string; unidade: string; quantidade: string; categoria?: string; conta_financeira?: string; material_id?: string }>({ descricao: "", unidade: "UN", quantidade: "1" });
 
-  const escolherMatPainel = (descricao: string) => {
-    setAddingDesc(descricao);
-    const mat = catalogo.find((c) => c.descricao === descricao);
+  const findInCatalogo = (input: string) => {
+    if (!input) return undefined;
+    const v = input.trim();
+    const lc = v.toLowerCase();
+    let mat = catalogo.find((c: any) => `${c.codigo} — ${c.descricao}` === v);
+    if (mat) return mat;
+    mat = catalogo.find((c: any) => String(c.codigo).toLowerCase() === lc);
+    if (mat) return mat;
+    mat = catalogo.find((c: any) => String(c.descricao).toLowerCase() === lc);
+    if (mat) return mat;
+    const codePart = v.split(" — ")[0]?.trim().toLowerCase();
+    if (codePart) mat = catalogo.find((c: any) => String(c.codigo).toLowerCase() === codePart);
+    return mat;
+  };
+
+  const escolherMatPainel = (input: string) => {
+    setAddingDesc(input);
+    const mat = findInCatalogo(input);
     if (!mat) return;
+    setAddingDesc(mat.descricao);
     setAddingMaterialId(mat.id);
     if (mat.unidade) setAddingUn(mat.unidade);
     if (mat.categoria) setAddingCategoria(mat.categoria);
