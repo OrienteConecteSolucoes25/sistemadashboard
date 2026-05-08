@@ -96,42 +96,62 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
 
   const adicionar = async () => {
     if (!novo.numero_documento.trim()) { toast.error("Número do documento é obrigatório"); return; }
+    const payload: any = {
+      ...novo,
+      numero_documento: novo.numero_documento.trim(),
+      item_descricao: novo.item_descricao || null,
+      categoria: novo.categoria || null,
+      conta_financeira: novo.conta_financeira || null,
+      centro_custo: novo.centro_custo || null,
+      observacao: novo.observacao || null,
+      data_solicitacao: novo.data_solicitacao || null,
+      solicit_id: solicitId,
+    };
+    // Optimistic
+    const tempId = `temp-${Date.now()}`;
+    const optimistic: ScRcRow = {
+      id: tempId, solicit_id: solicitId,
+      tipo_documento: payload.tipo_documento, numero_documento: payload.numero_documento,
+      categoria: payload.categoria, conta_financeira: payload.conta_financeira,
+      centro_custo: payload.centro_custo, observacao: payload.observacao,
+      status: payload.status ?? "SOLICITADO", data_solicitacao: payload.data_solicitacao,
+      item_descricao: payload.item_descricao,
+      created_at: new Date().toISOString(), updated_at: new Date().toISOString(),
+    };
+    setRows((prev) => [optimistic, ...prev]);
+    setNovo({ tipo_documento: isRequisicao ? "RC" : "SC", numero_documento: "", item_descricao: "", categoria: "", conta_financeira: "", centro_custo: sd.cc || "", observacao: "", status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10) });
     try {
-      const payload: any = {
-        ...novo,
-        numero_documento: novo.numero_documento.trim(),
-        item_descricao: novo.item_descricao || null,
-        categoria: novo.categoria || null,
-        conta_financeira: novo.conta_financeira || null,
-        centro_custo: novo.centro_custo || null,
-        observacao: novo.observacao || null,
-        data_solicitacao: novo.data_solicitacao || null,
-        solicit_id: solicitId,
-      };
-      await createScRc(payload);
-      toast.success("Documento adicionado");
-      setNovo({ tipo_documento: isRequisicao ? "RC" : "SC", numero_documento: "", item_descricao: "", categoria: "", conta_financeira: "", centro_custo: sd.cc || "", observacao: "", status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10) });
-      load();
-    } catch (e: any) { console.error("createScRc", e); toast.error(e?.message ?? String(e)); }
+      const created = await createScRc(payload);
+      setRows((prev) => prev.map((r) => (r.id === tempId ? created : r)));
+    } catch (e: any) {
+      console.error("createScRc", e);
+      setRows((prev) => prev.filter((r) => r.id !== tempId));
+      toast.error(e?.message ?? String(e));
+    }
   };
 
   const startEdit = (r: ScRcRow) => { setEditingId(r.id); setEditDraft({ ...r }); };
   const saveEdit = async () => {
     if (!editingId) return;
+    const id = editingId;
+    const before = rows.find((r) => r.id === id);
+    const patch = {
+      numero_documento: editDraft.numero_documento || "",
+      item_descricao: editDraft.item_descricao ?? null,
+      categoria: editDraft.categoria ?? null,
+      conta_financeira: editDraft.conta_financeira ?? null,
+      centro_custo: editDraft.centro_custo ?? null,
+      observacao: editDraft.observacao ?? null,
+      data_solicitacao: editDraft.data_solicitacao ?? null,
+    } as any;
+    setRows((prev) => prev.map((r) => (r.id === id ? { ...r, ...patch } : r)));
+    setEditingId(null); setEditDraft({});
     try {
-      await updateScRc(editingId, {
-        numero_documento: editDraft.numero_documento || "",
-        item_descricao: editDraft.item_descricao ?? null,
-        categoria: editDraft.categoria ?? null,
-        conta_financeira: editDraft.conta_financeira ?? null,
-        centro_custo: editDraft.centro_custo ?? null,
-        observacao: editDraft.observacao ?? null,
-        data_solicitacao: editDraft.data_solicitacao ?? null,
-      } as any);
-      toast.success("Atualizado");
-      setEditingId(null); setEditDraft({});
-      load();
-    } catch (e: any) { toast.error(e?.message ?? "Falha ao atualizar"); }
+      await updateScRc(id, patch);
+    } catch (e: any) {
+      if (before) setRows((prev) => prev.map((r) => (r.id === id ? before : r)));
+      toast.error(e?.message ?? "Falha ao atualizar");
+    }
   };
 
   // Agrupa SC/RC pelo mesmo número (para popover)
