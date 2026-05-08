@@ -26,6 +26,7 @@ import { EngPageHeader } from "./components/EngPageHeader";
 import { KpiCard, KpiGrid } from "./components/KpiCard";
 import { StatusBadge } from "./components/StatusBadge";
 import { useMateriais } from "../hooks/useMateriais";
+import { useFieldOptions } from "../hooks/useFieldOptions";
 import { MateriaisCatalogToolbar } from "./MateriaisCatalogToolbar";
 
 const TEAL = "hsl(181 65% 46%)";
@@ -472,6 +473,7 @@ interface CatMat {
 
 export const MateriaisDeluxePage = () => {
   const { items: catalogo, categorias, loading, } = useMateriais();
+  const catCadastro = useFieldOptions("categoria");
   const [search, setSearch] = useState("");
   const [catFilter, setCatFilter] = useState<string>("__all__");
   const [open, setOpen] = useState(false);
@@ -655,8 +657,31 @@ export const MateriaisDeluxePage = () => {
               <div><Label className="text-xs">Código</Label><Input value={editing.codigo ?? ""} onChange={(e) => setEditing({ ...editing, codigo: e.target.value })} /></div>
               <div><Label className="text-xs">Unidade</Label><Input value={editing.unidade ?? ""} onChange={(e) => setEditing({ ...editing, unidade: e.target.value })} /></div>
               <div className="md:col-span-2"><Label className="text-xs">Descrição *</Label><Input value={editing.descricao ?? ""} onChange={(e) => setEditing({ ...editing, descricao: e.target.value })} /></div>
-              <div><Label className="text-xs">Categoria</Label><Input value={editing.categoria ?? ""} onChange={(e) => setEditing({ ...editing, categoria: e.target.value })} /></div>
-              <div><Label className="text-xs">Conta financeira</Label><Input value={editing.conta_financeira ?? ""} onChange={(e) => setEditing({ ...editing, conta_financeira: e.target.value })} /></div>
+              <div>
+                <Label className="text-xs">Categoria</Label>
+                <Select
+                  value={editing.categoria || "__none"}
+                  onValueChange={(v) => {
+                    const val = v === "__none" ? "" : v;
+                    const meta = catCadastro.findMeta(val);
+                    setEditing({
+                      ...editing,
+                      categoria: val,
+                      conta_financeira: meta?.conta_financeira ? String(meta.conta_financeira) : (editing.conta_financeira ?? ""),
+                    });
+                  }}
+                >
+                  <SelectTrigger><SelectValue placeholder="Selecione…" /></SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="__none">—</SelectItem>
+                    {catCadastro.options.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <Label className="text-xs">Conta financeira</Label>
+                <Input value={editing.conta_financeira ?? ""} onChange={(e) => setEditing({ ...editing, conta_financeira: e.target.value })} placeholder="Auto pela categoria" />
+              </div>
             </div>
           )}
           <DialogFooter>

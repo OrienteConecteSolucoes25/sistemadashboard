@@ -20,11 +20,13 @@ type Props = {
   fieldKey: string;
   title: string;
   metaFields?: MetaField[]; // colunas extras (Centro de Custo, Comprador, SLA, etc.)
+  valueLabel?: string;      // rótulo da coluna principal (default "Nome")
+  valuePlaceholder?: string;
 };
 
 type Row = { id: string; field_key: string; value: string; meta: Record<string, any> };
 
-export function CadastroSimplesCrud({ fieldKey, title, metaFields = [] }: Props) {
+export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLabel = "Nome", valuePlaceholder = "" }: Props) {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
@@ -110,7 +112,7 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [] }: Props)
 
   const exportar = (fmt: "xlsx" | "csv") => {
     const data = filtradas.map((r) => {
-      const o: any = { Nome: r.value };
+      const o: any = { [valueLabel]: r.value };
       metaFields.forEach((f) => { o[f.label] = r.meta?.[f.key] ?? ""; });
       return o;
     });
@@ -121,7 +123,7 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [] }: Props)
   };
 
   const baixarModelo = (fmt: "xlsx" | "csv") => {
-    const headers: any = { Nome: "" };
+    const headers: any = { [valueLabel]: "" };
     metaFields.forEach((f) => { headers[f.label] = ""; });
     const ws = XLSX.utils.json_to_sheet([headers]);
     const wb = XLSX.utils.book_new();
@@ -139,7 +141,7 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [] }: Props)
       const norm = (s: string) => s.toString().toLowerCase().trim();
       for (const r of json) {
         const keys = Object.keys(r);
-        const nameKey = keys.find((k) => norm(k) === "nome" || norm(k) === "value");
+        const nameKey = keys.find((k) => norm(k) === "nome" || norm(k) === "value" || norm(k) === norm(valueLabel));
         const value = nameKey ? String(r[nameKey] ?? "").trim() : "";
         if (!value) continue;
         const meta: Record<string, any> = {};
@@ -226,8 +228,8 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [] }: Props)
         {/* Form de adição */}
         <div className="grid gap-2 md:grid-cols-12 items-end border rounded-md p-2 bg-muted/40">
           <div className={`md:col-span-${Math.max(3, 12 - (metaFields.length * 3) - 2)}`}>
-            <Label className="text-[10px]">Nome *</Label>
-            <Input value={novoValor} onChange={(e) => setNovoValor(e.target.value)} placeholder="Ex: NEOENERGIA SP" />
+            <Label className="text-[10px]">{valueLabel} *</Label>
+            <Input value={novoValor} onChange={(e) => setNovoValor(e.target.value)} placeholder={valuePlaceholder} />
           </div>
           {metaFields.map((f) => (
             <div key={f.key} className="md:col-span-3">
@@ -251,7 +253,7 @@ export function CadastroSimplesCrud({ fieldKey, title, metaFields = [] }: Props)
           <table className="w-full text-sm">
             <thead className="bg-muted/60">
               <tr>
-                <th className="text-left px-2 py-1.5">Nome</th>
+                <th className="text-left px-2 py-1.5">{valueLabel}</th>
                 {metaFields.map((f) => (
                   <th key={f.key} className="text-left px-2 py-1.5">{f.label}</th>
                 ))}

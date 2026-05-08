@@ -43,15 +43,24 @@ interface Solicit {
 const STATUS_SOL = ["aberta", "em_cotacao", "comprada", "recebida", "cancelada"];
 const ALL = "__all__";
 
-function ScRcPanel({ solicitId, onClose }: { solicitId: string; onClose: () => void }) {
+function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit?: Solicit | null; onClose: () => void }) {
   const [rows, setRows] = useState<ScRcRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editDraft, setEditDraft] = useState<Partial<ScRcRow>>({});
+  const sd = (solicit?.data || {}) as any;
+  const itens = Array.isArray(solicit?.itens) ? (solicit!.itens as any[]) : [];
+  const tipoSol = String(sd.tipo || "").toLowerCase();
+  const isRequisicao = tipoSol.includes("requisi"); // requisição → uma RC junta
   const [novo, setNovo] = useState({
-    tipo_documento: "SC", numero_documento: "", categoria: "",
-    conta_financeira: "", centro_custo: "", observacao: "",
-    status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10),
+    tipo_documento: isRequisicao ? "RC" : "SC",
+    numero_documento: "",
+    categoria: sd.categoria || "",
+    conta_financeira: sd.conta_financeira || "",
+    centro_custo: sd.cc || "",
+    observacao: "",
+    status: "SOLICITADO",
+    data_solicitacao: new Date().toISOString().slice(0, 10),
   });
 
   const load = async () => {
@@ -66,7 +75,7 @@ function ScRcPanel({ solicitId, onClose }: { solicitId: string; onClose: () => v
     try {
       await createScRc({ ...novo, solicit_id: solicitId } as any);
       toast.success("Documento adicionado");
-      setNovo({ tipo_documento: "SC", numero_documento: "", categoria: "", conta_financeira: "", centro_custo: "", observacao: "", status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10) });
+      setNovo({ tipo_documento: isRequisicao ? "RC" : "SC", numero_documento: "", categoria: sd.categoria || "", conta_financeira: sd.conta_financeira || "", centro_custo: sd.cc || "", observacao: "", status: "SOLICITADO", data_solicitacao: new Date().toISOString().slice(0, 10) });
       load();
     } catch (e) { toast.error(String(e)); }
   };
@@ -92,7 +101,37 @@ function ScRcPanel({ solicitId, onClose }: { solicitId: string; onClose: () => v
   return (
     <Dialog open onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader><DialogTitle className="font-display flex items-center gap-2"><FileText className="h-5 w-5 text-primary" />SC / RC vinculados</DialogTitle></DialogHeader>
+        <DialogHeader><DialogTitle className="font-display flex items-center gap-2"><FileText className="h-5 w-5 text-primary" />SC / RC vinculados {solicit?.numero ? `— ${solicit.numero}` : ""}</DialogTitle></DialogHeader>
+
+        {itens.length > 0 && (
+          <Card className="card-elegant">
+            <CardContent className="pt-3">
+              <div className="text-xs font-semibold mb-1.5 flex items-center gap-2">
+                Materiais da solicitação ({itens.length})
+                {isRequisicao
+                  ? <Badge variant="secondary" className="text-[10px]">Requisição: vincule todos em uma única RC</Badge>
+                  : <Badge variant="outline" className="text-[10px]">Crie uma SC/RC por categoria</Badge>}
+              </div>
+              <div className="max-h-40 overflow-y-auto border rounded">
+                <table className="w-full text-xs">
+                  <thead className="bg-muted/50">
+                    <tr><th className="px-2 py-1 text-left">Descrição</th><th className="px-2 py-1 text-left">Categoria</th><th className="px-2 py-1 w-16">Unid.</th><th className="px-2 py-1 w-14">Qtd</th></tr>
+                  </thead>
+                  <tbody>
+                    {itens.map((it: any, i: number) => (
+                      <tr key={i} className="border-t">
+                        <td className="px-2 py-1">{it.descricao}</td>
+                        <td className="px-2 py-1 text-muted-foreground">{it.categoria || sd.categoria || "—"}</td>
+                        <td className="px-2 py-1">{it.unidade}</td>
+                        <td className="px-2 py-1">{it.quantidade}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
+        )}
 
         <Card className="card-elegant">
           <CardContent className="pt-4 grid gap-2 md:grid-cols-8 items-end">
@@ -315,6 +354,8 @@ const SuprimentosPage = () => {
         <thead className="bg-muted/60 border-b">
           <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
             <th className="px-3 py-2.5">ID</th><th className="px-3 py-2.5">Descrição</th>
+            <th className="px-3 py-2.5">Cliente</th>
+            <th className="px-3 py-2.5">Cidade / UF</th>
             <th className="px-3 py-2.5">Solicitante</th><th className="px-3 py-2.5">Responsável</th>
             <th className="px-3 py-2.5">Prazo</th><th className="px-3 py-2.5">Status</th>
             <th className="px-3 py-2.5">SC/RC</th><th className="px-3 py-2.5 w-20"></th>
@@ -322,13 +363,18 @@ const SuprimentosPage = () => {
         </thead>
         <tbody>
           {loading ? (
-            <tr><td colSpan={8} className="px-3 py-12 text-center text-muted-foreground">Carregando…</td></tr>
+            <tr><td colSpan={10} className="px-3 py-12 text-center text-muted-foreground">Carregando…</td></tr>
           ) : filtered.length === 0 ? (
-            <tr><td colSpan={8} className="px-3 py-12 text-center text-muted-foreground">Nenhuma solicitação.</td></tr>
-          ) : filtered.map((r) => (
+            <tr><td colSpan={10} className="px-3 py-12 text-center text-muted-foreground">Nenhuma solicitação.</td></tr>
+          ) : filtered.map((r) => {
+            const d = (r.data || {}) as any;
+            const cidUf = [d.cidade, d.uf].filter(Boolean).join(" / ");
+            return (
             <tr key={r.id} className="border-b last:border-0 hover:bg-accent/30 cursor-pointer transition-colors" onClick={() => openEdit(r)}>
               <td className="px-3 py-2.5 font-medium">{r.numero || "—"}</td>
               <td className="px-3 py-2.5 max-w-[280px] truncate text-muted-foreground">{r.descricao || "—"}</td>
+              <td className="px-3 py-2.5">{d.cliente || "—"}</td>
+              <td className="px-3 py-2.5">{cidUf || "—"}</td>
               <td className="px-3 py-2.5">{r.solicitante || "—"}</td>
               <td className="px-3 py-2.5">{r.responsavel || "—"}</td>
               <td className={`px-3 py-2.5 ${isOverdue(r.prazo) && !["concluida", "comprada", "recebida", "cancelada"].includes(String(r.status)) ? "text-destructive font-medium" : ""}`}>{fmtDate(r.prazo)}</td>
@@ -344,7 +390,7 @@ const SuprimentosPage = () => {
                 <Button variant="ghost" size="icon" className="h-7 w-7 text-muted-foreground hover:text-destructive" onClick={() => excluir(r.id)}><Trash2 className="h-4 w-4" /></Button>
               </td>
             </tr>
-          ))}
+          );})}
         </tbody>
       </table>
     </Card>
@@ -459,7 +505,7 @@ const SuprimentosPage = () => {
         </DialogContent>
       </Dialog>
 
-      {scrcOpen && <ScRcPanel solicitId={scrcOpen} onClose={() => { setScrcOpen(null); load(); }} />}
+      {scrcOpen && <ScRcPanel solicitId={scrcOpen} solicit={rows.find(x => x.id === scrcOpen) ?? null} onClose={() => { setScrcOpen(null); load(); }} />}
 
       <EnviarOutlookRcDialog
         open={!!outlookId}

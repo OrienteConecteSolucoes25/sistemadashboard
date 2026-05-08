@@ -30,6 +30,7 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
   const tipos = useFieldOptions("tipo");
   const coords = useFieldOptions("coordenador");
   const clientes = useFieldOptions("cliente");
+  const ccCadastro = useFieldOptions("centro_custo"); // cliente -> { centro_custo }
   const categorias = useFieldOptions("categoria");
   const compradores = useFieldOptions("comprador");
   const escopos = useFieldOptions("escopo");
@@ -39,6 +40,7 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
   const [cliente, setCliente] = useState("");
   const [cc, setCc] = useState("");
   const [categoria, setCategoria] = useState("");
+  const [contaFin, setContaFin] = useState("");
   const [comprador, setComprador] = useState("");
   const [escopo, setEscopo] = useState("");
   const [site, setSite] = useState("");
@@ -69,24 +71,33 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
     } catch { /* opcional */ }
   })(); }, []);
 
-  // Auto-preencher CC quando cliente muda
+  // Auto-preencher CC quando cliente muda (prioriza cadastro centro_custo)
   useEffect(() => {
     if (!cliente) return;
-    const meta = clientes.findMeta(cliente);
-    if (meta?.cc) setCc(String(meta.cc));
-  }, [cliente, clientes]);
+    const ccMeta = ccCadastro.findMeta(cliente);
+    const cliMeta = clientes.findMeta(cliente);
+    const v = ccMeta?.centro_custo || cliMeta?.cc || "";
+    if (v) setCc(String(v));
+  }, [cliente, clientes, ccCadastro]);
 
-  // Auto-preencher Comprador e SLA quando categoria muda
+  // Auto-preencher Comprador, Conta Financeira e SLA quando categoria muda
   useEffect(() => {
     if (!categoria) return;
     const meta = categorias.findMeta(categoria);
     if (meta?.comprador) setComprador(String(meta.comprador));
+    let conta = meta?.conta_financeira ? String(meta.conta_financeira) : "";
+    if (!conta) {
+      // fallback: tenta do catálogo de materiais (primeiro material com essa categoria)
+      const mat = catalogo.find((m) => m.categoria === categoria && m.conta_financeira);
+      if (mat) conta = mat.conta_financeira;
+    }
+    if (conta) setContaFin(conta);
     if (meta?.sla_dias && dataSol) {
       const base = new Date(dataSol);
       base.setDate(base.getDate() + Number(meta.sla_dias));
       setDataLimite(base.toISOString().slice(0, 10));
     }
-  }, [categoria, dataSol, categorias]);
+  }, [categoria, dataSol, categorias, catalogo]);
 
   // Auto cidade/UF do site
   useEffect(() => {
@@ -114,6 +125,9 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
         unidade: mat.unidade || "UN",
         quantidade: novoItem.quantidade || "1",
       });
+      // Auto-define a categoria global quando ainda não escolhida
+      if (mat.categoria && !categoria) setCategoria(mat.categoria);
+      if (mat.categoria && mat.conta_financeira && !contaFin) setContaFin(mat.conta_financeira);
     } else {
       setNovoItem({ ...novoItem, descricao });
     }
@@ -191,7 +205,7 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
         prazo: dataLimite,
         itens: itens as any,
         data: {
-          tipo, coord, cliente, cc, categoria, comprador, escopo,
+          tipo, coord, cliente, cc, categoria, conta_financeira: contaFin, comprador, escopo,
           site, site_id: siteId, cidade, uf,
           auxiliar, data_sol: dataSol, data_limite: dataLimite,
           tecnico, endereco, obs, anexo: anexoUrl,
@@ -201,7 +215,7 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
       toast.success(`Solicitação ${numero} criada (pendente de SC/RC)`);
 
       // reset
-      setTipo(""); setCoord(""); setCliente(""); setCc(""); setCategoria(""); setComprador("");
+      setTipo(""); setCoord(""); setCliente(""); setCc(""); setCategoria(""); setContaFin(""); setComprador("");
       setEscopo(""); setSite(""); setCidade(""); setUf(""); setAuxiliar("");
       setDataSol(""); setDataLimite(""); setTecnico(""); setEndereco(""); setObs("");
       setAnexo(null); setItens([]);
@@ -235,13 +249,9 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
             <Input value={cc} onChange={(e) => setCc(e.target.value)} />
           </Field>
 
-          <Field label="Categoria *">
-            <SelectBox value={categoria} onChange={setCategoria} options={categorias.options} />
-          </Field>
           <Field label="Comprador (editável)">
             <SelectBox value={comprador} onChange={setComprador} options={compradores.options} />
           </Field>
-
           <Field label="Escopo de engenharia *">
             <SelectBox value={escopo} onChange={setEscopo} options={escopos.options} />
           </Field>
@@ -305,6 +315,18 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
             <Button size="sm" variant="outline" onClick={adicionarOutroMaterial}>
               Outros (novo material)
             </Button>
+          </div>
+
+          {/* Categoria + Conta financeira atrelados aos itens */}
+          <div className="grid gap-2 md:grid-cols-12">
+            <div className="md:col-span-6">
+              <Label className="text-[10px]">Categoria *</Label>
+              <SelectBox value={categoria} onChange={setCategoria} options={categorias.options} />
+            </div>
+            <div className="md:col-span-6">
+              <Label className="text-[10px]">Conta financeira (auto)</Label>
+              <Input value={contaFin} onChange={(e) => setContaFin(e.target.value)} placeholder="Preenchido automaticamente pela categoria/material" />
+            </div>
           </div>
 
           <div className="grid gap-2 md:grid-cols-12 items-end">
