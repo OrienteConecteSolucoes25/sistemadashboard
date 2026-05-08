@@ -248,78 +248,130 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
 
   // Importar SC/RC com auto-fill por material/categoria
   const handleImport = async (file: File) => {
+    const norm = (s: string) => String(s || "")
+      .trim()
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[º°]/g, "o")
+      .replace(/[^a-z0-9]+/g, "_")
+      .replace(/^_+|_+$/g, "");
+    const pick = (obj: Record<string, any>, keys: string[]) => {
+      for (const key of keys) {
+        const value = obj[norm(key)] ?? obj[key];
+        if (value !== undefined && value !== null && String(value).trim() !== "") return value;
+      }
+      return "";
+    };
+    const isBlankRow = (obj: Record<string, any>) => Object.values(obj).every((v) => String(v ?? "").trim() === "");
+    const normalizeDate = (value: unknown) => {
+      if (value === null || value === undefined || String(value).trim() === "") return null;
+      if (value instanceof Date && !Number.isNaN(value.getTime())) return value.toISOString().slice(0, 10);
+      if (typeof value === "number" && Number.isFinite(value)) {
+        const parsed = XLSX.SSF.parse_date_code(value);
+        if (parsed) {
+          const yyyy = String(parsed.y).padStart(4, "0");
+          const mm = String(parsed.m).padStart(2, "0");
+          const dd = String(parsed.d).padStart(2, "0");
+          return `${yyyy}-${mm}-${dd}`;
+        }
+      }
+      const text = String(value).trim();
+      if (!text) return null;
+      const br = text.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (br) return `${br[3]}-${br[2].padStart(2, "0")}-${br[1].padStart(2, "0")}`;
+      const iso = text.match(/^(\d{4})-(\d{2})-(\d{2})/);
+      if (iso) return `${iso[1]}-${iso[2]}-${iso[3]}`;
+      const parsed = new Date(text);
+      return Number.isNaN(parsed.getTime()) ? null : parsed.toISOString().slice(0, 10);
+    };
+
     try {
       const buf = await file.arrayBuffer();
-      const wb = XLSX.read(buf);
+      const wb = XLSX.read(buf, { type: "array", cellDates: true });
       const ws = wb.Sheets[wb.SheetNames[0]];
-      const raw = XLSX.utils.sheet_to_json<any>(ws, { defval: "" });
-      const norm = (s: string) => String(s || "")
-        .trim()
-        .toLowerCase()
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[º°]/g, "o")
-        .replace(/[^a-z0-9]+/g, "_")
-        .replace(/^_+|_+$/g, "");
-      const pick = (obj: Record<string, any>, keys: string[]) => {
-        for (const key of keys) {
-          const value = obj[key];
-          if (value !== undefined && value !== null && String(value).trim() !== "") return value;
-        }
-        return "";
-      };
-      const isBlankRow = (obj: Record<string, any>) => Object.values(obj).every((v) => String(v ?? "").trim() === "");
+      if (!ws) {
+        toast.error("A planilha não possui abas válidas para importar");
+        return;
+      }
 
-      let ok = 0, skip = 0;
-      for (const row of raw) {
-        // normaliza cabeçalhos
+      const raw = XLSX.utils.sheet_to_json<any>(ws, { defval: "", raw: true });
+      let ok = 0;
+      let skip = 0;
+      const errors: string[] = [];
+
+      for (const [index, row] of raw.entries()) {
         const r: Record<string, any> = {};
         for (const [k, v] of Object.entries(row)) r[norm(k)] = typeof v === "string" ? v.trim() : v;
 
-        if (isBlankRow(r)) { skip++; continue; }
+        if (isBlankRow(r)) {
+          skip++;
+          continue;
+        }
 
-        const tipo = String(pick(r, ["tipo_documento", "tipo"]) || (isRequisicao ? "RC" : "SC")).toUpperCase();
-        const numero = String(pick(r, ["numero_documento", "numero", "no_documento", "n_documento", "n_doc", "documento"])).trim();
-        let categoria = String(pick(r, ["categoria"])).trim();
-        let item_descricao = String(pick(r, ["item_descricao", "material", "descricao"])).trim() || null;
-        let conta_financeira = String(pick(r, ["conta_financeira", "conta_fin", "conta"])).trim();
-        let centro_custo = String(pick(r, ["centro_custo", "cc"]) || sd.cc || "").trim();
+        try {
+          const tipoRaw = String(pick(r, ["tipo_documento", "tipo", "tipo_doc", "documento_tipo"]) || (isRequisicao ? "RC" : "SC")).toUpperCase();
+          const tipo = tipoRaw === "RC" ? "RC" : "SC";
+          const numeroInformado = String(pick(r, [
+            "numero_documento", "numero_do_documento", "numero_documento_sc_rc", "numero_sc", "numero_rc",
+            "numero", "no_documento", "n_documento", "n_doc", "documento", "doc", "sc_rc",
+          ])).trim();
+          const numero = numeroInformado || `PREENCHER-${solicit?.numero || solicitId.slice(0, 8)}-${index + 1}`;
+          let categoria = String(pick(r, ["categoria", "categoria_material", "categoria_do_material", "grupo_categoria"])).trim();
+          let item_descricao = String(pick(r, ["item_descricao", "material", "material_descricao", "descricao_material", "descricao"])).trim() || null;
+          let conta_financeira = String(pick(r, ["conta_financeira", "conta_financeira_codigo", "conta_fin", "conta", "conta_financeira_contabil"])).trim();
+          let centro_custo = String(pick(r, ["centro_custo", "centro_de_custo", "cc", "custo_centro"]) || sd.cc || "").trim();
 
-        // Auto-fill via catálogo se houver material
-        if (item_descricao) {
-          const mat = catalogo.find((m) => m.descricao.toLowerCase() === String(item_descricao).toLowerCase());
-          if (mat) {
-            if (!categoria && mat.categoria) categoria = mat.categoria;
-            if (!conta_financeira && mat.conta_financeira) conta_financeira = mat.conta_financeira;
+          if (item_descricao) {
+            const itemNorm = norm(item_descricao);
+            const mat = catalogo.find((m) => norm(String(m.descricao || "")) === itemNorm);
+            if (mat) {
+              if (!categoria && mat.categoria) categoria = mat.categoria;
+              if (!conta_financeira && mat.conta_financeira) conta_financeira = mat.conta_financeira;
+            }
           }
-        }
-        // Se não veio conta, tenta achar pelo primeiro material da categoria
-        if (!conta_financeira && categoria) {
-          const mat = catalogo.find((m) => m.categoria === categoria && m.conta_financeira);
-          if (mat) conta_financeira = mat.conta_financeira;
-        }
 
-        await createScRc({
-          solicit_id: solicitId,
-          tipo_documento: tipo,
-          numero_documento: numero,
-          item_descricao,
-          categoria: categoria || null,
-          conta_financeira: conta_financeira || null,
-          centro_custo: centro_custo || null,
-          observacao: String(pick(r, ["observacao"]) || "") || null,
-          status: String(pick(r, ["status"]) || "SOLICITADO"),
-          data_solicitacao: String(pick(r, ["data_solicitacao"]) || "").slice(0, 10) || null,
-          auxiliar: String(pick(r, ["auxiliar"]) || "") || null,
-          responsavel: String(pick(r, ["responsavel"]) || "") || null,
-          coordenador: String(pick(r, ["coordenador"]) || "") || null,
-          data_finalizacao_compra: String(pick(r, ["data_finalizacao_compra", "fim_compra"]) || "").slice(0, 10) || null,
-          data_finalizacao_logistica: String(pick(r, ["data_finalizacao_logistica", "fim_logistica"]) || "").slice(0, 10) || null,
-        } as any);
-        ok++;
+          if (!conta_financeira && categoria) {
+            const categoriaNorm = norm(categoria);
+            const mat = catalogo.find((m) => norm(String(m.categoria || "")) === categoriaNorm && m.conta_financeira);
+            if (mat) conta_financeira = mat.conta_financeira;
+          }
+
+          await createScRc({
+            solicit_id: solicitId,
+            tipo_documento: tipo,
+            numero_documento: numero,
+            item_descricao,
+            categoria: categoria || null,
+            conta_financeira: conta_financeira || null,
+            centro_custo: centro_custo || null,
+            observacao: String(pick(r, ["observacao", "observacoes", "obs"]) || "") || null,
+            status: String(pick(r, ["status", "situacao"]) || "SOLICITADO"),
+            data_solicitacao: normalizeDate(pick(r, ["data_solicitacao", "data_solicitacao_sc", "data", "emissao", "data_emissao"])),
+            auxiliar: String(pick(r, ["auxiliar", "nome_auxiliar"]) || "") || null,
+            responsavel: String(pick(r, ["responsavel", "responsavel_compra", "comprador_responsavel"]) || "") || null,
+            coordenador: String(pick(r, ["coordenador", "coordenador_solicitante", "solicitado_por"]) || "") || null,
+            data_finalizacao_compra: normalizeDate(pick(r, ["data_finalizacao_compra", "fim_compra", "data_fim_compra", "finalizacao_compra"])),
+            data_finalizacao_logistica: normalizeDate(pick(r, ["data_finalizacao_logistica", "fim_logistica", "fim_logistica", "data_fim_logistica", "finalizacao_logistica"])),
+          } as any);
+          ok++;
+        } catch (rowError: any) {
+          errors.push(`linha ${index + 2}: ${rowError?.message ?? rowError}`);
+        }
       }
-      toast.success(`${ok} importados${skip ? ` · ${skip} linha(s) vazia(s) ignorada(s)` : ""}`);
-      load();
+
+      if (ok > 0) {
+        toast.success(`${ok} importados${skip ? ` · ${skip} linha(s) vazia(s) ignorada(s)` : ""}${errors.length ? ` · ${errors.length} com ajuste manual` : ""}`);
+        load();
+      }
+
+      if (errors.length > 0) {
+        toast.error(`Algumas linhas não entraram: ${errors.slice(0, 3).join(" · ")}${errors.length > 3 ? " · ..." : ""}`);
+      }
+
+      if (ok === 0 && errors.length === 0) {
+        toast.warning("Nenhuma linha válida foi encontrada na planilha");
+      }
     } catch (e: any) {
       toast.error("Falha ao importar: " + (e?.message ?? e));
     }
@@ -344,7 +396,7 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
             <FileText className="h-4 w-4 mr-1" /> Modelo
           </Button>
           <span className="text-[11px] text-muted-foreground ml-2">
-            Modelo / exportação incluem todas as colunas do formulário. Campos vazios podem ser importados e ajustados depois.
+            Modelo / exportação incluem todas as colunas do formulário. Campos vazios entram no import e, sem número, recebem um código provisório para editar depois.
           </span>
         </div>
 
