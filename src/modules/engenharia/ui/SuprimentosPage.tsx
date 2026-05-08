@@ -506,7 +506,7 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
                       const groupKey = `${r.tipo_documento}|${r.numero_documento}`;
                       const groupSize = groupedByNumber[groupKey]?.length || 1;
                       return (
-                      <tr key={r.id} className="border-b last:border-0">
+                      <tr key={r.id} className="border-b last:border-0" onDoubleClick={() => { if (!isEditing) startEdit(r); }}>
                         <td className="px-3 py-2">
                           <Checkbox
                             checked={sel.isSelected(r.id)}
