@@ -296,6 +296,7 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
       }
 
       const raw = XLSX.utils.sheet_to_json<any>(ws, { defval: "", raw: true });
+      console.log(`[SC/RC import] planilha lida: ${raw.length} linhas`);
       let ok = 0;
       let skip = 0;
       const errors: string[] = [];
@@ -356,17 +357,21 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
           } as any);
           ok++;
         } catch (rowError: any) {
-          errors.push(`linha ${index + 2}: ${rowError?.message ?? rowError}`);
+          const msg = rowError?.message ?? String(rowError);
+          console.error(`[SC/RC import] linha ${index + 2} falhou:`, rowError, row);
+          errors.push(`linha ${index + 2}: ${msg}`);
         }
       }
 
+      console.log(`[SC/RC import] resultado: ok=${ok} · skip=${skip} · erros=${errors.length} · total=${raw.length}`);
+
       if (ok > 0) {
-        toast.success(`${ok} importados${skip ? ` · ${skip} linha(s) vazia(s) ignorada(s)` : ""}${errors.length ? ` · ${errors.length} com ajuste manual` : ""}`);
+        toast.success(`${ok} de ${raw.length} importados${skip ? ` · ${skip} vazia(s)` : ""}${errors.length ? ` · ${errors.length} com erro` : ""}`);
         load();
       }
 
       if (errors.length > 0) {
-        toast.error(`Algumas linhas não entraram: ${errors.slice(0, 3).join(" · ")}${errors.length > 3 ? " · ..." : ""}`);
+        toast.error(`${errors.length} linha(s) falharam (veja o console F12): ${errors.slice(0, 2).join(" · ")}${errors.length > 2 ? " · ..." : ""}`, { duration: 8000 });
       }
 
       if (ok === 0 && errors.length === 0) {
