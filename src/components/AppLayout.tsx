@@ -17,7 +17,7 @@ const AppLayout = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
   const { hasAccess: engAccess } = useEngenhariaAccess();
   const { hasAccess: jurAccess } = useJuridicoAccess();
-  const { isFinanceiro, isCompanyAdmin, companyId } = usePlanosAccess();
+  const { isFinanceiro, isCompanyAdmin, companyId, isOcsStaff, canSeeMinhaEmpresa } = usePlanosAccess();
   const { hasAccess: rhdpAccess } = useRhdpAccess();
   const { hasAccess: creaAccess } = useCreaAccess();
   const loc = useLocation();
