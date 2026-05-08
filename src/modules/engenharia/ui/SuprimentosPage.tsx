@@ -432,7 +432,7 @@ const SuprimentosPage = () => {
       <table className="w-full text-sm">
         <thead className="bg-muted/60 border-b">
           <tr className="text-left text-xs uppercase tracking-wide text-muted-foreground">
-            <th className="px-3 py-2.5">ID</th>
+            <th className="px-3 py-2.5">Site / Obra</th>
             <th className="px-3 py-2.5">Cliente</th>
             <th className="px-3 py-2.5">Cidade / UF</th>
             <th className="px-3 py-2.5">Solicitante</th><th className="px-3 py-2.5">Responsável</th>
