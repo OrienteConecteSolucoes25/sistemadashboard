@@ -439,19 +439,41 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
         </div>
       </CardContent>
 
-      <SolicitacoesAbertas rows={rows} onChanged={onCreated} />
+      <SolicitacoesAbertas rows={rows} onChanged={onCreated} catalogo={catalogo} categoriasHook={categorias} />
     </Card>
   );
 }
 
 // Painel inferior: solicitações já criadas com materiais ainda não atrelados a SC/RC
-function SolicitacoesAbertas({ rows, onChanged }: { rows: any[]; onChanged: () => void }) {
+function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { rows: any[]; onChanged: () => void; catalogo: any[]; categoriasHook: ReturnType<typeof useFieldOptions> }) {
   const [scrcByNum, setScrcByNum] = useState<Record<string, Set<string>>>({});
   const [loading, setLoading] = useState(true);
   const [openId, setOpenId] = useState<string | null>(null);
   const [addingDesc, setAddingDesc] = useState("");
   const [addingQtd, setAddingQtd] = useState("1");
   const [addingUn, setAddingUn] = useState("UN");
+  const [addingCategoria, setAddingCategoria] = useState("");
+  const [addingConta, setAddingConta] = useState("");
+  const [addingMaterialId, setAddingMaterialId] = useState<string | undefined>(undefined);
+
+  const escolherMatPainel = (descricao: string) => {
+    setAddingDesc(descricao);
+    const mat = catalogo.find((c) => c.descricao === descricao);
+    if (!mat) return;
+    setAddingMaterialId(mat.id);
+    if (mat.unidade) setAddingUn(mat.unidade);
+    if (mat.categoria) setAddingCategoria(mat.categoria);
+    if (mat.conta_financeira) {
+      setAddingConta(mat.conta_financeira);
+    } else if (mat.categoria) {
+      const meta = categoriasHook.findMeta(mat.categoria);
+      if (meta?.conta_financeira) setAddingConta(String(meta.conta_financeira));
+      else {
+        const outro = catalogo.find((m: any) => m.categoria === mat.categoria && m.conta_financeira);
+        if (outro) setAddingConta(outro.conta_financeira);
+      }
+    }
+  };
 
   const load = async () => {
     setLoading(true);
@@ -481,18 +503,27 @@ function SolicitacoesAbertas({ rows, onChanged }: { rows: any[]; onChanged: () =
   const adicionarItem = async (solicit: any) => {
     if (!addingDesc.trim()) { toast.error("Descrição obrigatória"); return; }
     const novosItens = [...(Array.isArray(solicit.itens) ? solicit.itens : []), {
-      descricao: addingDesc.trim(), unidade: addingUn, quantidade: addingQtd,
+      material_id: addingMaterialId,
+      descricao: addingDesc.trim(),
+      categoria: addingCategoria || undefined,
+      conta_financeira: addingConta || undefined,
+      unidade: addingUn,
+      quantidade: addingQtd,
     }];
     const { error } = await supabase.from("eng_suprimentos")
       .update({ itens: novosItens } as any).eq("id", solicit.id);
     if (error) { toast.error(error.message); return; }
     toast.success("Material adicionado à solicitação");
-    setAddingDesc(""); setAddingQtd("1"); setAddingUn("UN"); setOpenId(null);
+    setAddingDesc(""); setAddingQtd("1"); setAddingUn("UN");
+    setAddingCategoria(""); setAddingConta(""); setAddingMaterialId(undefined);
+    setOpenId(null);
     onChanged();
   };
 
   if (loading) return null;
   if (pendentesPorSolicit.length === 0) return null;
+
+  const catalogoFiltrado = catalogo.slice(0, 800);
 
   return (
     <CardContent className="pt-0">
@@ -523,28 +554,50 @@ function SolicitacoesAbertas({ rows, onChanged }: { rows: any[]; onChanged: () =
                   </ul>
                 </div>
                 {isOpen && (
-                  <div className="mt-3 grid gap-2 md:grid-cols-12 items-end">
-                    <div className="md:col-span-7">
-                      <Label className="text-[10px]">Descrição</Label>
-                      <Input value={addingDesc} onChange={(e) => setAddingDesc(e.target.value)} placeholder="Material a adicionar…" />
+                  <div className="mt-3 space-y-2">
+                    <div className="grid gap-2 md:grid-cols-12 items-end">
+                      <div className="md:col-span-7">
+                        <Label className="text-[10px]">Descrição do material</Label>
+                        <Input
+                          list={`cat-mat-painel-${s.id}`}
+                          value={addingDesc}
+                          onChange={(e) => escolherMatPainel(e.target.value)}
+                          placeholder="Digite para buscar no catálogo…"
+                        />
+                        <datalist id={`cat-mat-painel-${s.id}`}>
+                          {catalogoFiltrado.map((m: any) => (
+                            <option key={m.id} value={m.descricao}>{m.codigo} — {m.categoria}</option>
+                          ))}
+                        </datalist>
+                      </div>
+                      <div className="md:col-span-2">
+                        <Label className="text-[10px]">Unidade</Label>
+                        <Select value={addingUn} onValueChange={setAddingUn}>
+                          <SelectTrigger><SelectValue /></SelectTrigger>
+                          <SelectContent>
+                            {UNIDADES.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div className="md:col-span-1">
+                        <Label className="text-[10px]">Qtd</Label>
+                        <Input value={addingQtd} onChange={(e) => setAddingQtd(e.target.value)} />
+                      </div>
+                      <div className="md:col-span-2">
+                        <Button size="sm" className="w-full" onClick={() => adicionarItem(s)}>
+                          <Plus className="w-4 h-4 mr-1" />Adicionar
+                        </Button>
+                      </div>
                     </div>
-                    <div className="md:col-span-2">
-                      <Label className="text-[10px]">Unidade</Label>
-                      <Select value={addingUn} onValueChange={setAddingUn}>
-                        <SelectTrigger><SelectValue /></SelectTrigger>
-                        <SelectContent>
-                          {UNIDADES.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                    <div className="md:col-span-1">
-                      <Label className="text-[10px]">Qtd</Label>
-                      <Input value={addingQtd} onChange={(e) => setAddingQtd(e.target.value)} />
-                    </div>
-                    <div className="md:col-span-2">
-                      <Button size="sm" className="w-full" onClick={() => adicionarItem(s)}>
-                        <Plus className="w-4 h-4 mr-1" />Adicionar
-                      </Button>
+                    <div className="grid gap-2 md:grid-cols-12">
+                      <div className="md:col-span-6">
+                        <Label className="text-[10px]">Categoria (auto)</Label>
+                        <Input value={addingCategoria} onChange={(e) => setAddingCategoria(e.target.value)} placeholder="Auto pelo material" />
+                      </div>
+                      <div className="md:col-span-6">
+                        <Label className="text-[10px]">Conta financeira (auto)</Label>
+                        <Input value={addingConta} onChange={(e) => setAddingConta(e.target.value)} placeholder="Auto pela categoria/material" />
+                      </div>
                     </div>
                   </div>
                 )}
