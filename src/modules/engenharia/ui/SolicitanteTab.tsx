@@ -710,17 +710,12 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
                     <div className="grid gap-2 md:grid-cols-12 items-end">
                       <div className="md:col-span-7">
                         <Label className="text-[10px]">Descrição do material</Label>
-                        <Input
-                          list={`cat-mat-painel-${s.id}`}
+                        <MaterialCombobox
+                          catalogo={catalogo}
                           value={addingDesc}
-                          onChange={(e) => escolherMatPainel(e.target.value)}
-                          placeholder="Digite para buscar no catálogo…"
+                          onChange={escolherMatPainel}
+                          placeholder="Buscar no catálogo (código, descrição, categoria)…"
                         />
-                        <datalist id={`cat-mat-painel-${s.id}`}>
-                          {catalogoFiltrado.map((m: any) => (
-                            <option key={m.id} value={`${m.codigo} — ${m.descricao}`}>{m.categoria || ""}</option>
-                          ))}
-                        </datalist>
                       </div>
                       <div className="md:col-span-2">
                         <Label className="text-[10px]">Unidade</Label>
