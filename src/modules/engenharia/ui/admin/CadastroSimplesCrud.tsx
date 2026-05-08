@@ -26,7 +26,7 @@ type Props = {
 
 type Row = { id: string; field_key: string; value: string; meta: Record<string, any> };
 
-export function CadastroSimplesCrud({ fieldKey, title, metaFields = [] }: Props) {
+export function CadastroSimplesCrud({ fieldKey, title, metaFields = [], valueLabel = "Nome", valuePlaceholder = "" }: Props) {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [q, setQ] = useState("");
