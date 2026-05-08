@@ -125,6 +125,9 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
         unidade: mat.unidade || "UN",
         quantidade: novoItem.quantidade || "1",
       });
+      // Auto-define a categoria global quando ainda não escolhida
+      if (mat.categoria && !categoria) setCategoria(mat.categoria);
+      if (mat.categoria && mat.conta_financeira && !contaFin) setContaFin(mat.conta_financeira);
     } else {
       setNovoItem({ ...novoItem, descricao });
     }
