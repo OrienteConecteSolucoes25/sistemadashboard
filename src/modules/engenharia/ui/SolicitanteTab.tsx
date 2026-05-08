@@ -681,7 +681,7 @@ function SolicitacoesAbertas({ rows, onChanged, catalogo, categoriasHook }: { ro
                               />
                               <datalist id={`edit-mat-${s.id}`}>
                                 {catalogoFiltrado.map((m: any) => (
-                                  <option key={m.id} value={m.descricao}>{m.codigo} — {m.categoria}</option>
+                                <option key={m.id} value={`${m.codigo} — ${m.descricao}`}>{m.categoria || ""}</option>
                                 ))}
                               </datalist>
                               <Input value={editDraft.quantidade} onChange={(e) => setEditDraft(d => ({ ...d, quantidade: e.target.value }))} className="h-7 w-16" />
