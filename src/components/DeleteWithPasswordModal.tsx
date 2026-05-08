@@ -17,33 +17,55 @@ interface Props {
   open: boolean;
   onOpenChange: (o: boolean) => void;
   table: SoftDeleteTable;
-  recordId: string | null;
+  recordId?: string | null;
+  /** Quando informado, exclui em lote (uma senha+motivo para todos). */
+  recordIds?: string[];
   recordLabel?: string | null;
   moduleLabel?: string;
   onDeleted?: () => void;
 }
 
 export function DeleteWithPasswordModal({
-  open, onOpenChange, table, recordId, recordLabel, moduleLabel, onDeleted,
+  open, onOpenChange, table, recordId, recordIds, recordLabel, moduleLabel, onDeleted,
 }: Props) {
   const [password, setPassword] = useState("");
   const [reason, setReason] = useState("");
   const [busy, setBusy] = useState(false);
 
+  const ids = (recordIds && recordIds.length > 0)
+    ? recordIds
+    : (recordId ? [recordId] : []);
+  const isBulk = ids.length > 1;
+
   const reset = () => { setPassword(""); setReason(""); };
 
   const handleConfirm = async () => {
-    if (!recordId) return;
+    if (ids.length === 0) return;
     if (!reason.trim()) { toast.error("Informe o motivo da exclusão."); return; }
     if (!password.trim()) { toast.error("Digite a senha de confirmação."); return; }
     setBusy(true);
-    const res = await softDeleteRecord(table, recordId, password, reason.trim());
+    let okCount = 0;
+    let lastErr: string | undefined;
+    // Roda em paralelo com limite simples (lotes de 5)
+    for (let i = 0; i < ids.length; i += 5) {
+      const slice = ids.slice(i, i + 5);
+      const results = await Promise.all(
+        slice.map((id) => softDeleteRecord(table, id, password, reason.trim())),
+      );
+      results.forEach((r) => { if (r.ok) okCount++; else lastErr = r.error; });
+    }
     setBusy(false);
-    if (!res.ok) {
-      toast.error(DELETE_ERROR_MESSAGES[res.error ?? ""] ?? "Falha ao excluir.");
+    if (okCount === 0) {
+      toast.error(DELETE_ERROR_MESSAGES[lastErr ?? ""] ?? "Falha ao excluir.");
       return;
     }
-    toast.success("Registro excluído (soft delete) e registrado na rastreabilidade.");
+    if (okCount < ids.length) {
+      toast.warning(`${okCount} de ${ids.length} registros excluídos. ${DELETE_ERROR_MESSAGES[lastErr ?? ""] ?? ""}`);
+    } else {
+      toast.success(isBulk
+        ? `${okCount} registros excluídos (soft delete) e registrados na rastreabilidade.`
+        : "Registro excluído (soft delete) e registrado na rastreabilidade.");
+    }
     reset();
     onOpenChange(false);
     onDeleted?.();
