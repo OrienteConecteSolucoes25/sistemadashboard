@@ -131,6 +131,8 @@ const EngListPage = ({
     return r;
   }, [rows, search, facets, searchKeys]);
 
+  const sel = useBulkSelection(filtered);
+
   const facetOptions = useMemo(() => {
     const out: Record<string, string[]> = {};
     facetKeys.forEach((k) => {
