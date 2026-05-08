@@ -205,7 +205,7 @@ export function SolicitanteTab({ rows: _rows, onCreated }: { rows: any[]; onCrea
         prazo: dataLimite,
         itens: itens as any,
         data: {
-          tipo, coord, cliente, cc, categoria, comprador, escopo,
+          tipo, coord, cliente, cc, categoria, conta_financeira: contaFin, comprador, escopo,
           site, site_id: siteId, cidade, uf,
           auxiliar, data_sol: dataSol, data_limite: dataLimite,
           tecnico, endereco, obs, anexo: anexoUrl,
