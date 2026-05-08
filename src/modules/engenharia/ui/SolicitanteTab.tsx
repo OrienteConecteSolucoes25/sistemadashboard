@@ -135,8 +135,27 @@ export function SolicitanteTab({ rows, onCreated }: { rows: any[]; onCreated: ()
   };
   const removeItem = (i: number) => setItens(itens.filter((_, idx) => idx !== i));
 
-  const escolherDoCatalogo = (descricao: string) => {
-    const mat = catalogo.find((c) => c.descricao === descricao);
+  const findCatalogoMatch = (input: string) => {
+    if (!input) return undefined;
+    const v = input.trim();
+    const lc = v.toLowerCase();
+    // 1) exact value "<codigo> — <descricao>"
+    let mat = catalogo.find((c) => `${c.codigo} — ${c.descricao}` === v);
+    if (mat) return mat;
+    // 2) por código exato (digitos)
+    mat = catalogo.find((c) => String(c.codigo).toLowerCase() === lc);
+    if (mat) return mat;
+    // 3) por descrição exata
+    mat = catalogo.find((c) => String(c.descricao).toLowerCase() === lc);
+    if (mat) return mat;
+    // 4) input começa com "<codigo> — ..."
+    const codePart = v.split(" — ")[0]?.trim().toLowerCase();
+    if (codePart) mat = catalogo.find((c) => String(c.codigo).toLowerCase() === codePart);
+    return mat;
+  };
+
+  const escolherDoCatalogo = (input: string) => {
+    const mat = findCatalogoMatch(input);
     if (mat) {
       setNovoItem({
         material_id: mat.id,
