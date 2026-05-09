@@ -443,6 +443,7 @@ export function CalendarioPage() {
   const { companyId } = useComunicacaoAccess();
   const [items, setItems] = useState<any[]>([]);
   const [edit, setEdit] = useState<any | null>(null);
+  const { toast } = useToast();
   async function load() {
     if (!companyId) return;
     const { data } = await supabase.from("comm_editorial_calendar").select("*").eq("company_id", companyId).eq("is_deleted", false).order("data_planejada");
@@ -451,22 +452,35 @@ export function CalendarioPage() {
   useEffect(() => { load(); }, [companyId]);
 
   async function save() {
-    const { error } = edit.id
-      ? await supabase.from("comm_editorial_calendar").update(edit).eq("id", edit.id)
-      : await supabase.from("comm_editorial_calendar").insert({ ...edit, company_id: companyId });
-    if (!error) { setEdit(null); load(); }
+    if (!companyId) { toast({ title: "Sem empresa vinculada", variant: "destructive" }); return; }
+    if (!edit?.data_planejada || !edit?.tema) { toast({ title: "Data e tema são obrigatórios", variant: "destructive" }); return; }
+    // Strip read-only/forbidden fields and ensure company_id
+    const { id, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, delete_reason, ...rest } = edit;
+    const payload: any = { ...rest, company_id: companyId };
+    const { error } = id
+      ? await supabase.from("comm_editorial_calendar").update(payload).eq("id", id)
+      : await supabase.from("comm_editorial_calendar").insert(payload);
+    if (error) { toast({ title: "Erro ao salvar", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Item salvo" });
+    setEdit(null); load();
   }
 
   return (
     <div className="space-y-3">
       <div className="flex justify-between"><h2 className="text-xl font-display font-bold">Calendário Editorial</h2>
-        <Button onClick={() => setEdit({ data_planejada: new Date().toISOString().slice(0, 10), canal: "Instagram", tema: "", status: "planejado" })}><Plus className="w-4 h-4 mr-1" />Novo item</Button></div>
+        <Button onClick={() => setEdit({ data_planejada: new Date().toISOString().slice(0, 10), canal: "Instagram", formato: "post único", tema: "", status: "planejado", legenda: "", texto: "", cta: "" })}><Plus className="w-4 h-4 mr-1" />Novo item</Button></div>
       {edit && <Card className="p-4 space-y-2">
-        <Input type="date" value={edit.data_planejada} onChange={(e) => setEdit({ ...edit, data_planejada: e.target.value })} />
-        <Input placeholder="Canal" value={edit.canal ?? ""} onChange={(e) => setEdit({ ...edit, canal: e.target.value })} />
-        <Input placeholder="Formato" value={edit.formato ?? ""} onChange={(e) => setEdit({ ...edit, formato: e.target.value })} />
-        <Input placeholder="Tema" value={edit.tema ?? ""} onChange={(e) => setEdit({ ...edit, tema: e.target.value })} />
-        <Input placeholder="CTA" value={edit.cta ?? ""} onChange={(e) => setEdit({ ...edit, cta: e.target.value })} />
+        <div className="grid grid-cols-2 gap-2">
+          <div><Label>Data *</Label><Input type="date" value={edit.data_planejada} onChange={(e) => setEdit({ ...edit, data_planejada: e.target.value })} /></div>
+          <div><Label>Hora</Label><Input type="time" value={edit.hora_planejada ?? ""} onChange={(e) => setEdit({ ...edit, hora_planejada: e.target.value || null })} /></div>
+          <div><Label>Canal</Label><Input value={edit.canal ?? ""} onChange={(e) => setEdit({ ...edit, canal: e.target.value })} /></div>
+          <div><Label>Formato</Label><Input value={edit.formato ?? ""} onChange={(e) => setEdit({ ...edit, formato: e.target.value })} /></div>
+        </div>
+        <div><Label>Tema *</Label><Input value={edit.tema ?? ""} onChange={(e) => setEdit({ ...edit, tema: e.target.value })} /></div>
+        <div><Label>Legenda</Label><Textarea rows={3} value={edit.legenda ?? ""} onChange={(e) => setEdit({ ...edit, legenda: e.target.value })} placeholder="Legenda do post..." /></div>
+        <div><Label>Texto/Roteiro</Label><Textarea rows={3} value={edit.texto ?? ""} onChange={(e) => setEdit({ ...edit, texto: e.target.value })} placeholder="Texto completo, roteiro ou copy do material..." /></div>
+        <div><Label>CTA</Label><Input value={edit.cta ?? ""} onChange={(e) => setEdit({ ...edit, cta: e.target.value })} /></div>
+        <div><Label>Notas</Label><Textarea rows={2} value={edit.notas ?? ""} onChange={(e) => setEdit({ ...edit, notas: e.target.value })} /></div>
         <div className="flex gap-2"><Button onClick={save}><Save className="w-4 h-4 mr-1" />Salvar</Button><Button variant="outline" onClick={() => setEdit(null)}>Cancelar</Button></div>
       </Card>}
       <div className="grid gap-2">
