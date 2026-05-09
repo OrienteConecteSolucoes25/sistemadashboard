@@ -619,34 +619,75 @@ function RenderAiResult({ r, setR }: { r: any; setR: (v: any) => void }) {
 
 export const CarrosselGeneratorPage = MakeAiPage({
   kind: "carrossel", title: "Gerador de Carrossel",
+  saveTable: "comm_carousels",
   fields: [
     { key: "tema", label: "Tema" },
     { key: "qtd_slides", label: "Quantidade de slides", type: "number" },
     { key: "publico", label: "Público" }, { key: "objetivo", label: "Objetivo" },
     { key: "canal", label: "Canal", options: ["Instagram", "LinkedIn"] }, { key: "cta", label: "CTA" },
   ],
+  mapResult: (r, inputs, brandId, companyId) => ({
+    main: {
+      company_id: companyId, brand_kit_id: brandId || null, ai_generated: true, status: "rascunho_ia",
+      titulo: r.titulo ?? inputs.tema, tema: inputs.tema, publico: inputs.publico, objetivo: inputs.objetivo,
+      canal: inputs.canal, cta: r.cta ?? inputs.cta, legenda: r.legenda, hashtags: r.hashtags ?? [],
+    },
+    children: Array.isArray(r.slides) ? [{
+      table: "comm_carousel_slides", fkField: "carousel_id",
+      rows: r.slides.map((s: any, i: number) => ({ ordem: i + 1, titulo: s.titulo, texto: s.texto, design_sugerido: s.design_sugerido })),
+    }] : [],
+  }),
 });
 
 export const NewsletterGeneratorPage = MakeAiPage({
   kind: "newsletter", title: "Newsletter Builder",
+  saveTable: "comm_newsletters",
   fields: [{ key: "tema", label: "Tema" }, { key: "objetivo", label: "Objetivo" }, { key: "publico", label: "Público" }, { key: "cta", label: "CTA" }],
+  mapResult: (r, inputs, brandId, companyId) => ({
+    main: {
+      company_id: companyId, brand_kit_id: brandId || null, ai_generated: true, status: "rascunho",
+      assunto: r.assunto ?? inputs.tema, pre_header: r.pre_header, abertura: r.abertura,
+      blocos: r.blocos ?? [], cta: r.cta ?? inputs.cta, rodape: r.rodape, publico: inputs.publico,
+      versao_html: r.versao_html, versao_texto: r.versao_texto,
+    },
+  }),
 });
 
 export const InternaGeneratorPage = MakeAiPage({
   kind: "comunicado_interno", title: "Comunicação Interna",
+  saveTable: "comm_internal_comms",
   fields: [
     { key: "tipo", label: "Tipo", options: ["aviso operacional", "comunicado RH", "comunicado DP", "engenharia", "jurídico", "alerta sistema", "reunião", "alerta prazo", "campanha interna", "segurança"] },
     { key: "tema", label: "Assunto" }, { key: "publico_alvo", label: "Público-alvo" },
     { key: "prioridade", label: "Prioridade", options: ["baixa", "normal", "alta", "urgente"] },
   ],
+  mapResult: (r, inputs, _brandId, companyId) => ({
+    main: {
+      company_id: companyId, status: "rascunho",
+      tipo: inputs.tipo, titulo: r.titulo ?? inputs.tema, mensagem_curta: r.mensagem_curta,
+      mensagem_completa: r.mensagem_completa, publico_alvo: inputs.publico_alvo,
+      prioridade: inputs.prioridade ?? "normal", cta: r.cta,
+      versao_email: r.versao_email, versao_whatsapp: r.versao_whatsapp, versao_mural: r.versao_mural,
+    },
+  }),
 });
 
 export const CampanhaGeneratorPage = MakeAiPage({
   kind: "campanha", title: "Gerador de Campanha",
+  saveTable: "comm_campaigns",
   fields: [
     { key: "tipo", label: "Tipo", options: ["lançamento", "lista de espera", "institucional", "comercial", "comunicação interna", "employer branding", "produto", "treinamento", "relacionamento"] },
     { key: "objetivo", label: "Objetivo" }, { key: "publico", label: "Público" }, { key: "produto", label: "Produto" }, { key: "prazo", label: "Prazo" },
   ],
+  mapResult: (r, inputs, brandId, companyId) => ({
+    main: {
+      company_id: companyId, brand_kit_id: brandId || null, status: "planejada",
+      nome: r.nome ?? r.titulo ?? `Campanha ${inputs.tipo ?? ""}`.trim(),
+      tipo: inputs.tipo, conceito: r.conceito, promessa: r.promessa, objetivo: inputs.objetivo,
+      publico: inputs.publico, produto: inputs.produto, canais: r.canais ?? [],
+      pecas: r.pecas ?? [], cta: r.cta, metricas_esperadas: r.metricas_esperadas ?? {},
+    },
+  }),
 });
 
 // ========== GENERIC LIST ==========
