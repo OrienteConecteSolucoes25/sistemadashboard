@@ -440,8 +440,10 @@ Deno.serve(async (req) => {
       .order("created_at")
       .limit(40);
 
+    const metricsCtx = await loadMetricsContext(sb, company_id, brand_kit_id ?? null);
+
     const messages = [
-      { role: "system", content: SYSTEM + "\n\n" + brandPrompt(brand) + `\n\nEscopo desta conversa: **${scope === "interna" ? "Comunicação interna" : "Comunicação externa"}**.\nData de hoje: ${new Date().toISOString().slice(0, 10)}.` },
+      { role: "system", content: SYSTEM + "\n\n" + brandPrompt(brand) + `\n\nEscopo desta conversa: **${scope === "interna" ? "Comunicação interna" : "Comunicação externa"}**.\nData de hoje: ${new Date().toISOString().slice(0, 10)}.\n\n=== PERFORMANCE ATUAL ===\n${metricsCtx}` },
       ...(history ?? []).filter((m: any) => m.content).map((m: any) => ({ role: m.role, content: m.content })),
     ];
 
