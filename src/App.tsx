@@ -72,6 +72,7 @@ import {
 } from "./modules/comunicacao/ui/ComunicacaoPages";
 import { DesignStudioPage, ImagesGalleryPage, CanvaPage } from "./modules/comunicacao/ui/ComunicacaoStudio";
 import IntegracoesSociaisPage from "./modules/comunicacao/ui/IntegracoesSociaisPage";
+import MetricasPage from "./modules/comunicacao/ui/MetricasPage";
 import ThemeStudioPage from "./modules/aparencia/ui/ThemeStudioPage";
 import { CompanyThemeProvider } from "./modules/aparencia/hooks/CompanyThemeProvider";
 import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
