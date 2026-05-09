@@ -210,8 +210,63 @@ const TOOLS = [
         required: ["nome"],
       },
     },
+  {
+    type: "function",
+    function: {
+      name: "consultar_top_posts",
+      description: "Retorna os N posts com maior engajamento no período recente para embasar recomendações.",
+      parameters: {
+        type: "object",
+        properties: {
+          limite: { type: "number", description: "Quantidade (default 5)" },
+          dias: { type: "number", description: "Janela em dias (default 30)" },
+        },
+      },
+    },
   },
 ];
+
+async function loadMetricsContext(sb: any, company_id: string, brand_kit_id: string | null) {
+  const since = new Date(Date.now() - 30 * 86400 * 1000).toISOString();
+  let q = sb.from("comm_post_metrics").select("provider,impressions,reach,likes,comments,shares,saves,clicks,engagement_rate,collected_at,caption")
+    .eq("company_id", company_id).gte("collected_at", since);
+  if (brand_kit_id) q = q.eq("client_brand_id", brand_kit_id);
+  const { data: rows } = await q;
+  const list = rows ?? [];
+  if (!list.length) return "Métricas (30d): nenhum dado coletado ainda.";
+  const sum = (k: string) => list.reduce((a: number, r: any) => a + (Number(r[k]) || 0), 0);
+  const avgER = list.reduce((a: number, r: any) => a + (Number(r.engagement_rate) || 0), 0) / list.length;
+  const byChan: Record<string, { n: number; er: number }> = {};
+  for (const r of list) {
+    const p = r.provider || "—";
+    byChan[p] = byChan[p] || { n: 0, er: 0 };
+    byChan[p].n++;
+    byChan[p].er += Number(r.engagement_rate) || 0;
+  }
+  const chanLine = Object.entries(byChan)
+    .map(([p, v]) => `${p}: ${v.n} posts, ER médio ${(v.er / v.n).toFixed(2)}%`).join(" | ");
+  const top = [...list].sort((a, b) => (Number(b.engagement_rate) || 0) - (Number(a.engagement_rate) || 0)).slice(0, 3);
+  const topLine = top.map((r: any, i: number) => `${i + 1}) [${r.provider}] ER ${Number(r.engagement_rate || 0).toFixed(2)}% — ${(r.caption || "").slice(0, 60)}`).join("\n");
+  let insightBlock = "";
+  let iq = sb.from("comm_ai_insights").select("resumo,recomendacoes,pontos_fortes,pontos_fracos,created_at")
+    .eq("company_id", company_id).order("created_at", { ascending: false }).limit(1);
+  if (brand_kit_id) iq = iq.eq("client_brand_id", brand_kit_id);
+  const { data: ins } = await iq;
+  const last = ins?.[0];
+  if (last) {
+    insightBlock = `\n\nÚltimo insight de IA (${new Date(last.created_at).toISOString().slice(0, 10)}):
+- Resumo: ${last.resumo}
+- Pontos fortes: ${(last.pontos_fortes ?? []).slice(0, 3).join("; ") || "—"}
+- Pontos fracos: ${(last.pontos_fracos ?? []).slice(0, 3).join("; ") || "—"}
+- Recomendações: ${(last.recomendacoes ?? []).slice(0, 3).join("; ") || "—"}`;
+  }
+  return `Métricas (30d) — ${list.length} posts mensurados
+Totais: impressões ${sum("impressions")}, alcance ${sum("reach")}, curtidas ${sum("likes")}, comentários ${sum("comments")}, compart. ${sum("shares")}, salvos ${sum("saves")}, cliques ${sum("clicks")}
+ER médio: ${avgER.toFixed(2)}%
+Por canal: ${chanLine}
+Top 3 por ER:
+${topLine}${insightBlock}`;
+}
 
 function brandPrompt(b: any) {
   if (!b) return "Brand Kit: (nenhum cliente selecionado — peça ao usuário para selecionar um cliente/marca no topo).";
