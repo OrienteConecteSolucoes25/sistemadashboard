@@ -42,7 +42,7 @@ export default function ComunicacaoLayout() {
     <div className="flex gap-0 -m-4 md:-m-6 min-h-[calc(100vh-3rem)] rounded-none overflow-hidden">
       <CollapsibleModuleSidebar
         moduleKey="comunicacao"
-        moduleTitle="Comunicação IA"
+        moduleTitle="Comunicação OCS"
         moduleSubtitle="ERP OCS · módulo"
         moduleIcon={MessageSquare}
         tabs={tabs}

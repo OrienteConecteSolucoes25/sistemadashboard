@@ -51,7 +51,7 @@ export default function ComunicacaoDashboard() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-2xl font-display font-bold">Comunicação IA Studio</h1>
+        <h1 className="text-2xl font-display font-bold">Comunicação OCS Studio</h1>
         <p className="text-muted-foreground text-sm">Central de geração de conteúdo, design e imagem com aprovação humana.</p>
       </div>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
