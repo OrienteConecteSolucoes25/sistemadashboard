@@ -16,6 +16,7 @@ import { PixelMeetingModal } from "./PixelMeetingModal";
 import { PixelMeetingInvite } from "./PixelMeetingInvite";
 import { PixelMeetingsPanel } from "./PixelMeetingsPanel";
 import { PixelCommunityPanel } from "./PixelCommunityPanel";
+import { DiretorAgentChat } from "@/modules/comunicacao/ui/DiretorAgentChat";
 
 type Selected =
   | { kind: "character"; data: PixelCharacter }
