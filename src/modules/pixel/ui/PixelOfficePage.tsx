@@ -16,6 +16,7 @@ import { PixelMeetingModal } from "./PixelMeetingModal";
 import { PixelMeetingInvite } from "./PixelMeetingInvite";
 import { PixelMeetingsPanel } from "./PixelMeetingsPanel";
 import { PixelCommunityPanel } from "./PixelCommunityPanel";
+import { DiretorAgentChat } from "@/modules/comunicacao/ui/DiretorAgentChat";
 
 type Selected =
   | { kind: "character"; data: PixelCharacter }
@@ -171,6 +172,9 @@ export default function PixelOfficePage() {
         onAccept={meetings.acceptInvite}
         onDecline={meetings.declineInvite}
       />
+
+      {/* NPC Pixel Diretor OCS — assistente flutuante de comunicação */}
+      <DiretorAgentChat />
     </div>
   );
 }
