@@ -214,18 +214,24 @@ export type Database = {
           is_deleted: boolean | null
           links: Json | null
           logo_url: string | null
+          missao: string | null
           nome: string
+          observacoes: string | null
           palavras_permitidas: string[] | null
           palavras_proibidas: string[] | null
           persona: string | null
           proposta_valor: string | null
           publico_alvo: string | null
           redes_sociais: Json | null
+          segmento: string | null
           slogan: string | null
           tipo_linguagem: string | null
           tom_de_voz: string | null
           updated_at: string | null
           updated_by: string | null
+          valores: string | null
+          visao: string | null
+          website: string | null
         }
         Insert: {
           company_id: string
@@ -246,18 +252,24 @@ export type Database = {
           is_deleted?: boolean | null
           links?: Json | null
           logo_url?: string | null
+          missao?: string | null
           nome: string
+          observacoes?: string | null
           palavras_permitidas?: string[] | null
           palavras_proibidas?: string[] | null
           persona?: string | null
           proposta_valor?: string | null
           publico_alvo?: string | null
           redes_sociais?: Json | null
+          segmento?: string | null
           slogan?: string | null
           tipo_linguagem?: string | null
           tom_de_voz?: string | null
           updated_at?: string | null
           updated_by?: string | null
+          valores?: string | null
+          visao?: string | null
+          website?: string | null
         }
         Update: {
           company_id?: string
@@ -278,18 +290,24 @@ export type Database = {
           is_deleted?: boolean | null
           links?: Json | null
           logo_url?: string | null
+          missao?: string | null
           nome?: string
+          observacoes?: string | null
           palavras_permitidas?: string[] | null
           palavras_proibidas?: string[] | null
           persona?: string | null
           proposta_valor?: string | null
           publico_alvo?: string | null
           redes_sociais?: Json | null
+          segmento?: string | null
           slogan?: string | null
           tipo_linguagem?: string | null
           tom_de_voz?: string | null
           updated_at?: string | null
           updated_by?: string | null
+          valores?: string | null
+          visao?: string | null
+          website?: string | null
         }
         Relationships: []
       }
@@ -1679,6 +1697,7 @@ export type Database = {
           created_at: string | null
           created_by: string | null
           criterios_aceite: string | null
+          data_lancamento: string | null
           delete_reason: string | null
           deleted_at: string | null
           deleted_by: string | null
@@ -1688,12 +1707,16 @@ export type Database = {
           id: string
           impacto: number | null
           is_deleted: boolean | null
+          metricas: Json | null
           modulo_relacionado: string | null
+          pesquisa: Json | null
+          posicionamento: Json | null
           prioridade: string | null
           release_note: string | null
           responsavel_id: string | null
           risco: string | null
           status: string | null
+          status_kanban: string | null
           tipo: string | null
           titulo: string
           updated_at: string | null
@@ -1707,6 +1730,7 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           criterios_aceite?: string | null
+          data_lancamento?: string | null
           delete_reason?: string | null
           deleted_at?: string | null
           deleted_by?: string | null
@@ -1716,12 +1740,16 @@ export type Database = {
           id?: string
           impacto?: number | null
           is_deleted?: boolean | null
+          metricas?: Json | null
           modulo_relacionado?: string | null
+          pesquisa?: Json | null
+          posicionamento?: Json | null
           prioridade?: string | null
           release_note?: string | null
           responsavel_id?: string | null
           risco?: string | null
           status?: string | null
+          status_kanban?: string | null
           tipo?: string | null
           titulo: string
           updated_at?: string | null
@@ -1735,6 +1763,7 @@ export type Database = {
           created_at?: string | null
           created_by?: string | null
           criterios_aceite?: string | null
+          data_lancamento?: string | null
           delete_reason?: string | null
           deleted_at?: string | null
           deleted_by?: string | null
@@ -1744,12 +1773,16 @@ export type Database = {
           id?: string
           impacto?: number | null
           is_deleted?: boolean | null
+          metricas?: Json | null
           modulo_relacionado?: string | null
+          pesquisa?: Json | null
+          posicionamento?: Json | null
           prioridade?: string | null
           release_note?: string | null
           responsavel_id?: string | null
           risco?: string | null
           status?: string | null
+          status_kanban?: string | null
           tipo?: string | null
           titulo?: string
           updated_at?: string | null
