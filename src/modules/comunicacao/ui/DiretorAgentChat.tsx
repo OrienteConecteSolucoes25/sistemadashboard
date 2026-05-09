@@ -122,6 +122,7 @@ export function DiretorAgentChat({ renderTrigger }: { renderTrigger?: (open: () 
   }
 
   if (!open) {
+    if (renderTrigger) return <>{renderTrigger(() => setOpen(true))}</>;
     return (
       <button
         onClick={() => setOpen(true)}
