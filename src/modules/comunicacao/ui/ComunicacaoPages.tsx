@@ -542,6 +542,7 @@ export function CalendarioPage() {
   const { companyId } = useComunicacaoAccess();
   const [items, setItems] = useState<any[]>([]);
   const [edit, setEdit] = useState<any | null>(null);
+  const [scheduling, setScheduling] = useState<any | null>(null);
   const { toast } = useToast();
   async function load() {
     if (!companyId) return;
