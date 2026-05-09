@@ -1926,6 +1926,158 @@ export type Database = {
           },
         ]
       }
+      comm_social_accounts: {
+        Row: {
+          account_handle: string | null
+          account_name: string
+          client_brand_id: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          external_id: string | null
+          id: string
+          is_default: boolean | null
+          is_deleted: boolean | null
+          last_error: string | null
+          metadata: Json | null
+          page_id: string | null
+          provider: string
+          refresh_token_enc: string | null
+          scopes: string[] | null
+          status: string
+          token_enc: string | null
+          token_expires_at: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          account_handle?: string | null
+          account_name: string
+          client_brand_id?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          external_id?: string | null
+          id?: string
+          is_default?: boolean | null
+          is_deleted?: boolean | null
+          last_error?: string | null
+          metadata?: Json | null
+          page_id?: string | null
+          provider: string
+          refresh_token_enc?: string | null
+          scopes?: string[] | null
+          status?: string
+          token_enc?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          account_handle?: string | null
+          account_name?: string
+          client_brand_id?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          external_id?: string | null
+          id?: string
+          is_default?: boolean | null
+          is_deleted?: boolean | null
+          last_error?: string | null
+          metadata?: Json | null
+          page_id?: string | null
+          provider?: string
+          refresh_token_enc?: string | null
+          scopes?: string[] | null
+          status?: string
+          token_enc?: string | null
+          token_expires_at?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      comm_social_publish_queue: {
+        Row: {
+          attempts: number
+          caption: string | null
+          client_brand_id: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          entidade_id: string
+          entidade_tipo: string
+          external_post_id: string | null
+          external_url: string | null
+          id: string
+          last_error: string | null
+          media_urls: string[] | null
+          published_at: string | null
+          scheduled_for: string | null
+          social_account_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          attempts?: number
+          caption?: string | null
+          client_brand_id?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          entidade_id: string
+          entidade_tipo: string
+          external_post_id?: string | null
+          external_url?: string | null
+          id?: string
+          last_error?: string | null
+          media_urls?: string[] | null
+          published_at?: string | null
+          scheduled_for?: string | null
+          social_account_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          attempts?: number
+          caption?: string | null
+          client_brand_id?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          entidade_id?: string
+          entidade_tipo?: string
+          external_post_id?: string | null
+          external_url?: string | null
+          id?: string
+          last_error?: string | null
+          media_urls?: string[] | null
+          published_at?: string | null
+          scheduled_for?: string | null
+          social_account_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_social_publish_queue_social_account_id_fkey"
+            columns: ["social_account_id"]
+            isOneToOne: false
+            referencedRelation: "comm_social_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           ativo: boolean
@@ -8039,6 +8191,25 @@ export type Database = {
         }
         Returns: undefined
       }
+      comm_social_save_account: {
+        Args: {
+          _account_handle: string
+          _account_name: string
+          _client_brand: string
+          _company: string
+          _expires_at: string
+          _external_id: string
+          _id: string
+          _metadata: Json
+          _page_id: string
+          _provider: string
+          _refresh_token: string
+          _scopes: string[]
+          _token: string
+        }
+        Returns: Json
+      }
+      comm_social_set_master_key: { Args: { _pwd: string }; Returns: Json }
       comm_soft_delete: {
         Args: { _id: string; _reason: string; _table: string }
         Returns: Json
