@@ -835,8 +835,94 @@ export type Database = {
         }
         Relationships: []
       }
+      comm_director_conversations: {
+        Row: {
+          allowed_modules: string[] | null
+          brand_kit_id: string | null
+          company_id: string
+          created_at: string
+          id: string
+          is_deleted: boolean | null
+          scope: string
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          allowed_modules?: string[] | null
+          brand_kit_id?: string | null
+          company_id: string
+          created_at?: string
+          id?: string
+          is_deleted?: boolean | null
+          scope?: string
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          allowed_modules?: string[] | null
+          brand_kit_id?: string | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          is_deleted?: boolean | null
+          scope?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_director_conversations_brand_kit_id_fkey"
+            columns: ["brand_kit_id"]
+            isOneToOne: false
+            referencedRelation: "comm_brand_kits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_director_messages: {
+        Row: {
+          content: string | null
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+          tool_calls: Json | null
+          tool_results: Json | null
+        }
+        Insert: {
+          content?: string | null
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: string
+          tool_calls?: Json | null
+          tool_results?: Json | null
+        }
+        Update: {
+          content?: string | null
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+          tool_calls?: Json | null
+          tool_results?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_director_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "comm_director_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comm_editorial_calendar: {
         Row: {
+          brand_kit_id: string | null
           campaign_id: string | null
           canal: string | null
           company_id: string
@@ -852,6 +938,7 @@ export type Database = {
           id: string
           internal_id: string | null
           is_deleted: boolean | null
+          legenda: string | null
           newsletter_id: string | null
           notas: string | null
           post_id: string | null
@@ -859,10 +946,12 @@ export type Database = {
           responsavel_id: string | null
           status: string | null
           tema: string | null
+          texto: string | null
           updated_at: string | null
           updated_by: string | null
         }
         Insert: {
+          brand_kit_id?: string | null
           campaign_id?: string | null
           canal?: string | null
           company_id: string
@@ -878,6 +967,7 @@ export type Database = {
           id?: string
           internal_id?: string | null
           is_deleted?: boolean | null
+          legenda?: string | null
           newsletter_id?: string | null
           notas?: string | null
           post_id?: string | null
@@ -885,10 +975,12 @@ export type Database = {
           responsavel_id?: string | null
           status?: string | null
           tema?: string | null
+          texto?: string | null
           updated_at?: string | null
           updated_by?: string | null
         }
         Update: {
+          brand_kit_id?: string | null
           campaign_id?: string | null
           canal?: string | null
           company_id?: string
@@ -904,6 +996,7 @@ export type Database = {
           id?: string
           internal_id?: string | null
           is_deleted?: boolean | null
+          legenda?: string | null
           newsletter_id?: string | null
           notas?: string | null
           post_id?: string | null
@@ -911,10 +1004,18 @@ export type Database = {
           responsavel_id?: string | null
           status?: string | null
           tema?: string | null
+          texto?: string | null
           updated_at?: string | null
           updated_by?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "comm_editorial_calendar_brand_kit_id_fkey"
+            columns: ["brand_kit_id"]
+            isOneToOne: false
+            referencedRelation: "comm_brand_kits"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "comm_editorial_calendar_campaign_id_fkey"
             columns: ["campaign_id"]
