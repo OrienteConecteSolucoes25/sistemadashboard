@@ -376,6 +376,23 @@ async function executeTools(sb: any, toolCalls: any[], ctx: { company_id: string
         if (error) throw error;
         summary = `Campanha "${args.nome}" criada`;
         ok = true;
+      } else if (name === "consultar_top_posts") {
+        const dias = Math.max(1, Math.min(180, Number(args.dias) || 30));
+        const limite = Math.max(1, Math.min(20, Number(args.limite) || 5));
+        const since = new Date(Date.now() - dias * 86400 * 1000).toISOString();
+        let q = sb.from("comm_post_metrics")
+          .select("provider,caption,external_url,impressions,reach,likes,comments,shares,saves,clicks,engagement_rate,collected_at")
+          .eq("company_id", ctx.company_id).gte("collected_at", since)
+          .order("engagement_rate", { ascending: false }).limit(limite);
+        if (ctx.brand_kit_id) q = q.eq("client_brand_id", ctx.brand_kit_id);
+        const { data: top, error } = await q;
+        if (error) throw error;
+        results.push({
+          tool: name, ok: true, args,
+          summary: `Top ${top?.length ?? 0} posts (últimos ${dias}d)`,
+          data: top ?? [],
+        });
+        continue;
       } else {
         summary = `(ferramenta desconhecida: ${name})`;
       }
