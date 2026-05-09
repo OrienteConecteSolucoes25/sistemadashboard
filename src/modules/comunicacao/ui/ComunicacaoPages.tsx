@@ -74,34 +74,81 @@ export function BrandKitsPage() {
 
   if (edit) {
     return (
-      <div className="space-y-3 max-w-3xl">
-        <h2 className="text-xl font-display font-bold">{edit.id ? "Editar" : "Novo"} Brand Kit</h2>
-        <Card className="p-4 space-y-3">
-          {[
-            ["nome", "Nome da marca"], ["slogan", "Slogan"], ["descricao", "Descrição"],
-            ["publico_alvo", "Público-alvo"], ["persona", "Persona"], ["tom_de_voz", "Tom de voz"],
-            ["proposta_valor", "Proposta de valor"], ["diferenciais", "Diferenciais"], ["cta_padrao", "CTA padrão"],
-            ["estilo_visual", "Estilo visual"], ["tipo_linguagem", "Tipo de linguagem"],
-          ].map(([k, label]) => (
-            <div key={k}>
-              <Label>{label}</Label>
-              {["descricao", "diferenciais", "proposta_valor"].includes(k) ?
-                <Textarea value={edit[k] ?? ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} /> :
-                <Input value={edit[k] ?? ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} />}
-            </div>
-          ))}
-          <div className="grid grid-cols-2 gap-3">
-            <div><Label>Palavras permitidas (CSV)</Label><Input value={Array.isArray(edit.palavras_permitidas) ? edit.palavras_permitidas.join(", ") : edit.palavras_permitidas ?? ""} onChange={(e) => setEdit({ ...edit, palavras_permitidas: e.target.value })} /></div>
-            <div><Label>Palavras proibidas (CSV)</Label><Input value={Array.isArray(edit.palavras_proibidas) ? edit.palavras_proibidas.join(", ") : edit.palavras_proibidas ?? ""} onChange={(e) => setEdit({ ...edit, palavras_proibidas: e.target.value })} /></div>
-            <div><Label>Cores principais (CSV)</Label><Input value={Array.isArray(edit.cores_principais) ? edit.cores_principais.join(", ") : edit.cores_principais ?? ""} onChange={(e) => setEdit({ ...edit, cores_principais: e.target.value })} /></div>
-            <div><Label>Cores secundárias (CSV)</Label><Input value={Array.isArray(edit.cores_secundarias) ? edit.cores_secundarias.join(", ") : edit.cores_secundarias ?? ""} onChange={(e) => setEdit({ ...edit, cores_secundarias: e.target.value })} /></div>
-            <div className="col-span-2"><Label>Fontes (CSV)</Label><Input value={Array.isArray(edit.fontes) ? edit.fontes.join(", ") : edit.fontes ?? ""} onChange={(e) => setEdit({ ...edit, fontes: e.target.value })} /></div>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={save}><Save className="w-4 h-4 mr-1" />Salvar</Button>
-            <Button variant="outline" onClick={() => setEdit(null)}>Cancelar</Button>
-          </div>
-        </Card>
+      <div className="space-y-3 max-w-4xl">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-display font-bold">{edit.id ? "Editar cliente / marca" : "Novo cliente / marca"}</h2>
+          <Button variant="outline" size="sm" onClick={() => setEdit(null)}>Voltar</Button>
+        </div>
+        <Tabs defaultValue="identidade">
+          <TabsList>
+            <TabsTrigger value="identidade">Identidade</TabsTrigger>
+            <TabsTrigger value="institucional">Institucional</TabsTrigger>
+            <TabsTrigger value="voz">Voz & Mensagem</TabsTrigger>
+            <TabsTrigger value="visual">Visual</TabsTrigger>
+            <TabsTrigger value="links">Links & Redes</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="identidade" className="space-y-3 pt-3">
+            <Card className="p-4 space-y-3">
+              {[["nome", "Nome do cliente / marca *"], ["slogan", "Slogan"], ["segmento", "Segmento de mercado"], ["website", "Website"], ["descricao", "Sobre a empresa / marca"]].map(([k, label]) => (
+                <div key={k}>
+                  <Label>{label}</Label>
+                  {k === "descricao"
+                    ? <Textarea rows={4} value={edit[k] ?? ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} />
+                    : <Input value={edit[k] ?? ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} />}
+                </div>
+              ))}
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="institucional" className="space-y-3 pt-3">
+            <Card className="p-4 space-y-3">
+              {[["missao", "Missão"], ["visao", "Visão"], ["valores", "Valores"], ["proposta_valor", "Proposta de valor"], ["diferenciais", "Diferenciais competitivos"]].map(([k, label]) => (
+                <div key={k}><Label>{label}</Label><Textarea rows={3} value={edit[k] ?? ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} /></div>
+              ))}
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="voz" className="space-y-3 pt-3">
+            <Card className="p-4 space-y-3">
+              {[["publico_alvo", "Público-alvo"], ["persona", "Persona principal"], ["tom_de_voz", "Tom de voz"], ["tipo_linguagem", "Tipo de linguagem"], ["cta_padrao", "CTA padrão"]].map(([k, label]) => (
+                <div key={k}><Label>{label}</Label>
+                  {["publico_alvo", "persona"].includes(k as string)
+                    ? <Textarea rows={2} value={edit[k] ?? ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} />
+                    : <Input value={edit[k] ?? ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} />}
+                </div>
+              ))}
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label>Palavras permitidas (CSV)</Label><Input value={Array.isArray(edit.palavras_permitidas) ? edit.palavras_permitidas.join(", ") : edit.palavras_permitidas ?? ""} onChange={(e) => setEdit({ ...edit, palavras_permitidas: e.target.value })} /></div>
+                <div><Label>Palavras proibidas (CSV)</Label><Input value={Array.isArray(edit.palavras_proibidas) ? edit.palavras_proibidas.join(", ") : edit.palavras_proibidas ?? ""} onChange={(e) => setEdit({ ...edit, palavras_proibidas: e.target.value })} /></div>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="visual" className="space-y-3 pt-3">
+            <Card className="p-4 space-y-3">
+              <div><Label>Estilo visual</Label><Input value={edit.estilo_visual ?? ""} onChange={(e) => setEdit({ ...edit, estilo_visual: e.target.value })} /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label>Cores principais (CSV)</Label><Input value={Array.isArray(edit.cores_principais) ? edit.cores_principais.join(", ") : edit.cores_principais ?? ""} onChange={(e) => setEdit({ ...edit, cores_principais: e.target.value })} /></div>
+                <div><Label>Cores secundárias (CSV)</Label><Input value={Array.isArray(edit.cores_secundarias) ? edit.cores_secundarias.join(", ") : edit.cores_secundarias ?? ""} onChange={(e) => setEdit({ ...edit, cores_secundarias: e.target.value })} /></div>
+                <div className="col-span-2"><Label>Fontes (CSV)</Label><Input value={Array.isArray(edit.fontes) ? edit.fontes.join(", ") : edit.fontes ?? ""} onChange={(e) => setEdit({ ...edit, fontes: e.target.value })} /></div>
+              </div>
+              <div><Label>Logo (URL)</Label><Input value={edit.logo_url ?? ""} onChange={(e) => setEdit({ ...edit, logo_url: e.target.value })} placeholder="https://..." /></div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="links" className="space-y-3 pt-3">
+            <Card className="p-4 space-y-3">
+              <div><Label>Observações livres</Label><Textarea rows={4} value={edit.observacoes ?? ""} onChange={(e) => setEdit({ ...edit, observacoes: e.target.value })} /></div>
+              <div className="text-xs text-muted-foreground">Redes sociais e links serão expandidos em breve. Por ora, registre URLs nas observações.</div>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        <div className="flex gap-2 sticky bottom-0 bg-background py-2 border-t">
+          <Button onClick={save}><Save className="w-4 h-4 mr-1" />Salvar cliente</Button>
+          <Button variant="outline" onClick={() => setEdit(null)}>Cancelar</Button>
+        </div>
       </div>
     );
   }
@@ -109,23 +156,39 @@ export function BrandKitsPage() {
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-display font-bold">Brand Kits</h2>
-        <Button onClick={newKit}><Plus className="w-4 h-4 mr-1" />Novo Brand Kit</Button>
+        <div>
+          <h2 className="text-xl font-display font-bold">Clientes & Marcas</h2>
+          <p className="text-xs text-muted-foreground">Cada cliente / marca tem seu próprio Brand Kit, paleta, tom de voz e regras. Útil para social media multi-marca.</p>
+        </div>
+        <Button onClick={newKit}><Plus className="w-4 h-4 mr-1" />Novo cliente / marca</Button>
       </div>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
         {items.map((b) => (
-          <Card key={b.id} className="p-4 space-y-2">
-            <div className="flex justify-between"><div className="font-bold">{b.nome}</div><Button size="icon" variant="ghost" onClick={() => remove(b.id)}><Trash2 className="w-4 h-4" /></Button></div>
-            {b.slogan && <div className="text-xs italic text-muted-foreground">"{b.slogan}"</div>}
-            <div className="text-sm line-clamp-3">{b.descricao}</div>
-            <div className="flex gap-1 flex-wrap">
-              {(b.cores_principais ?? []).map((c: string) => <span key={c} style={{ background: c }} className="w-5 h-5 rounded border" />)}
+          <Card key={b.id} className="p-4 space-y-2 hover:border-primary/40 transition">
+            <div className="flex justify-between items-start gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                {b.logo_url
+                  ? <img src={b.logo_url} alt="" className="w-9 h-9 rounded object-cover border flex-shrink-0" />
+                  : <div className="w-9 h-9 rounded border flex items-center justify-center bg-muted flex-shrink-0 text-xs font-bold">{(b.nome ?? "?").slice(0, 2).toUpperCase()}</div>}
+                <div className="min-w-0">
+                  <div className="font-bold truncate">{b.nome}</div>
+                  {b.segmento && <div className="text-[10px] uppercase text-muted-foreground">{b.segmento}</div>}
+                </div>
+              </div>
+              <Button size="icon" variant="ghost" onClick={() => remove(b.id)}><Trash2 className="w-4 h-4" /></Button>
             </div>
-            <div className="text-xs text-muted-foreground">Tom: {b.tom_de_voz}</div>
-            <Button size="sm" variant="outline" onClick={() => setEdit(b)}>Editar</Button>
+            {b.slogan && <div className="text-xs italic text-muted-foreground">"{b.slogan}"</div>}
+            <div className="text-sm line-clamp-3 min-h-[2.5em]">{b.descricao}</div>
+            <div className="flex gap-1 flex-wrap">
+              {(b.cores_principais ?? []).slice(0, 6).map((c: string, i: number) => <span key={i} style={{ background: c }} className="w-5 h-5 rounded border" />)}
+            </div>
+            <div className="text-xs text-muted-foreground line-clamp-1">Tom: {b.tom_de_voz || "—"}</div>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" className="flex-1" onClick={() => setEdit(b)}>Editar</Button>
+            </div>
           </Card>
         ))}
-        {items.length === 0 && <Card className="p-6 text-center text-muted-foreground col-span-full">Nenhum Brand Kit. Crie o primeiro!</Card>}
+        {items.length === 0 && <Card className="p-6 text-center text-muted-foreground col-span-full">Nenhum cliente cadastrado. Crie o primeiro!</Card>}
       </div>
     </div>
   );
@@ -717,7 +780,195 @@ export const NewslettersListPage = () => <GenericList table="comm_newsletters" t
 export const InternaListPage = () => <GenericList table="comm_internal_comms" title="Comunicações internas" fields={["tipo", "titulo", "prioridade", "status"]} />;
 export const CarrosseisListPage = () => <GenericList table="comm_carousels" title="Carrosséis" fields={["titulo", "canal", "status"]} />;
 export const CampanhasListPage = () => <GenericList table="comm_campaigns" title="Campanhas" fields={["nome", "tipo", "status", "data_inicio", "data_fim"]} />;
-export const ProdutoListPage = () => <GenericList table="comm_product_items" title="Product Management" fields={["titulo", "tipo", "status", "prioridade", "modulo_relacionado"]} />;
+export function ProdutoListPage() {
+  const { companyId } = useComunicacaoAccess();
+  const { toast } = useToast();
+  const [items, setItems] = useState<any[]>([]);
+  const [edit, setEdit] = useState<any | null>(null);
+
+  async function load() {
+    if (!companyId) return;
+    const { data } = await supabase.from("comm_product_items").select("*").eq("company_id", companyId).eq("is_deleted", false).order("created_at", { ascending: false });
+    setItems(data ?? []);
+  }
+  useEffect(() => { load(); }, [companyId]);
+
+  async function save() {
+    if (!companyId || !edit?.titulo) { toast({ title: "Título obrigatório", variant: "destructive" }); return; }
+    const { id, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, delete_reason, ...rest } = edit;
+    const payload = { ...rest, company_id: companyId };
+    const { error } = id
+      ? await supabase.from("comm_product_items").update(payload).eq("id", id)
+      : await supabase.from("comm_product_items").insert(payload);
+    if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Item salvo" }); setEdit(null); load();
+  }
+
+  async function moveKanban(item: any, status_kanban: string) {
+    await supabase.from("comm_product_items").update({ status_kanban }).eq("id", item.id);
+    load();
+  }
+
+  const KANBAN = [
+    { key: "backlog", label: "Backlog" },
+    { key: "discovery", label: "Discovery" },
+    { key: "em_desenvolvimento", label: "Em desenvolvimento" },
+    { key: "em_teste", label: "Em teste" },
+    { key: "lancado", label: "Lançado" },
+  ];
+
+  return (
+    <Tabs defaultValue="roadmap" className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-display font-bold">Product Management</h2>
+        <Button size="sm" onClick={() => setEdit({ titulo: "", tipo: "feature", status: "ideia", status_kanban: "backlog", prioridade: "média" })}><Plus className="w-4 h-4 mr-1" />Novo item</Button>
+      </div>
+      <TabsList>
+        <TabsTrigger value="roadmap">Roadmap (Kanban)</TabsTrigger>
+        <TabsTrigger value="lista">Lista</TabsTrigger>
+        <TabsTrigger value="posicionamento">Posicionamento</TabsTrigger>
+        <TabsTrigger value="lancamentos">Lançamentos</TabsTrigger>
+        <TabsTrigger value="metricas">Métricas</TabsTrigger>
+      </TabsList>
+
+      {edit && (
+        <Card className="p-4 space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            <div><Label>Título *</Label><Input value={edit.titulo ?? ""} onChange={(e) => setEdit({ ...edit, titulo: e.target.value })} /></div>
+            <div><Label>Tipo</Label>
+              <Select value={edit.tipo ?? "feature"} onValueChange={(v) => setEdit({ ...edit, tipo: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{["feature", "epic", "bug", "melhoria", "research", "release"].map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div><Label>Prioridade</Label>
+              <Select value={edit.prioridade ?? "média"} onValueChange={(v) => setEdit({ ...edit, prioridade: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{["baixa", "média", "alta", "crítica"].map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div><Label>Status Kanban</Label>
+              <Select value={edit.status_kanban ?? "backlog"} onValueChange={(v) => setEdit({ ...edit, status_kanban: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{KANBAN.map((k) => <SelectItem key={k.key} value={k.key}>{k.label}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div><Label>Módulo</Label><Input value={edit.modulo_relacionado ?? ""} onChange={(e) => setEdit({ ...edit, modulo_relacionado: e.target.value })} /></div>
+            <div><Label>Versão prevista</Label><Input value={edit.versao_prevista ?? ""} onChange={(e) => setEdit({ ...edit, versao_prevista: e.target.value })} /></div>
+            <div><Label>Data de lançamento</Label><Input type="date" value={edit.data_lancamento ?? ""} onChange={(e) => setEdit({ ...edit, data_lancamento: e.target.value || null })} /></div>
+          </div>
+          <div><Label>Descrição</Label><Textarea rows={2} value={edit.descricao ?? ""} onChange={(e) => setEdit({ ...edit, descricao: e.target.value })} /></div>
+          <div><Label>User story</Label><Textarea rows={2} value={edit.user_story ?? ""} onChange={(e) => setEdit({ ...edit, user_story: e.target.value })} placeholder="Como [usuário] quero [ação] para [benefício]" /></div>
+          <div><Label>Critérios de aceite</Label><Textarea rows={2} value={edit.criterios_aceite ?? ""} onChange={(e) => setEdit({ ...edit, criterios_aceite: e.target.value })} /></div>
+          <div><Label>Release note</Label><Textarea rows={2} value={edit.release_note ?? ""} onChange={(e) => setEdit({ ...edit, release_note: e.target.value })} /></div>
+          <div className="flex gap-2"><Button onClick={save}><Save className="w-4 h-4 mr-1" />Salvar</Button><Button variant="outline" onClick={() => setEdit(null)}>Cancelar</Button></div>
+        </Card>
+      )}
+
+      <TabsContent value="roadmap">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          {KANBAN.map((col) => (
+            <div key={col.key} className="space-y-2"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => { const id = e.dataTransfer.getData("text/plain"); const it = items.find((x) => x.id === id); if (it) moveKanban(it, col.key); }}
+            >
+              <div className="text-xs font-bold uppercase text-muted-foreground border-b pb-1">{col.label} <span className="text-[10px] text-muted-foreground">({items.filter((i) => (i.status_kanban ?? "backlog") === col.key).length})</span></div>
+              {items.filter((i) => (i.status_kanban ?? "backlog") === col.key).map((i) => (
+                <Card key={i.id} className="p-2 cursor-grab active:cursor-grabbing" draggable onDragStart={(e) => e.dataTransfer.setData("text/plain", i.id)} onClick={() => setEdit(i)}>
+                  <div className="text-sm font-medium line-clamp-2">{i.titulo}</div>
+                  <div className="text-[10px] text-muted-foreground mt-1">{i.tipo} · {i.prioridade ?? "média"}</div>
+                  {i.modulo_relacionado && <Badge variant="outline" className="mt-1 text-[9px]">{i.modulo_relacionado}</Badge>}
+                </Card>
+              ))}
+            </div>
+          ))}
+        </div>
+      </TabsContent>
+
+      <TabsContent value="lista">
+        <Card>
+          <table className="w-full text-sm">
+            <thead className="bg-muted"><tr><th className="p-2 text-left">Título</th><th className="p-2 text-left">Tipo</th><th className="p-2 text-left">Status</th><th className="p-2 text-left">Prioridade</th><th className="p-2 text-left">Módulo</th><th /></tr></thead>
+            <tbody>{items.map((it) => (
+              <tr key={it.id} className="border-t hover:bg-muted/30 cursor-pointer" onClick={() => setEdit(it)}>
+                <td className="p-2">{it.titulo}</td><td className="p-2">{it.tipo}</td><td className="p-2"><StatusBadge s={it.status_kanban ?? it.status} /></td><td className="p-2">{it.prioridade ?? "—"}</td><td className="p-2">{it.modulo_relacionado ?? "—"}</td>
+                <td className="p-2"><Button size="icon" variant="ghost" onClick={async (e) => { e.stopPropagation(); const r = window.prompt("Motivo:"); if (r) { await commSoftDelete("comm_product_items", it.id, r); load(); } }}><Trash2 className="w-4 h-4" /></Button></td>
+              </tr>))}</tbody>
+          </table>
+          {items.length === 0 && <div className="p-6 text-center text-muted-foreground text-sm">Nenhum item.</div>}
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="posicionamento">
+        <Card className="p-4 space-y-3">
+          <h3 className="font-display font-bold">One-pager de posicionamento</h3>
+          <p className="text-xs text-muted-foreground">Clique em um item para editar o posicionamento detalhado.</p>
+          <div className="grid md:grid-cols-2 gap-3">
+            {items.filter((i) => i.tipo === "feature" || i.tipo === "release").map((i) => (
+              <Card key={i.id} className="p-3 cursor-pointer hover:border-primary/40" onClick={() => setEdit(i)}>
+                <div className="font-medium text-sm">{i.titulo}</div>
+                <div className="text-xs text-muted-foreground mt-1">Para: {i.user_story?.match(/Como ([^,]+)/)?.[1] ?? "—"}</div>
+                <div className="text-xs mt-1 line-clamp-3">{i.descricao}</div>
+              </Card>
+            ))}
+            {items.filter((i) => i.tipo === "feature" || i.tipo === "release").length === 0 && <div className="text-sm text-muted-foreground col-span-2">Crie features para ver posicionamento.</div>}
+          </div>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="lancamentos">
+        <div className="space-y-2">
+          {items.filter((i) => i.data_lancamento || i.tipo === "release").sort((a, b) => (a.data_lancamento ?? "").localeCompare(b.data_lancamento ?? "")).map((i) => (
+            <Card key={i.id} className="p-3 flex items-center gap-3">
+              <div className="text-center w-20">
+                <div className="text-xs text-muted-foreground">{i.data_lancamento ? new Date(i.data_lancamento).toLocaleDateString("pt-BR", { weekday: "short" }) : "—"}</div>
+                <div className="font-bold text-sm">{i.data_lancamento ? new Date(i.data_lancamento).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : "?"}</div>
+              </div>
+              <div className="flex-1 cursor-pointer" onClick={() => setEdit(i)}>
+                <div className="font-medium">{i.titulo}</div>
+                <div className="text-xs text-muted-foreground">{i.versao_prevista ?? ""} {i.modulo_relacionado ?? ""}</div>
+                {i.release_note && <div className="text-xs mt-1 line-clamp-2">{i.release_note}</div>}
+              </div>
+              <StatusBadge s={i.status_kanban ?? i.status} />
+            </Card>
+          ))}
+          {items.filter((i) => i.data_lancamento || i.tipo === "release").length === 0 && <Card className="p-6 text-center text-muted-foreground">Nenhum lançamento agendado.</Card>}
+        </div>
+      </TabsContent>
+
+      <TabsContent value="metricas">
+        <div className="grid md:grid-cols-4 gap-3">
+          {[
+            { label: "Total", v: items.length },
+            { label: "Em desenvolvimento", v: items.filter((i) => i.status_kanban === "em_desenvolvimento").length },
+            { label: "Lançados", v: items.filter((i) => i.status_kanban === "lancado").length },
+            { label: "Backlog", v: items.filter((i) => (i.status_kanban ?? "backlog") === "backlog").length },
+          ].map((k) => (
+            <Card key={k.label} className="p-4 text-center">
+              <div className="text-3xl font-display font-bold text-primary">{k.v}</div>
+              <div className="text-xs uppercase text-muted-foreground mt-1">{k.label}</div>
+            </Card>
+          ))}
+        </div>
+        <Card className="p-4 mt-3">
+          <h3 className="font-display font-bold mb-2">Distribuição por tipo</h3>
+          <div className="space-y-1">
+            {Array.from(new Set(items.map((i) => i.tipo ?? "—"))).map((tipo) => {
+              const n = items.filter((i) => (i.tipo ?? "—") === tipo).length;
+              const pct = items.length ? Math.round((n / items.length) * 100) : 0;
+              return (
+                <div key={tipo}>
+                  <div className="flex justify-between text-xs"><span>{tipo}</span><span>{n} ({pct}%)</span></div>
+                  <div className="h-2 bg-muted rounded overflow-hidden"><div className="h-full bg-primary" style={{ width: `${pct}%` }} /></div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      </TabsContent>
+    </Tabs>
+  );
+}
 export const PublicacoesListPage = () => <GenericList table="comm_publications" title="Publicações" fields={["canal", "status", "data_publicada", "link_publicacao"]} />;
 
 // ========== IDEIAS ==========
