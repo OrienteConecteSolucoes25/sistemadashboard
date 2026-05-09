@@ -589,11 +589,21 @@ export function CalendarioPage() {
             <div className="text-center w-16"><div className="text-xs text-muted-foreground">{new Date(c.data_planejada).toLocaleDateString("pt-BR", { weekday: "short" })}</div><div className="font-bold">{new Date(c.data_planejada).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}</div></div>
             <div className="flex-1"><div className="font-medium">{c.tema || "(sem tema)"}</div><div className="text-xs text-muted-foreground">{c.canal} · {c.formato}</div></div>
             <StatusBadge s={c.status} />
+            <Button size="sm" variant="outline" onClick={() => setScheduling(c)}><Send className="w-3.5 h-3.5 mr-1" />Publicar</Button>
             <Button size="sm" variant="outline" onClick={() => setEdit(c)}>Editar</Button>
           </Card>
         ))}
         {items.length === 0 && <Card className="p-6 text-center text-muted-foreground">Calendário vazio.</Card>}
       </div>
+      <ScheduleDialog
+        open={!!scheduling}
+        onOpenChange={(v) => !v && setScheduling(null)}
+        companyId={companyId}
+        entidadeTipo="comm_editorial_calendar"
+        entidadeId={scheduling?.id ?? ""}
+        defaultCaption={scheduling ? [scheduling.legenda, scheduling.cta].filter(Boolean).join("\n\n") : ""}
+        onScheduled={load}
+      />
     </div>
   );
 }
