@@ -8043,6 +8043,15 @@ export type Database = {
         Args: { _id: string; _reason: string; _table: string }
         Returns: Json
       }
+      comm_workflow_transition: {
+        Args: {
+          _action: string
+          _comentario?: string
+          _entidade_id: string
+          _entidade_tipo: string
+        }
+        Returns: Json
+      }
       crea_can: {
         Args: { _action: string; _company: string; _uid: string }
         Returns: boolean
