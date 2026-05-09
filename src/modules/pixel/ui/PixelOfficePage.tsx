@@ -18,6 +18,7 @@ import { PixelMeetingsPanel } from "./PixelMeetingsPanel";
 import { PixelCommunityPanel } from "./PixelCommunityPanel";
 import { DiretorAgentChat } from "@/modules/comunicacao/ui/DiretorAgentChat";
 import { DiretorNpc } from "./DiretorNpc";
+import { ActiveBrandKitProvider } from "@/modules/comunicacao/hooks/useActiveBrandKit";
 
 type Selected =
   | { kind: "character"; data: PixelCharacter }
@@ -89,6 +90,7 @@ export default function PixelOfficePage() {
   };
 
   return (
+    <ActiveBrandKitProvider>
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
@@ -180,5 +182,6 @@ export default function PixelOfficePage() {
 
       {/* Diretor já está embutido no mapa via NPC. Sem botão flutuante duplicado aqui. */}
     </div>
+    </ActiveBrandKitProvider>
   );
 }
