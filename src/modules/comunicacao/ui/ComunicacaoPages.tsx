@@ -74,34 +74,81 @@ export function BrandKitsPage() {
 
   if (edit) {
     return (
-      <div className="space-y-3 max-w-3xl">
-        <h2 className="text-xl font-display font-bold">{edit.id ? "Editar" : "Novo"} Brand Kit</h2>
-        <Card className="p-4 space-y-3">
-          {[
-            ["nome", "Nome da marca"], ["slogan", "Slogan"], ["descricao", "Descrição"],
-            ["publico_alvo", "Público-alvo"], ["persona", "Persona"], ["tom_de_voz", "Tom de voz"],
-            ["proposta_valor", "Proposta de valor"], ["diferenciais", "Diferenciais"], ["cta_padrao", "CTA padrão"],
-            ["estilo_visual", "Estilo visual"], ["tipo_linguagem", "Tipo de linguagem"],
-          ].map(([k, label]) => (
-            <div key={k}>
-              <Label>{label}</Label>
-              {["descricao", "diferenciais", "proposta_valor"].includes(k) ?
-                <Textarea value={edit[k] ?? ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} /> :
-                <Input value={edit[k] ?? ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} />}
-            </div>
-          ))}
-          <div className="grid grid-cols-2 gap-3">
-            <div><Label>Palavras permitidas (CSV)</Label><Input value={Array.isArray(edit.palavras_permitidas) ? edit.palavras_permitidas.join(", ") : edit.palavras_permitidas ?? ""} onChange={(e) => setEdit({ ...edit, palavras_permitidas: e.target.value })} /></div>
-            <div><Label>Palavras proibidas (CSV)</Label><Input value={Array.isArray(edit.palavras_proibidas) ? edit.palavras_proibidas.join(", ") : edit.palavras_proibidas ?? ""} onChange={(e) => setEdit({ ...edit, palavras_proibidas: e.target.value })} /></div>
-            <div><Label>Cores principais (CSV)</Label><Input value={Array.isArray(edit.cores_principais) ? edit.cores_principais.join(", ") : edit.cores_principais ?? ""} onChange={(e) => setEdit({ ...edit, cores_principais: e.target.value })} /></div>
-            <div><Label>Cores secundárias (CSV)</Label><Input value={Array.isArray(edit.cores_secundarias) ? edit.cores_secundarias.join(", ") : edit.cores_secundarias ?? ""} onChange={(e) => setEdit({ ...edit, cores_secundarias: e.target.value })} /></div>
-            <div className="col-span-2"><Label>Fontes (CSV)</Label><Input value={Array.isArray(edit.fontes) ? edit.fontes.join(", ") : edit.fontes ?? ""} onChange={(e) => setEdit({ ...edit, fontes: e.target.value })} /></div>
-          </div>
-          <div className="flex gap-2">
-            <Button onClick={save}><Save className="w-4 h-4 mr-1" />Salvar</Button>
-            <Button variant="outline" onClick={() => setEdit(null)}>Cancelar</Button>
-          </div>
-        </Card>
+      <div className="space-y-3 max-w-4xl">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-display font-bold">{edit.id ? "Editar cliente / marca" : "Novo cliente / marca"}</h2>
+          <Button variant="outline" size="sm" onClick={() => setEdit(null)}>Voltar</Button>
+        </div>
+        <Tabs defaultValue="identidade">
+          <TabsList>
+            <TabsTrigger value="identidade">Identidade</TabsTrigger>
+            <TabsTrigger value="institucional">Institucional</TabsTrigger>
+            <TabsTrigger value="voz">Voz & Mensagem</TabsTrigger>
+            <TabsTrigger value="visual">Visual</TabsTrigger>
+            <TabsTrigger value="links">Links & Redes</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="identidade" className="space-y-3 pt-3">
+            <Card className="p-4 space-y-3">
+              {[["nome", "Nome do cliente / marca *"], ["slogan", "Slogan"], ["segmento", "Segmento de mercado"], ["website", "Website"], ["descricao", "Sobre a empresa / marca"]].map(([k, label]) => (
+                <div key={k}>
+                  <Label>{label}</Label>
+                  {k === "descricao"
+                    ? <Textarea rows={4} value={edit[k] ?? ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} />
+                    : <Input value={edit[k] ?? ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} />}
+                </div>
+              ))}
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="institucional" className="space-y-3 pt-3">
+            <Card className="p-4 space-y-3">
+              {[["missao", "Missão"], ["visao", "Visão"], ["valores", "Valores"], ["proposta_valor", "Proposta de valor"], ["diferenciais", "Diferenciais competitivos"]].map(([k, label]) => (
+                <div key={k}><Label>{label}</Label><Textarea rows={3} value={edit[k] ?? ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} /></div>
+              ))}
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="voz" className="space-y-3 pt-3">
+            <Card className="p-4 space-y-3">
+              {[["publico_alvo", "Público-alvo"], ["persona", "Persona principal"], ["tom_de_voz", "Tom de voz"], ["tipo_linguagem", "Tipo de linguagem"], ["cta_padrao", "CTA padrão"]].map(([k, label]) => (
+                <div key={k}><Label>{label}</Label>
+                  {["publico_alvo", "persona"].includes(k as string)
+                    ? <Textarea rows={2} value={edit[k] ?? ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} />
+                    : <Input value={edit[k] ?? ""} onChange={(e) => setEdit({ ...edit, [k]: e.target.value })} />}
+                </div>
+              ))}
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label>Palavras permitidas (CSV)</Label><Input value={Array.isArray(edit.palavras_permitidas) ? edit.palavras_permitidas.join(", ") : edit.palavras_permitidas ?? ""} onChange={(e) => setEdit({ ...edit, palavras_permitidas: e.target.value })} /></div>
+                <div><Label>Palavras proibidas (CSV)</Label><Input value={Array.isArray(edit.palavras_proibidas) ? edit.palavras_proibidas.join(", ") : edit.palavras_proibidas ?? ""} onChange={(e) => setEdit({ ...edit, palavras_proibidas: e.target.value })} /></div>
+              </div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="visual" className="space-y-3 pt-3">
+            <Card className="p-4 space-y-3">
+              <div><Label>Estilo visual</Label><Input value={edit.estilo_visual ?? ""} onChange={(e) => setEdit({ ...edit, estilo_visual: e.target.value })} /></div>
+              <div className="grid grid-cols-2 gap-3">
+                <div><Label>Cores principais (CSV)</Label><Input value={Array.isArray(edit.cores_principais) ? edit.cores_principais.join(", ") : edit.cores_principais ?? ""} onChange={(e) => setEdit({ ...edit, cores_principais: e.target.value })} /></div>
+                <div><Label>Cores secundárias (CSV)</Label><Input value={Array.isArray(edit.cores_secundarias) ? edit.cores_secundarias.join(", ") : edit.cores_secundarias ?? ""} onChange={(e) => setEdit({ ...edit, cores_secundarias: e.target.value })} /></div>
+                <div className="col-span-2"><Label>Fontes (CSV)</Label><Input value={Array.isArray(edit.fontes) ? edit.fontes.join(", ") : edit.fontes ?? ""} onChange={(e) => setEdit({ ...edit, fontes: e.target.value })} /></div>
+              </div>
+              <div><Label>Logo (URL)</Label><Input value={edit.logo_url ?? ""} onChange={(e) => setEdit({ ...edit, logo_url: e.target.value })} placeholder="https://..." /></div>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="links" className="space-y-3 pt-3">
+            <Card className="p-4 space-y-3">
+              <div><Label>Observações livres</Label><Textarea rows={4} value={edit.observacoes ?? ""} onChange={(e) => setEdit({ ...edit, observacoes: e.target.value })} /></div>
+              <div className="text-xs text-muted-foreground">Redes sociais e links serão expandidos em breve. Por ora, registre URLs nas observações.</div>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        <div className="flex gap-2 sticky bottom-0 bg-background py-2 border-t">
+          <Button onClick={save}><Save className="w-4 h-4 mr-1" />Salvar cliente</Button>
+          <Button variant="outline" onClick={() => setEdit(null)}>Cancelar</Button>
+        </div>
       </div>
     );
   }
@@ -109,23 +156,39 @@ export function BrandKitsPage() {
   return (
     <div className="space-y-3">
       <div className="flex justify-between items-center">
-        <h2 className="text-xl font-display font-bold">Brand Kits</h2>
-        <Button onClick={newKit}><Plus className="w-4 h-4 mr-1" />Novo Brand Kit</Button>
+        <div>
+          <h2 className="text-xl font-display font-bold">Clientes & Marcas</h2>
+          <p className="text-xs text-muted-foreground">Cada cliente / marca tem seu próprio Brand Kit, paleta, tom de voz e regras. Útil para social media multi-marca.</p>
+        </div>
+        <Button onClick={newKit}><Plus className="w-4 h-4 mr-1" />Novo cliente / marca</Button>
       </div>
       <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-3">
         {items.map((b) => (
-          <Card key={b.id} className="p-4 space-y-2">
-            <div className="flex justify-between"><div className="font-bold">{b.nome}</div><Button size="icon" variant="ghost" onClick={() => remove(b.id)}><Trash2 className="w-4 h-4" /></Button></div>
-            {b.slogan && <div className="text-xs italic text-muted-foreground">"{b.slogan}"</div>}
-            <div className="text-sm line-clamp-3">{b.descricao}</div>
-            <div className="flex gap-1 flex-wrap">
-              {(b.cores_principais ?? []).map((c: string) => <span key={c} style={{ background: c }} className="w-5 h-5 rounded border" />)}
+          <Card key={b.id} className="p-4 space-y-2 hover:border-primary/40 transition">
+            <div className="flex justify-between items-start gap-2">
+              <div className="flex items-center gap-2 min-w-0">
+                {b.logo_url
+                  ? <img src={b.logo_url} alt="" className="w-9 h-9 rounded object-cover border flex-shrink-0" />
+                  : <div className="w-9 h-9 rounded border flex items-center justify-center bg-muted flex-shrink-0 text-xs font-bold">{(b.nome ?? "?").slice(0, 2).toUpperCase()}</div>}
+                <div className="min-w-0">
+                  <div className="font-bold truncate">{b.nome}</div>
+                  {b.segmento && <div className="text-[10px] uppercase text-muted-foreground">{b.segmento}</div>}
+                </div>
+              </div>
+              <Button size="icon" variant="ghost" onClick={() => remove(b.id)}><Trash2 className="w-4 h-4" /></Button>
             </div>
-            <div className="text-xs text-muted-foreground">Tom: {b.tom_de_voz}</div>
-            <Button size="sm" variant="outline" onClick={() => setEdit(b)}>Editar</Button>
+            {b.slogan && <div className="text-xs italic text-muted-foreground">"{b.slogan}"</div>}
+            <div className="text-sm line-clamp-3 min-h-[2.5em]">{b.descricao}</div>
+            <div className="flex gap-1 flex-wrap">
+              {(b.cores_principais ?? []).slice(0, 6).map((c: string, i: number) => <span key={i} style={{ background: c }} className="w-5 h-5 rounded border" />)}
+            </div>
+            <div className="text-xs text-muted-foreground line-clamp-1">Tom: {b.tom_de_voz || "—"}</div>
+            <div className="flex gap-2">
+              <Button size="sm" variant="outline" className="flex-1" onClick={() => setEdit(b)}>Editar</Button>
+            </div>
           </Card>
         ))}
-        {items.length === 0 && <Card className="p-6 text-center text-muted-foreground col-span-full">Nenhum Brand Kit. Crie o primeiro!</Card>}
+        {items.length === 0 && <Card className="p-6 text-center text-muted-foreground col-span-full">Nenhum cliente cadastrado. Crie o primeiro!</Card>}
       </div>
     </div>
   );
