@@ -500,28 +500,59 @@ export function CalendarioPage() {
 }
 
 // ========== GENERIC AI GENERATOR ==========
-function MakeAiPage(props: { kind: string; title: string; fields: { key: string; label: string; type?: string; options?: string[] }[]; previewKey?: string }) {
+function MakeAiPage(props: {
+  kind: string;
+  title: string;
+  fields: { key: string; label: string; type?: string; options?: string[] }[];
+  saveTable?: string;
+  mapResult?: (r: any, inputs: any, brandId: string, companyId: string) => { main: any; children?: { table: string; rows: any[]; fkField: string }[] };
+}) {
   return function Page() {
     const { companyId } = useComunicacaoAccess();
+    const { activeBrand } = useActiveBrandKit();
     const [brands, setBrands] = useState<any[]>([]);
     const [brandId, setBrandId] = useState("");
     const [inputs, setInputs] = useState<any>({});
-    const [r, setR] = useState<any>(null); const [loading, setLoading] = useState(false);
+    const [r, setR] = useState<any>(null); const [loading, setLoading] = useState(false); const [saving, setSaving] = useState(false);
     const { toast } = useToast();
     useEffect(() => { loadBrands(companyId).then(setBrands); }, [companyId]);
+    useEffect(() => { if (activeBrand?.id && !brandId) setBrandId(activeBrand.id); }, [activeBrand?.id]);
 
     async function gen() {
       if (!companyId) return; setLoading(true);
-      try { const x = await commAi({ kind: props.kind, company_id: companyId, brand: brands.find((b) => b.id === brandId), inputs }); setR(x.data); }
+      try { const x = await commAi({ kind: props.kind, company_id: companyId, brand: brands.find((b) => b.id === brandId) ?? activeBrand, inputs }); setR(x.data); }
       catch (e: any) { toast({ title: "Erro", description: e.message, variant: "destructive" }); }
       finally { setLoading(false); }
     }
+
+    async function save() {
+      if (!companyId || !r || !props.saveTable) return;
+      setSaving(true);
+      try {
+        const mapped = props.mapResult
+          ? props.mapResult(r, inputs, brandId, companyId)
+          : { main: { company_id: companyId, brand_kit_id: brandId || null, ai_generated: true, status: "rascunho_ia", ...r } };
+        const { data, error } = await supabase.from(props.saveTable as any).insert(mapped.main).select().single();
+        if (error) throw error;
+        if (mapped.children?.length) {
+          for (const ch of mapped.children) {
+            if (!ch.rows?.length) continue;
+            await supabase.from(ch.table as any).insert(ch.rows.map((row, i) => ({ ...row, [ch.fkField]: data.id, ordem: row.ordem ?? i + 1 })));
+          }
+        }
+        toast({ title: "Salvo como rascunho IA" });
+      } catch (e: any) { toast({ title: "Erro ao salvar", description: e.message, variant: "destructive" }); }
+      finally { setSaving(false); }
+    }
+
     return (
       <div className="grid lg:grid-cols-2 gap-4">
         <Card className="p-4 space-y-3">
           <h2 className="text-xl font-display font-bold">{props.title}</h2>
-          <Select value={brandId} onValueChange={setBrandId}><SelectTrigger><SelectValue placeholder="Brand Kit" /></SelectTrigger>
-            <SelectContent>{brands.map((b) => <SelectItem key={b.id} value={b.id}>{b.nome}</SelectItem>)}</SelectContent></Select>
+          <div><Label>Brand Kit</Label>
+            <Select value={brandId} onValueChange={setBrandId}><SelectTrigger><SelectValue placeholder="Selecione..." /></SelectTrigger>
+              <SelectContent>{brands.map((b) => <SelectItem key={b.id} value={b.id}>{b.nome}</SelectItem>)}</SelectContent></Select>
+          </div>
           {props.fields.map((f) => f.options ? (
             <div key={f.key}><Label>{f.label}</Label>
               <Select value={inputs[f.key] ?? ""} onValueChange={(v) => setInputs({ ...inputs, [f.key]: v })}>
@@ -531,15 +562,58 @@ function MakeAiPage(props: { kind: string; title: string; fields: { key: string;
           ) : (
             <div key={f.key}><Label>{f.label}</Label><Input type={f.type ?? "text"} value={inputs[f.key] ?? ""} onChange={(e) => setInputs({ ...inputs, [f.key]: f.type === "number" ? parseInt(e.target.value) : e.target.value })} /></div>
           ))}
-          <Button onClick={gen} disabled={loading}>{loading ? "Gerando..." : "Gerar"}</Button>
+          <Button onClick={gen} disabled={loading}><Sparkles className="w-4 h-4 mr-1" />{loading ? "Gerando..." : "Gerar com IA"}</Button>
         </Card>
-        <Card className="p-4 text-sm">
+        <Card className="p-4 text-sm space-y-3">
           {!r && <div className="text-muted-foreground">Resultado aparecerá aqui.</div>}
-          {r && <pre className="whitespace-pre-wrap break-words text-xs">{JSON.stringify(r, null, 2)}</pre>}
+          {r && (
+            <>
+              <RenderAiResult r={r} setR={setR} />
+              <div className="flex flex-wrap gap-2 pt-2 border-t">
+                {props.saveTable && <Button size="sm" onClick={save} disabled={saving}><Save className="w-4 h-4 mr-1" />{saving ? "Salvando..." : "Salvar rascunho"}</Button>}
+                <Button size="sm" variant="ghost" onClick={() => navigator.clipboard.writeText(typeof r === "string" ? r : JSON.stringify(r, null, 2))}><Copy className="w-4 h-4 mr-1" />Copiar</Button>
+                <Button size="sm" variant="outline" onClick={gen} disabled={loading}><RefreshCcw className="w-4 h-4 mr-1" />Regenerar</Button>
+              </div>
+            </>
+          )}
         </Card>
       </div>
     );
   };
+}
+
+function RenderAiResult({ r, setR }: { r: any; setR: (v: any) => void }) {
+  if (!r || typeof r !== "object") return <pre className="whitespace-pre-wrap break-words text-xs">{String(r)}</pre>;
+  const entries = Object.entries(r);
+  return (
+    <div className="space-y-2">
+      {entries.map(([k, v]) => {
+        if (Array.isArray(v) && v.length && typeof v[0] === "object") {
+          return (
+            <div key={k}>
+              <div className="font-semibold text-xs uppercase text-muted-foreground">{k}</div>
+              <div className="space-y-1">
+                {v.map((item: any, i: number) => (
+                  <div key={i} className="p-2 bg-muted rounded text-xs">
+                    {Object.entries(item).map(([ik, iv]) => (
+                      <div key={ik}><b>{ik}:</b> {Array.isArray(iv) ? (iv as any[]).join(", ") : String(iv)}</div>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        }
+        if (Array.isArray(v)) {
+          return <div key={k}><div className="font-semibold text-xs uppercase text-muted-foreground">{k}</div><div className="text-xs">{(v as any[]).map((x, i) => <Badge key={i} variant="outline" className="mr-1">{String(x)}</Badge>)}</div></div>;
+        }
+        if (typeof v === "string" && v.length > 80) {
+          return <div key={k}><div className="font-semibold text-xs uppercase text-muted-foreground">{k}</div><Textarea value={v} onChange={(e) => setR({ ...r, [k]: e.target.value })} rows={Math.min(8, Math.ceil(v.length / 80))} /></div>;
+        }
+        return <div key={k} className="text-xs"><b>{k}:</b> {String(v)}</div>;
+      })}
+    </div>
+  );
 }
 
 export const CarrosselGeneratorPage = MakeAiPage({
