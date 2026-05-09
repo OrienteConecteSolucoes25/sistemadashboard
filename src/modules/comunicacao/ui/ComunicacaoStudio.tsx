@@ -6,10 +6,12 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useComunicacaoAccess } from "../hooks/useComunicacaoAccess";
+import { useActiveBrandKit } from "../hooks/useActiveBrandKit";
 import { commImageGen, commSoftDelete } from "../lib/api";
-import { Sparkles, Save, Download, Copy, ExternalLink, Trash2, Image as ImageIcon } from "lucide-react";
+import { Sparkles, Save, Download, Copy, ExternalLink, Trash2, Image as ImageIcon, Grid3x3, RefreshCcw, Loader2 } from "lucide-react";
 
 const FORMATS: Record<string, { w: number; h: number; label: string }> = {
   "1080x1080": { w: 1080, h: 1080, label: "Instagram Feed" },
