@@ -168,6 +168,32 @@ const App = () => (
                 <Route path="governanca" element={<GovernanceUniversalPage moduleKey="crea" />} />
               </Route>
               <Route path="rh-dp/governanca" element={<GovernanceUniversalPage moduleKey="rhdp" />} />
+              <Route path="comunicacao" element={<ComunicacaoLayout />}>
+                <Route index element={<ComunicacaoDashboard />} />
+                <Route path="calendario" element={<CalendarioPage />} />
+                <Route path="posts" element={<PostGeneratorPage />} />
+                <Route path="posts/lista" element={<PostsListPage />} />
+                <Route path="legendas" element={<LegendaGeneratorPage />} />
+                <Route path="textos" element={<TextoGeneratorPage />} />
+                <Route path="carrosseis" element={<CarrosselGeneratorPage />} />
+                <Route path="carrosseis/lista" element={<CarrosseisListPage />} />
+                <Route path="newsletters" element={<NewsletterGeneratorPage />} />
+                <Route path="newsletters/lista" element={<NewslettersListPage />} />
+                <Route path="interna" element={<InternaGeneratorPage />} />
+                <Route path="interna/lista" element={<InternaListPage />} />
+                <Route path="design-studio" element={<DesignStudioPage />} />
+                <Route path="imagens-ia" element={<ImagesGalleryPage />} />
+                <Route path="canva" element={<CanvaPage />} />
+                <Route path="campanhas" element={<CampanhaGeneratorPage />} />
+                <Route path="campanhas/lista" element={<CampanhasListPage />} />
+                <Route path="produto" element={<ProdutoListPage />} />
+                <Route path="ideias" element={<IdeiasPage />} />
+                <Route path="prompts" element={<PromptsPage />} />
+                <Route path="aprovacoes" element={<AprovacoesPage />} />
+                <Route path="publicacoes" element={<PublicacoesListPage />} />
+                <Route path="marca" element={<BrandKitsPage />} />
+                <Route path="auditoria" element={<CommAuditoriaPage />} />
+              </Route>
               <Route path="comunicacao/governanca" element={<GovernanceUniversalPage moduleKey="comunicacao" />} />
               <Route path="governanca" element={<GovernanceUniversalPage moduleKey="geral" />} />
               <Route path="planos" element={<PlanosPage />} />
