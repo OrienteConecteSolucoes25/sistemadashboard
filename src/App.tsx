@@ -71,6 +71,7 @@ import {
   IdeiasPage, PromptsPage, AuditoriaPage as CommAuditoriaPage,
 } from "./modules/comunicacao/ui/ComunicacaoPages";
 import { DesignStudioPage, ImagesGalleryPage, CanvaPage } from "./modules/comunicacao/ui/ComunicacaoStudio";
+import IntegracoesSociaisPage from "./modules/comunicacao/ui/IntegracoesSociaisPage";
 import ThemeStudioPage from "./modules/aparencia/ui/ThemeStudioPage";
 import { CompanyThemeProvider } from "./modules/aparencia/hooks/CompanyThemeProvider";
 import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
