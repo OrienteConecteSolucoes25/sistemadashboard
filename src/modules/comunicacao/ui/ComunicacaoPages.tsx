@@ -607,7 +607,7 @@ export const PublicacoesListPage = () => <GenericList table="comm_publications" 
 // ========== IDEIAS ==========
 export function IdeiasPage() {
   const { companyId } = useComunicacaoAccess();
-  const { activeBrand } = (require("../hooks/useActiveBrandKit") as typeof import("../hooks/useActiveBrandKit")).useActiveBrandKit();
+  const { activeBrand } = useActiveBrandKit();
   const { toast } = useToast();
   const [items, setItems] = useState<any[]>([]);
   const [novo, setNovo] = useState<any>({ ideia: "", categoria: "post", prioridade: "média" });
