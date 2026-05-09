@@ -21,6 +21,7 @@ const AppLayout = () => {
   const { isFinanceiro, isCompanyAdmin, companyId, isOcsStaff, canSeeMinhaEmpresa } = usePlanosAccess();
   const { hasAccess: rhdpAccess } = useRhdpAccess();
   const { hasAccess: creaAccess } = useCreaAccess();
+  const { hasAccess: commAccess } = useComunicacaoAccess();
   const loc = useLocation();
   const [open, setOpen] = useState(false);
 
