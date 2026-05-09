@@ -11,9 +11,10 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useComunicacaoAccess } from "../hooks/useComunicacaoAccess";
 import { commAi, commImageGen, commSoftDelete } from "../lib/api";
-import { Sparkles, Trash2, Plus, Save, ExternalLink, Copy, ImageIcon, RefreshCcw } from "lucide-react";
+import { Sparkles, Trash2, Plus, Save, ExternalLink, Copy, ImageIcon, RefreshCcw, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ApprovalPanel } from "./ApprovalPanel";
+import { ScheduleDialog } from "./ScheduleDialog";
 import { useActiveBrandKit } from "../hooks/useActiveBrandKit";
 
 // ========== HELPERS ==========
