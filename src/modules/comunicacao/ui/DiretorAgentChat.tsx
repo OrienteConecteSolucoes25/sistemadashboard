@@ -13,7 +13,7 @@ import { useComunicacaoAccess } from "../hooks/useComunicacaoAccess";
 
 type Msg = { id?: string; role: "user" | "assistant" | "tool"; content: string; tool_calls?: any; tool_results?: any };
 
-export function DiretorAgentChat() {
+export function DiretorAgentChat({ renderTrigger }: { renderTrigger?: (open: () => void) => ReactNode } = {}) {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"list" | "chat">("list");
   const [conversations, setConversations] = useState<any[]>([]);
