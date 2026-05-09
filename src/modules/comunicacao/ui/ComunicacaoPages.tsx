@@ -532,7 +532,8 @@ function MakeAiPage(props: {
         const mapped = props.mapResult
           ? props.mapResult(r, inputs, brandId, companyId)
           : { main: { company_id: companyId, brand_kit_id: brandId || null, ai_generated: true, status: "rascunho_ia", ...r } };
-        const { data, error } = await supabase.from(props.saveTable as any).insert(mapped.main).select().single();
+        const ins = await (supabase.from(props.saveTable as any) as any).insert(mapped.main).select().single();
+        const { data, error } = ins as { data: any; error: any };
         if (error) throw error;
         if (mapped.children?.length) {
           for (const ch of mapped.children) {
