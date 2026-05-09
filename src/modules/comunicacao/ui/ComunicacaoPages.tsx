@@ -416,20 +416,13 @@ export function TextoGeneratorPage() {
 export function PostsListPage() {
   const { companyId } = useComunicacaoAccess();
   const [items, setItems] = useState<any[]>([]);
+  const [openId, setOpenId] = useState<string | null>(null);
   async function load() {
     if (!companyId) return;
     const { data } = await supabase.from("comm_content_posts").select("*").eq("company_id", companyId).eq("is_deleted", false).order("created_at", { ascending: false }).limit(100);
     setItems(data ?? []);
   }
   useEffect(() => { load(); }, [companyId]);
-
-  async function setStatus(id: string, status: string) {
-    await supabase.from("comm_content_posts").update({ status }).eq("id", id);
-    if (status === "em_revisao") {
-      await supabase.from("comm_approvals").insert({ company_id: companyId, entidade_tipo: "comm_content_posts", entidade_id: id, status: "em_revisao" });
-    }
-    load();
-  }
 
   return (
     <div className="space-y-3">
@@ -439,17 +432,23 @@ export function PostsListPage() {
       </div>
       <div className="grid gap-2">
         {items.map((p) => (
-          <Card key={p.id} className="p-3 flex items-start gap-3">
-            <div className="flex-1">
-              <div className="flex items-center gap-2"><div className="font-medium">{p.titulo || p.tema || "(sem título)"}</div><StatusBadge s={p.status} /></div>
-              <div className="text-xs text-muted-foreground">{p.canal} · {p.formato} · {p.data_planejada || "sem data"}</div>
-              <div className="text-sm line-clamp-2 mt-1">{p.legenda}</div>
+          <Card key={p.id} className="p-3">
+            <div className="flex items-start gap-3">
+              <div className="flex-1">
+                <div className="flex items-center gap-2"><div className="font-medium">{p.titulo || p.tema || "(sem título)"}</div><StatusBadge s={p.status} /></div>
+                <div className="text-xs text-muted-foreground">{p.canal} · {p.formato} · {p.data_planejada || "sem data"}</div>
+                <div className="text-sm line-clamp-2 mt-1">{p.legenda}</div>
+              </div>
+              <div className="flex flex-col gap-1">
+                <Button size="sm" variant="outline" onClick={() => setOpenId(openId === p.id ? null : p.id)}>{openId === p.id ? "Fechar" : "Workflow"}</Button>
+                <Button size="icon" variant="ghost" onClick={async () => { const r = window.prompt("Motivo:"); if (r) { await commSoftDelete("comm_content_posts", p.id, r); load(); } }}><Trash2 className="w-4 h-4" /></Button>
+              </div>
             </div>
-            <div className="flex flex-col gap-1">
-              {p.status === "rascunho_ia" && <Button size="sm" variant="outline" onClick={() => setStatus(p.id, "em_revisao")}>Enviar p/ revisão</Button>}
-              {p.status === "aprovado" && <Button size="sm" onClick={() => setStatus(p.id, "publicado")}>Marcar publicado</Button>}
-              <Button size="icon" variant="ghost" onClick={async () => { const r = window.prompt("Motivo:"); if (r) { await commSoftDelete("comm_content_posts", p.id, r); load(); } }}><Trash2 className="w-4 h-4" /></Button>
-            </div>
+            {openId === p.id && (
+              <div className="mt-3 border-t pt-3">
+                <ApprovalPanel entidadeTipo="comm_content_posts" entidadeId={p.id} status={p.status} onChanged={load} compact />
+              </div>
+            )}
           </Card>
         ))}
         {items.length === 0 && <Card className="p-6 text-center text-muted-foreground">Nenhum post ainda.</Card>}
@@ -458,45 +457,60 @@ export function PostsListPage() {
   );
 }
 
-// ========== APROVAÇÕES ==========
+// ========== APROVAÇÕES (fila de itens em revisão) ==========
+const APPROV_ENTITIES: { table: string; label: string; titleField: string }[] = [
+  { table: "comm_content_posts", label: "Post", titleField: "titulo" },
+  { table: "comm_carousels", label: "Carrossel", titleField: "titulo" },
+  { table: "comm_newsletters", label: "Newsletter", titleField: "assunto" },
+  { table: "comm_internal_comms", label: "Comunicado", titleField: "titulo" },
+  { table: "comm_campaigns", label: "Campanha", titleField: "nome" },
+  { table: "comm_generated_designs", label: "Design", titleField: "nome" },
+];
+
 export function AprovacoesPage() {
   const { companyId } = useComunicacaoAccess();
-  const [items, setItems] = useState<any[]>([]);
-  const { toast } = useToast();
+  const [pending, setPending] = useState<any[]>([]);
+  const [filter, setFilter] = useState<string>("em_revisao");
+
   async function load() {
     if (!companyId) return;
-    const { data } = await supabase.from("comm_approvals").select("*").eq("company_id", companyId).order("created_at", { ascending: false }).limit(100);
-    setItems(data ?? []);
+    const all: any[] = [];
+    for (const e of APPROV_ENTITIES) {
+      const q = supabase.from(e.table as any).select("*").eq("company_id", companyId).eq("is_deleted", false);
+      const { data } = filter === "all" ? await q.limit(50) : await q.eq("status", filter).limit(50);
+      (data ?? []).forEach((r: any) => all.push({ ...r, _table: e.table, _label: e.label, _title: r[e.titleField] || r.titulo || r.nome || r.assunto || "(sem título)" }));
+    }
+    all.sort((a, b) => (b.updated_at || b.created_at).localeCompare(a.updated_at || a.created_at));
+    setPending(all);
   }
-  useEffect(() => { load(); }, [companyId]);
-
-  async function decide(id: string, decision: "aprovado" | "ajustes" | "reprovado", entidade_tipo: string, entidade_id: string) {
-    const motivo = decision !== "aprovado" ? prompt("Motivo:") || "" : null;
-    await supabase.from("comm_approvals").update({ status: decision, motivo_reprovacao: motivo, aprovado_em: new Date().toISOString() }).eq("id", id);
-    if (decision === "aprovado") await supabase.from(entidade_tipo as any).update({ status: "aprovado" }).eq("id", entidade_id);
-    if (decision === "ajustes") await supabase.from(entidade_tipo as any).update({ status: "ajustes" }).eq("id", entidade_id);
-    toast({ title: "Decisão registrada" }); load();
-  }
+  useEffect(() => { load(); }, [companyId, filter]);
 
   return (
     <div className="space-y-3">
-      <h2 className="text-xl font-display font-bold">Aprovações</h2>
-      <div className="grid gap-2">
-        {items.map((a) => (
-          <Card key={a.id} className="p-3 flex items-center gap-3">
-            <div className="flex-1">
-              <div className="text-sm font-medium">{a.entidade_tipo} · {a.entidade_id.slice(0, 8)}</div>
-              <div className="text-xs text-muted-foreground">{new Date(a.created_at).toLocaleString()}</div>
-              <StatusBadge s={a.status} />
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-display font-bold">Aprovações</h2>
+        <Select value={filter} onValueChange={setFilter}>
+          <SelectTrigger className="w-48"><SelectValue /></SelectTrigger>
+          <SelectContent>
+            <SelectItem value="em_revisao">Em revisão</SelectItem>
+            <SelectItem value="aprovado">Aprovados</SelectItem>
+            <SelectItem value="reprovado">Reprovados</SelectItem>
+            <SelectItem value="publicado">Publicados</SelectItem>
+            <SelectItem value="all">Todos</SelectItem>
+          </SelectContent>
+        </Select>
+      </div>
+      <div className="grid lg:grid-cols-2 gap-3">
+        {pending.map((p) => (
+          <Card key={p._table + p.id} className="p-3 space-y-2">
+            <div className="flex items-center gap-2 text-xs">
+              <Badge variant="outline">{p._label}</Badge>
+              <span className="text-muted-foreground truncate">{p._title}</span>
             </div>
-            {a.status === "em_revisao" && <div className="flex gap-1">
-              <Button size="sm" onClick={() => decide(a.id, "aprovado", a.entidade_tipo, a.entidade_id)}>Aprovar</Button>
-              <Button size="sm" variant="outline" onClick={() => decide(a.id, "ajustes", a.entidade_tipo, a.entidade_id)}>Ajustes</Button>
-              <Button size="sm" variant="destructive" onClick={() => decide(a.id, "reprovado", a.entidade_tipo, a.entidade_id)}>Reprovar</Button>
-            </div>}
+            <ApprovalPanel entidadeTipo={p._table} entidadeId={p.id} status={p.status} onChanged={load} compact />
           </Card>
         ))}
-        {items.length === 0 && <Card className="p-6 text-center text-muted-foreground">Nenhuma aprovação pendente.</Card>}
+        {pending.length === 0 && <Card className="p-6 text-center text-muted-foreground col-span-full">Nada por aqui.</Card>}
       </div>
     </div>
   );
