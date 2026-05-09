@@ -1,7 +1,8 @@
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, FolderKanban, LogOut, Settings, User, Gamepad2, HardHat, Scale, Menu, X, CreditCard, Building2, LayoutDashboard, HeartHandshake, Palette, FileSignature } from "lucide-react";
+import { Shield, FolderKanban, LogOut, Settings, User, Gamepad2, HardHat, Scale, Menu, X, CreditCard, Building2, LayoutDashboard, HeartHandshake, Palette, FileSignature, MessageSquare } from "lucide-react";
+import { useComunicacaoAccess } from "@/modules/comunicacao/hooks/useComunicacaoAccess";
 import { useRhdpAccess } from "@/modules/rhdp/hooks/useRhdpAccess";
 import { useCreaAccess } from "@/modules/crea/hooks/useCreaAccess";
 import { useEngenhariaAccess } from "@/modules/engenharia/hooks/useEngenhariaAccess";
@@ -20,6 +21,7 @@ const AppLayout = () => {
   const { isFinanceiro, isCompanyAdmin, companyId, isOcsStaff, canSeeMinhaEmpresa } = usePlanosAccess();
   const { hasAccess: rhdpAccess } = useRhdpAccess();
   const { hasAccess: creaAccess } = useCreaAccess();
+  const { hasAccess: commAccess } = useComunicacaoAccess();
   const loc = useLocation();
   const [open, setOpen] = useState(false);
 
@@ -65,6 +67,7 @@ const AppLayout = () => {
       {jurAccess && <NavItem to="/app/juridico" icon={Scale} label="Jurídico" />}
       {rhdpAccess && <NavItem to="/app/rh-dp" icon={HeartHandshake} label="RH/DP" />}
       {creaAccess && <NavItem to="/app/crea" icon={FileSignature} label="CREA & ART" />}
+      {commAccess && <NavItem to="/app/comunicacao" icon={MessageSquare} label="Comunicação IA" />}
       {isFinanceiro && <NavItem to="/app/planos" icon={CreditCard} label="Planos" />}
       {canSeeMinhaEmpresa && <NavItem to="/app/minha-empresa" icon={Building2} label="Minha Empresa" />}
       {isAdmin && <NavItem to="/app/aparencia" icon={Palette} label="Aparência & Marca" />}
