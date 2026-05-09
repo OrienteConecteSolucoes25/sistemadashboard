@@ -126,16 +126,20 @@ export default function PixelOfficePage() {
             <span>🚪 {rooms.length} salas</span>
             <span>🎥 {meetings.meetings.length} reuniões</span>
           </div>
-          <PixelWorkspaceView
-            workspace={activeWorkspace}
-            characters={characters}
-            desks={desks}
-            rooms={rooms}
-            getPosition={(uid, fb) => getPosition(uid, fb)}
-            onSelectCharacter={(c) => setSelected({ kind: "character", data: c })}
-            onSelectDesk={(d) => setSelected({ kind: "desk", data: d })}
-            onStageClick={handleStageClick}
-          />
+          <div className="relative">
+            <PixelWorkspaceView
+              workspace={activeWorkspace}
+              characters={characters}
+              desks={desks}
+              rooms={rooms}
+              getPosition={(uid, fb) => getPosition(uid, fb)}
+              onSelectCharacter={(c) => setSelected({ kind: "character", data: c })}
+              onSelectDesk={(d) => setSelected({ kind: "desk", data: d })}
+              onStageClick={handleStageClick}
+            />
+            {/* NPC Diretor OCS dentro do mapa — abre o chat ao ser clicado */}
+            <DiretorAgentChat renderTrigger={(open) => <DiretorNpc onClick={open} />} />
+          </div>
 
           <PixelMeetingsPanel
             meetings={meetings}
