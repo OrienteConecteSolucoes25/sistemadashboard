@@ -182,5 +182,6 @@ export default function PixelOfficePage() {
 
       {/* Diretor já está embutido no mapa via NPC. Sem botão flutuante duplicado aqui. */}
     </div>
+    </ActiveBrandKitProvider>
   );
 }
