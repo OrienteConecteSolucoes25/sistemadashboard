@@ -172,6 +172,9 @@ export default function PixelOfficePage() {
         onAccept={meetings.acceptInvite}
         onDecline={meetings.declineInvite}
       />
+
+      {/* NPC Pixel Diretor OCS — assistente flutuante de comunicação */}
+      <DiretorAgentChat />
     </div>
   );
 }
