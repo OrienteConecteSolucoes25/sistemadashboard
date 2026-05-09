@@ -210,6 +210,7 @@ const TOOLS = [
         required: ["nome"],
       },
     },
+  },
   {
     type: "function",
     function: {
