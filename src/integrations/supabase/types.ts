@@ -1263,6 +1263,7 @@ export type Database = {
       }
       comm_idea_bank: {
         Row: {
+          brand_kit_id: string | null
           campaign_id: string | null
           categoria: string | null
           company_id: string
@@ -1284,6 +1285,7 @@ export type Database = {
           votos: number | null
         }
         Insert: {
+          brand_kit_id?: string | null
           campaign_id?: string | null
           categoria?: string | null
           company_id: string
@@ -1305,6 +1307,7 @@ export type Database = {
           votos?: number | null
         }
         Update: {
+          brand_kit_id?: string | null
           campaign_id?: string | null
           categoria?: string | null
           company_id?: string
@@ -1326,6 +1329,13 @@ export type Database = {
           votos?: number | null
         }
         Relationships: [
+          {
+            foreignKeyName: "comm_idea_bank_brand_kit_id_fkey"
+            columns: ["brand_kit_id"]
+            isOneToOne: false
+            referencedRelation: "comm_brand_kits"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "comm_idea_bank_campaign_id_fkey"
             columns: ["campaign_id"]

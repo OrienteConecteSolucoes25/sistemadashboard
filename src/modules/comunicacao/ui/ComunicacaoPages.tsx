@@ -13,6 +13,7 @@ import { useComunicacaoAccess } from "../hooks/useComunicacaoAccess";
 import { commAi, commImageGen, commSoftDelete } from "../lib/api";
 import { Sparkles, Trash2, Plus, Save, ExternalLink, Copy, ImageIcon, RefreshCcw } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useActiveBrandKit } from "../hooks/useActiveBrandKit";
 
 // ========== HELPERS ==========
 async function loadBrands(companyId: string | null) {
@@ -606,37 +607,62 @@ export const PublicacoesListPage = () => <GenericList table="comm_publications" 
 // ========== IDEIAS ==========
 export function IdeiasPage() {
   const { companyId } = useComunicacaoAccess();
+  const { activeBrand } = useActiveBrandKit();
+  const { toast } = useToast();
   const [items, setItems] = useState<any[]>([]);
   const [novo, setNovo] = useState<any>({ ideia: "", categoria: "post", prioridade: "média" });
+  const [loading, setLoading] = useState(false);
   async function load() { if (!companyId) return; const { data } = await supabase.from("comm_idea_bank").select("*").eq("company_id", companyId).eq("is_deleted", false).order("created_at", { ascending: false }); setItems(data ?? []); }
   useEffect(() => { load(); }, [companyId]);
 
   async function add() {
     if (!novo.ideia) return;
-    await supabase.from("comm_idea_bank").insert({ ...novo, company_id: companyId });
+    await supabase.from("comm_idea_bank").insert({ ...novo, company_id: companyId, brand_kit_id: activeBrand?.id ?? null });
     setNovo({ ideia: "", categoria: "post", prioridade: "média" }); load();
   }
 
   async function genIdeas() {
     if (!companyId) return;
-    const tema = window.prompt("Tema das ideias?"); if (!tema) return;
-    const r = await commAi({ kind: "ideia", company_id: companyId, inputs: { tema, qtd: 10, categoria: "post" } });
-    const lista = r.data?.ideias ?? [];
-    if (lista.length) {
-      await supabase.from("comm_idea_bank").insert(lista.map((i: any) => ({ company_id: companyId, ideia: i.titulo + (i.resumo ? " — " + i.resumo : ""), categoria: i.categoria ?? "post", prioridade: i.prioridade ?? "média", origem: "IA" })));
-      load();
-    }
+    const tema = window.prompt(activeBrand ? `Tema das ideias para "${activeBrand.nome}"?` : "Tema das ideias?");
+    if (!tema) return;
+    setLoading(true);
+    try {
+      const r = await commAi({ kind: "ideia", company_id: companyId, brand: activeBrand, inputs: { tema, qtd: 10, categoria: "post" } });
+      const lista = r.data?.ideias ?? [];
+      if (lista.length) {
+        await supabase.from("comm_idea_bank").insert(lista.map((i: any) => ({
+          company_id: companyId, brand_kit_id: activeBrand?.id ?? null,
+          ideia: i.titulo + (i.resumo ? " — " + i.resumo : ""),
+          categoria: i.categoria ?? "post", prioridade: i.prioridade ?? "média", origem: "IA",
+        })));
+        toast({ title: `${lista.length} ideias geradas` });
+        load();
+      } else {
+        toast({ title: "Nenhuma ideia retornada", variant: "destructive" });
+      }
+    } catch (e: any) {
+      toast({ title: "Erro IA", description: e.message, variant: "destructive" });
+    } finally { setLoading(false); }
   }
+
+  const filtered = activeBrand ? items.filter((i) => !i.brand_kit_id || i.brand_kit_id === activeBrand.id) : items;
 
   return (
     <div className="space-y-3">
-      <div className="flex justify-between"><h2 className="text-xl font-display font-bold">Banco de Ideias</h2><Button onClick={genIdeas}><Sparkles className="w-4 h-4 mr-1" />Gerar 10 ideias com IA</Button></div>
+      <div className="flex justify-between items-center gap-2 flex-wrap">
+        <div>
+          <h2 className="text-xl font-display font-bold">Banco de Ideias</h2>
+          {activeBrand && <div className="text-xs text-muted-foreground">Marca ativa: <b>{activeBrand.nome}</b></div>}
+        </div>
+        <Button onClick={genIdeas} disabled={loading}><Sparkles className="w-4 h-4 mr-1" />{loading ? "Gerando..." : "Gerar 10 ideias com IA"}</Button>
+      </div>
       <Card className="p-3 flex gap-2">
         <Input placeholder="Nova ideia..." value={novo.ideia} onChange={(e) => setNovo({ ...novo, ideia: e.target.value })} />
         <Button onClick={add}><Plus className="w-4 h-4" /></Button>
       </Card>
       <div className="grid md:grid-cols-2 gap-2">
-        {items.map((i) => <Card key={i.id} className="p-3 flex justify-between items-start"><div><div className="text-sm">{i.ideia}</div><div className="text-xs text-muted-foreground">{i.categoria} · {i.prioridade} {i.origem ? `· ${i.origem}` : ""}</div></div><Button size="icon" variant="ghost" onClick={async () => { const r = window.prompt("Motivo:"); if (r) { await commSoftDelete("comm_idea_bank", i.id, r); load(); } }}><Trash2 className="w-4 h-4" /></Button></Card>)}
+        {filtered.map((i) => <Card key={i.id} className="p-3 flex justify-between items-start"><div><div className="text-sm">{i.ideia}</div><div className="text-xs text-muted-foreground">{i.categoria} · {i.prioridade} {i.origem ? `· ${i.origem}` : ""}</div></div><Button size="icon" variant="ghost" onClick={async () => { const r = window.prompt("Motivo:"); if (r) { await commSoftDelete("comm_idea_bank", i.id, r); load(); } }}><Trash2 className="w-4 h-4" /></Button></Card>)}
+        {filtered.length === 0 && <Card className="p-6 text-center text-muted-foreground col-span-full">Nenhuma ideia ainda. Use a IA para começar!</Card>}
       </div>
     </div>
   );

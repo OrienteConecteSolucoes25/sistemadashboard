@@ -1,4 +1,5 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
+import { useMemo } from "react";
 import { Bell, Check, CheckCheck } from "lucide-react";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Badge } from "@/components/ui/badge";
@@ -10,9 +11,29 @@ const TIPO_ICON: Record<string, string> = {
   prazo: "⏰", status: "🔁", vinculo: "🔗", tarefa: "📝", info: "ℹ️",
 };
 
-export function NotificationsBell() {
-  const { items, unread, markRead, markAllRead } = useInternalNotifications(30);
+const ROUTE_TO_SCOPE: Record<string, string> = {
+  engenharia: "engenharia", juridico: "juridico", "rh-dp": "rhdp",
+  crea: "crea", comunicacao: "comunicacao",
+};
+
+export function NotificationsBell({ scope: scopeProp }: { scope?: string } = {}) {
+  const { items: allItems, markRead, markAllRead } = useInternalNotifications(60);
   const navigate = useNavigate();
+  const loc = useLocation();
+  const scope = useMemo(() => {
+    if (scopeProp) return scopeProp;
+    const seg = loc.pathname.split("/").filter(Boolean); // ["app","engenharia",...]
+    return seg[1] ? (ROUTE_TO_SCOPE[seg[1]] ?? null) : null;
+  }, [scopeProp, loc.pathname]);
+
+  const items = useMemo(() => {
+    if (!scope) return allItems;
+    return allItems.filter((n: any) => {
+      const m = (n.modulo || "").toLowerCase();
+      return m === scope || m.startsWith(scope + ".") || m.startsWith(scope + "/");
+    });
+  }, [allItems, scope]);
+  const unread = items.filter((i) => !i.lida).length;
 
   const onClick = async (id: string, route: string | null) => {
     await markRead(id);

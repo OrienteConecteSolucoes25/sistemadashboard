@@ -1,0 +1,2 @@
+ALTER TABLE public.comm_idea_bank ADD COLUMN IF NOT EXISTS brand_kit_id uuid REFERENCES public.comm_brand_kits(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_comm_idea_bank_brand_kit ON public.comm_idea_bank(brand_kit_id);
