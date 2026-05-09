@@ -419,6 +419,7 @@ export function PostsListPage() {
   const { companyId } = useComunicacaoAccess();
   const [items, setItems] = useState<any[]>([]);
   const [openId, setOpenId] = useState<string | null>(null);
+  const [scheduling, setScheduling] = useState<any | null>(null);
   async function load() {
     if (!companyId) return;
     const { data } = await supabase.from("comm_content_posts").select("*").eq("company_id", companyId).eq("is_deleted", false).order("created_at", { ascending: false }).limit(100);
@@ -443,6 +444,14 @@ export function PostsListPage() {
               </div>
               <div className="flex flex-col gap-1">
                 <Button size="sm" variant="outline" onClick={() => setOpenId(openId === p.id ? null : p.id)}>{openId === p.id ? "Fechar" : "Workflow"}</Button>
+                <Button
+                  size="sm" variant="outline"
+                  disabled={p.status !== "aprovado"}
+                  title={p.status !== "aprovado" ? "Aprove o post antes de publicar" : "Publicar / agendar"}
+                  onClick={() => setScheduling(p)}
+                >
+                  <Send className="w-3.5 h-3.5 mr-1" />Publicar
+                </Button>
                 <Button size="icon" variant="ghost" onClick={async () => { const r = window.prompt("Motivo:"); if (r) { await commSoftDelete("comm_content_posts", p.id, r); load(); } }}><Trash2 className="w-4 h-4" /></Button>
               </div>
             </div>
@@ -455,6 +464,16 @@ export function PostsListPage() {
         ))}
         {items.length === 0 && <Card className="p-6 text-center text-muted-foreground">Nenhum post ainda.</Card>}
       </div>
+      <ScheduleDialog
+        open={!!scheduling}
+        onOpenChange={(v) => !v && setScheduling(null)}
+        companyId={companyId}
+        entidadeTipo="comm_content_posts"
+        entidadeId={scheduling?.id ?? ""}
+        defaultCaption={scheduling ? [scheduling.legenda, (scheduling.hashtags ?? []).join(" ")].filter(Boolean).join("\n\n") : ""}
+        defaultMediaUrls={scheduling?.media_urls ?? []}
+        onScheduled={load}
+      />
     </div>
   );
 }
