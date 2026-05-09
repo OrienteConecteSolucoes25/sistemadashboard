@@ -178,8 +178,7 @@ export default function PixelOfficePage() {
         onDecline={meetings.declineInvite}
       />
 
-      {/* NPC Pixel Diretor OCS — assistente flutuante de comunicação */}
-      <DiretorAgentChat />
+      {/* Diretor já está embutido no mapa via NPC. Sem botão flutuante duplicado aqui. */}
     </div>
   );
 }
