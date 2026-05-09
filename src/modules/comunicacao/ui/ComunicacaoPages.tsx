@@ -780,7 +780,195 @@ export const NewslettersListPage = () => <GenericList table="comm_newsletters" t
 export const InternaListPage = () => <GenericList table="comm_internal_comms" title="Comunicações internas" fields={["tipo", "titulo", "prioridade", "status"]} />;
 export const CarrosseisListPage = () => <GenericList table="comm_carousels" title="Carrosséis" fields={["titulo", "canal", "status"]} />;
 export const CampanhasListPage = () => <GenericList table="comm_campaigns" title="Campanhas" fields={["nome", "tipo", "status", "data_inicio", "data_fim"]} />;
-export const ProdutoListPage = () => <GenericList table="comm_product_items" title="Product Management" fields={["titulo", "tipo", "status", "prioridade", "modulo_relacionado"]} />;
+export function ProdutoListPage() {
+  const { companyId } = useComunicacaoAccess();
+  const { toast } = useToast();
+  const [items, setItems] = useState<any[]>([]);
+  const [edit, setEdit] = useState<any | null>(null);
+
+  async function load() {
+    if (!companyId) return;
+    const { data } = await supabase.from("comm_product_items").select("*").eq("company_id", companyId).eq("is_deleted", false).order("created_at", { ascending: false });
+    setItems(data ?? []);
+  }
+  useEffect(() => { load(); }, [companyId]);
+
+  async function save() {
+    if (!companyId || !edit?.titulo) { toast({ title: "Título obrigatório", variant: "destructive" }); return; }
+    const { id, created_at, updated_at, created_by, updated_by, is_deleted, deleted_at, deleted_by, delete_reason, ...rest } = edit;
+    const payload = { ...rest, company_id: companyId };
+    const { error } = id
+      ? await supabase.from("comm_product_items").update(payload).eq("id", id)
+      : await supabase.from("comm_product_items").insert(payload);
+    if (error) { toast({ title: "Erro", description: error.message, variant: "destructive" }); return; }
+    toast({ title: "Item salvo" }); setEdit(null); load();
+  }
+
+  async function moveKanban(item: any, status_kanban: string) {
+    await supabase.from("comm_product_items").update({ status_kanban }).eq("id", item.id);
+    load();
+  }
+
+  const KANBAN = [
+    { key: "backlog", label: "Backlog" },
+    { key: "discovery", label: "Discovery" },
+    { key: "em_desenvolvimento", label: "Em desenvolvimento" },
+    { key: "em_teste", label: "Em teste" },
+    { key: "lancado", label: "Lançado" },
+  ];
+
+  return (
+    <Tabs defaultValue="roadmap" className="space-y-3">
+      <div className="flex items-center justify-between">
+        <h2 className="text-xl font-display font-bold">Product Management</h2>
+        <Button size="sm" onClick={() => setEdit({ titulo: "", tipo: "feature", status: "ideia", status_kanban: "backlog", prioridade: "média" })}><Plus className="w-4 h-4 mr-1" />Novo item</Button>
+      </div>
+      <TabsList>
+        <TabsTrigger value="roadmap">Roadmap (Kanban)</TabsTrigger>
+        <TabsTrigger value="lista">Lista</TabsTrigger>
+        <TabsTrigger value="posicionamento">Posicionamento</TabsTrigger>
+        <TabsTrigger value="lancamentos">Lançamentos</TabsTrigger>
+        <TabsTrigger value="metricas">Métricas</TabsTrigger>
+      </TabsList>
+
+      {edit && (
+        <Card className="p-4 space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            <div><Label>Título *</Label><Input value={edit.titulo ?? ""} onChange={(e) => setEdit({ ...edit, titulo: e.target.value })} /></div>
+            <div><Label>Tipo</Label>
+              <Select value={edit.tipo ?? "feature"} onValueChange={(v) => setEdit({ ...edit, tipo: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{["feature", "epic", "bug", "melhoria", "research", "release"].map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div><Label>Prioridade</Label>
+              <Select value={edit.prioridade ?? "média"} onValueChange={(v) => setEdit({ ...edit, prioridade: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{["baixa", "média", "alta", "crítica"].map((t) => <SelectItem key={t} value={t}>{t}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div><Label>Status Kanban</Label>
+              <Select value={edit.status_kanban ?? "backlog"} onValueChange={(v) => setEdit({ ...edit, status_kanban: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>{KANBAN.map((k) => <SelectItem key={k.key} value={k.key}>{k.label}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div><Label>Módulo</Label><Input value={edit.modulo_relacionado ?? ""} onChange={(e) => setEdit({ ...edit, modulo_relacionado: e.target.value })} /></div>
+            <div><Label>Versão prevista</Label><Input value={edit.versao_prevista ?? ""} onChange={(e) => setEdit({ ...edit, versao_prevista: e.target.value })} /></div>
+            <div><Label>Data de lançamento</Label><Input type="date" value={edit.data_lancamento ?? ""} onChange={(e) => setEdit({ ...edit, data_lancamento: e.target.value || null })} /></div>
+          </div>
+          <div><Label>Descrição</Label><Textarea rows={2} value={edit.descricao ?? ""} onChange={(e) => setEdit({ ...edit, descricao: e.target.value })} /></div>
+          <div><Label>User story</Label><Textarea rows={2} value={edit.user_story ?? ""} onChange={(e) => setEdit({ ...edit, user_story: e.target.value })} placeholder="Como [usuário] quero [ação] para [benefício]" /></div>
+          <div><Label>Critérios de aceite</Label><Textarea rows={2} value={edit.criterios_aceite ?? ""} onChange={(e) => setEdit({ ...edit, criterios_aceite: e.target.value })} /></div>
+          <div><Label>Release note</Label><Textarea rows={2} value={edit.release_note ?? ""} onChange={(e) => setEdit({ ...edit, release_note: e.target.value })} /></div>
+          <div className="flex gap-2"><Button onClick={save}><Save className="w-4 h-4 mr-1" />Salvar</Button><Button variant="outline" onClick={() => setEdit(null)}>Cancelar</Button></div>
+        </Card>
+      )}
+
+      <TabsContent value="roadmap">
+        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-5 gap-3">
+          {KANBAN.map((col) => (
+            <div key={col.key} className="space-y-2"
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => { const id = e.dataTransfer.getData("text/plain"); const it = items.find((x) => x.id === id); if (it) moveKanban(it, col.key); }}
+            >
+              <div className="text-xs font-bold uppercase text-muted-foreground border-b pb-1">{col.label} <span className="text-[10px] text-muted-foreground">({items.filter((i) => (i.status_kanban ?? "backlog") === col.key).length})</span></div>
+              {items.filter((i) => (i.status_kanban ?? "backlog") === col.key).map((i) => (
+                <Card key={i.id} className="p-2 cursor-grab active:cursor-grabbing" draggable onDragStart={(e) => e.dataTransfer.setData("text/plain", i.id)} onClick={() => setEdit(i)}>
+                  <div className="text-sm font-medium line-clamp-2">{i.titulo}</div>
+                  <div className="text-[10px] text-muted-foreground mt-1">{i.tipo} · {i.prioridade ?? "média"}</div>
+                  {i.modulo_relacionado && <Badge variant="outline" className="mt-1 text-[9px]">{i.modulo_relacionado}</Badge>}
+                </Card>
+              ))}
+            </div>
+          ))}
+        </div>
+      </TabsContent>
+
+      <TabsContent value="lista">
+        <Card>
+          <table className="w-full text-sm">
+            <thead className="bg-muted"><tr><th className="p-2 text-left">Título</th><th className="p-2 text-left">Tipo</th><th className="p-2 text-left">Status</th><th className="p-2 text-left">Prioridade</th><th className="p-2 text-left">Módulo</th><th /></tr></thead>
+            <tbody>{items.map((it) => (
+              <tr key={it.id} className="border-t hover:bg-muted/30 cursor-pointer" onClick={() => setEdit(it)}>
+                <td className="p-2">{it.titulo}</td><td className="p-2">{it.tipo}</td><td className="p-2"><StatusBadge s={it.status_kanban ?? it.status} /></td><td className="p-2">{it.prioridade ?? "—"}</td><td className="p-2">{it.modulo_relacionado ?? "—"}</td>
+                <td className="p-2"><Button size="icon" variant="ghost" onClick={async (e) => { e.stopPropagation(); const r = window.prompt("Motivo:"); if (r) { await commSoftDelete("comm_product_items", it.id, r); load(); } }}><Trash2 className="w-4 h-4" /></Button></td>
+              </tr>))}</tbody>
+          </table>
+          {items.length === 0 && <div className="p-6 text-center text-muted-foreground text-sm">Nenhum item.</div>}
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="posicionamento">
+        <Card className="p-4 space-y-3">
+          <h3 className="font-display font-bold">One-pager de posicionamento</h3>
+          <p className="text-xs text-muted-foreground">Clique em um item para editar o posicionamento detalhado.</p>
+          <div className="grid md:grid-cols-2 gap-3">
+            {items.filter((i) => i.tipo === "feature" || i.tipo === "release").map((i) => (
+              <Card key={i.id} className="p-3 cursor-pointer hover:border-primary/40" onClick={() => setEdit(i)}>
+                <div className="font-medium text-sm">{i.titulo}</div>
+                <div className="text-xs text-muted-foreground mt-1">Para: {i.user_story?.match(/Como ([^,]+)/)?.[1] ?? "—"}</div>
+                <div className="text-xs mt-1 line-clamp-3">{i.descricao}</div>
+              </Card>
+            ))}
+            {items.filter((i) => i.tipo === "feature" || i.tipo === "release").length === 0 && <div className="text-sm text-muted-foreground col-span-2">Crie features para ver posicionamento.</div>}
+          </div>
+        </Card>
+      </TabsContent>
+
+      <TabsContent value="lancamentos">
+        <div className="space-y-2">
+          {items.filter((i) => i.data_lancamento || i.tipo === "release").sort((a, b) => (a.data_lancamento ?? "").localeCompare(b.data_lancamento ?? "")).map((i) => (
+            <Card key={i.id} className="p-3 flex items-center gap-3">
+              <div className="text-center w-20">
+                <div className="text-xs text-muted-foreground">{i.data_lancamento ? new Date(i.data_lancamento).toLocaleDateString("pt-BR", { weekday: "short" }) : "—"}</div>
+                <div className="font-bold text-sm">{i.data_lancamento ? new Date(i.data_lancamento).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" }) : "?"}</div>
+              </div>
+              <div className="flex-1 cursor-pointer" onClick={() => setEdit(i)}>
+                <div className="font-medium">{i.titulo}</div>
+                <div className="text-xs text-muted-foreground">{i.versao_prevista ?? ""} {i.modulo_relacionado ?? ""}</div>
+                {i.release_note && <div className="text-xs mt-1 line-clamp-2">{i.release_note}</div>}
+              </div>
+              <StatusBadge s={i.status_kanban ?? i.status} />
+            </Card>
+          ))}
+          {items.filter((i) => i.data_lancamento || i.tipo === "release").length === 0 && <Card className="p-6 text-center text-muted-foreground">Nenhum lançamento agendado.</Card>}
+        </div>
+      </TabsContent>
+
+      <TabsContent value="metricas">
+        <div className="grid md:grid-cols-4 gap-3">
+          {[
+            { label: "Total", v: items.length },
+            { label: "Em desenvolvimento", v: items.filter((i) => i.status_kanban === "em_desenvolvimento").length },
+            { label: "Lançados", v: items.filter((i) => i.status_kanban === "lancado").length },
+            { label: "Backlog", v: items.filter((i) => (i.status_kanban ?? "backlog") === "backlog").length },
+          ].map((k) => (
+            <Card key={k.label} className="p-4 text-center">
+              <div className="text-3xl font-display font-bold text-primary">{k.v}</div>
+              <div className="text-xs uppercase text-muted-foreground mt-1">{k.label}</div>
+            </Card>
+          ))}
+        </div>
+        <Card className="p-4 mt-3">
+          <h3 className="font-display font-bold mb-2">Distribuição por tipo</h3>
+          <div className="space-y-1">
+            {Array.from(new Set(items.map((i) => i.tipo ?? "—"))).map((tipo) => {
+              const n = items.filter((i) => (i.tipo ?? "—") === tipo).length;
+              const pct = items.length ? Math.round((n / items.length) * 100) : 0;
+              return (
+                <div key={tipo}>
+                  <div className="flex justify-between text-xs"><span>{tipo}</span><span>{n} ({pct}%)</span></div>
+                  <div className="h-2 bg-muted rounded overflow-hidden"><div className="h-full bg-primary" style={{ width: `${pct}%` }} /></div>
+                </div>
+              );
+            })}
+          </div>
+        </Card>
+      </TabsContent>
+    </Tabs>
+  );
+}
 export const PublicacoesListPage = () => <GenericList table="comm_publications" title="Publicações" fields={["canal", "status", "data_publicada", "link_publicacao"]} />;
 
 // ========== IDEIAS ==========
