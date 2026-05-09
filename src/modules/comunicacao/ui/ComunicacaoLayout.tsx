@@ -33,6 +33,7 @@ const tabs = [
 
   { to: "/app/comunicacao/aprovacoes", label: "Aprovações", icon: ListChecks, group: "Operação" },
   { to: "/app/comunicacao/publicacoes", label: "Publicações", icon: BarChart3, group: "Operação" },
+  { to: "/app/comunicacao/integracoes", label: "Integrações Sociais", icon: ExternalLink, group: "Operação" },
   { to: "/app/comunicacao/auditoria", label: "Auditoria", icon: ShieldCheck, group: "Operação" },
 ];
 
