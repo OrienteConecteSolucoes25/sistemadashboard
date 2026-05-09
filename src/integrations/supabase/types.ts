@@ -35,6 +35,60 @@ export type Database = {
         }
         Relationships: []
       }
+      comm_ai_insights: {
+        Row: {
+          client_brand_id: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          metrica_base: Json | null
+          modelo: string | null
+          periodo_ate: string | null
+          periodo_de: string | null
+          pontos_fortes: Json | null
+          pontos_fracos: Json | null
+          recomendacoes: Json | null
+          ref_id: string | null
+          resumo: string
+          scope: string
+        }
+        Insert: {
+          client_brand_id?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          metrica_base?: Json | null
+          modelo?: string | null
+          periodo_ate?: string | null
+          periodo_de?: string | null
+          pontos_fortes?: Json | null
+          pontos_fracos?: Json | null
+          recomendacoes?: Json | null
+          ref_id?: string | null
+          resumo: string
+          scope?: string
+        }
+        Update: {
+          client_brand_id?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          metrica_base?: Json | null
+          modelo?: string | null
+          periodo_ate?: string | null
+          periodo_de?: string | null
+          pontos_fortes?: Json | null
+          pontos_fracos?: Json | null
+          recomendacoes?: Json | null
+          ref_id?: string | null
+          resumo?: string
+          scope?: string
+        }
+        Relationships: []
+      }
       comm_ai_quotas: {
         Row: {
           blocklist: string[] | null
@@ -1687,6 +1741,105 @@ export type Database = {
             columns: ["brand_kit_id"]
             isOneToOne: false
             referencedRelation: "comm_brand_kits"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_post_metrics: {
+        Row: {
+          caption: string | null
+          clicks: number | null
+          client_brand_id: string | null
+          collected_at: string
+          comments: number | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          engagement_rate: number | null
+          entidade_id: string | null
+          entidade_tipo: string | null
+          external_post_id: string | null
+          external_url: string | null
+          id: string
+          impressions: number | null
+          likes: number | null
+          provider: string | null
+          publish_queue_id: string | null
+          raw: Json | null
+          reach: number | null
+          saves: number | null
+          shares: number | null
+          social_account_id: string | null
+          updated_at: string
+          views: number | null
+        }
+        Insert: {
+          caption?: string | null
+          clicks?: number | null
+          client_brand_id?: string | null
+          collected_at?: string
+          comments?: number | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          engagement_rate?: number | null
+          entidade_id?: string | null
+          entidade_tipo?: string | null
+          external_post_id?: string | null
+          external_url?: string | null
+          id?: string
+          impressions?: number | null
+          likes?: number | null
+          provider?: string | null
+          publish_queue_id?: string | null
+          raw?: Json | null
+          reach?: number | null
+          saves?: number | null
+          shares?: number | null
+          social_account_id?: string | null
+          updated_at?: string
+          views?: number | null
+        }
+        Update: {
+          caption?: string | null
+          clicks?: number | null
+          client_brand_id?: string | null
+          collected_at?: string
+          comments?: number | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          engagement_rate?: number | null
+          entidade_id?: string | null
+          entidade_tipo?: string | null
+          external_post_id?: string | null
+          external_url?: string | null
+          id?: string
+          impressions?: number | null
+          likes?: number | null
+          provider?: string | null
+          publish_queue_id?: string | null
+          raw?: Json | null
+          reach?: number | null
+          saves?: number | null
+          shares?: number | null
+          social_account_id?: string | null
+          updated_at?: string
+          views?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_post_metrics_publish_queue_id_fkey"
+            columns: ["publish_queue_id"]
+            isOneToOne: false
+            referencedRelation: "comm_social_publish_queue"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comm_post_metrics_social_account_id_fkey"
+            columns: ["social_account_id"]
+            isOneToOne: false
+            referencedRelation: "comm_social_accounts"
             referencedColumns: ["id"]
           },
         ]
