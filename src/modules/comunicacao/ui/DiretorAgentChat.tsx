@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useActiveBrandKit } from "../hooks/useActiveBrandKit";
 import { useComunicacaoAccess } from "../hooks/useComunicacaoAccess";
+import { BrandKitSelector } from "./BrandKitSelector";
 
 type Msg = { id?: string; role: "user" | "assistant" | "tool"; content: string; tool_calls?: any; tool_results?: any };
 
