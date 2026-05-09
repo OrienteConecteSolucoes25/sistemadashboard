@@ -17,6 +17,7 @@ import { PixelMeetingInvite } from "./PixelMeetingInvite";
 import { PixelMeetingsPanel } from "./PixelMeetingsPanel";
 import { PixelCommunityPanel } from "./PixelCommunityPanel";
 import { DiretorAgentChat } from "@/modules/comunicacao/ui/DiretorAgentChat";
+import { DiretorNpc } from "./DiretorNpc";
 
 type Selected =
   | { kind: "character"; data: PixelCharacter }
@@ -125,16 +126,20 @@ export default function PixelOfficePage() {
             <span>🚪 {rooms.length} salas</span>
             <span>🎥 {meetings.meetings.length} reuniões</span>
           </div>
-          <PixelWorkspaceView
-            workspace={activeWorkspace}
-            characters={characters}
-            desks={desks}
-            rooms={rooms}
-            getPosition={(uid, fb) => getPosition(uid, fb)}
-            onSelectCharacter={(c) => setSelected({ kind: "character", data: c })}
-            onSelectDesk={(d) => setSelected({ kind: "desk", data: d })}
-            onStageClick={handleStageClick}
-          />
+          <div className="relative">
+            <PixelWorkspaceView
+              workspace={activeWorkspace}
+              characters={characters}
+              desks={desks}
+              rooms={rooms}
+              getPosition={(uid, fb) => getPosition(uid, fb)}
+              onSelectCharacter={(c) => setSelected({ kind: "character", data: c })}
+              onSelectDesk={(d) => setSelected({ kind: "desk", data: d })}
+              onStageClick={handleStageClick}
+            />
+            {/* NPC Diretor OCS dentro do mapa — abre o chat ao ser clicado */}
+            <DiretorAgentChat renderTrigger={(open) => <DiretorNpc onClick={open} />} />
+          </div>
 
           <PixelMeetingsPanel
             meetings={meetings}
@@ -173,8 +178,7 @@ export default function PixelOfficePage() {
         onDecline={meetings.declineInvite}
       />
 
-      {/* NPC Pixel Diretor OCS — assistente flutuante de comunicação */}
-      <DiretorAgentChat />
+      {/* Diretor já está embutido no mapa via NPC. Sem botão flutuante duplicado aqui. */}
     </div>
   );
 }

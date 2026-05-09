@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, type ReactNode } from "react";
 import { Bot, Send, X, Loader2, Sparkles, Plus, MessageSquare, ChevronLeft } from "lucide-react";
 import ReactMarkdown from "react-markdown";
 import { Button } from "@/components/ui/button";
@@ -13,7 +13,7 @@ import { useComunicacaoAccess } from "../hooks/useComunicacaoAccess";
 
 type Msg = { id?: string; role: "user" | "assistant" | "tool"; content: string; tool_calls?: any; tool_results?: any };
 
-export function DiretorAgentChat() {
+export function DiretorAgentChat({ renderTrigger }: { renderTrigger?: (open: () => void) => ReactNode } = {}) {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"list" | "chat">("list");
   const [conversations, setConversations] = useState<any[]>([]);
@@ -122,6 +122,7 @@ export function DiretorAgentChat() {
   }
 
   if (!open) {
+    if (renderTrigger) return <>{renderTrigger(() => setOpen(true))}</>;
     return (
       <button
         onClick={() => setOpen(true)}
