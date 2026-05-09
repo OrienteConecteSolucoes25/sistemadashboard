@@ -71,6 +71,7 @@ import {
   IdeiasPage, PromptsPage, AuditoriaPage as CommAuditoriaPage,
 } from "./modules/comunicacao/ui/ComunicacaoPages";
 import { DesignStudioPage, ImagesGalleryPage, CanvaPage } from "./modules/comunicacao/ui/ComunicacaoStudio";
+import IntegracoesSociaisPage from "./modules/comunicacao/ui/IntegracoesSociaisPage";
 import ThemeStudioPage from "./modules/aparencia/ui/ThemeStudioPage";
 import { CompanyThemeProvider } from "./modules/aparencia/hooks/CompanyThemeProvider";
 import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
@@ -192,6 +193,7 @@ const App = () => (
                 <Route path="aprovacoes" element={<AprovacoesPage />} />
                 <Route path="publicacoes" element={<PublicacoesListPage />} />
                 <Route path="marca" element={<BrandKitsPage />} />
+                <Route path="integracoes" element={<IntegracoesSociaisPage />} />
                 <Route path="auditoria" element={<CommAuditoriaPage />} />
               </Route>
               <Route path="comunicacao/governanca" element={<GovernanceUniversalPage moduleKey="comunicacao" />} />
