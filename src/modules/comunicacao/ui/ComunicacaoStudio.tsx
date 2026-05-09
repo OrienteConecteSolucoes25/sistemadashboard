@@ -80,42 +80,229 @@ export function DesignStudioPage() {
   }
 
   return (
-    <div className="grid lg:grid-cols-[320px_1fr] gap-4">
-      <Card className="p-4 space-y-3">
-        <h2 className="text-lg font-display font-bold">Design Studio</h2>
-        <div><Label>Brand Kit</Label>
-          <div className="flex gap-1"><Select value={brandId} onValueChange={setBrandId}><SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
-            <SelectContent>{brands.map((b) => <SelectItem key={b.id} value={b.id}>{b.nome}</SelectItem>)}</SelectContent></Select>
-            <Button size="sm" variant="outline" onClick={applyBrand}>Aplicar</Button></div></div>
-        <div><Label>Formato</Label><Select value={fmt} onValueChange={setFmt}><SelectTrigger><SelectValue /></SelectTrigger>
-          <SelectContent>{Object.entries(FORMATS).map(([k, v]) => <SelectItem key={k} value={k}>{v.label} · {k}</SelectItem>)}</SelectContent></Select></div>
-        <div><Label>Template</Label><Select value={tpl.key} onValueChange={(v) => setTpl(TEMPLATES.find((t) => t.key === v)!)}><SelectTrigger><SelectValue /></SelectTrigger>
-          <SelectContent>{TEMPLATES.map((t) => <SelectItem key={t.key} value={t.key}>{t.nome}</SelectItem>)}</SelectContent></Select></div>
-        <div><Label>Título</Label><Input value={titulo} onChange={(e) => setTitulo(e.target.value)} /></div>
-        <div><Label>Subtítulo</Label><Textarea value={subtitulo} onChange={(e) => setSubtitulo(e.target.value)} rows={2} /></div>
-        <div><Label>CTA</Label><Input value={cta} onChange={(e) => setCta(e.target.value)} /></div>
-        <div className="grid grid-cols-2 gap-2">
-          <div><Label>Fundo</Label><input type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="w-full h-9 rounded border" /></div>
-          <div><Label>Cor texto</Label><input type="color" value={fg} onChange={(e) => setFg(e.target.value)} className="w-full h-9 rounded border" /></div>
+    <Tabs defaultValue="grid">
+      <TabsList>
+        <TabsTrigger value="grid"><Grid3x3 className="w-4 h-4 mr-1" />Grade Instagram 3x3 (IA)</TabsTrigger>
+        <TabsTrigger value="single">Editor de Card único (template)</TabsTrigger>
+      </TabsList>
+
+      <TabsContent value="grid" className="mt-4">
+        <InstagramGridGenerator />
+      </TabsContent>
+
+      <TabsContent value="single" className="mt-4">
+        <div className="grid lg:grid-cols-[320px_1fr] gap-4">
+          <Card className="p-4 space-y-3">
+            <h2 className="text-lg font-display font-bold">Card único</h2>
+            <div><Label>Brand Kit</Label>
+              <div className="flex gap-1"><Select value={brandId} onValueChange={setBrandId}><SelectTrigger><SelectValue placeholder="—" /></SelectTrigger>
+                <SelectContent>{brands.map((b) => <SelectItem key={b.id} value={b.id}>{b.nome}</SelectItem>)}</SelectContent></Select>
+                <Button size="sm" variant="outline" onClick={applyBrand}>Aplicar</Button></div></div>
+            <div><Label>Formato</Label><Select value={fmt} onValueChange={setFmt}><SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>{Object.entries(FORMATS).map(([k, v]) => <SelectItem key={k} value={k}>{v.label} · {k}</SelectItem>)}</SelectContent></Select></div>
+            <div><Label>Template</Label><Select value={tpl.key} onValueChange={(v) => setTpl(TEMPLATES.find((t) => t.key === v)!)}><SelectTrigger><SelectValue /></SelectTrigger>
+              <SelectContent>{TEMPLATES.map((t) => <SelectItem key={t.key} value={t.key}>{t.nome}</SelectItem>)}</SelectContent></Select></div>
+            <div><Label>Título</Label><Input value={titulo} onChange={(e) => setTitulo(e.target.value)} /></div>
+            <div><Label>Subtítulo</Label><Textarea value={subtitulo} onChange={(e) => setSubtitulo(e.target.value)} rows={2} /></div>
+            <div><Label>CTA</Label><Input value={cta} onChange={(e) => setCta(e.target.value)} /></div>
+            <div className="grid grid-cols-2 gap-2">
+              <div><Label>Fundo</Label><input type="color" value={bg} onChange={(e) => setBg(e.target.value)} className="w-full h-9 rounded border" /></div>
+              <div><Label>Cor texto</Label><input type="color" value={fg} onChange={(e) => setFg(e.target.value)} className="w-full h-9 rounded border" /></div>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <Button size="sm" onClick={saveDesign}><Save className="w-4 h-4 mr-1" />Salvar</Button>
+              <Button size="sm" variant="outline" onClick={exportPng}><Download className="w-4 h-4 mr-1" />PNG</Button>
+            </div>
+          </Card>
+          <Card className="p-4 flex items-center justify-center bg-muted/30">
+            <div className="max-w-full max-h-[70vh] overflow-auto">
+              <svg ref={svgRef} viewBox={`0 0 ${f.w} ${f.h}`} width={Math.min(500, f.w)} height={(Math.min(500, f.w) / f.w) * f.h} style={{ background: bg }} xmlns="http://www.w3.org/2000/svg">
+                <rect width={f.w} height={f.h} fill={bg} />
+                <rect x={f.w * 0.05} y={f.h * 0.4} width={f.w * 0.9} height={6} fill={fg} />
+                <text x={f.w / 2} y={f.h * 0.35} fill={fg} fontSize={f.w * 0.09} fontFamily="Rajdhani, Inter, sans-serif" fontWeight="bold" textAnchor="middle">{titulo}</text>
+                <foreignObject x={f.w * 0.08} y={f.h * 0.5} width={f.w * 0.84} height={f.h * 0.3}>
+                  {/* @ts-ignore */}
+                  <div {...{ xmlns: "http://www.w3.org/1999/xhtml" } as any} style={{ color: fg, fontSize: f.w * 0.04, fontFamily: "Inter, sans-serif", textAlign: "center", lineHeight: 1.3 }}>{subtitulo}</div>
+                </foreignObject>
+                <rect x={f.w * 0.3} y={f.h * 0.85} width={f.w * 0.4} height={f.h * 0.07} fill={fg} rx={f.h * 0.035} />
+                <text x={f.w / 2} y={f.h * 0.9} fill={bg} fontSize={f.w * 0.035} fontFamily="Inter, sans-serif" fontWeight="bold" textAnchor="middle">{cta}</text>
+              </svg>
+            </div>
+          </Card>
         </div>
-        <div className="flex flex-wrap gap-2">
-          <Button size="sm" onClick={saveDesign}><Save className="w-4 h-4 mr-1" />Salvar</Button>
-          <Button size="sm" variant="outline" onClick={exportPng}><Download className="w-4 h-4 mr-1" />PNG</Button>
+      </TabsContent>
+    </Tabs>
+  );
+}
+
+// ========== INSTAGRAM 3x3 GRID GENERATOR (IA) ==========
+const GRID_TYPES = [
+  "capa anunciando o tema principal",
+  "citação curta inspiradora sobre o tema",
+  "dica prática rápida (3-5 palavras em destaque)",
+  "produto/serviço em destaque, estilo lifestyle",
+  "depoimento curto de cliente fictício",
+  "CTA forte, cores vibrantes da paleta",
+  "bastidor / behind the scenes",
+  "dado/estatística com número grande em destaque",
+  "post de série numerada (1/9 estilo título)",
+];
+
+function InstagramGridGenerator() {
+  const { companyId } = useComunicacaoAccess();
+  const { activeBrand } = useActiveBrandKit();
+  const { toast } = useToast();
+  const [tema, setTema] = useState("");
+  const [estilo, setEstilo] = useState("minimalista, geométrico, moderno");
+  const [colors, setColors] = useState<string[]>(["#2BBDC0", "#1a1f26", "#ffffff", "#facc15"]);
+  const [results, setResults] = useState<(any | null)[]>(Array(9).fill(null));
+  const [loading, setLoading] = useState<boolean[]>(Array(9).fill(false));
+  const [running, setRunning] = useState(false);
+
+  // Aplicar paleta da marca quando trocar
+  useEffect(() => {
+    if (activeBrand?.cores_principais?.length) {
+      const novas = [...activeBrand.cores_principais, ...(activeBrand.cores_secundarias ?? []), "#ffffff"].slice(0, 4);
+      while (novas.length < 4) novas.push("#ffffff");
+      setColors(novas);
+    }
+  }, [activeBrand?.id]);
+
+  function buildPrompt(idx: number) {
+    const palette = colors.join(", ");
+    const tipografia = activeBrand?.fontes?.join(", ") || "Rajdhani, Inter";
+    const tom = activeBrand?.tom_de_voz || "profissional, próximo";
+    const marca = activeBrand?.nome ? `Marca: ${activeBrand.nome}. ` : "";
+    return [
+      `Post quadrado 1080x1080 para Instagram. ${marca}Tema: ${tema}.`,
+      `Tipo deste post (${idx + 1}/9): ${GRID_TYPES[idx]}.`,
+      `Paleta obrigatória (use APENAS estas 4 cores): ${palette}.`,
+      `Tipografia inspirada em: ${tipografia}. Estilo visual: ${estilo}. Tom: ${tom}.`,
+      `Coerência visual com os outros 8 posts da grade (mesma família tipográfica, mesma paleta, mesmo estilo).`,
+      `Sem rostos de pessoas reais. Sem texto borrado ou ilegível. Composição equilibrada e moderna.`,
+    ].join(" ");
+  }
+
+  async function genOne(idx: number) {
+    if (!companyId || !tema) return;
+    setLoading((l) => l.map((v, i) => (i === idx ? true : v)));
+    try {
+      const r = await commImageGen({
+        company_id: companyId,
+        brand_kit_id: activeBrand?.id,
+        prompt: buildPrompt(idx),
+        format: "1080x1080",
+        model: "google/gemini-3.1-flash-image-preview",
+      });
+      setResults((arr) => arr.map((v, i) => (i === idx ? r.image : v)));
+    } catch (e: any) {
+      toast({ title: `Card ${idx + 1} falhou`, description: e.message, variant: "destructive" });
+    } finally {
+      setLoading((l) => l.map((v, i) => (i === idx ? false : v)));
+    }
+  }
+
+  async function genAll() {
+    if (!companyId) return toast({ title: "Sem empresa", variant: "destructive" });
+    if (!tema) return toast({ title: "Informe o tema da grade", variant: "destructive" });
+    if (!activeBrand) return toast({ title: "Selecione um Brand Kit ativo", variant: "destructive" });
+    setRunning(true);
+    setResults(Array(9).fill(null));
+    // concurrency 3
+    const pool: number[] = [];
+    for (let i = 0; i < 9; i++) pool.push(i);
+    async function worker() {
+      while (pool.length) {
+        const idx = pool.shift()!;
+        await genOne(idx);
+      }
+    }
+    await Promise.all([worker(), worker(), worker()]);
+    setRunning(false);
+    toast({ title: "Grade 3x3 gerada", description: "Todas as imagens nascem como rascunho — exigem aprovação." });
+  }
+
+  function downloadOne(idx: number) {
+    const img = results[idx];
+    if (!img?.public_url) return;
+    const a = document.createElement("a");
+    a.href = img.public_url;
+    a.download = `grid-${idx + 1}.png`;
+    a.target = "_blank";
+    a.click();
+  }
+
+  return (
+    <div className="grid lg:grid-cols-[340px_1fr] gap-4">
+      <Card className="p-4 space-y-3">
+        <h2 className="text-lg font-display font-bold flex items-center gap-2"><Grid3x3 className="w-5 h-5 text-primary" />Grade 3x3 IA</h2>
+        <div className="text-xs text-muted-foreground">
+          Marca ativa: <b>{activeBrand?.nome ?? "—"}</b>
+          {!activeBrand && <div className="text-destructive">Selecione um Brand Kit no topo.</div>}
+        </div>
+
+        <div>
+          <Label>Tema da grade</Label>
+          <Input value={tema} onChange={(e) => setTema(e.target.value)} placeholder="Ex: lançamento do módulo CREA, dicas de fibra ótica..." />
+        </div>
+
+        <div>
+          <Label>Paleta (4 cores)</Label>
+          <div className="grid grid-cols-4 gap-1">
+            {colors.map((c, i) => (
+              <input key={i} type="color" value={c}
+                onChange={(e) => setColors((arr) => arr.map((v, j) => (j === i ? e.target.value : v)))}
+                className="w-full h-10 rounded border" />
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <Label>Estilo visual</Label>
+          <Input value={estilo} onChange={(e) => setEstilo(e.target.value)} />
+        </div>
+
+        <Button onClick={genAll} disabled={running || !activeBrand || !tema} className="w-full">
+          {running ? <><Loader2 className="w-4 h-4 mr-1 animate-spin" />Gerando 9 cards...</> : <><Sparkles className="w-4 h-4 mr-1" />Gerar Grade 3x3</>}
+        </Button>
+
+        <div className="text-[11px] text-muted-foreground">
+          Usa Nano Banana 2 (alta qualidade + rápido). Cada imagem nasce como <b>rascunho</b> — vá em Galeria IA para aprovar.
         </div>
       </Card>
-      <Card className="p-4 flex items-center justify-center bg-muted/30">
-        <div className="max-w-full max-h-[70vh] overflow-auto">
-          <svg ref={svgRef} viewBox={`0 0 ${f.w} ${f.h}`} width={Math.min(500, f.w)} height={(Math.min(500, f.w) / f.w) * f.h} style={{ background: bg }} xmlns="http://www.w3.org/2000/svg">
-            <rect width={f.w} height={f.h} fill={bg} />
-            <rect x={f.w * 0.05} y={f.h * 0.4} width={f.w * 0.9} height={6} fill={fg} />
-            <text x={f.w / 2} y={f.h * 0.35} fill={fg} fontSize={f.w * 0.09} fontFamily="Rajdhani, Inter, sans-serif" fontWeight="bold" textAnchor="middle">{titulo}</text>
-            <foreignObject x={f.w * 0.08} y={f.h * 0.5} width={f.w * 0.84} height={f.h * 0.3}>
-              {/* @ts-ignore */}
-              <div {...{ xmlns: "http://www.w3.org/1999/xhtml" } as any} style={{ color: fg, fontSize: f.w * 0.04, fontFamily: "Inter, sans-serif", textAlign: "center", lineHeight: 1.3 }}>{subtitulo}</div>
-            </foreignObject>
-            <rect x={f.w * 0.3} y={f.h * 0.85} width={f.w * 0.4} height={f.h * 0.07} fill={fg} rx={f.h * 0.035} />
-            <text x={f.w / 2} y={f.h * 0.9} fill={bg} fontSize={f.w * 0.035} fontFamily="Inter, sans-serif" fontWeight="bold" textAnchor="middle">{cta}</text>
-          </svg>
+
+      <Card className="p-4">
+        <div className="text-sm font-medium mb-2">Pré-visualização (feed Instagram)</div>
+        <div className="grid grid-cols-3 gap-1 max-w-[600px] mx-auto">
+          {results.map((img, idx) => (
+            <div key={idx} className="aspect-square relative bg-muted/40 rounded overflow-hidden border group">
+              {loading[idx] && (
+                <div className="absolute inset-0 flex items-center justify-center bg-background/70 z-10">
+                  <Loader2 className="w-5 h-5 animate-spin text-primary" />
+                </div>
+              )}
+              {img?.public_url ? (
+                <>
+                  <img src={img.public_url} alt={`card ${idx + 1}`} className="w-full h-full object-cover" />
+                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-black/50 flex items-center justify-center gap-1 transition">
+                    <Button size="icon" variant="secondary" onClick={() => genOne(idx)} title="Regenerar">
+                      <RefreshCcw className="w-3 h-3" />
+                    </Button>
+                    <Button size="icon" variant="secondary" onClick={() => downloadOne(idx)} title="Baixar">
+                      <Download className="w-3 h-3" />
+                    </Button>
+                  </div>
+                </>
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-[10px] text-muted-foreground">
+                  {idx + 1}/9
+                </div>
+              )}
+              <div className="absolute top-1 left-1 bg-background/80 text-[9px] px-1 rounded">
+                {idx + 1}
+              </div>
+            </div>
+          ))}
         </div>
       </Card>
     </div>
