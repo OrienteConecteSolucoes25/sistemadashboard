@@ -67,6 +67,7 @@ const AppLayout = () => {
       {jurAccess && <NavItem to="/app/juridico" icon={Scale} label="Jurídico" />}
       {rhdpAccess && <NavItem to="/app/rh-dp" icon={HeartHandshake} label="RH/DP" />}
       {creaAccess && <NavItem to="/app/crea" icon={FileSignature} label="CREA & ART" />}
+      {commAccess && <NavItem to="/app/comunicacao" icon={MessageSquare} label="Comunicação IA" />}
       {isFinanceiro && <NavItem to="/app/planos" icon={CreditCard} label="Planos" />}
       {canSeeMinhaEmpresa && <NavItem to="/app/minha-empresa" icon={Building2} label="Minha Empresa" />}
       {isAdmin && <NavItem to="/app/aparencia" icon={Palette} label="Aparência & Marca" />}
