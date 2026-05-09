@@ -13,6 +13,7 @@ import { useComunicacaoAccess } from "../hooks/useComunicacaoAccess";
 import { commAi, commImageGen, commSoftDelete } from "../lib/api";
 import { Sparkles, Trash2, Plus, Save, ExternalLink, Copy, ImageIcon, RefreshCcw } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useActiveBrandKit } from "../hooks/useActiveBrandKit";
 
 // ========== HELPERS ==========
 async function loadBrands(companyId: string | null) {
