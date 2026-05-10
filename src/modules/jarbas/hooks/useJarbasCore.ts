@@ -19,12 +19,29 @@ export function useJarbasCore() {
   const navigate = useNavigate();
   const { speak, listen, isListening, isSpeaking, stopSpeaking, isSupported } = useJarbasVoice();
   
-  const [context, setContext] = useState<JarbasContext>({
-    current_module: "Geral",
-    current_step_index: 0
+  // Offline Persistence
+  useEffect(() => {
+    const savedHistory = localStorage.getItem('jarbas_history');
+    if (savedHistory) {
+      setHistory(JSON.parse(savedHistory));
+    }
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem('jarbas_history', JSON.stringify(history.slice(-20)));
+  }, [history]);
+
+  const [context, setContext] = useState<JarbasContext>(() => {
+    const savedContext = localStorage.getItem('jarbas_context');
+    return savedContext ? JSON.parse(savedContext) : {
+      current_module: "Geral",
+      current_step_index: 0
+    };
   });
 
-  const [history, setHistory] = useState<any[]>([]);
+  useEffect(() => {
+    localStorage.setItem('jarbas_context', JSON.stringify(context));
+  }, [context]);
   const [isProcessing, setIsProcessing] = useState(false);
 
   // Mapeamento automático de módulos por rota
