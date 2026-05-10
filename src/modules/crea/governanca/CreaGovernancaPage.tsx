@@ -19,6 +19,7 @@ import { ConciliacaoTab } from "./tabs/ConciliacaoTab";
 import { AuditoriaTab } from "./tabs/AuditoriaTab";
 import { AlertasTab } from "./tabs/AlertasTab";
 import { EmpresasPanel, RtsPanel, ClientesPanel } from "./tabs/PainelTabs";
+import { CreasBrasilTab } from "./tabs/CreasBrasilTab";
 
 const Placeholder = ({ title, description }: { title: string; description: string }) => (
   <Card className="card-elegant">
