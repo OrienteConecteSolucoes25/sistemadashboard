@@ -1,3 +1,4 @@
+import React, { memo } from "react";
 import { OFFICE_THEME } from "../core/pixelOfficeTheme";
 
 export type FurnitureKind = "plant" | "coffee" | "board" | "sofa" | "chair" | "divider" | "pc" | "decor";
@@ -8,7 +9,7 @@ interface Props {
   height: number;
 }
 
-export const PixelFurnitureSprite = ({ kind, width, height }: Props) => {
+export const PixelFurnitureSprite = memo(({ kind, width, height }: Props) => {
   switch (kind) {
     case "plant":
       return (
@@ -122,4 +123,4 @@ export const PixelFurnitureSprite = ({ kind, width, height }: Props) => {
         </div>
       );
   }
-};
+});

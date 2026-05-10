@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, memo } from "react";
 import { TILE_SIZE, STATUS_LABEL, type PixelStatus } from "../core/constants";
 import { spriteEngine } from "../engine/spriteEngine";
 import { roleFromSpriteKey, ROLE_PALETTES } from "../core/pixelOfficeTheme";
@@ -20,7 +20,7 @@ interface Props {
 
 const AVATAR_SIZE = 56;
 
-export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage, isTyping, hideName }: Props & { hideName?: boolean }) => {
+export const PixelAvatar = memo(({ character, posX, posY, onClick, recentMessage, isTyping, hideName }: Props & { hideName?: boolean }) => {
   const status = (character.status as PixelStatus) ?? "offline";
   const x = posX ?? character.position_x;
   const y = posY ?? character.position_y;
@@ -55,7 +55,8 @@ export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage, isT
         top,
         zIndex,
         transition: "left 600ms cubic-bezier(0.4, 0, 0.2, 1), top 600ms cubic-bezier(0.4, 0, 0.2, 1)",
-        willChange: "left, top",
+        willChange: "transform, left, top",
+        transform: "translateZ(0)", // GPU acceleration
       }}
     >
     <TooltipProvider delayDuration={100}>
@@ -154,4 +155,4 @@ export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage, isT
     </TooltipProvider>
     </div>
   );
-};
+});

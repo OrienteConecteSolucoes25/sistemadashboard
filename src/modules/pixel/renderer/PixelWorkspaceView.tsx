@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback, memo } from "react";
 import {
   STAGE_HEIGHT_PX,
   STAGE_WIDTH_PX,
@@ -44,7 +44,7 @@ interface Props {
   renderer?: RendererType;
 }
 
-export const PixelWorkspaceView = ({
+export const PixelWorkspaceView = memo(({
   workspace,
   currentUser,
   characters,
@@ -140,12 +140,12 @@ export const PixelWorkspaceView = ({
     if (!error && onRefresh) onRefresh();
   };
 
-  // Combine and sort by z_index
-  const sortedLayers = [
+  // Memoize sorted layers to avoid recalculation on every movement
+  const sortedLayers = useMemo(() => [
     ...rooms.map(r => ({ type: "room" as const, data: r, z: (r as any).z_index ?? 5 })),
     ...furniture.map(f => ({ type: "furniture" as const, data: f, z: f.z_index })),
     ...desks.map(d => ({ type: "desk" as const, data: d, z: (d as any).z_index ?? 20 })),
-  ].sort((a, b) => a.z - b.z);
+  ].sort((a, b) => a.z - b.z), [rooms, furniture, desks]);
 
   return (
     <div className="flex flex-col gap-4">
@@ -349,4 +349,4 @@ export const PixelWorkspaceView = ({
       </div>
     </div>
   );
-};
+});
