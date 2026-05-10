@@ -56,6 +56,7 @@ import {
 } from "../lib/marketplaceApi";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface CartItem extends MarketplaceProduct {
   quantity: number;
