@@ -27,6 +27,8 @@ export interface PixelCharacter {
   position_y: number;
   current_action: string;
   is_sitting: boolean;
+  last_heartbeat?: string | null;
+  is_online?: boolean;
   customization: AvatarCustomization;
 }
 
