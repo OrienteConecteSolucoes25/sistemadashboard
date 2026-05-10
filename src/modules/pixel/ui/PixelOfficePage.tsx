@@ -147,7 +147,7 @@ export default function PixelOfficePage() {
       // 1. Eng Pendencias
       const engP = supabase.from("eng_pendencias").select("id", { count: "exact", head: true }).eq("status", "pendente");
       // 2. TI Chamados
-      const tiP = supabase.from("ti_tickets").select("id", { count: "exact", head: true }).eq("status", "aberto");
+      const tiP = supabase.from("it_tickets").select("id", { count: "exact", head: true }).eq("status", "aberto");
 
       const [engR, tiR] = await Promise.all([engP, tiP]);
       

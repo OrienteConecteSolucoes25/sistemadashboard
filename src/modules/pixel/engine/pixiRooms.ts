@@ -40,6 +40,7 @@ class PixiRoomsManager {
     const graphics = new PIXI.Graphics();
     container.addChild(graphics);
 
+    // Nome da Sala
     const text = new PIXI.Text({
       text: room.name || '',
       style: {
@@ -53,12 +54,27 @@ class PixiRoomsManager {
     text.y = 4;
     container.addChild(text);
 
+    // Dados em Tempo Real (Smart Room)
+    const dataText = new PIXI.Text({
+      text: '',
+      style: {
+        fontFamily: 'monospace',
+        fontSize: 8,
+        fill: 0x00f2ff,
+        fontWeight: 'normal',
+      }
+    });
+    dataText.x = 4;
+    dataText.y = 16;
+    container.addChild(dataText);
+
     return container;
   }
 
   private updateRoomSprite(container: PIXI.Container, room: RoomLite) {
     const graphics = container.children[0] as PIXI.Graphics;
     const text = container.children[1] as PIXI.Text;
+    const dataText = container.children[2] as PIXI.Text;
     
     const w = this.sizeForCapacity(room.capacity).w * TILE_SIZE;
     const h = this.sizeForCapacity(room.capacity).h * TILE_SIZE;
@@ -80,6 +96,20 @@ class PixiRoomsManager {
     graphics.stroke();
 
     text.text = room.name || '';
+
+    // Simulação de Dados em Tempo Real por Módulo
+    const name = (room.name || '').toUpperCase();
+    if (name.includes('TI')) {
+      dataText.text = 'CHAMADOS: 12\nSLA: 98%';
+    } else if (name.includes('FINANCEIRO') || name.includes('CONTABIL')) {
+      dataText.text = 'SALDO: OK\nALERTAS: 00';
+    } else if (name.includes('JURIDICO')) {
+      dataText.text = 'PROCESSOS: 42\nPRAZOS: 03';
+    } else if (name.includes('ENGENHARIA')) {
+      dataText.text = 'OBRAS: 15\nSTATUS: ATIVO';
+    } else {
+      dataText.text = '';
+    }
   }
 
   private sizeForCapacity(cap: number) {

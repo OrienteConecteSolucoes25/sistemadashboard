@@ -18,7 +18,7 @@ import { Link } from "react-router-dom";
 import { useJarbasDashboard } from "../hooks/useJarbasDashboard";
 
 export const JarbasCentralDashboard = () => {
-  const { events, insights, status, alerts } = useJarbasDashboard();
+  const { events, insights, status, alerts, executiveInsights } = useJarbasDashboard();
 
   return (
     <div className="min-h-screen bg-[#050510] text-[#00f2ff] p-6 font-mono selection:bg-cyan-500/30">
@@ -99,15 +99,21 @@ export const JarbasCentralDashboard = () => {
             </Card>
           ))}
 
-          {/* Modo Executivo Preview */}
           <div className="p-4 rounded-lg bg-indigo-950/20 border border-indigo-500/30 mt-8">
             <div className="flex items-center gap-2 mb-3">
               <MessageSquareCode className="w-4 h-4 text-indigo-400" />
-              <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">Modo Executivo</span>
+              <span className="text-xs font-bold uppercase tracking-widest text-indigo-400">Jarbas Executive Insights</span>
             </div>
-            <div className="text-[11px] space-y-2 opacity-90 leading-relaxed">
-              <p className="border-l-2 border-indigo-500 pl-2">"Senhor Gestor, detectei 3 obras com risco de atraso significativo."</p>
-              <p className="border-l-2 border-indigo-500 pl-2">"O custo operacional da Torre Norte subiu 18% em relação ao planejado."</p>
+            <div className="text-[11px] space-y-3 opacity-90 leading-relaxed">
+              {executiveInsights.map((insight, idx) => (
+                <div key={idx} className="flex gap-2">
+                  <div className={`w-1 shrink-0 ${insight.type === 'critical' ? 'bg-red-500' : insight.type === 'warning' ? 'bg-amber-500' : 'bg-indigo-500'}`} />
+                  <div>
+                    <span className="text-[9px] font-bold opacity-50 block uppercase">{insight.module}</span>
+                    <p>{insight.message}</p>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

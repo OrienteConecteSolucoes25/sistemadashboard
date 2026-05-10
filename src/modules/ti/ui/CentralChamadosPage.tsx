@@ -71,8 +71,10 @@ export default function CentralChamadosPage() {
     category: "software"
   });
   const [comments, setComments] = React.useState<any[]>([]);
+  const [history, setHistory] = React.useState<any[]>([]);
   const [newComment, setNewComment] = React.useState("");
   const [isSendingComment, setIsSendingComment] = React.useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = React.useState(false);
 
   React.useEffect(() => {
     fetchTickets();
@@ -181,10 +183,63 @@ export default function CentralChamadosPage() {
     }
   };
 
+  const fetchHistory = async (ticketId: string) => {
+    const { data, error } = await supabase
+      .from('ti_ticket_history')
+      .select(`
+        *,
+        profiles:user_id(full_name)
+      `)
+      .eq('ticket_id', ticketId)
+      .order('created_at', { ascending: false });
+    
+    if (!error) setHistory(data || []);
+  };
+
+  const handleUpdateStatus = async (newStatus: string) => {
+    if (!selectedTicket) return;
+    
+    try {
+      setIsUpdatingStatus(true);
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
+
+      const { error: updateError } = await supabase
+        .from('it_tickets')
+        .update({ status: newStatus })
+        .eq('id', selectedTicket.id);
+
+      if (updateError) throw updateError;
+
+      // Log history
+      await supabase.from('ti_ticket_history').insert([{
+        ticket_id: selectedTicket.id,
+        user_id: userData.user.id,
+        action: 'status_change',
+        old_value: selectedTicket.status,
+        new_value: newStatus
+      }]);
+
+      toast.success(`Status alterado para ${getStatusLabel(newStatus)}`);
+      
+      // Update local state
+      const updatedTicket = { ...selectedTicket, status: newStatus };
+      setSelectedTicket(updatedTicket);
+      setTickets(tickets.map(t => t.id === selectedTicket.id ? updatedTicket : t));
+      
+      fetchHistory(selectedTicket.id);
+    } catch (e: any) {
+      toast.error("Erro ao atualizar status: " + e.message);
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
   const openDetails = (ticket: any) => {
     setSelectedTicket(ticket);
     setIsDetailOpen(true);
     fetchComments(ticket.id);
+    fetchHistory(ticket.id);
   };
 
   const getPriorityColor = (priority: string) => {
@@ -354,14 +409,22 @@ export default function CentralChamadosPage() {
                   Carregando chamados...
                 </TableCell>
               </TableRow>
-            ) : tickets.length === 0 ? (
+            ) : tickets.filter(t => 
+                t.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                t.ticket_number.toString().includes(searchTerm) ||
+                t.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+              ).length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-20 text-slate-400 font-bold uppercase text-xs tracking-widest">
                   Nenhum chamado encontrado.
                 </TableCell>
               </TableRow>
             ) : (
-              tickets.map((ticket) => (
+              tickets.filter(t => 
+                t.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                t.ticket_number.toString().includes(searchTerm) ||
+                t.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+              ).map((ticket) => (
                 <TableRow 
                   key={ticket.id} 
                   className="group hover:bg-slate-50 border-slate-100 transition-colors cursor-pointer"
@@ -457,9 +520,28 @@ export default function CentralChamadosPage() {
                       #{selectedTicket.ticket_number.toString().padStart(5, '0')} - {selectedTicket.title}
                     </DialogTitle>
                   </div>
-                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none font-bold text-xs">
-                    {getStatusLabel(selectedTicket.status)}
-                  </Badge>
+                  <div className="flex gap-2">
+                    <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none font-bold text-xs uppercase px-3">
+                      {getStatusLabel(selectedTicket.status)}
+                    </Badge>
+                    <Select 
+                      disabled={isUpdatingStatus}
+                      value={selectedTicket.status} 
+                      onValueChange={handleUpdateStatus}
+                    >
+                      <SelectTrigger className="h-8 w-[150px] text-[10px] font-black uppercase tracking-widest border-slate-200">
+                        <SelectValue placeholder="Mudar Status" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="aberto">Aberto</SelectItem>
+                        <SelectItem value="em_analise">Em Análise</SelectItem>
+                        <SelectItem value="aguardando_usuario">Aguardando Usuário</SelectItem>
+                        <SelectItem value="em_execucao">Em Execução</SelectItem>
+                        <SelectItem value="resolvido">Resolvido</SelectItem>
+                        <SelectItem value="cancelado">Cancelado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 
                 <div className="grid grid-cols-3 gap-6">
@@ -513,15 +595,32 @@ export default function CentralChamadosPage() {
                     <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3 flex items-center gap-2">
                       <History className="w-3 h-3 text-blue-600" /> Registro de Atividades
                     </h4>
-                    {/* Aqui entraria um log de mudanças de status se houvesse */}
-                    <div className="space-y-4">
-                      <div className="flex gap-3 items-start">
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0"></div>
-                        <div>
-                          <p className="text-xs font-bold text-slate-700">Chamado aberto e SLA calculado</p>
-                          <p className="text-[10px] text-slate-400">{format(new Date(selectedTicket.created_at), "HH:mm")}</p>
+                    <div className="space-y-4 max-h-[200px] overflow-y-auto pr-2">
+                      {history.length === 0 ? (
+                        <div className="flex gap-3 items-start">
+                          <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0"></div>
+                          <div>
+                            <p className="text-xs font-bold text-slate-700">Chamado aberto e SLA calculado</p>
+                            <p className="text-[10px] text-slate-400">{format(new Date(selectedTicket.created_at), "HH:mm")}</p>
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        history.map((h) => (
+                          <div key={h.id} className="flex gap-3 items-start">
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0"></div>
+                            <div>
+                              <p className="text-xs font-bold text-slate-700">
+                                {h.action === 'status_change' ? (
+                                  <>Alteração de status: <span className="text-blue-600">{getStatusLabel(h.old_value)}</span> → <span className="text-green-600">{getStatusLabel(h.new_value)}</span></>
+                                ) : h.action}
+                              </p>
+                              <p className="text-[10px] text-slate-400">
+                                {format(new Date(h.created_at), "dd/MM HH:mm")} por {h.profiles?.full_name || 'Sistema'}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>

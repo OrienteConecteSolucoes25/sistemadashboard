@@ -16,8 +16,68 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function TiDashboard() {
+  const [stats, setStats] = React.useState({
+    activeTickets: 0,
+    slaRate: "98.4%",
+    assetsInUse: 0,
+    incidentsToday: 0
+  });
+  const [ticketsByStatus, setTicketsByStatus] = React.useState<any[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Active tickets
+      const { count: activeCount } = await supabase
+        .from('it_tickets')
+        .select('*', { count: 'exact', head: true })
+        .neq('status', 'resolvido');
+      
+      // Assets
+      const { count: assetCount } = await supabase
+        .from('it_assets')
+        .select('*', { count: 'exact', head: true });
+
+      // Tickets by category for performance chart
+      const { data: catData } = await supabase
+        .from('it_tickets')
+        .select('category');
+      
+      const counts: Record<string, number> = {};
+      catData?.forEach(t => {
+        counts[t.category] = (counts[t.category] || 0) + 1;
+      });
+
+      const formattedCats = Object.entries(counts).map(([label, count]) => ({
+        label: label.toUpperCase(),
+        count,
+        progress: Math.min(100, (count / (catData?.length || 1)) * 100)
+      }));
+
+      setStats({
+        activeTickets: activeCount || 0,
+        slaRate: "98.4%",
+        assetsInUse: assetCount || 0,
+        incidentsToday: 0
+      });
+      setTicketsByStatus(formattedCats);
+
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] p-4 md:p-8">
       <div className="mb-8">
@@ -30,10 +90,10 @@ export default function TiDashboard() {
       {/* Top Indicators */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         {[
-          { label: 'Chamados Ativos', value: '42', color: 'text-blue-600', trend: '+12%' },
-          { label: 'SLA de Resolução', value: '98.4%', color: 'text-green-600', trend: 'STABLE' },
-          { label: 'Ativos em Uso', value: '1,204', color: 'text-slate-800', trend: '+5' },
-          { label: 'Incidentes Hoje', value: '03', color: 'text-red-600', trend: '-20%' },
+          { label: 'Chamados Ativos', value: stats.activeTickets, color: 'text-blue-600', trend: '+12%' },
+          { label: 'SLA de Resolução', value: stats.slaRate, color: 'text-green-600', trend: 'STABLE' },
+          { label: 'Ativos em Uso', value: stats.assetsInUse, color: 'text-slate-800', trend: '+5' },
+          { label: 'Incidentes Hoje', value: stats.incidentsToday, color: 'text-red-600', trend: '0%' },
         ].map((stat, i) => (
           <Card key={i} className="border-none shadow-sm overflow-hidden relative group hover:shadow-xl transition-all duration-300">
             <CardContent className="p-6">
@@ -61,12 +121,9 @@ export default function TiDashboard() {
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-6">
-              {[
-                { label: 'Suporte de Acesso', progress: 85, count: 12 },
-                { label: 'Falhas de Sistema', progress: 62, count: 8 },
-                { label: 'Infraestrutura', progress: 30, count: 4 },
-                { label: 'Segurança', progress: 15, count: 2 },
-              ].map((item, i) => (
+              {ticketsByStatus.length === 0 ? (
+                <p className="text-center text-slate-400 text-xs py-10 font-bold uppercase tracking-widest">Aguardando dados...</p>
+              ) : ticketsByStatus.map((item, i) => (
                 <div key={i} className="space-y-2">
                   <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-600">
                     <span>{item.label}</span>
