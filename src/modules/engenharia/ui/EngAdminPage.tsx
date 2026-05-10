@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Shield, Users, KeyRound, Activity, RefreshCw, ShieldAlert, Database, ListChecks, FolderKanban } from "lucide-react";
 import { CadastrosGeraisTab } from "./admin/CadastrosGeraisTab";
+import LegacyDeprecationBanner from "@/acl/LegacyDeprecationBanner";
 
 type Profile = { id: string; email: string | null; full_name: string | null };
 type RoleRow = { user_id: string; role: string };
