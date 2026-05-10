@@ -219,6 +219,11 @@ const App = () => (
               <Route path="jarbas" element={<JarbasCentralDashboard />} />
               <Route path="jarbas/knowledge" element={<JarbasKnowledgePage />} />
               <Route path="ocs-guard" element={<OcsGuardPage />} />
+              <Route path="ti">
+                <Route index element={<TiDashboard />} />
+                <Route path="chamados" element={<CentralChamadosPage />} />
+                <Route path="agente" element={<ChatAgenteTIPage />} />
+              </Route>
                <Route path="aparencia" element={<ThemeStudioPage />} />
               <Route path="design-system" element={<ThemeStudioPage />} />
             </Route>
