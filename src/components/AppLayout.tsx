@@ -16,7 +16,7 @@ import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { useUserLayoutPreference } from "@/modules/aparencia/hooks/useUserLayoutPreference";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useCan } from "@/acl/AclProvider";
-import { JarbasInterface } from "@/modules/jarbas/ui/JarbasInterface";
+// Import Jarbas removido daqui para ser usado apenas dentro do Soluções-Verso
 
 const AppLayout = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
