@@ -66,6 +66,93 @@ export default function MarketplaceHome() {
   const [categories, setCategories] = useState<MarketplaceCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState(1); // 1: Cart, 2: Payment, 3: Success
+
+  const addToCart = (product: MarketplaceProduct) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.id === product.id);
+      if (existing) {
+        return prev.map(item => 
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prev, { ...product, quantity: 1 }];
+    });
+    toast.success(`${product.name} adicionado ao carrinho`);
+  };
+
+  const removeFromCart = (productId: string) => {
+    setCart(prev => prev.filter(item => item.id !== productId));
+  };
+
+  const updateQuantity = (productId: string, delta: number) => {
+    setCart(prev => prev.map(item => {
+      if (item.id === productId) {
+        const newQty = Math.max(1, item.quantity + delta);
+        return { ...item, quantity: newQty };
+      }
+      return item;
+    }));
+  };
+
+  const cartTotal = cart.reduce((sum, item) => sum + (item.promo_price || item.price) * item.quantity, 0);
+
+  const handleCheckout = async () => {
+    try {
+      setIsProcessing(true);
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) {
+        toast.error("Você precisa estar logado para comprar");
+        return;
+      }
+
+      // No mundo real, aqui buscaríamos o customer_id ou criaríamos um
+      const { data: customer } = await supabase
+        .from('market_customers' as any)
+        .select('id')
+        .eq('user_id', userData.user.id)
+        .maybeSingle();
+      
+      let customerId = customer?.id;
+      
+      if (!customerId) {
+        const { data: newCustomer, error: createError } = await supabase
+          .from('market_customers' as any)
+          .insert([{ 
+            user_id: userData.user.id,
+            full_name: userData.user.email?.split('@')[0] || 'Cliente',
+            email: userData.user.email
+          }])
+          .select()
+          .single();
+        
+        if (createError) throw createError;
+        customerId = (newCustomer as any).id;
+      }
+
+      await createMarketplaceOrder({
+        customer_id: customerId,
+        items: cart.map(item => ({
+          product_id: item.id,
+          quantity: item.quantity,
+          unit_price: item.promo_price || item.price
+        })),
+        total_amount: cartTotal,
+        payment_method: 'credit_card'
+      });
+
+      setCheckoutStep(3);
+      setCart([]);
+    } catch (error: any) {
+      toast.error("Erro ao processar pedido: " + error.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   useEffect(() => {
     async function loadData() {
