@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Sparkles, LucideIcon } from "lucide-react";
+import { Sparkles, LucideIcon, Bot } from "lucide-react";
 
 export interface AgentNpcProps {
   name: string;
