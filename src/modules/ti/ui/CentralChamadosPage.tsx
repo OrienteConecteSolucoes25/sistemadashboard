@@ -354,14 +354,22 @@ export default function CentralChamadosPage() {
                   Carregando chamados...
                 </TableCell>
               </TableRow>
-            ) : tickets.length === 0 ? (
+            ) : tickets.filter(t => 
+                t.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                t.ticket_number.toString().includes(searchTerm) ||
+                t.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+              ).length === 0 ? (
               <TableRow>
                 <TableCell colSpan={7} className="text-center py-20 text-slate-400 font-bold uppercase text-xs tracking-widest">
                   Nenhum chamado encontrado.
                 </TableCell>
               </TableRow>
             ) : (
-              tickets.map((ticket) => (
+              tickets.filter(t => 
+                t.title.toLowerCase().includes(searchTerm.toLowerCase()) || 
+                t.ticket_number.toString().includes(searchTerm) ||
+                t.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+              ).map((ticket) => (
                 <TableRow 
                   key={ticket.id} 
                   className="group hover:bg-slate-50 border-slate-100 transition-colors cursor-pointer"
