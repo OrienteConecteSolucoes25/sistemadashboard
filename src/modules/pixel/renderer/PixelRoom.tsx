@@ -35,7 +35,7 @@ const variantOf = (room: RoomLite): ModuleType | "common" => {
   return "common";
 };
 
-export const PixelRoom = ({ room, onClick, characters = [], meetings }: Props) => {
+export const PixelRoom = memo(({ room, onClick, characters = [], meetings }: Props) => {
   const variant = variantOf(room);
   const { w, h } = sizeForCapacity(room.capacity);
   const width = w * TILE_SIZE;
