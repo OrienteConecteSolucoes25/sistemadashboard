@@ -76,6 +76,8 @@ export default function MarketplaceHome() {
             <Input 
               placeholder="O que você está procurando hoje?" 
               className="w-full pl-10 h-10 bg-slate-100 border-none focus-visible:ring-primary" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
