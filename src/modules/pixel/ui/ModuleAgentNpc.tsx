@@ -77,12 +77,19 @@ export function ModuleAgentNpc({
       }}
     >
       <div
-        className={`mb-1 px-2 py-1 rounded-md bg-card border text-[10px] font-display whitespace-nowrap shadow-md transition-all ${
+        className={`mb-1 px-3 py-2 rounded-xl bg-slate-950/90 text-white border border-primary/30 text-[11px] font-display whitespace-nowrap shadow-[0_0_15px_rgba(37,99,235,0.4)] backdrop-blur-md transition-all ${
           hover ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1 pointer-events-none"
         }`}
       >
-        <Icon className="inline h-3 w-3 mr-1" style={{ color: primaryColor }} />
-        {name} — clique para conversar
+        <div className="flex items-center gap-2">
+          <div className="p-1 rounded bg-primary/20">
+            <Icon className="h-3 w-3 text-primary" />
+          </div>
+          <div className="flex flex-col">
+            <span className="font-bold leading-none">{name}</span>
+            <span className="text-[9px] text-primary/80 font-mono mt-0.5">ESPECIALISTA ONLINE</span>
+          </div>
+        </div>
       </div>
 
       <div
