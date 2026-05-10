@@ -46,6 +46,11 @@ class PixiAppManager {
     return this.app;
   }
 
+  getStage() {
+    return this.app?.stage;
+  }
+
+
   getContainer(name: string) {
     return this.containers[name];
   }
