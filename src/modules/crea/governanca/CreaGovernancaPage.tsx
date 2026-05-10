@@ -7,6 +7,9 @@ import {
 } from "lucide-react";
 import { GovArtFilterBar } from "./GovArtFilterBar";
 import { GovFilters } from "./lib/govTypes";
+import { VisaoExecutivaTab } from "./tabs/VisaoExecutivaTab";
+import { TecnicaTab } from "./tabs/TecnicaTab";
+import { ImportacoesTab } from "./tabs/ImportacoesTab";
 
 const Placeholder = ({ title, description }: { title: string; description: string }) => (
   <Card className="card-elegant">
@@ -67,7 +70,10 @@ export default function CreaGovernancaPage() {
         </div>
         {TABS.map((t) => (
           <TabsContent key={t.value} value={t.value} className="mt-4">
-            <Placeholder title={t.label} description={t.desc} />
+            {t.value === "executiva" ? <VisaoExecutivaTab filters={filters} />
+             : t.value === "tecnica" ? <TecnicaTab filters={filters} />
+             : t.value === "importacoes" ? <ImportacoesTab />
+             : <Placeholder title={t.label} description={t.desc} />}
           </TabsContent>
         ))}
       </Tabs>

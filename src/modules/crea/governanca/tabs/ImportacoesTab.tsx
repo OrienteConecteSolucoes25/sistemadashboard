@@ -1,0 +1,188 @@
+import { useEffect, useRef, useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Badge } from "@/components/ui/badge";
+import { Upload, FileSpreadsheet, CheckCircle2, AlertTriangle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { useGovCompany } from "../lib/useGovCompany";
+import { parseArtFile, hashArt, ParsedArtRow } from "../lib/govParse";
+import { UFS_BR } from "../lib/govTypes";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+
+type ImportRow = {
+  id: string;
+  arquivo_nome: string | null;
+  uf: string | null;
+  total_linhas: number | null;
+  ok: number | null;
+  falhas: number | null;
+  status: string;
+  ran_at: string;
+};
+
+export function ImportacoesTab() {
+  const { companyId } = useGovCompany();
+  const [uf, setUf] = useState<string>("BA");
+  const [file, setFile] = useState<File | null>(null);
+  const [busy, setBusy] = useState(false);
+  const [progress, setProgress] = useState<string>("");
+  const [history, setHistory] = useState<ImportRow[]>([]);
+  const [reload, setReload] = useState(0);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!companyId) return;
+    supabase.from("crea_gov_importacoes")
+      .select("id,arquivo_nome,uf,total_linhas,ok,falhas,status,ran_at")
+      .eq("company_id", companyId).order("ran_at", { ascending: false }).limit(20)
+      .then(({ data }) => setHistory((data as ImportRow[]) ?? []));
+  }, [companyId, reload]);
+
+  async function ensureContratante(name: string): Promise<string | null> {
+    if (!name || !companyId) return null;
+    const trimmed = name.trim();
+    const { data: ex } = await supabase.from("crea_gov_contratantes")
+      .select("id").eq("company_id", companyId).ilike("nome", trimmed).maybeSingle();
+    if (ex?.id) return ex.id;
+    const { data: ins } = await supabase.from("crea_gov_contratantes")
+      .insert({ company_id: companyId, nome: trimmed }).select("id").single();
+    return ins?.id ?? null;
+  }
+
+  async function handleImport() {
+    if (!file || !companyId) return;
+    setBusy(true); setProgress("Lendo arquivo…");
+    try {
+      const parsed = await parseArtFile(file);
+      if (parsed.rows.length === 0) {
+        toast.warning("Nenhuma linha válida detectada no arquivo.");
+        setBusy(false); return;
+      }
+      setProgress(`${parsed.rows.length} linhas detectadas. Registrando importação…`);
+
+      const { data: imp, error: impErr } = await supabase.from("crea_gov_importacoes").insert({
+        company_id: companyId, uf, kind: "arts_geral", arquivo_nome: file.name,
+        total_linhas: parsed.rows.length, status: "processando",
+        mapeamento: { unmappedHeaders: parsed.unmappedHeaders },
+      }).select("id").single();
+      if (impErr || !imp) throw new Error(impErr?.message ?? "Falha ao registrar importação");
+
+      const contratanteCache = new Map<string, string>();
+      const payloads: any[] = [];
+      let i = 0;
+      for (const r of parsed.rows) {
+        i++;
+        if (i % 50 === 0) setProgress(`Preparando ${i}/${parsed.rows.length}…`);
+        if (!r.numero) continue;
+        let contratante_id: string | null = null;
+        if (r.contratante_nome) {
+          const k = r.contratante_nome.trim().toLowerCase();
+          if (contratanteCache.has(k)) contratante_id = contratanteCache.get(k)!;
+          else { contratante_id = await ensureContratante(r.contratante_nome); if (contratante_id) contratanteCache.set(k, contratante_id); }
+        }
+        const hash = await hashArt(r.uf ?? uf, r.numero, r.data_cadastro, r.empresa_nome);
+        payloads.push({
+          company_id: companyId,
+          numero: r.numero, uf: r.uf ?? uf,
+          tipo: r.tipo, natureza: r.natureza, participacao_tecnica: r.participacao_tecnica, forma_registro: r.forma_registro,
+          contratante_id, proprietario: r.proprietario,
+          endereco: r.endereco, cidade: r.cidade, uf_obra: r.uf_obra, cep: r.cep,
+          observacao: r.observacao, atividades_texto: r.atividades_texto, codigo_tos: r.codigo_tos,
+          quantidade: r.quantidade, unidade_medida: r.unidade_medida,
+          valor_taxa: r.valor_taxa, valor_pago: r.valor_pago, valor_contrato: r.valor_contrato,
+          centro_custo: r.centro_custo,
+          data_cadastro: r.data_cadastro, data_pagamento: r.data_pagamento,
+          data_vencimento: r.data_vencimento, data_baixa: r.data_baixa,
+          status_analise: r.status_analise, status_baixa: r.status_baixa, status_financeiro: r.status_financeiro,
+          boleto_numero: r.boleto_numero,
+          arquivo_origem_id: imp.id, raw: r.raw, hash_unico: hash,
+        });
+      }
+
+      let ok = 0, fail = 0;
+      const chunkSize = 200;
+      for (let j = 0; j < payloads.length; j += chunkSize) {
+        setProgress(`Enviando ${Math.min(j + chunkSize, payloads.length)}/${payloads.length}…`);
+        const chunk = payloads.slice(j, j + chunkSize);
+        const { error } = await supabase.from("crea_gov_arts").upsert(chunk, { onConflict: "hash_unico", ignoreDuplicates: false });
+        if (error) {
+          // tenta linha-a-linha para contar precisamente
+          for (const p of chunk) {
+            const { error: e2 } = await supabase.from("crea_gov_arts").upsert(p, { onConflict: "hash_unico" });
+            if (e2) fail++; else ok++;
+          }
+        } else ok += chunk.length;
+      }
+
+      await supabase.from("crea_gov_importacoes")
+        .update({ ok, falhas: fail, status: fail === 0 ? "concluido" : "concluido_com_erros" })
+        .eq("id", imp.id);
+
+      toast.success(`Importação concluída: ${ok} OK, ${fail} falhas. ${parsed.unmappedHeaders.length ? `Cabeçalhos não mapeados: ${parsed.unmappedHeaders.length}.` : ""}`);
+      setProgress(""); setFile(null); if (fileRef.current) fileRef.current.value = "";
+      setReload((r) => r + 1);
+    } catch (e: any) {
+      toast.error("Falha na importação: " + (e?.message ?? e));
+      setProgress("");
+    } finally { setBusy(false); }
+  }
+
+  if (!companyId) return <Card><CardContent className="p-6 text-sm text-muted-foreground">Você precisa estar vinculado a uma empresa.</CardContent></Card>;
+
+  return (
+    <div className="space-y-3">
+      <Card className="card-elegant">
+        <CardHeader className="pb-2"><CardTitle className="text-sm flex items-center gap-2"><Upload className="h-4 w-4" /> Importar relatório do CREA</CardTitle></CardHeader>
+        <CardContent className="space-y-3">
+          <p className="text-xs text-muted-foreground">Aceita .xlsx, .xls e .csv exportados do SITAC/portal CREA. As colunas são detectadas automaticamente; cabeçalhos não reconhecidos vão para o JSON bruto da ART e podem ser mapeados depois. Linhas com mesmo (UF + número + cadastro + empresa) são atualizadas (upsert).</p>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-2 items-end">
+            <div>
+              <Label className="text-xs">UF do CREA (default)</Label>
+              <Select value={uf} onValueChange={setUf}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>{UFS_BR.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent>
+              </Select>
+            </div>
+            <div className="md:col-span-2">
+              <Label className="text-xs">Arquivo</Label>
+              <Input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="h-9" onChange={(e) => setFile(e.target.files?.[0] ?? null)} disabled={busy} />
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button onClick={handleImport} disabled={!file || busy}>{busy ? <Loader2 className="h-4 w-4 mr-1 animate-spin" /> : <FileSpreadsheet className="h-4 w-4 mr-1" />} Importar</Button>
+            {progress && <span className="text-xs text-muted-foreground">{progress}</span>}
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card className="card-elegant">
+        <CardHeader className="pb-2"><CardTitle className="text-sm">Histórico de importações</CardTitle></CardHeader>
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow><TableHead>Data</TableHead><TableHead>Arquivo</TableHead><TableHead>UF</TableHead><TableHead className="text-right">Linhas</TableHead><TableHead className="text-right">OK</TableHead><TableHead className="text-right">Falhas</TableHead><TableHead>Status</TableHead></TableRow>
+            </TableHeader>
+            <TableBody>
+              {history.map((h) => (
+                <TableRow key={h.id}>
+                  <TableCell className="text-xs whitespace-nowrap">{new Date(h.ran_at).toLocaleString("pt-BR")}</TableCell>
+                  <TableCell className="text-xs">{h.arquivo_nome ?? "—"}</TableCell>
+                  <TableCell className="text-xs">{h.uf ?? "—"}</TableCell>
+                  <TableCell className="text-xs text-right">{h.total_linhas ?? 0}</TableCell>
+                  <TableCell className="text-xs text-right text-emerald-600">{h.ok ?? 0}</TableCell>
+                  <TableCell className="text-xs text-right text-rose-600">{h.falhas ?? 0}</TableCell>
+                  <TableCell><Badge variant="outline" className="text-xs">{h.status === "concluido" ? <><CheckCircle2 className="h-3 w-3 mr-1 text-emerald-600" />OK</> : h.status === "concluido_com_erros" ? <><AlertTriangle className="h-3 w-3 mr-1 text-amber-600" />Com erros</> : h.status}</Badge></TableCell>
+                </TableRow>
+              ))}
+              {history.length === 0 && <TableRow><TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-6">Nenhuma importação ainda.</TableCell></TableRow>}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
