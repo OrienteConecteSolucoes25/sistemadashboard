@@ -9176,6 +9176,188 @@ export type Database = {
           },
         ]
       }
+      market_coupons: {
+        Row: {
+          code: string
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          min_purchase_amount: number | null
+          starts_at: string | null
+          store_id: string | null
+          type: string
+          usage_count: number | null
+          usage_limit: number | null
+          value: number
+        }
+        Insert: {
+          code: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          min_purchase_amount?: number | null
+          starts_at?: string | null
+          store_id?: string | null
+          type: string
+          usage_count?: number | null
+          usage_limit?: number | null
+          value: number
+        }
+        Update: {
+          code?: string
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          min_purchase_amount?: number | null
+          starts_at?: string | null
+          store_id?: string | null
+          type?: string
+          usage_count?: number | null
+          usage_limit?: number | null
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_coupons_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "market_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_customers: {
+        Row: {
+          address: Json | null
+          created_at: string | null
+          document: string | null
+          email: string
+          full_name: string
+          id: string
+          phone: string | null
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          address?: Json | null
+          created_at?: string | null
+          document?: string | null
+          email: string
+          full_name: string
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          address?: Json | null
+          created_at?: string | null
+          document?: string | null
+          email?: string
+          full_name?: string
+          id?: string
+          phone?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      market_inventory_movements: {
+        Row: {
+          created_at: string | null
+          id: string
+          product_id: string
+          quantity: number
+          reason: string | null
+          reference_id: string | null
+          type: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          product_id: string
+          quantity: number
+          reason?: string | null
+          reference_id?: string | null
+          type: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          product_id?: string
+          quantity?: number
+          reason?: string | null
+          reference_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_inventory_movements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "market_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_messages: {
+        Row: {
+          created_at: string | null
+          customer_id: string
+          id: string
+          message: string
+          order_id: string | null
+          read_at: string | null
+          sender_type: string
+          store_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          customer_id: string
+          id?: string
+          message: string
+          order_id?: string | null
+          read_at?: string | null
+          sender_type: string
+          store_id: string
+        }
+        Update: {
+          created_at?: string | null
+          customer_id?: string
+          id?: string
+          message?: string
+          order_id?: string | null
+          read_at?: string | null
+          sender_type?: string
+          store_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_messages_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "market_customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "market_messages_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "market_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "market_messages_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "market_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       market_order_items: {
         Row: {
           id: string
