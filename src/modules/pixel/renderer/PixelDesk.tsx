@@ -1,3 +1,4 @@
+import React, { memo } from "react";
 import { Briefcase } from "lucide-react";
 import { TILE_SIZE } from "../core/constants";
 import { deskKindFromKey } from "../core/pixelOfficeTheme";
