@@ -8442,6 +8442,134 @@ export type Database = {
           },
         ]
       }
+      jarbas_checklists: {
+        Row: {
+          created_at: string
+          id: string
+          module_key: string
+          name: string
+          steps: Json
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          module_key: string
+          name: string
+          steps: Json
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          module_key?: string
+          name?: string
+          steps?: Json
+        }
+        Relationships: []
+      }
+      jarbas_instruction_documents: {
+        Row: {
+          content: string
+          created_at: string
+          document_type: string | null
+          id: string
+          is_active: boolean | null
+          module_key: string
+          tags: string[] | null
+          title: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          document_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          module_key: string
+          tags?: string[] | null
+          title: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          document_type?: string | null
+          id?: string
+          is_active?: boolean | null
+          module_key?: string
+          tags?: string[] | null
+          title?: string
+        }
+        Relationships: []
+      }
+      jarbas_logs: {
+        Row: {
+          command: string | null
+          created_at: string
+          id: string
+          response: string | null
+          user_id: string
+          was_voice: boolean | null
+        }
+        Insert: {
+          command?: string | null
+          created_at?: string
+          id?: string
+          response?: string | null
+          user_id: string
+          was_voice?: boolean | null
+        }
+        Update: {
+          command?: string | null
+          created_at?: string
+          id?: string
+          response?: string | null
+          user_id?: string
+          was_voice?: boolean | null
+        }
+        Relationships: []
+      }
+      jarbas_operational_context: {
+        Row: {
+          active_activity: string | null
+          active_os_id: string | null
+          checklist_id: string | null
+          company_id: string | null
+          current_step_index: number | null
+          id: string
+          last_location: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          active_activity?: string | null
+          active_os_id?: string | null
+          checklist_id?: string | null
+          company_id?: string | null
+          current_step_index?: number | null
+          id?: string
+          last_location?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          active_activity?: string | null
+          active_os_id?: string | null
+          checklist_id?: string | null
+          company_id?: string | null
+          current_step_index?: number | null
+          id?: string
+          last_location?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jarbas_operational_context_checklist_id_fkey"
+            columns: ["checklist_id"]
+            isOneToOne: false
+            referencedRelation: "jarbas_checklists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       module_visibility_settings: {
         Row: {
           default_assignment: string
