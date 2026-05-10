@@ -8,7 +8,7 @@ import { AclProvider } from "@/acl/AclProvider";
 import AppLayout from "@/components/AppLayout";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
-import Projetos from "./pages/Projetos";
+// Import Projetos removido
 import Adm from "./pages/Adm";
 import SolucoesVersoPage from "./modules/pixel/ui/SolucoesVersoPage";
 import PixelAdminPage from "./modules/pixel/ui/admin/PixelAdminPage";
