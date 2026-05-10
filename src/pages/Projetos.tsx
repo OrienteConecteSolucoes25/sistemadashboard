@@ -19,19 +19,18 @@ const Projetos = () => {
   const [items, setItems] = useState<Projeto[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [tags, setTags] = useState<Record<string, string[]>>({});
-  const [moduleRestricted, setModuleRestricted] = useState(false);
+  // moduleRestricted removido
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ nome: "", cliente: "", groupId: "" });
 
   const load = async () => {
-    const [{ data: ps }, { data: gs }, { data: ms }] = await Promise.all([
+    const [{ data: ps }, { data: gs }] = await Promise.all([
       supabase.from("projetos").select("*").order("created_at", { ascending: false }),
       supabase.from("visibility_groups").select("id,name,color"),
-      supabase.from("module_visibility_settings").select("restricted").eq("module_key", "projetos").maybeSingle(),
     ]);
     setItems(ps || []);
     setGroups(gs || []);
-    setModuleRestricted(!!ms?.restricted);
+    // setModuleRestricted removido
     if (ps && ps.length) {
       const { data: rv } = await supabase
         .from("record_visibility")
@@ -95,9 +94,7 @@ const Projetos = () => {
           <h1 className="text-2xl font-bold">Projetos</h1>
           <p className="text-sm text-muted-foreground flex items-center gap-2">
             <Eye className="w-4 h-4" />
-            {moduleRestricted
-              ? "Módulo restrito por grupo — você vê apenas projetos marcados com seus grupos."
-              : "Módulo aberto — todos os usuários veem todos os projetos."}
+            Módulo aberto — visibilidade controlada por grupos nos projetos.
           </p>
         </div>
         {isAdmin && (

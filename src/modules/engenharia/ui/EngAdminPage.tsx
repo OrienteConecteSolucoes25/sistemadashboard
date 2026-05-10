@@ -47,7 +47,7 @@ export default function EngAdminPage() {
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="visao"><Activity className="w-4 h-4 mr-1" /> Visão geral</TabsTrigger>
           <TabsTrigger value="usuarios"><Users className="w-4 h-4 mr-1" /> Usuários & Papéis</TabsTrigger>
-          <TabsTrigger value="permissoes"><ListChecks className="w-4 h-4 mr-1" /> Permissões por módulo</TabsTrigger>
+          {/* Permissões removidas em favor do ACL central */}
           <TabsTrigger value="seguranca"><KeyRound className="w-4 h-4 mr-1" /> Segurança</TabsTrigger>
           <TabsTrigger value="sync"><Database className="w-4 h-4 mr-1" /> Sincronizações</TabsTrigger>
           <TabsTrigger value="auditoria"><ShieldAlert className="w-4 h-4 mr-1" /> Auditoria</TabsTrigger>
@@ -55,7 +55,7 @@ export default function EngAdminPage() {
         </TabsList>
         <TabsContent value="visao" className="mt-4"><VisaoGeralTab /></TabsContent>
         <TabsContent value="usuarios" className="mt-4"><UsuariosTab /></TabsContent>
-        <TabsContent value="permissoes" className="mt-4"><PermissoesTab /></TabsContent>
+        {/* TabsContent value="permissoes" removido */}
         <TabsContent value="seguranca" className="mt-4"><SegurancaTab /></TabsContent>
         <TabsContent value="sync" className="mt-4"><SyncTab /></TabsContent>
         <TabsContent value="auditoria" className="mt-4"><AuditoriaTab /></TabsContent>
@@ -216,103 +216,7 @@ function UsuariosTab() {
   );
 }
 
-/* ============== Permissões por módulo ============== */
-function PermissoesTab() {
-  const [profiles, setProfiles] = useState<Profile[]>([]);
-  const [perms, setPerms] = useState<any[]>([]);
-  const [selected, setSelected] = useState<string>("");
-  const [loading, setLoading] = useState(true);
-
-  const MODULES = [
-    "sites","atividades","pendencias","suprimentos","materiais","rfi",
-    "demandas","projetos","fibra","energia","art","relatorios","governanca",
-  ];
-
-  const load = async () => {
-    setLoading(true);
-    const [{ data: ps }, { data: pp }] = await Promise.all([
-      supabase.from("profiles").select("id,email,full_name").order("full_name"),
-      supabase.from("eng_module_permissions").select("*"),
-    ]);
-    setProfiles(ps ?? []);
-    setPerms(pp ?? []);
-    if (!selected && ps?.length) setSelected(ps[0].id);
-    setLoading(false);
-  };
-  useEffect(() => { load(); }, []);
-
-  const userPerms = useMemo(() => {
-    const m: Record<string, any> = {};
-    perms.filter((p) => p.user_id === selected).forEach((p) => { m[p.module] = p; });
-    return m;
-  }, [perms, selected]);
-
-  const upsert = async (mod: string, field: "can_view"|"can_edit"|"can_delete", value: boolean) => {
-    if (!selected) return;
-    const existing = userPerms[mod];
-    const payload: any = { user_id: selected, module: mod, can_view: existing?.can_view ?? true, can_edit: existing?.can_edit ?? false, can_delete: existing?.can_delete ?? false, [field]: value };
-    if (existing) {
-      const { error } = await (supabase.from("eng_module_permissions").update(payload).eq("id", existing.id) as any);
-      if (error) return toast.error(error.message);
-    } else {
-      const { error } = await (supabase.from("eng_module_permissions").insert(payload) as any);
-      if (error) return toast.error(error.message);
-    }
-    await supabase.rpc("eng_log_audit" as any, {
-      _acao: "perm_changed", _modulo: "Admin Engenharia",
-      _entidade_tipo: "eng_module_permissions", _entidade_id: selected,
-      _nome_entidade: `${mod}.${field}=${value}`,
-    });
-    load();
-  };
-
-  return (
-    <div className="space-y-3">
-      <LegacyDeprecationBanner
-        title="Permissões granulares de Engenharia — modelo legado"
-        message="Use a matriz central em ADM › Visibilidade. Esta tela permanece para compatibilidade."
-      />
-      <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Permissões granulares por módulo (sobrescreve papéis)</CardTitle>
-        <Select value={selected} onValueChange={setSelected}>
-          <SelectTrigger className="max-w-sm"><SelectValue placeholder="Escolher usuário" /></SelectTrigger>
-          <SelectContent className="max-h-[300px]">
-            {profiles.map((p) => <SelectItem key={p.id} value={p.id}>{p.full_name || p.email}</SelectItem>)}
-          </SelectContent>
-        </Select>
-      </CardHeader>
-      <CardContent className="overflow-x-auto p-0">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50">
-            <tr>
-              <th className="text-left px-3 py-2">Módulo</th>
-              <th className="px-2 py-2 text-center">Visualizar</th>
-              <th className="px-2 py-2 text-center">Editar</th>
-              <th className="px-2 py-2 text-center">Excluir</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr><td colSpan={4} className="px-3 py-8 text-center text-muted-foreground">Carregando...</td></tr>
-            ) : MODULES.map((mod) => {
-              const p = userPerms[mod];
-              return (
-                <tr key={mod} className="border-t">
-                  <td className="px-3 py-2 capitalize">{mod}</td>
-                  <td className="px-2 py-2 text-center"><Switch checked={p?.can_view ?? true} onCheckedChange={(v) => upsert(mod, "can_view", v)} /></td>
-                  <td className="px-2 py-2 text-center"><Switch checked={p?.can_edit ?? false} onCheckedChange={(v) => upsert(mod, "can_edit", v)} /></td>
-                  <td className="px-2 py-2 text-center"><Switch checked={p?.can_delete ?? false} onCheckedChange={(v) => upsert(mod, "can_delete", v)} /></td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </CardContent>
-    </Card>
-    </div>
-  );
-}
+/* ============== Permissões por módulo (REMOVIDO - Usar ACL Central) ============== */
 
 /* ============== Segurança (senha de exclusão) ============== */
 function SegurancaTab() {

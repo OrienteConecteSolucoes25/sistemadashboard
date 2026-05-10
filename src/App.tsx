@@ -45,7 +45,7 @@ import FeriasPage from "./modules/rhdp/ui/FeriasPage";
 import SolicitacoesPage from "./modules/rhdp/ui/SolicitacoesPage";
 import RecrutamentoPage from "./modules/rhdp/ui/RecrutamentoPage";
 import ColaboradoresPage from "./modules/rhdp/ui/ColaboradoresPage";
-import RhdpPermissoesPage from "./modules/rhdp/ui/RhdpPermissoesPage";
+// Import removido
 import AdmissaoPage from "./modules/rhdp/ui/AdmissaoPage";
 import ContratosPage from "./modules/rhdp/ui/ContratosPage";
 import PontoPage from "./modules/rhdp/ui/PontoPage";
@@ -148,7 +148,7 @@ const App = () => (
                 <Route path="ferias" element={<FeriasPage />} />
                 <Route path="folha" element={<FolhaPage />} />
                 <Route path="indicadores" element={<IndicadoresPage />} />
-                <Route path="permissoes" element={<RhdpPermissoesPage />} />
+                {/* Rota de permissões legada removida */}
               </Route>
               <Route path="crea" element={<CreaGuard />}>
                 <Route index element={<CreaDashboard />} />

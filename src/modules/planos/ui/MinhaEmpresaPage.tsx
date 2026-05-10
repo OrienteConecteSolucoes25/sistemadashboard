@@ -95,7 +95,7 @@ export default function MinhaEmpresaPage() {
         <TabsList>
           <TabsTrigger value="plano">Plano</TabsTrigger>
           {isCompanyAdmin && <TabsTrigger value="branding"><ImgIcon className="w-4 h-4 mr-1" /> Branding</TabsTrigger>}
-          {isCompanyAdmin && <TabsTrigger value="permissoes"><Shield className="w-4 h-4 mr-1" /> Permissões</TabsTrigger>}
+          {/* Permissões removidas em favor do ACL central */}
         </TabsList>
 
         <TabsContent value="plano" className="space-y-4">
@@ -138,50 +138,7 @@ export default function MinhaEmpresaPage() {
           </TabsContent>
         )}
 
-        {isCompanyAdmin && (
-          <TabsContent value="permissoes" className="space-y-4">
-            <Card>
-              <CardHeader><CardTitle>Permissões dos usuários ({members.length})</CardTitle></CardHeader>
-              <CardContent className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Usuário</TableHead>
-                      {planCatalog.map((c) => (
-                        <TableHead key={c.key} className="text-center text-xs">{c.label}</TableHead>
-                      ))}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {members.map((m) => (
-                      <TableRow key={m.user_id}>
-                        <TableCell className="text-sm">
-                          <div className="font-medium">{m.nome ?? m.email}</div>
-                          <div className="text-xs text-muted-foreground">{m.email} {m.is_company_admin && <Badge variant="outline" className="ml-1 text-[10px]">admin</Badge>}</div>
-                        </TableCell>
-                        {planCatalog.map((c) => {
-                          const k = `${m.user_id}|${c.key}`;
-                          const p = perms[k];
-                          return (
-                            <TableCell key={c.key} className="text-center">
-                              <div className="flex flex-col gap-1 items-center">
-                                <label className="flex items-center gap-1 text-xs"><Eye className="w-3 h-3" /><Checkbox checked={p?.can_view ?? true} onCheckedChange={(v) => togglePerm(m.user_id, c.key, "can_view", !!v)} /></label>
-                                <label className="flex items-center gap-1 text-xs"><Pencil className="w-3 h-3" /><Checkbox checked={p?.can_edit ?? false} onCheckedChange={(v) => togglePerm(m.user_id, c.key, "can_edit", !!v)} /></label>
-                                <label className="flex items-center gap-1 text-xs"><Trash2 className="w-3 h-3" /><Checkbox checked={p?.can_delete ?? false} onCheckedChange={(v) => togglePerm(m.user_id, c.key, "can_delete", !!v)} /></label>
-                              </div>
-                            </TableCell>
-                          );
-                        })}
-                      </TableRow>
-                    ))}
-                    {members.length === 0 && <TableRow><TableCell colSpan={planCatalog.length + 1} className="text-center text-muted-foreground">Nenhum usuário vinculado.</TableCell></TableRow>}
-                  </TableBody>
-                </Table>
-                <p className="text-xs text-muted-foreground mt-3">V = visualizar · E = editar · D = excluir. Só aparecem as abas que estão no plano contratado.</p>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        )}
+        {/* TabsContent value="permissoes" removido */}
       </Tabs>
     </div>
   );
