@@ -9,7 +9,7 @@ interface Props {
   height: number;
 }
 
-export const PixelFurnitureSprite = ({ kind, width, height }: Props) => {
+export const PixelFurnitureSprite = memo(({ kind, width, height }: Props) => {
   switch (kind) {
     case "plant":
       return (
