@@ -16,6 +16,7 @@ import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { useUserLayoutPreference } from "@/modules/aparencia/hooks/useUserLayoutPreference";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useCan } from "@/acl/AclProvider";
+import { JarbasInterface } from "@/modules/jarbas/ui/JarbasInterface";
 
 const AppLayout = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
@@ -162,6 +163,7 @@ const AppLayout = () => {
         </div>
       </main>
       <AssistenteFloating />
+      <JarbasInterface />
     </div>
     </ImpersonationProvider>
   );
