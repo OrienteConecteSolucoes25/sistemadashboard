@@ -31,6 +31,9 @@ import { pixiDesks } from "../engine/pixiDesks";
 import { pixiRooms } from "../engine/pixiRooms";
 import { pixiEvents } from "../engine/pixiEvents";
 import { pixiFurniture } from "../engine/pixiFurniture";
+import { pixiNpcs } from "../engine/pixiNpcs";
+import { pixiEffects } from "../engine/pixiEffects";
+import { NPCS_CONFIG } from "../data/npcsConfig";
 
 
 
@@ -93,8 +96,18 @@ export const PixelWorkspaceView = memo(({
     pixiDesks.render(desks);
     pixiRooms.render(rooms);
     pixiFurniture.render(furniture);
-    pixiEvents.setupStage(onStageClick);
-  }, [characters, desks, rooms, onStageClick]);
+    pixiNpcs.render();
+    pixiEffects.render();
+    
+    // Pass callback to handle NPC clicks in Pixi
+    pixiEvents.setupStage(onStageClick, (npcId) => {
+      // Find the trigger to open the corresponding agent chat
+      const npcTrigger = document.querySelector(`[aria-label="Falar com ${NPCS_CONFIG[npcId]?.name}"]`) as HTMLButtonElement;
+      if (npcTrigger) {
+        npcTrigger.click();
+      }
+    });
+  }, [characters, desks, rooms, furniture, onStageClick]);
 
 
 
