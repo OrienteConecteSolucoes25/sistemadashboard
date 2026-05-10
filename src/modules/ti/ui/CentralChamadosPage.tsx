@@ -362,7 +362,11 @@ export default function CentralChamadosPage() {
               </TableRow>
             ) : (
               tickets.map((ticket) => (
-                <TableRow key={ticket.id} className="group hover:bg-slate-50 border-slate-100 transition-colors">
+                <TableRow 
+                  key={ticket.id} 
+                  className="group hover:bg-slate-50 border-slate-100 transition-colors cursor-pointer"
+                  onClick={() => openDetails(ticket)}
+                >
                   <TableCell className="font-black text-blue-600 text-xs py-5">
                     #{ticket.ticket_number.toString().padStart(5, '0')}
                   </TableCell>
