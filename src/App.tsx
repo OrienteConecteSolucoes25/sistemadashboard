@@ -54,6 +54,7 @@ import CreaGuard from "./modules/crea/ui/CreaGuard";
 import CreaDashboard from "./modules/crea/ui/CreaDashboard";
 import CreaAdminPage from "./modules/crea/ui/CreaAdminPage";
 import CreaIntegracoesPage from "./modules/crea/ui/CreaIntegracoesPage";
+import CreaGovernancaPage from "./modules/crea/governanca/CreaGovernancaPage";
 import {
   ArtsPage as CreaArtsPage, ProtocolosPage as CreaProtocolosPage, CatsPage as CreaCatsPage,
   CertidoesPage as CreaCertidoesPage, BaixasPage as CreaBaixasPage, TratativasPage as CreaTratativasPage,
@@ -167,7 +168,7 @@ const App = () => (
                 <Route path="auditoria" element={<CreaAuditoriaPage />} />
                 <Route path="admin" element={<CreaAdminPage />} />
                 <Route path="integracoes" element={<CreaIntegracoesPage />} />
-                <Route path="governanca" element={<GovernanceUniversalPage moduleKey="crea" />} />
+                <Route path="governanca" element={<CreaGovernancaPage />} />
               </Route>
               <Route path="rh-dp/governanca" element={<GovernanceUniversalPage moduleKey="rhdp" />} />
               <Route path="comunicacao" element={<ComunicacaoLayout />}>
