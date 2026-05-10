@@ -61,6 +61,18 @@ export default function CentralChamadosPage() {
   const [tickets, setTickets] = React.useState<any[]>([]);
   const [isLoading, setIsLoading] = React.useState(true);
   const [searchTerm, setSearchTerm] = React.useState("");
+  const [isCreateOpen, setIsCreateOpen] = React.useState(false);
+  const [isDetailOpen, setIsDetailOpen] = React.useState(false);
+  const [selectedTicket, setSelectedTicket] = React.useState<any>(null);
+  const [newTicket, setNewTicket] = React.useState({
+    title: "",
+    description: "",
+    priority: "media",
+    category: "software"
+  });
+  const [comments, setComments] = React.useState<any[]>([]);
+  const [newComment, setNewComment] = React.useState("");
+  const [isSendingComment, setIsSendingComment] = React.useState(false);
 
   React.useEffect(() => {
     fetchTickets();
