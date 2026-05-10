@@ -28,6 +28,8 @@ const variantOf = (room: RoomLite): ModuleType | "common" => {
   if (k.includes("ti") || k.includes("tech") || k.includes("support") || n.includes("ti")) return "ti";
   if (k.includes("rh") || k.includes("people") || k.includes("dp") || n.includes("rh")) return "hr";
   if (k.includes("reception") || k.includes("lobby") || n.includes("recepção") || n.includes("lobby")) return "reception";
+  if (k.includes("showroom") || n.includes("showroom") || n.includes("vitrine")) return "showroom";
+  if (k.includes("project") || n.includes("projeto") || n.includes("acompanhamento")) return "project_view";
   
   return "common";
 };
