@@ -8526,6 +8526,82 @@ export type Database = {
         }
         Relationships: []
       }
+      pixel_agent_conversations: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          id: string
+          is_deleted: boolean
+          module_key: string
+          title: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          is_deleted?: boolean
+          module_key: string
+          title?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          is_deleted?: boolean
+          module_key?: string
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pixel_agent_conversations_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pixel_agent_messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          role: string
+          tool_results: Json | null
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          role: string
+          tool_results?: Json | null
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          role?: string
+          tool_results?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pixel_agent_messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "pixel_agent_conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pixel_desks: {
         Row: {
           created_at: string

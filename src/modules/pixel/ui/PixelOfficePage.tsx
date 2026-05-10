@@ -18,6 +18,9 @@ import { PixelMeetingsPanel } from "./PixelMeetingsPanel";
 import { PixelCommunityPanel } from "./PixelCommunityPanel";
 import { DiretorAgentChat } from "@/modules/comunicacao/ui/DiretorAgentChat";
 import { DiretorNpc } from "./DiretorNpc";
+import { ModuleAgentNpc } from "./ModuleAgentNpc";
+import { ModuleAgentChat } from "./ModuleAgentChat";
+import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare } from "lucide-react";
 import { ActiveBrandKitProvider } from "@/modules/comunicacao/hooks/useActiveBrandKit";
 
 type Selected =
@@ -138,6 +141,79 @@ export default function PixelOfficePage() {
             />
             {/* NPC Diretor OCS dentro do mapa — abre o chat ao ser clicado */}
             <DiretorAgentChat renderTrigger={(open) => <DiretorNpc onClick={open} />} />
+
+            {/* Agentes por Módulo */}
+            <ModuleAgentChat
+              moduleKey="engenharia"
+              agentName="Engenheiro OCS"
+              icon={HardHat}
+              welcomeMessage="Olá! Sou o **Engenheiro OCS**. Posso te ajudar com obras, sites, suprimentos, materiais e gestão de projetos técnicos. Como posso te auxiliar na Engenharia hoje?"
+              renderTrigger={(open) => (
+                <ModuleAgentNpc
+                  name="Engenheiro OCS"
+                  moduleKey="engenharia"
+                  icon={HardHat}
+                  primaryColor="#f59e0b"
+                  secondaryColor="#d97706"
+                  startX={20}
+                  onClick={open}
+                />
+              )}
+            />
+
+            <ModuleAgentChat
+              moduleKey="juridico"
+              agentName="Consultor Jurídico OCS"
+              icon={Scale}
+              welcomeMessage="Olá! Sou o **Consultor Jurídico OCS**. Estou aqui para ajudar com processos, prazos, documentos e governança jurídica. Como posso te apoiar hoje?"
+              renderTrigger={(open) => (
+                <ModuleAgentNpc
+                  name="Consultor Jurídico OCS"
+                  moduleKey="juridico"
+                  icon={Scale}
+                  primaryColor="#3b82f6"
+                  secondaryColor="#2563eb"
+                  startX={35}
+                  onClick={open}
+                />
+              )}
+            />
+
+            <ModuleAgentChat
+              moduleKey="rhdp"
+              agentName="Diretora de RH/DP OCS"
+              icon={HeartHandshake}
+              welcomeMessage="Olá! Sou a **Diretora de RH/DP OCS**. Posso te ajudar com colaboradores, recrutamento, benefícios, folha de pagamento e solicitações de RH. Como posso te ajudar?"
+              renderTrigger={(open) => (
+                <ModuleAgentNpc
+                  name="Diretora de RH/DP OCS"
+                  moduleKey="rhdp"
+                  icon={HeartHandshake}
+                  primaryColor="#ec4899"
+                  secondaryColor="#db2777"
+                  startX={50}
+                  onClick={open}
+                />
+              )}
+            />
+
+            <ModuleAgentChat
+              moduleKey="crea"
+              agentName="Analista de CREA/ART OCS"
+              icon={FileSignature}
+              welcomeMessage="Olá! Sou o **Analista de CREA/ART OCS**. Posso te auxiliar com registros de ART, protocolos, certidões e tratativas junto ao conselho. O que você precisa?"
+              renderTrigger={(open) => (
+                <ModuleAgentNpc
+                  name="Analista de CREA/ART OCS"
+                  moduleKey="crea"
+                  icon={FileSignature}
+                  primaryColor="#10b981"
+                  secondaryColor="#059669"
+                  startX={65}
+                  onClick={open}
+                />
+              )}
+            />
           </div>
 
           <PixelMeetingsPanel
