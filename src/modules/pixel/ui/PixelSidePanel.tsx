@@ -132,7 +132,7 @@ const CharacterPanel = ({
              <Badge variant="secondary" className="absolute top-2 right-2 text-[10px] font-mono">OFFLINE</Badge>
           )}
           {data.is_online && (
-             <Badge variant="default" className="absolute top-2 right-2 text-[10px] font-mono bg-green-500 hover:bg-green-600 border-none">ONLINE</Badge>
+             <Badge variant="default" className="absolute top-2 right-2 text-[10px] font-mono bg-green-500 hover:bg-green-600 border-none text-white">ONLINE</Badge>
           )}
         </div>
         <div className="flex items-center gap-2 text-sm">
