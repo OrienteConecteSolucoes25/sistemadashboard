@@ -36,6 +36,7 @@ export default function OcsGuardPage() {
         });
       } else {
         setIsEmergency(false);
+        speak("Modo de emergência desativado. Retornando aos parâmetros normais de operação.");
         toast.success("Modo de emergência desativado.");
       }
     } catch (e: any) {
