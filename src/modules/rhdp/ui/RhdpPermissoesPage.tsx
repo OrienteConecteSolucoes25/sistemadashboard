@@ -106,6 +106,10 @@ export default function RhdpPermissoesPage() {
 
   return (
     <div className="space-y-4">
+      <LegacyDeprecationBanner
+        title="Permissões finas RH/DP — modelo legado"
+        message="As permissões granulares de RH/DP estão sendo migradas para a matriz central. Esta tela permanece para compatibilidade."
+      />
       <div>
         <h1 className="text-2xl font-bold flex items-center gap-2">
           <ShieldCheck className="w-6 h-6 text-primary" /> Permissões finas RH/DP
