@@ -22,6 +22,8 @@ import type {
 import { Button } from "@/components/ui/button";
 import { Plus, Move, Trash2, RotateCw, Lock, Unlock, Layers } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { mapEngine } from "../engine/mapEngine";
+import { spriteEngine, type RendererType } from "../engine/spriteEngine";
 
 interface Props {
   workspace: WorkspaceLite;
