@@ -148,7 +148,7 @@ const App = () => (
                 <Route path="ferias" element={<FeriasPage />} />
                 <Route path="folha" element={<FolhaPage />} />
                 <Route path="indicadores" element={<IndicadoresPage />} />
-                <Route path="permissoes" element={<RhdpPermissoesPage />} />
+                {/* Rota de permissões legada removida */}
               </Route>
               <Route path="crea" element={<CreaGuard />}>
                 <Route index element={<CreaDashboard />} />
