@@ -176,8 +176,12 @@ export default function ChatAgenteTIPage() {
                           )}
                           
                           {m.action && (
-                            <Button className="w-full bg-blue-600 hover:bg-blue-700 text-xs font-black uppercase tracking-wider gap-2">
-                              <Ticket className="w-3 h-3" /> {m.action.label}
+                            <Button 
+                              onClick={m.action.type === 'ticket' ? handleOpenTicket : undefined}
+                              disabled={isOpeningTicket}
+                              className="w-full bg-blue-600 hover:bg-blue-700 text-xs font-black uppercase tracking-wider gap-2"
+                            >
+                              <Ticket className="w-3 h-3" /> {isOpeningTicket ? "PROCESSANDO..." : m.action.label}
                             </Button>
                           )}
 
