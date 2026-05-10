@@ -7,6 +7,13 @@ import { spriteEngine } from "../engine/spriteEngine";
  * Renderiza embaixo de tudo. Sem interação.
  */
 export const PixelOfficeMap = () => {
+  const isPixi = spriteEngine.getRenderer() === "pixi";
+
+  if (isPixi) {
+    // Retorna placeholder ou container para o futuro PixiJS Stage
+    return <div id="pixi-container" className="absolute inset-0" />;
+  }
+
   return (
     <div
       className="absolute inset-0"
