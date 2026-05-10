@@ -92,6 +92,7 @@ export const PixelWorkspaceView = memo(({
     pixiCharacters.render(characters);
     pixiDesks.render(desks);
     pixiRooms.render(rooms);
+    pixiFurniture.render(furniture);
     pixiEvents.setupStage(onStageClick);
   }, [characters, desks, rooms, onStageClick]);
 
