@@ -21,11 +21,12 @@ import { JarbasInterface } from "@/modules/jarbas/ui/JarbasInterface";
 import { PixelMeetingsPanel } from "./PixelMeetingsPanel";
 import { PixelCommunityPanel } from "./PixelCommunityPanel";
 import MarketplaceHome from "@/modules/marketplace/ui/MarketplaceHome";
+import FinanceiroDashboard from "@/modules/financeiro/ui/FinanceiroDashboard";
 import { DiretorAgentChat } from "@/modules/comunicacao/ui/DiretorAgentChat";
 import { DiretorNpc } from "./DiretorNpc";
 import { ModuleAgentNpc } from "./ModuleAgentNpc";
 import { ModuleAgentChat } from "./ModuleAgentChat";
-import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare, ShieldAlert, Cpu, Zap, ShoppingCart } from "lucide-react";
+import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare, ShieldAlert, Cpu, Zap, ShoppingCart, DollarSign } from "lucide-react";
 import { ActiveBrandKitProvider } from "@/modules/comunicacao/hooks/useActiveBrandKit";
 
 type Selected =
@@ -304,6 +305,27 @@ export default function PixelOfficePage() {
                 />
               )}
             />
+
+            <ModuleAgentChat
+              moduleKey="financeiro"
+              agentName="Conselheira Financeira OCS"
+              icon={DollarSign}
+              welcomeMessage="Olá! Sou a **Conselheira Financeira OCS**. Posso te ajudar a gerenciar suas contas, analisar lucros e planejar suas metas, seja você pessoa física ou jurídica. Qual sua dúvida financeira hoje?"
+              renderTrigger={(open) => (
+                <ModuleAgentNpc
+                  name="Conselheira Financeira"
+                  moduleKey="financeiro"
+                  icon={DollarSign}
+                  primaryColor="#3b82f6"
+                  secondaryColor="#1d4ed8"
+                  startX={28}
+                  onClick={() => {
+                    setActiveAgentPanel("financeiro");
+                    open();
+                  }}
+                />
+              )}
+            />
           </div>
 
           {activeAgentPanel === "ocs_guard" && (
@@ -326,6 +348,18 @@ export default function PixelOfficePage() {
               </CardHeader>
               <CardContent>
                 <TiAgentPage />
+              </CardContent>
+            </Card>
+          )}
+
+          {activeAgentPanel === "financeiro" && (
+            <Card className="mt-4 animate-in slide-in-from-bottom duration-300">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xl">Central Financeira OCS</CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => setActiveAgentPanel(null)}>Fechar</Button>
+              </CardHeader>
+              <CardContent>
+                <FinanceiroDashboard />
               </CardContent>
             </Card>
           )}
