@@ -309,6 +309,7 @@ function PermissoesTab() {
         </table>
       </CardContent>
     </Card>
+    </div>
   );
 }
 
