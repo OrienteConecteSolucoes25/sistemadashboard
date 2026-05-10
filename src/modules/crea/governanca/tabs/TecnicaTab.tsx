@@ -10,7 +10,9 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { GovFilters } from "../lib/govTypes";
 import { fetchArts, GovArt } from "../lib/govApi";
 import { useGovCompany } from "../lib/useGovCompany";
-import { DeleteWithPasswordModal } from "@/components/DeleteWithPasswordModal";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Textarea } from "@/components/ui/textarea";
+import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
 const fmt = (n: number | null | undefined) => n == null ? "—" : Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -31,7 +33,21 @@ export function TecnicaTab({ filters }: { filters: GovFilters }) {
   const [q, setQ] = useState("");
   const [sel, setSel] = useState<Set<string>>(new Set());
   const [delOpen, setDelOpen] = useState(false);
+  const [delReason, setDelReason] = useState("");
+  const [delBusy, setDelBusy] = useState(false);
   const [reload, setReload] = useState(0);
+
+  const doDelete = async () => {
+    if (delReason.trim().length < 3) { toast.error("Informe o motivo (mínimo 3 caracteres)."); return; }
+    setDelBusy(true);
+    let ok = 0, fail = 0;
+    for (const id of Array.from(sel)) {
+      const { data, error } = await (supabase.rpc as any)("crea_soft_delete", { _table: "crea_gov_arts", _id: id, _reason: delReason.trim() });
+      if (error || !data?.ok) fail++; else ok++;
+    }
+    setDelBusy(false); setDelOpen(false); setDelReason(""); setSel(new Set()); setReload((r) => r + 1);
+    toast[fail ? "warning" : "success"](`${ok} excluída(s)${fail ? `, ${fail} falha(s)` : ""}`);
+  };
 
   useEffect(() => {
     if (!companyId) return;
@@ -118,15 +134,19 @@ export function TecnicaTab({ filters }: { filters: GovFilters }) {
             </TableBody>
           </Table>
         </div>
-        <DeleteWithPasswordModal
-          open={delOpen}
-          onOpenChange={setDelOpen}
-          tableName="crea_gov_arts"
-          rpcName="crea_soft_delete"
-          recordIds={Array.from(sel)}
-          recordLabel={`${sel.size} ART(s)`}
-          onSuccess={() => { setSel(new Set()); setReload((r) => r + 1); toast.success("Excluído com sucesso"); }}
-        />
+        <AlertDialog open={delOpen} onOpenChange={setDelOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Excluir {sel.size} ART(s)?</AlertDialogTitle>
+              <AlertDialogDescription>Esta exclusão é registrada em auditoria. Informe o motivo.</AlertDialogDescription>
+            </AlertDialogHeader>
+            <Textarea value={delReason} onChange={(e) => setDelReason(e.target.value)} placeholder="Motivo da exclusão" rows={3} />
+            <AlertDialogFooter>
+              <AlertDialogCancel disabled={delBusy}>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={(e) => { e.preventDefault(); doDelete(); }} disabled={delBusy}>{delBusy ? "Excluindo…" : "Excluir"}</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </CardContent>
     </Card>
   );
