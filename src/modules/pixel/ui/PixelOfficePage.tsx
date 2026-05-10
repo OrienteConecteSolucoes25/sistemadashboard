@@ -20,7 +20,7 @@ import { DiretorAgentChat } from "@/modules/comunicacao/ui/DiretorAgentChat";
 import { DiretorNpc } from "./DiretorNpc";
 import { ModuleAgentNpc } from "./ModuleAgentNpc";
 import { ModuleAgentChat } from "./ModuleAgentChat";
-import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare } from "lucide-react";
+import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare, ShieldAlert, Cpu, Zap } from "lucide-react";
 import { ActiveBrandKitProvider } from "@/modules/comunicacao/hooks/useActiveBrandKit";
 
 type Selected =
