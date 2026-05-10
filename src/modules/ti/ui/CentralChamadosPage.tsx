@@ -437,6 +437,155 @@ export default function CentralChamadosPage() {
         </Table>
       </div>
 
+      {/* Ticket Details Modal */}
+      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        <DialogContent className="sm:max-w-[800px] max-h-[90vh] p-0 overflow-hidden bg-white">
+          {selectedTicket && (
+            <div className="flex flex-col h-full max-h-[90vh]">
+              <div className="p-6 border-b border-slate-100 bg-slate-50/50">
+                <div className="flex justify-between items-start mb-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-2">
+                      <Badge className={`${getPriorityColor(selectedTicket.priority)} text-[9px] uppercase font-black tracking-widest`}>
+                        {selectedTicket.priority}
+                      </Badge>
+                      <Badge variant="outline" className="text-[9px] uppercase tracking-widest border-slate-200 text-slate-400">
+                        {selectedTicket.category}
+                      </Badge>
+                    </div>
+                    <DialogTitle className="text-2xl font-black text-slate-800 tracking-tight">
+                      #{selectedTicket.ticket_number.toString().padStart(5, '0')} - {selectedTicket.title}
+                    </DialogTitle>
+                  </div>
+                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none font-bold text-xs">
+                    {getStatusLabel(selectedTicket.status)}
+                  </Badge>
+                </div>
+                
+                <div className="grid grid-cols-3 gap-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-slate-200 flex items-center justify-center">
+                      <User className="w-5 h-5 text-slate-500" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase font-black text-slate-400">Solicitante</p>
+                      <p className="text-sm font-bold text-slate-700">{selectedTicket.profiles?.full_name || 'N/A'}</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-blue-600">
+                      <Clock className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase font-black text-slate-400">Aberto em</p>
+                      <p className="text-sm font-bold text-slate-700">
+                        {format(new Date(selectedTicket.created_at), "dd/MM/yyyy 'às' HH:mm", { locale: ptBR })}
+                      </p>
+                    </div>
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-xl bg-red-50 flex items-center justify-center text-red-600">
+                      <AlertCircle className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <p className="text-[10px] uppercase font-black text-slate-400">SLA Limite</p>
+                      <p className="text-sm font-bold text-slate-700">
+                        {selectedTicket.sla_deadline ? format(new Date(selectedTicket.sla_deadline), "dd/MM 'às' HH:mm", { locale: ptBR }) : 'N/A'}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex-1 overflow-hidden grid grid-cols-1 md:grid-cols-2">
+                {/* Description & Details */}
+                <div className="p-6 border-r border-slate-100 flex flex-col gap-6 bg-white overflow-y-auto">
+                  <div>
+                    <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3 flex items-center gap-2">
+                      <ShieldCheck className="w-3 h-3 text-blue-600" /> Descrição do Problema
+                    </h4>
+                    <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 text-sm text-slate-600 font-medium leading-relaxed">
+                      {selectedTicket.description}
+                    </div>
+                  </div>
+
+                  <div>
+                    <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3 flex items-center gap-2">
+                      <History className="w-3 h-3 text-blue-600" /> Registro de Atividades
+                    </h4>
+                    {/* Aqui entraria um log de mudanças de status se houvesse */}
+                    <div className="space-y-4">
+                      <div className="flex gap-3 items-start">
+                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0"></div>
+                        <div>
+                          <p className="text-xs font-bold text-slate-700">Chamado aberto e SLA calculado</p>
+                          <p className="text-[10px] text-slate-400">{format(new Date(selectedTicket.created_at), "HH:mm")}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Comments / Interaction */}
+                <div className="flex flex-col bg-slate-50/30 overflow-hidden">
+                  <div className="p-4 border-b border-slate-100 bg-white">
+                    <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                      <MessageSquare className="w-3 h-3 text-blue-600" /> Interações e Comentários
+                    </h4>
+                  </div>
+                  
+                  <ScrollArea className="flex-1 p-4">
+                    <div className="space-y-6">
+                      {comments.length === 0 ? (
+                        <div className="text-center py-10">
+                          <MessageSquare className="w-8 h-8 text-slate-200 mx-auto mb-2" />
+                          <p className="text-[10px] font-black uppercase text-slate-300 tracking-widest">Nenhum comentário ainda</p>
+                        </div>
+                      ) : (
+                        comments.map((comment) => (
+                          <div key={comment.id} className="flex flex-col gap-1">
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-black text-blue-600 uppercase tracking-tight">
+                                {comment.profiles?.full_name || 'Usuário'}
+                              </span>
+                              <span className="text-[9px] text-slate-400 font-medium">
+                                {format(new Date(comment.created_at), "HH:mm")}
+                              </span>
+                            </div>
+                            <div className="bg-white p-3 rounded-2xl rounded-tl-none border border-slate-100 shadow-sm text-xs font-medium text-slate-600">
+                              {comment.content}
+                            </div>
+                          </div>
+                        ))
+                      )}
+                    </div>
+                  </ScrollArea>
+
+                  <div className="p-4 border-t border-slate-100 bg-white">
+                    <div className="relative">
+                      <Textarea 
+                        placeholder="Escreva seu comentário..." 
+                        className="min-h-[80px] pr-12 text-xs font-medium border-slate-200 resize-none"
+                        value={newComment}
+                        onChange={(e) => setNewComment(e.target.value)}
+                      />
+                      <Button 
+                        size="icon" 
+                        disabled={isSendingComment || !newComment.trim()}
+                        onClick={handleSendComment}
+                        className="absolute bottom-2 right-2 w-8 h-8 bg-blue-600 hover:bg-blue-700"
+                      >
+                        <Send className="w-3 h-3" />
+                      </Button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
+
       {/* Footer Branding */}
       <div className="flex justify-between items-center text-[9px] uppercase font-black text-slate-300 tracking-[0.3em] mt-10">
         <span>ERP OCS // IT MANAGEMENT SUITE</span>
