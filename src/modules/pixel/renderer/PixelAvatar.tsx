@@ -65,7 +65,21 @@ export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage }: P
             aria-label={`Personagem ${character.display_name ?? ""}`}
           >
             <div className="relative w-full h-full">
-              <AvatarLayeredSprite customization={character.customization} size={AVATAR_SIZE} faded={faded} grayscale={grayscale} />
+              <AvatarLayeredSprite customization={character.customization} size={AVATAR_SIZE} faded={faded} grayscale={grayscale} direction={direction} isWalking={isWalking} />
+
+              <AnimatePresence>
+                {recentMessage && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-slate-900 px-2 py-1 rounded-lg shadow-xl text-[10px] font-medium border whitespace-nowrap z-50 max-w-[120px] truncate"
+                  >
+                    {recentMessage}
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white border-b border-r rotate-45" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Indicador de status discreto */}
               <span className="absolute -top-1 -right-1">
