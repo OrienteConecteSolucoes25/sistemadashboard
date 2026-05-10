@@ -160,6 +160,28 @@ export function JarbasInterface() {
                 </div>
                 <div className={isFieldMode ? "text-lg leading-relaxed" : "text-sm"}>
                   {item.text}
+                  {item.automationId && (
+                    <div className="mt-3 flex gap-2">
+                      <Button 
+                        size="sm" 
+                        variant="default" 
+                        className="bg-green-600 hover:bg-green-700 h-7 text-[10px]"
+                        onClick={() => confirmAutomation(item.automationId)}
+                      >
+                        CONFIRMAR
+                      </Button>
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="border-red-500/50 text-red-400 h-7 text-[10px]"
+                        onClick={() => {
+                          setChatHistory(prev => [...prev, { role: 'jarbas', text: "Ação cancelada.", timestamp: new Date() }]);
+                        }}
+                      >
+                        CANCELAR
+                      </Button>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
