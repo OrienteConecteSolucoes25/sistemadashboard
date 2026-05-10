@@ -59,8 +59,13 @@ export const PixelRoom = ({ room, onClick, characters = [], meetings }: Props) =
         className="w-full h-full focus:outline-none"
         title={room.name}
       >
-        <PixelRoomSprite width={width} height={height} variant={variantOf(room)} label={room.name} />
+        <PixelRoomSprite width={width} height={height} variant={variant} label={room.name} />
       </button>
+
+      {/* Dashboard Flutuante do Módulo */}
+      {variant !== "common" && (
+        <PixelModuleDashboard type={variant as ModuleType} x={width - 20} y={-40} />
+      )}
 
       {/* Mini cena de reunião */}
       {participants.length > 0 && (
