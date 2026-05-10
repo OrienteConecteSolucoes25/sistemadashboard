@@ -36,6 +36,7 @@ const TABS: { value: string; label: string; icon: any; desc: string }[] = [
   { value: "setores",     label: "Setores",           icon: Shapes,       desc: "CRUD de setores personalizados por empresa." },
   { value: "tags",        label: "Tags",              icon: Tags,         desc: "CRUD de tags operacionais por empresa." },
   { value: "escopos",     label: "Escopos",           icon: Layers,       desc: "CRUD de escopos operacionais por empresa." },
+  { value: "classificacao", label: "Classificação IA", icon: Sparkles,    desc: "Regras de palavra-chave/regex e reprocessamento automático." },
   { value: "importacoes", label: "Importações",       icon: Upload,       desc: "Upload de XLS/XLSX/CSV/PDF do CREA com histórico e reprocessar." },
   { value: "conciliacao", label: "Conciliação",       icon: Link2,        desc: "Boleto × ART (automática + manual), divergências e sem par." },
   { value: "alertas",     label: "Alertas",           icon: Bell,         desc: "Fila de exceções com criticidade, responsável e SLA." },
