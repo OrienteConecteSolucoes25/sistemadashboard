@@ -1,15 +1,17 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useAclModuleOverride } from "@/acl/legacyBridge";
+import { useAcl } from "@/acl/AclProvider";
 
 /**
- * @deprecated Será substituído por `useCan("engenharia.acessar")` na Leva 3.
- * Hoje funciona como OR: ACL central (nova) OU lógica legada.
+ * @deprecated Em novos códigos prefira `useCan("engenharia.acessar")`.
+ * Mantido por usar fallback legado (visibility groups + roles).
  */
 export function useEngenhariaAccess() {
   const { user, isAdmin, loading } = useAuth();
-  const { allow: aclAllow, ready: aclReady } = useAclModuleOverride("engenharia");
+  const { loading: aclLoading, isInternalOcs, can } = useAcl();
+  const aclAllow = isInternalOcs || can("engenharia.acessar");
+  const aclReady = !aclLoading;
   const [hasAccess, setHasAccess] = useState<boolean>(false);
   const [checking, setChecking] = useState(true);
 
