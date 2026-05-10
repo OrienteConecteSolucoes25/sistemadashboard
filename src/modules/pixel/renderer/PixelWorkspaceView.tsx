@@ -155,6 +155,15 @@ export const PixelWorkspaceView = ({
               <Button variant="outline" size="sm" onClick={() => handleAddItem("sofa")} title="Adicionar Sofá">
                 <Plus className="w-4 h-4 mr-1" /> Sofá
               </Button>
+              <Button variant="outline" size="sm" onClick={() => handleAddItem("pc")} title="Adicionar PC">
+                <Plus className="w-4 h-4 mr-1" /> Computador
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => handleAddItem("coffee")} title="Adicionar Café">
+                <Plus className="w-4 h-4 mr-1" /> Café
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => handleAddItem("board")} title="Adicionar Quadro">
+                <Plus className="w-4 h-4 mr-1" /> Quadro
+              </Button>
               <Button variant="outline" size="sm" onClick={() => handleAddItem("chair")} title="Adicionar Cadeira">
                 <Plus className="w-4 h-4 mr-1" /> Cadeira
               </Button>
