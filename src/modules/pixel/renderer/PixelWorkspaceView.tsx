@@ -28,6 +28,7 @@ import { PixiOfficeCanvas } from "../engine/PixiOfficeCanvas";
 import { pixiMap } from "../engine/pixiMap";
 import { pixiCharacters } from "../engine/pixiCharacters";
 import { pixiDesks } from "../engine/pixiDesks";
+import { pixiEvents } from "../engine/pixiEvents";
 
 
 interface Props {
@@ -87,7 +88,9 @@ export const PixelWorkspaceView = memo(({
     pixiMap.render();
     pixiCharacters.render(characters);
     pixiDesks.render(desks);
-  }, [characters, desks]);
+    pixiEvents.setupStage(onStageClick);
+  }, [characters, desks, onStageClick]);
+
 
   // Sync data to Pixi
   useEffect(() => {
