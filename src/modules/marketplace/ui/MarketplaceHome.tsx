@@ -201,10 +201,89 @@ export default function MarketplaceHome() {
             <Button variant="ghost" size="icon" className="hidden sm:flex">
               <Heart className="w-5 h-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingCart className="w-5 h-5" />
-              <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]">2</Badge>
-            </Button>
+            
+            <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                  <ShoppingCart className="w-5 h-5" />
+                  {cart.length > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-primary">
+                      {cart.reduce((s, i) => s + i.quantity, 0)}
+                    </Badge>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="w-full sm:max-w-md bg-white flex flex-col p-0">
+                <SheetHeader className="p-6 border-b">
+                  <SheetTitle className="flex items-center gap-2">
+                    <ShoppingCart className="w-5 h-5" /> Seu Carrinho
+                  </SheetTitle>
+                  <SheetDescription>
+                    Você tem {cart.length} itens no carrinho.
+                  </SheetDescription>
+                </SheetHeader>
+
+                <ScrollArea className="flex-1 p-6">
+                  {cart.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-[400px] text-center gap-4">
+                      <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center">
+                        <ShoppingBag className="w-10 h-10 text-slate-200" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-slate-900">Carrinho vazio</h3>
+                        <p className="text-sm text-muted-foreground">Adicione produtos para começar.</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {cart.map((item) => (
+                        <div key={item.id} className="flex gap-4 group">
+                          <div className="w-20 h-20 rounded-lg overflow-hidden bg-slate-100 shrink-0">
+                            <img src={item.images?.[0]} alt={item.name} className="w-full h-full object-cover" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-bold text-slate-900 truncate">{item.name}</h4>
+                            <p className="text-xs text-muted-foreground mb-2 italic">Vendido por OCS Store</p>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-black">
+                                {((item.promo_price || item.price) * item.quantity).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                              </span>
+                              <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1">
+                                <Button variant="ghost" size="icon" className="h-6 w-6 rounded-md" onClick={() => updateQuantity(item.id, -1)}>
+                                  <Minus className="w-3 h-3" />
+                                </Button>
+                                <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 rounded-md" onClick={() => updateQuantity(item.id, 1)}>
+                                  <PlusIcon className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                          <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity" onClick={() => removeFromCart(item.id)}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </ScrollArea>
+
+                {cart.length > 0 && (
+                  <div className="p-6 border-t bg-slate-50/50 space-y-4">
+                    <div className="flex justify-between items-center font-bold text-slate-900">
+                      <span>Total Estimado</span>
+                      <span className="text-xl">
+                        {cartTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                      </span>
+                    </div>
+                    <Button className="w-full h-12 text-md font-bold" onClick={() => { setIsCartOpen(false); setIsCheckoutOpen(true); setCheckoutStep(1); }}>
+                      Finalizar Compra
+                    </Button>
+                  </div>
+                )}
+              </SheetContent>
+            </Sheet>
+
             <Button variant="ghost" size="icon">
               <User className="w-5 h-5" />
             </Button>
