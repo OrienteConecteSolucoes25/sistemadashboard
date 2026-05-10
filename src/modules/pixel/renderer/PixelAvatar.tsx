@@ -49,7 +49,7 @@ export const PixelAvatar = ({ character, posX, posY, onClick }: Props) => {
 
         {/* Indicador de status discreto */}
         <span className="absolute -top-1 -right-1">
-          <PixelStatusBadge status={status} />
+          <PixelStatusBadge status={character.is_online ? status : "offline"} />
         </span>
       </div>
 
