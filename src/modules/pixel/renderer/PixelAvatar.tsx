@@ -127,13 +127,16 @@ export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage, isT
               <div
                 className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold px-2 py-0.5 rounded-full pointer-events-none shadow-sm transition-opacity duration-300 flex items-center gap-1"
                 style={{
-                  background: "rgba(15, 12, 25, 0.8)",
+                  background: character.avatar_sprite_key?.includes("visitant") ? "rgba(59, 130, 246, 0.9)" : "rgba(15, 12, 25, 0.8)",
                   color: "#fff",
-                  border: `1px solid ${palette.badge}`,
+                  border: character.avatar_sprite_key?.includes("visitant") ? `1px solid #60a5fa` : `1px solid ${palette.badge}`,
                 }}
               >
                 <div className={`w-1.5 h-1.5 rounded-full ${character.is_online ? 'bg-green-500 animate-pulse' : 'bg-slate-500'}`} />
                 {character.display_name ?? "—"}
+                {character.avatar_sprite_key?.includes("visitant") && (
+                  <span className="ml-1 text-[7px] bg-white/20 px-1 rounded uppercase">Visitante</span>
+                )}
               </div>
             )}
           </button>
