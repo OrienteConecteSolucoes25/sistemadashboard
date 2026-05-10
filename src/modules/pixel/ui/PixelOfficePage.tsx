@@ -106,17 +106,13 @@ export default function PixelOfficePage() {
     try {
       // 1. Eng Pendencias
       const engP = supabase.from("eng_pendencias").select("id", { count: "exact", head: true }).eq("status", "pendente");
-      // 2. Jur Processos com Prazos Proximos (7 dias)
-      const sevenDays = new Date(Date.now() + 7 * 86400 * 1000).toISOString();
-      const jurP = supabase.from("jur_prazos").select("id", { count: "exact", head: true }).lte("data_vencimento", sevenDays).eq("concluido", false);
-      // 3. TI Chamados em Analise
+      // 2. TI Chamados
       const tiP = supabase.from("ti_tickets").select("id", { count: "exact", head: true }).eq("status", "aberto");
 
-      const [engR, jurR, tiR] = await Promise.all([engP, jurP, tiP]);
+      const [engR, tiR] = await Promise.all([engP, tiP]);
       
       const alerts: string[] = [];
       if ((engR.count ?? 0) > 0) alerts.push(`${engR.count} pendências na Engenharia`);
-      if ((jurR.count ?? 0) > 0) alerts.push(`${jurR.count} prazos jurídicos próximos`);
       if ((tiR.count ?? 0) > 0) alerts.push(`${tiR.count} chamados de TI abertos`);
       
       setDirectorNotifs(alerts);
