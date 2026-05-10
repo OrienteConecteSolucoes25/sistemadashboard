@@ -1,10 +1,13 @@
 import { TILE_SIZE } from "../core/constants";
 import { PixelRoomSprite } from "./PixelRoomSprite";
-import type { RoomLite } from "../data/usePixelWorkspaceData";
+import { AvatarLayeredSprite } from "./AvatarLayeredSprite";
+import type { RoomLite, PixelCharacter } from "../data/usePixelWorkspaceData";
 
 interface Props {
   room: RoomLite;
   onClick?: (r: RoomLite) => void;
+  characters?: PixelCharacter[];
+  meetings?: any;
 }
 
 const sizeForCapacity = (cap: number) => {
