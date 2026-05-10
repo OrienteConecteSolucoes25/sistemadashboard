@@ -55,7 +55,7 @@ interface IAsset {
   type: string;
   serial_number: string | null;
   status: string;
-  user_id: string | null;
+  responsible_user_id: string | null;
 }
 
 export default function TiAgentPage() {
@@ -133,8 +133,8 @@ export default function TiAgentPage() {
       .eq('id', userData.user.id)
       .single();
 
-    const { error } = await supabase.from("it_tickets").insert({
-      user_id: user?.id,
+    const { error } = await supabase.from("it_tickets").insert([{
+      user_id: userData.user.id,
       company_id: profile?.company_id,
       title: newTitle,
       description: newDesc,
@@ -142,7 +142,7 @@ export default function TiAgentPage() {
       priority: newPri,
       diagnostic_info: diagnosticAnswers,
       status: 'aberto'
-    });
+    }]);
 
     if (error) {
       toast.error("Erro ao criar chamado: " + error.message);
