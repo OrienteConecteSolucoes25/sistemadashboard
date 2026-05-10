@@ -13,6 +13,7 @@ import { jarbasCore } from "../core/jarbasCore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { useJarbasDashboard } from "../hooks/useJarbasDashboard";
 
 export const JarbasCentralDashboard = () => {
