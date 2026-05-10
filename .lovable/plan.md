@@ -54,8 +54,8 @@ Abas hoje no `CreaGovernancaPage`: Visão Executiva, Técnica, Importações, Se
 | 1    | Fundação (DB + rota + esqueleto)     | ✅         |
 | 2    | Importação + Técnica + Executiva     | ✅         |
 | 3    | Setores/Tags/Escopos + Classificador | ✅         |
-| 4    | **Financeira + Conciliação**         | ⏳ próxima |
-| 5    | Auditoria + Alertas + Painéis        | ⏳         |
+| 4    | **Financeira + Conciliação**         | ✅ |
+| 5    | Auditoria + Alertas + Painéis        | ✅ |
 | 6    | CREAs Brasil + PDF                   | ⏳         |
 | 7    | Relatórios + Assistente IA           | ⏳         |
 
