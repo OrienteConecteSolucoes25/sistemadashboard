@@ -230,15 +230,27 @@ export default function MarketplaceAdmin() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showVitrine, setShowVitrine] = useState(false);
   const { can } = useAcl();
+  
+  // Efeito para checar se a URL pede a vitrine
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('view') === 'vitrine') {
+      setShowVitrine(true);
+    }
+  }, []);
 
   if (showVitrine) {
     return (
-      <div className="relative">
+      <div className="fixed inset-0 z-[100] bg-white overflow-y-auto">
         <Button 
           variant="secondary" 
           size="sm" 
-          className="fixed top-4 left-4 z-[60] shadow-lg border bg-white/80 backdrop-blur-md"
-          onClick={() => setShowVitrine(false)}
+          className="fixed top-4 left-4 z-[110] shadow-lg border bg-white/80 backdrop-blur-md"
+          onClick={() => {
+            setShowVitrine(false);
+            // Limpa a URL
+            window.history.replaceState({}, '', window.location.pathname);
+          }}
         >
           <ArrowLeft className="w-4 h-4 mr-2" /> Voltar ao Painel
         </Button>
