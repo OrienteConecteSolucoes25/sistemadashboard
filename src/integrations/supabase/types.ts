@@ -8466,6 +8466,124 @@ export type Database = {
         }
         Relationships: []
       }
+      ocs_guard_compliance_checks: {
+        Row: {
+          category: string
+          company_id: string | null
+          id: string
+          question: string
+          recommendation: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          category: string
+          company_id?: string | null
+          id?: string
+          question: string
+          recommendation?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          company_id?: string | null
+          id?: string
+          question?: string
+          recommendation?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ocs_guard_compliance_checks_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ocs_guard_incidents: {
+        Row: {
+          company_id: string | null
+          containment_steps: Json | null
+          created_at: string
+          description: string | null
+          id: string
+          reporter_id: string | null
+          resolved_at: string | null
+          severity: string
+          status: string
+          title: string
+        }
+        Insert: {
+          company_id?: string | null
+          containment_steps?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          reporter_id?: string | null
+          resolved_at?: string | null
+          severity: string
+          status?: string
+          title: string
+        }
+        Update: {
+          company_id?: string | null
+          containment_steps?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          reporter_id?: string | null
+          resolved_at?: string | null
+          severity?: string
+          status?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ocs_guard_incidents_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ocs_guard_security_logs: {
+        Row: {
+          created_at: string
+          description: string | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          severity: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          severity: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          severity?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       ocs_impersonation_sessions: {
         Row: {
           company_id: string
