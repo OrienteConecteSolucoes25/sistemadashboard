@@ -232,7 +232,10 @@ export default function PixelOfficePage() {
                   primaryColor="#ef4444"
                   secondaryColor="#b91c1c"
                   startX={80}
-                  onClick={open}
+                  onClick={() => {
+                    setActiveAgentPanel("ocs_guard");
+                    open();
+                  }}
                 />
               )}
             />
@@ -250,7 +253,10 @@ export default function PixelOfficePage() {
                   primaryColor="#4f46e5"
                   secondaryColor="#3730a3"
                   startX={10}
-                  onClick={open}
+                  onClick={() => {
+                    setActiveAgentPanel("ti");
+                    open();
+                  }}
                 />
               )}
             />
@@ -268,20 +274,53 @@ export default function PixelOfficePage() {
                   primaryColor="#0ea5e9"
                   secondaryColor="#0284c7"
                   startX={90}
-                  onClick={open}
+                  onClick={() => {
+                    setActiveAgentPanel("jarbas");
+                    open();
+                  }}
                 />
               )}
             />
           </div>
 
-          <PixelMeetingsPanel
-            meetings={meetings}
-            characters={characters}
-            onNewMeeting={() => {
-              setPreselectInvitee(null);
-              setMeetingModalOpen(true);
-            }}
-          />
+          {activeAgentPanel === "ocs_guard" && (
+            <Card className="mt-4 animate-in slide-in-from-bottom duration-300">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xl">Painel OCS Guard</CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => setActiveAgentPanel(null)}>Fechar</Button>
+              </CardHeader>
+              <CardContent>
+                <OcsGuardPage />
+              </CardContent>
+            </Card>
+          )}
+
+          {activeAgentPanel === "ti" && (
+            <Card className="mt-4 animate-in slide-in-from-bottom duration-300">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xl">Painel de TI</CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => setActiveAgentPanel(null)}>Fechar</Button>
+              </CardHeader>
+              <CardContent>
+                <TiAgentPage />
+              </CardContent>
+            </Card>
+          )}
+
+          {activeAgentPanel === "jarbas" && (
+            <div className="mt-4">
+              <JarbasInterface />
+              <Card className="bg-slate-950 text-white border-primary/20">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-xl text-primary font-bold">Console Operacional Jarbas</CardTitle>
+                  <Button variant="ghost" size="sm" className="text-white hover:bg-white/10" onClick={() => setActiveAgentPanel(null)}>Minimizar</Button>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-slate-400">O Jarbas está ativo via comando de voz. Utilize o console flutuante no canto inferior para interagir.</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           <PixelCommunityPanel activeWorkspace={activeWorkspace} workspaces={workspaces} />
         </>
