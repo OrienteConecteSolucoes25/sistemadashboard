@@ -98,4 +98,4 @@ export const PixelRoom = memo(({ room, onClick, characters = [], meetings }: Pro
       )}
     </div>
   );
-};
+});
