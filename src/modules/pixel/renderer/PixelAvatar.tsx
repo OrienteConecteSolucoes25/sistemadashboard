@@ -20,7 +20,7 @@ interface Props {
 
 const AVATAR_SIZE = 56;
 
-export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage, isTyping, hideName }: Props & { hideName?: boolean }) => {
+export const PixelAvatar = memo(({ character, posX, posY, onClick, recentMessage, isTyping, hideName }: Props & { hideName?: boolean }) => {
   const status = (character.status as PixelStatus) ?? "offline";
   const x = posX ?? character.position_x;
   const y = posY ?? character.position_y;
