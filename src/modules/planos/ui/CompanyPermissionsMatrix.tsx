@@ -5,6 +5,8 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
+import { useCan, useIsInternalOcs } from "@/acl/AclProvider";
+import { Lock } from "lucide-react";
 
 const sb: any = supabase;
 
@@ -19,6 +21,9 @@ type Props = {
  * Filtro por setor (módulo) evita lista gigante quando a empresa contratou muitos módulos.
  */
 export default function CompanyPermissionsMatrix({ companyId, allModulesOverride }: Props) {
+  const isInternal = useIsInternalOcs();
+  const canEditAcl = useCan("adm.visibilidade.editar");
+  const canEdit = isInternal || canEditAcl;
   const [users, setUsers] = useState<any[]>([]);
   const [catalog, setCatalog] = useState<any[]>([]);
   const [planMods, setPlanMods] = useState<string[]>([]);
@@ -166,15 +171,15 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
                     <td key={m.key} className="px-3 py-3 text-center border-b align-top">
                       <div className="flex flex-col gap-1.5 items-stretch">
                         <label className="flex items-center justify-between gap-2 text-xs">
-                          <Switch checked={p.v} onCheckedChange={v => setCell(u.user_id, m.key, { v })} />
+                          <Switch checked={p.v} disabled={!canEdit} onCheckedChange={v => setCell(u.user_id, m.key, { v })} />
                           <span>Ver</span>
                         </label>
                         <label className="flex items-center justify-between gap-2 text-xs">
-                          <Switch checked={p.e} onCheckedChange={v => setCell(u.user_id, m.key, { e: v })} />
+                          <Switch checked={p.e} disabled={!canEdit} onCheckedChange={v => setCell(u.user_id, m.key, { e: v })} />
                           <span>Editar</span>
                         </label>
                         <label className="flex items-center justify-between gap-2 text-xs">
-                          <Switch checked={p.d} onCheckedChange={v => setCell(u.user_id, m.key, { d: v })} />
+                          <Switch checked={p.d} disabled={!canEdit} onCheckedChange={v => setCell(u.user_id, m.key, { d: v })} />
                           <span>Excluir</span>
                         </label>
                       </div>
@@ -186,8 +191,11 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
           </tbody>
         </table>
       </div>
+      {!canEdit && (
+        <p className="text-xs text-muted-foreground flex items-center gap-1.5"><Lock className="w-3 h-3" /> Modo somente leitura — para alterar permissões fale com a equipe OCS.</p>
+      )}
       <div className="flex justify-end">
-        <Button onClick={save}>Salvar permissões</Button>
+        <Button onClick={save} disabled={!canEdit}>Salvar permissões</Button>
       </div>
     </div>
   );
