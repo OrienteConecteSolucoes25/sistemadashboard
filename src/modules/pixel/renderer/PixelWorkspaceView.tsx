@@ -27,6 +27,7 @@ import { spriteEngine, type RendererType } from "../engine/spriteEngine";
 import { PixiOfficeCanvas } from "../engine/PixiOfficeCanvas";
 import { pixiMap } from "../engine/pixiMap";
 import { pixiCharacters } from "../engine/pixiCharacters";
+import { pixiDesks } from "../engine/pixiDesks";
 
 
 interface Props {
@@ -85,14 +86,17 @@ export const PixelWorkspaceView = memo(({
   const handlePixiInit = useCallback(() => {
     pixiMap.render();
     pixiCharacters.render(characters);
-  }, [characters]);
+    pixiDesks.render(desks);
+  }, [characters, desks]);
 
-  // Sync characters to Pixi
+  // Sync data to Pixi
   useEffect(() => {
     if (currentRenderer === "pixi") {
       pixiCharacters.render(characters);
+      pixiDesks.render(desks);
     }
-  }, [characters, currentRenderer]);
+  }, [characters, desks, currentRenderer]);
+
 
 
 
