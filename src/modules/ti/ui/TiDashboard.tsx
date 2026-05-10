@@ -121,12 +121,9 @@ export default function TiDashboard() {
           </CardHeader>
           <CardContent className="p-6">
             <div className="space-y-6">
-              {[
-                { label: 'Suporte de Acesso', progress: 85, count: 12 },
-                { label: 'Falhas de Sistema', progress: 62, count: 8 },
-                { label: 'Infraestrutura', progress: 30, count: 4 },
-                { label: 'Segurança', progress: 15, count: 2 },
-              ].map((item, i) => (
+              {ticketsByStatus.length === 0 ? (
+                <p className="text-center text-slate-400 text-xs py-10 font-bold uppercase tracking-widest">Aguardando dados...</p>
+              ) : ticketsByStatus.map((item, i) => (
                 <div key={i} className="space-y-2">
                   <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-600">
                     <span>{item.label}</span>
