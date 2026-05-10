@@ -23,6 +23,8 @@ const variantColors = (v: Props["variant"]) => {
       return { carpet: "#164e63", accent: "#22d3ee" };
     case "reception":
       return { carpet: "#334155", accent: "#94a3b8" };
+    default:
+      return { carpet: OFFICE_THEME.carpetCommon, accent: "#a8d8cc" };
   }
 };
 
