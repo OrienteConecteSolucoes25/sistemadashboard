@@ -497,6 +497,8 @@ export default function TiAgentPage() {
                     </CardContent>
                   </Card>
                 ))
+                )}
+                </>
               )}
             </div>
           )}
