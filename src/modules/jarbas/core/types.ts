@@ -8,7 +8,8 @@ export type JarbasModule =
   | "os" 
   | "crea" 
   | "communication"
-  | "marketplace";
+  | "marketplace"
+  | "ocs_guard";
 
 export type Severity = "low" | "medium" | "high" | "critical";
 
