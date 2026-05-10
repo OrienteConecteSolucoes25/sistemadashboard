@@ -16,8 +16,68 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
+import { supabase } from "@/integrations/supabase/client";
 
 export default function TiDashboard() {
+  const [stats, setStats] = React.useState({
+    activeTickets: 0,
+    slaRate: "98.4%",
+    assetsInUse: 0,
+    incidentsToday: 0
+  });
+  const [ticketsByStatus, setTicketsByStatus] = React.useState<any[]>([]);
+  const [isLoading, setIsLoading] = React.useState(true);
+
+  React.useEffect(() => {
+    fetchDashboardData();
+  }, []);
+
+  const fetchDashboardData = async () => {
+    try {
+      setIsLoading(true);
+      
+      // Active tickets
+      const { count: activeCount } = await supabase
+        .from('it_tickets')
+        .select('*', { count: 'exact', head: true })
+        .neq('status', 'resolvido');
+      
+      // Assets
+      const { count: assetCount } = await supabase
+        .from('it_assets')
+        .select('*', { count: 'exact', head: true });
+
+      // Tickets by category for performance chart
+      const { data: catData } = await supabase
+        .from('it_tickets')
+        .select('category');
+      
+      const counts: Record<string, number> = {};
+      catData?.forEach(t => {
+        counts[t.category] = (counts[t.category] || 0) + 1;
+      });
+
+      const formattedCats = Object.entries(counts).map(([label, count]) => ({
+        label: label.toUpperCase(),
+        count,
+        progress: Math.min(100, (count / (catData?.length || 1)) * 100)
+      }));
+
+      setStats({
+        activeTickets: activeCount || 0,
+        slaRate: "98.4%",
+        assetsInUse: assetCount || 0,
+        incidentsToday: 0
+      });
+      setTicketsByStatus(formattedCats);
+
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#F8FAFC] p-4 md:p-8">
       <div className="mb-8">
