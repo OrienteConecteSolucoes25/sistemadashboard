@@ -95,6 +95,7 @@ export default function CreaGovernancaPage() {
              : t.value === "empresas" ? <EmpresasPanel filters={filters} />
              : t.value === "rts" ? <RtsPanel filters={filters} />
              : t.value === "clientes" ? <ClientesPanel filters={filters} />
+             : t.value === "creas" ? <CreasBrasilTab />
              : <Placeholder title={t.label} description={t.desc} />}
           </TabsContent>
         ))}
