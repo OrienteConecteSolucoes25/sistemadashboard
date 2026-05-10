@@ -14,7 +14,7 @@ import {
   Presentation
 } from "lucide-react";
 
-export type ModuleType = "engineering" | "legal" | "hr" | "finance" | "ti" | "reception" | "showroom" | "project_view";
+export type ModuleType = "engineering" | "legal" | "hr" | "finance" | "ti" | "reception" | "showroom" | "project_view" | "marketplace";
 
 interface Props {
   type: ModuleType;
@@ -84,9 +84,20 @@ export const PixelModuleDashboard = ({ type, x, y }: Props) => {
             { label: "Uptime Infra", value: "99.9%" },
           ]
         };
-      case "showroom":
+      case "marketplace":
         return {
           icon: <Rocket className="w-3 h-3 text-indigo-400" />,
+          title: "Marketplace",
+          color: "border-indigo-500/30",
+          bg: "bg-indigo-950/80",
+          stats: [
+            { label: "Lojas Ativas", value: "850+" },
+            { label: "Vendas Mês", value: "R$ 4.2M" },
+          ]
+        };
+      case "showroom":
+        return {
+          icon: <Eye className="w-3 h-3 text-indigo-400" />,
           title: "Showroom OCS",
           color: "border-indigo-500/30",
           bg: "bg-indigo-950/80",
