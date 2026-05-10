@@ -520,9 +520,28 @@ export default function CentralChamadosPage() {
                       #{selectedTicket.ticket_number.toString().padStart(5, '0')} - {selectedTicket.title}
                     </DialogTitle>
                   </div>
-                  <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none font-bold text-xs">
-                    {getStatusLabel(selectedTicket.status)}
-                  </Badge>
+                  <div className="flex gap-2">
+                    <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 border-none font-bold text-xs uppercase px-3">
+                      {getStatusLabel(selectedTicket.status)}
+                    </Badge>
+                    <Select 
+                      disabled={isUpdatingStatus}
+                      value={selectedTicket.status} 
+                      onValueChange={handleUpdateStatus}
+                    >
+                      <SelectTrigger className="h-8 w-[150px] text-[10px] font-black uppercase tracking-widest border-slate-200">
+                        <SelectValue placeholder="Mudar Status" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="aberto">Aberto</SelectItem>
+                        <SelectItem value="em_analise">Em Análise</SelectItem>
+                        <SelectItem value="aguardando_usuario">Aguardando Usuário</SelectItem>
+                        <SelectItem value="em_execucao">Em Execução</SelectItem>
+                        <SelectItem value="resolvido">Resolvido</SelectItem>
+                        <SelectItem value="cancelado">Cancelado</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
                 </div>
                 
                 <div className="grid grid-cols-3 gap-6">
