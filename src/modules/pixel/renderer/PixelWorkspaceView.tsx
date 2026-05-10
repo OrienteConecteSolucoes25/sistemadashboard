@@ -349,4 +349,4 @@ export const PixelWorkspaceView = memo(({
       </div>
     </div>
   );
-};
+});
