@@ -4315,6 +4315,71 @@ export type Database = {
           },
         ]
       }
+      crea_gov_pdf_paginas: {
+        Row: {
+          company_id: string
+          created_at: string
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          importacao_id: string | null
+          is_deleted: boolean
+          metadata: Json
+          numero_pagina: number
+          status: string
+          tabelas: Json
+          texto: string | null
+          total_paginas: number | null
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          importacao_id?: string | null
+          is_deleted?: boolean
+          metadata?: Json
+          numero_pagina?: number
+          status?: string
+          tabelas?: Json
+          texto?: string | null
+          total_paginas?: number | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          importacao_id?: string | null
+          is_deleted?: boolean
+          metadata?: Json
+          numero_pagina?: number
+          status?: string
+          tabelas?: Json
+          texto?: string | null
+          total_paginas?: number | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_gov_pdf_paginas_importacao_id_fkey"
+            columns: ["importacao_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_importacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       crea_gov_setores: {
         Row: {
           company_id: string

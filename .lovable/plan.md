@@ -56,7 +56,7 @@ Abas hoje no `CreaGovernancaPage`: Visão Executiva, Técnica, Importações, Se
 | 3    | Setores/Tags/Escopos + Classificador | ✅         |
 | 4    | **Financeira + Conciliação**         | ✅ |
 | 5    | Auditoria + Alertas + Painéis        | ✅ |
-| 6    | CREAs Brasil + PDF                   | ⏳         |
+| 6    | CREAs Brasil + PDF                   | ✅ |
 | 7    | Relatórios + Assistente IA           | ⏳         |
 
 
