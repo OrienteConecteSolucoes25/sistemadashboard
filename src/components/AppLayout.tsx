@@ -1,7 +1,7 @@
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, FolderKanban, LogOut, Settings, Gamepad2, HardHat, Scale, Menu, X, CreditCard, Building2, LayoutDashboard, HeartHandshake, Palette, FileSignature, MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
+import { Shield, FolderKanban, LogOut, Settings, Gamepad2, HardHat, Scale, Menu, X, CreditCard, Building2, LayoutDashboard, HeartHandshake, Palette, FileSignature, MessageSquare, ChevronLeft, ChevronRight, ShieldAlert } from "lucide-react";
 import { useComunicacaoAccess } from "@/modules/comunicacao/hooks/useComunicacaoAccess";
 import { useRhdpAccess } from "@/modules/rhdp/hooks/useRhdpAccess";
 import { useCreaAccess } from "@/modules/crea/hooks/useCreaAccess";
@@ -97,6 +97,7 @@ const AppLayout = () => {
       {(isAdmin || canAparencia) && <NavItem to="/app/aparencia" icon={Palette} label="Aparência & Marca" />}
       {isOcsStaff && <NavItem to="/app/pixel-office/admin" icon={Shield} label="Soluções-Verso Admin" />}
       {(isOcsStaff || canAdmVis) && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
+      {(isOcsStaff || isAdmin) && <NavItem to="/app/ocs-guard" icon={ShieldAlert} label="OCS Guard" />}
       <div className="mt-auto pt-4 border-t">
         {!collapsed && (
           <>
