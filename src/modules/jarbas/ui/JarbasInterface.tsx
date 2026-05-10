@@ -175,7 +175,7 @@ export function JarbasInterface() {
                         variant="outline" 
                         className="border-red-500/50 text-red-400 h-7 text-[10px]"
                         onClick={() => {
-                          setChatHistory(prev => [...prev, { role: 'jarbas', text: "Ação cancelada.", timestamp: new Date() }]);
+                          toast.info("Ação cancelada pelo usuário.");
                         }}
                       >
                         CANCELAR
