@@ -7,6 +7,7 @@ import { TILE_SIZE, STAGE_WIDTH_PX, STAGE_HEIGHT_PX } from "../core/constants";
  * `pointer-events: none` garante que cliques no chão continuem funcionando.
  */
 export const PixelOfficeDecorations = () => {
+  return null;
   return (
     <div className="absolute inset-0 pointer-events-none" aria-hidden="true">
       {/* Parede superior pixel art */}
