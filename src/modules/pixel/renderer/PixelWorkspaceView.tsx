@@ -46,6 +46,7 @@ export const PixelWorkspaceView = ({
   onSelectCharacter,
   onSelectDesk,
   onStageClick,
+  recentMessages = {},
 }: Props) => {
   const handleStageClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
