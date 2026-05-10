@@ -38,6 +38,7 @@ export default function PixelOfficePage() {
   const { user, isAdmin } = useAuth();
   const [notifTick, setNotifTick] = useState(0);
   const [directorNotifs, setDirectorNotifs] = useState<string[]>([]);
+  const [bubbles, setBubbles] = useState<Record<string, string>>({});
   const {
     loading,
     workspaces,
