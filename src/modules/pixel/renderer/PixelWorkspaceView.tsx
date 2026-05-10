@@ -60,10 +60,21 @@ export const PixelWorkspaceView = ({
   meetings,
   isAdmin,
   onRefresh,
+  renderer = "dom",
 }: Props) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedItem, setSelectedItem] = useState<{ type: "desk" | "room" | "furniture"; id: string } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Sincroniza colisões quando dados mudam
+  useEffect(() => {
+    mapEngine.updateCollisions(desks, rooms, furniture);
+  }, [desks, rooms, furniture]);
+
+  // Define o renderer global da engine
+  useEffect(() => {
+    spriteEngine.setRenderer(renderer);
+  }, [renderer]);
 
   const handleStageClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
