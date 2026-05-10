@@ -10470,10 +10470,13 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          notes: string | null
+          purchase_date: string | null
           serial_number: string | null
           specification: Json | null
           status: string
           type: string
+          updated_at: string | null
           user_id: string | null
           warranty_until: string | null
         }
@@ -10482,10 +10485,13 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          notes?: string | null
+          purchase_date?: string | null
           serial_number?: string | null
           specification?: Json | null
           status?: string
           type: string
+          updated_at?: string | null
           user_id?: string | null
           warranty_until?: string | null
         }
@@ -10494,10 +10500,13 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          notes?: string | null
+          purchase_date?: string | null
           serial_number?: string | null
           specification?: Json | null
           status?: string
           type?: string
+          updated_at?: string | null
           user_id?: string | null
           warranty_until?: string | null
         }
@@ -10505,6 +10514,7 @@ export type Database = {
       }
       ti_knowledge_base: {
         Row: {
+          attachments: string[] | null
           category: string
           content: string
           created_at: string
@@ -10513,6 +10523,7 @@ export type Database = {
           title: string
         }
         Insert: {
+          attachments?: string[] | null
           category: string
           content: string
           created_at?: string
@@ -10521,6 +10532,7 @@ export type Database = {
           title: string
         }
         Update: {
+          attachments?: string[] | null
           category?: string
           content?: string
           created_at?: string
@@ -10530,17 +10542,135 @@ export type Database = {
         }
         Relationships: []
       }
+      ti_security_incidents: {
+        Row: {
+          actions_taken: string | null
+          created_at: string
+          description: string
+          evidence_urls: string[] | null
+          id: string
+          incident_type: string
+          involved_user_id: string | null
+          responsible_id: string | null
+          severity: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          actions_taken?: string | null
+          created_at?: string
+          description: string
+          evidence_urls?: string[] | null
+          id?: string
+          incident_type: string
+          involved_user_id?: string | null
+          responsible_id?: string | null
+          severity: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          actions_taken?: string | null
+          created_at?: string
+          description?: string
+          evidence_urls?: string[] | null
+          id?: string
+          incident_type?: string
+          involved_user_id?: string | null
+          responsible_id?: string | null
+          severity?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      ti_ticket_comments: {
+        Row: {
+          attachments: string[] | null
+          content: string
+          created_at: string
+          id: string
+          ticket_id: string
+          user_id: string
+        }
+        Insert: {
+          attachments?: string[] | null
+          content: string
+          created_at?: string
+          id?: string
+          ticket_id: string
+          user_id: string
+        }
+        Update: {
+          attachments?: string[] | null
+          content?: string
+          created_at?: string
+          id?: string
+          ticket_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ti_ticket_comments_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "ti_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ti_ticket_history: {
+        Row: {
+          action: string
+          created_at: string
+          id: string
+          new_value: string | null
+          old_value: string | null
+          ticket_id: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          ticket_id: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          id?: string
+          new_value?: string | null
+          old_value?: string | null
+          ticket_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ti_ticket_history_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "ti_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ti_tickets: {
         Row: {
           assigned_to: string | null
+          attachments: string[] | null
           category: string
           company_id: string | null
           created_at: string
           description: string
           diagnostic_info: Json | null
           id: string
+          module_key: string | null
           priority: string
           resolved_at: string | null
+          sla_deadline: string | null
           status: string
           title: string
           updated_at: string
@@ -10548,14 +10678,17 @@ export type Database = {
         }
         Insert: {
           assigned_to?: string | null
+          attachments?: string[] | null
           category: string
           company_id?: string | null
           created_at?: string
           description: string
           diagnostic_info?: Json | null
           id?: string
+          module_key?: string | null
           priority: string
           resolved_at?: string | null
+          sla_deadline?: string | null
           status?: string
           title: string
           updated_at?: string
@@ -10563,14 +10696,17 @@ export type Database = {
         }
         Update: {
           assigned_to?: string | null
+          attachments?: string[] | null
           category?: string
           company_id?: string | null
           created_at?: string
           description?: string
           diagnostic_info?: Json | null
           id?: string
+          module_key?: string | null
           priority?: string
           resolved_at?: string | null
+          sla_deadline?: string | null
           status?: string
           title?: string
           updated_at?: string
@@ -10959,6 +11095,7 @@ export type Database = {
         Returns: Json
       }
       theme_save: { Args: { _company: string; _payload: Json }; Returns: Json }
+      ti_is_it_staff: { Args: never; Returns: boolean }
       update_pixel_heartbeat: { Args: { _uid: string }; Returns: undefined }
       user_company: { Args: { _uid: string }; Returns: string }
       user_group_ids: { Args: { _user_id: string }; Returns: string[] }
