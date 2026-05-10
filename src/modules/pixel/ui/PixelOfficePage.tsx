@@ -283,6 +283,27 @@ export default function PixelOfficePage() {
                 />
               )}
             />
+
+            <ModuleAgentChat
+              moduleKey="marketplace"
+              agentName="Gestor Marketplace OCS"
+              icon={ShoppingCart}
+              welcomeMessage="Olá! Sou o **Gestor do Marketplace**. Posso te ajudar a gerenciar sua loja, cadastrar produtos e acompanhar suas vendas e logística. Como posso impulsionar seu negócio hoje?"
+              renderTrigger={(open) => (
+                <ModuleAgentNpc
+                  name="Gestor Marketplace"
+                  moduleKey="marketplace"
+                  icon={ShoppingCart}
+                  primaryColor="#16a34a"
+                  secondaryColor="#166534"
+                  startX={42}
+                  onClick={() => {
+                    setActiveAgentPanel("marketplace");
+                    open();
+                  }}
+                />
+              )}
+            />
           </div>
 
           {activeAgentPanel === "ocs_guard" && (
