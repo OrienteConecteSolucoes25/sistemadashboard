@@ -80,7 +80,9 @@ import { CompanyThemeProvider } from "./modules/aparencia/hooks/CompanyThemeProv
 import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
 import { GovernanceUniversalPage } from "./modules/governance/ui/GovernanceUniversalPage";
 import OcsGuardPage from "./modules/ocs-guard/ui/OcsGuardPage";
-import TiAgentPage from "./modules/ti/ui/TiAgentPage";
+import TiDashboard from "./modules/ti/ui/TiDashboard";
+import CentralChamadosPage from "./modules/ti/ui/CentralChamadosPage";
+import ChatAgenteTIPage from "./modules/ti/ui/ChatAgenteTIPage";
 import FinanceiroDashboard from "./modules/financeiro/ui/FinanceiroDashboard";
 import MarketplaceAdmin from "./modules/marketplace/ui/MarketplaceAdmin";
 import { JarbasCentralDashboard } from "./modules/jarbas/ui/JarbasCentralDashboard";
@@ -217,6 +219,11 @@ const App = () => (
               <Route path="jarbas" element={<JarbasCentralDashboard />} />
               <Route path="jarbas/knowledge" element={<JarbasKnowledgePage />} />
               <Route path="ocs-guard" element={<OcsGuardPage />} />
+              <Route path="ti">
+                <Route index element={<TiDashboard />} />
+                <Route path="chamados" element={<CentralChamadosPage />} />
+                <Route path="agente" element={<ChatAgenteTIPage />} />
+              </Route>
                <Route path="aparencia" element={<ThemeStudioPage />} />
               <Route path="design-system" element={<ThemeStudioPage />} />
             </Route>
