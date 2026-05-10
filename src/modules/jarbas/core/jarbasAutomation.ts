@@ -96,11 +96,12 @@ class JarbasAutomationEngine {
   }
 
   private async executeTaskCreation(params: any) {
-    // Integração real com o banco de tarefas
+    // Corrigindo para os campos reais da tabela pixel_messages
     return await supabase.from('pixel_messages').insert({
-      content: `[JARBAS_AUTO_TASK] ${params.title}: ${params.description}`,
+      message: `[JARBAS_AUTO_TASK] ${params.title}: ${params.description}`,
       workspace_id: params.workspaceId,
-      sender_id: params.senderId
+      sender_user_id: params.senderId,
+      message_type: 'system'
     });
   }
 
