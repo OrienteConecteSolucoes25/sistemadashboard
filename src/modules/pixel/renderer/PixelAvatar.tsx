@@ -37,9 +37,10 @@ export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage, isT
 
   const isWalking = character.current_action === "walking";
 
-  // Centraliza o sprite no tile clicado
-  const left = x * TILE_SIZE + TILE_SIZE / 2 - AVATAR_SIZE / 2;
-  const top = y * TILE_SIZE + TILE_SIZE - AVATAR_SIZE; // pés no chão do tile
+  // Centraliza o sprite no tile clicado usando spriteEngine
+  const left = spriteEngine.tileToPixel(x) + TILE_SIZE / 2 - AVATAR_SIZE / 2;
+  const top = spriteEngine.tileToPixel(y) + TILE_SIZE - AVATAR_SIZE; // pés no chão do tile
+  const zIndex = spriteEngine.calculateZIndex(y, 100);
   const role = roleFromSpriteKey(character.avatar_sprite_key);
   const palette = ROLE_PALETTES[role];
 
