@@ -44,7 +44,7 @@ interface Props {
   renderer?: RendererType;
 }
 
-export const PixelWorkspaceView = ({
+export const PixelWorkspaceView = memo(({
   workspace,
   currentUser,
   characters,
