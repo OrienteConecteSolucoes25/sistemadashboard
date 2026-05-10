@@ -11,7 +11,10 @@ import {
   Fingerprint,
   FileKey,
   Database,
-  ShieldX
+  ShieldX,
+  Scale,
+  ClipboardCheck,
+  LifeBuoy
 } from "lucide-react";
 import { ocsGuard } from "../core/ocsGuardCore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -213,10 +216,74 @@ export default function OcsGuardPage() {
           </CardHeader>
           <CardContent className="grid grid-cols-2 gap-2">
             {['2FA_OBRIGATORIO', 'LOGOUT_60MIN', 'RESTRICAO_IP', 'AUDIT_FULL', 'LGPD_COMPLIANT', 'ENCRYPT_AT_REST'].map(policy => (
-              <Badge key={policy} variant="outline" className="text-[8px] border-cyan-500/20 text-cyan-500 justify-center">
+            <Badge key={policy} variant="outline" className="text-[8px] border-cyan-500/20 text-cyan-500 justify-center">
                 {policy}
               </Badge>
             ))}
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
+        {/* Central de Compliance (LGPD/ISO/SOC2) */}
+        <Card className="bg-slate-900/50 border-cyan-500/20 text-cyan-400">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-bold uppercase flex items-center gap-2">
+              <Scale className="w-4 h-4" /> STATUS DE COMPLIANCE
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-bold">LGPD (Brasil)</span>
+              <Badge className="bg-green-600 text-white text-[8px]">100% OK</Badge>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-bold">ISO 27001</span>
+              <Badge className="bg-amber-600 text-white text-[8px]">82% ATIVO</Badge>
+            </div>
+            <div className="flex justify-between items-center">
+              <span className="text-[10px] font-bold">SOC2 Type II</span>
+              <Badge className="bg-blue-600 text-white text-[8px]">EM AUDITORIA</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Gestão de Incidentes de Compliance */}
+        <Card className="md:col-span-2 bg-slate-900/50 border-cyan-500/20 text-cyan-400">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-bold uppercase flex items-center gap-2">
+              <LifeBuoy className="w-4 h-4" /> GESTÃO DE INCIDENTES & REMEDIAÇÃO
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-2">
+              <div className="p-2 rounded border border-cyan-500/20 bg-cyan-500/5 flex justify-between items-center">
+                <div>
+                  <div className="text-[10px] font-bold">INC_2026_05_10_A</div>
+                  <div className="text-[8px] opacity-60">Acesso indevido ao módulo RH detectado e bloqueado.</div>
+                </div>
+                <Badge variant="outline" className="text-[8px] border-green-500 text-green-500">RESOLVIDO</Badge>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Cadeia de Custódia / Evidências */}
+        <Card className="bg-slate-900/50 border-cyan-500/20 text-cyan-400">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-bold uppercase flex items-center gap-2">
+              <ClipboardCheck className="w-4 h-4" /> CADEIA DE CUSTÓDIA
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center gap-2 p-2 bg-slate-950 rounded border border-white/5 cursor-pointer hover:bg-slate-900">
+              <Database className="w-3 h-3 opacity-40" />
+              <div className="text-[9px]">Snapshot de Logs Integridade [SHA-256]</div>
+            </div>
+            <div className="flex items-center gap-2 p-2 bg-slate-950 rounded border border-white/5 cursor-pointer hover:bg-slate-900">
+              <FileKey className="w-3 h-3 opacity-40" />
+              <div className="text-[9px]">Evidência de Backup Criptografado</div>
+            </div>
           </CardContent>
         </Card>
       </div>

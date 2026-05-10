@@ -2824,6 +2824,164 @@ export type Database = {
           },
         ]
       }
+      compliance_evidence: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          description: string | null
+          evidence_type: string | null
+          file_url: string | null
+          id: string
+          integrity_hash: string | null
+          standard_id: string | null
+          title: string
+          verified_by: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          description?: string | null
+          evidence_type?: string | null
+          file_url?: string | null
+          id?: string
+          integrity_hash?: string | null
+          standard_id?: string | null
+          title: string
+          verified_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          description?: string | null
+          evidence_type?: string | null
+          file_url?: string | null
+          id?: string
+          integrity_hash?: string | null
+          standard_id?: string | null
+          title?: string
+          verified_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "compliance_evidence_standard_id_fkey"
+            columns: ["standard_id"]
+            isOneToOne: false
+            referencedRelation: "compliance_standards"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      compliance_incidents: {
+        Row: {
+          closed_at: string | null
+          company_id: string
+          created_at: string | null
+          description: string | null
+          id: string
+          impact_analysis: string | null
+          incident_type: string
+          opened_by: string
+          remediation_plan: string | null
+          severity: string | null
+          status: string | null
+          title: string
+        }
+        Insert: {
+          closed_at?: string | null
+          company_id: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          impact_analysis?: string | null
+          incident_type: string
+          opened_by: string
+          remediation_plan?: string | null
+          severity?: string | null
+          status?: string | null
+          title: string
+        }
+        Update: {
+          closed_at?: string | null
+          company_id?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          impact_analysis?: string | null
+          incident_type?: string
+          opened_by?: string
+          remediation_plan?: string | null
+          severity?: string | null
+          status?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      compliance_retention_policies: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          id: string
+          is_legally_required: boolean | null
+          legal_reference: string | null
+          module: string
+          retention_period_years: number
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          id?: string
+          is_legally_required?: boolean | null
+          legal_reference?: string | null
+          module: string
+          retention_period_years: number
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          id?: string
+          is_legally_required?: boolean | null
+          legal_reference?: string | null
+          module?: string
+          retention_period_years?: number
+        }
+        Relationships: []
+      }
+      compliance_standards: {
+        Row: {
+          company_id: string
+          completion_percentage: number | null
+          created_at: string | null
+          id: string
+          last_audit_at: string | null
+          next_audit_at: string | null
+          standard_name: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id: string
+          completion_percentage?: number | null
+          created_at?: string | null
+          id?: string
+          last_audit_at?: string | null
+          next_audit_at?: string | null
+          standard_name: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string
+          completion_percentage?: number | null
+          created_at?: string | null
+          id?: string
+          last_audit_at?: string | null
+          next_audit_at?: string | null
+          standard_name?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       crea_admin_config: {
         Row: {
           key: string
