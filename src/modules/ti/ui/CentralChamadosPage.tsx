@@ -595,15 +595,32 @@ export default function CentralChamadosPage() {
                     <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest mb-3 flex items-center gap-2">
                       <History className="w-3 h-3 text-blue-600" /> Registro de Atividades
                     </h4>
-                    {/* Aqui entraria um log de mudanças de status se houvesse */}
-                    <div className="space-y-4">
-                      <div className="flex gap-3 items-start">
-                        <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0"></div>
-                        <div>
-                          <p className="text-xs font-bold text-slate-700">Chamado aberto e SLA calculado</p>
-                          <p className="text-[10px] text-slate-400">{format(new Date(selectedTicket.created_at), "HH:mm")}</p>
+                    <div className="space-y-4 max-h-[200px] overflow-y-auto pr-2">
+                      {history.length === 0 ? (
+                        <div className="flex gap-3 items-start">
+                          <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0"></div>
+                          <div>
+                            <p className="text-xs font-bold text-slate-700">Chamado aberto e SLA calculado</p>
+                            <p className="text-[10px] text-slate-400">{format(new Date(selectedTicket.created_at), "HH:mm")}</p>
+                          </div>
                         </div>
-                      </div>
+                      ) : (
+                        history.map((h) => (
+                          <div key={h.id} className="flex gap-3 items-start">
+                            <div className="w-1.5 h-1.5 rounded-full bg-blue-500 mt-1.5 shrink-0"></div>
+                            <div>
+                              <p className="text-xs font-bold text-slate-700">
+                                {h.action === 'status_change' ? (
+                                  <>Alteração de status: <span className="text-blue-600">{getStatusLabel(h.old_value)}</span> → <span className="text-green-600">{getStatusLabel(h.new_value)}</span></>
+                                ) : h.action}
+                              </p>
+                              <p className="text-[10px] text-slate-400">
+                                {format(new Date(h.created_at), "dd/MM HH:mm")} por {h.profiles?.full_name || 'Sistema'}
+                              </p>
+                            </div>
+                          </div>
+                        ))
+                      )}
                     </div>
                   </div>
                 </div>
