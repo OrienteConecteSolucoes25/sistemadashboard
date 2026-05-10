@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useAclModuleOverride } from "@/acl/legacyBridge";
 
-// Considera que o usuário tem acesso ao módulo Engenharia se:
-// - é admin, OU
-// - pertence a pelo menos 1 grupo de visibilidade (qualquer um) — assumimos que
-//   ENG é liberado por grupo. Quando módulos eng_* tiverem flag restricted,
-//   esta lógica pode evoluir. Etapa 1 mantém simples.
+/**
+ * @deprecated Será substituído por `useCan("engenharia.acessar")` na Leva 3.
+ * Hoje funciona como OR: ACL central (nova) OU lógica legada.
+ */
 export function useEngenhariaAccess() {
   const { user, isAdmin, loading } = useAuth();
+  const { allow: aclAllow, ready: aclReady } = useAclModuleOverride("engenharia");
   const [hasAccess, setHasAccess] = useState<boolean>(false);
   const [checking, setChecking] = useState(true);
 
@@ -16,7 +17,7 @@ export function useEngenhariaAccess() {
     let cancel = false;
     if (loading) return;
     if (!user) { setHasAccess(false); setChecking(false); return; }
-    if (isAdmin) { setHasAccess(true); setChecking(false); return; }
+    if (isAdmin || aclAllow) { setHasAccess(true); setChecking(false); return; }
     (async () => {
       const { data } = await supabase
         .from("user_visibility_groups")
@@ -29,7 +30,8 @@ export function useEngenhariaAccess() {
       }
     })();
     return () => { cancel = true; };
-  }, [user, isAdmin, loading]);
+  }, [user, isAdmin, loading, aclAllow]);
 
-  return { hasAccess, checking: checking || loading };
+  return { hasAccess, checking: checking || loading || !aclReady };
 }
+
