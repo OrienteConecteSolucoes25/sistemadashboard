@@ -25,28 +25,63 @@ const variantOf = (room: RoomLite): "meeting" | "engineering" | "legal" | "commo
   return "common";
 };
 
-export const PixelRoom = ({ room, onClick }: Props) => {
+export const PixelRoom = ({ room, onClick, characters = [], meetings }: Props) => {
   const { w, h } = sizeForCapacity(room.capacity);
   const width = w * TILE_SIZE;
   const height = h * TILE_SIZE;
 
+  // Encontra reunião ativa nesta sala
+  const activeMeeting = meetings?.meetings?.find((m: any) => m.room_id === room.id && m.status === "active");
+  const participants = activeMeeting
+    ? characters.filter(c => 
+        activeMeeting.participants?.some((p: any) => p.user_id === c.user_id && p.status === "joined")
+      )
+    : [];
+
   return (
-    <button
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick?.(room);
-      }}
-      className="absolute focus:outline-none"
+    <div
+      className="absolute"
       style={{
         left: room.position_x * TILE_SIZE,
         top: room.position_y * TILE_SIZE,
         width,
         height,
       }}
-      title={room.name}
     >
-      <PixelRoomSprite width={width} height={height} variant={variantOf(room)} label={room.name} />
-    </button>
+      <button
+        type="button"
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick?.(room);
+        }}
+        className="w-full h-full focus:outline-none"
+        title={room.name}
+      >
+        <PixelRoomSprite width={width} height={height} variant={variantOf(room)} label={room.name} />
+      </button>
+
+      {/* Mini cena de reunião */}
+      {participants.length > 0 && (
+        <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
+          <div className="relative w-full h-full">
+            {participants.map((p, i) => {
+              // Posiciona em círculo ao redor do centro
+              const angle = (i / participants.length) * Math.PI * 2;
+              const radius = Math.min(width, height) / 4;
+              const x = width / 2 + Math.cos(angle) * radius - 12;
+              const y = height / 2 + Math.sin(angle) * radius - 16;
+              return (
+                <div key={p.user_id} className="absolute" style={{ left: x, top: y }}>
+                  <AvatarLayeredSprite customization={p.customization} size={24} />
+                </div>
+              );
+            })}
+            <div className="absolute top-1 right-1 bg-red-500 text-white text-[8px] px-1 rounded-sm animate-pulse">
+              EM REUNIÃO
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 };
