@@ -107,6 +107,9 @@ export function useJarbasCore() {
       case "update_step":
         setContext(prev => ({ ...prev, current_step_index: prev.current_step_index + 1 }));
         break;
+      case "automation":
+        await handleAutomation(action.data);
+        break;
       default:
         console.log("Ação não reconhecida:", action);
     }
