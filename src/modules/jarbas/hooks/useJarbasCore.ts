@@ -181,6 +181,16 @@ export function useJarbasCore() {
         await executeAction(action);
       }
 
+      // Governança de IA: Logar ação no OCS Guard
+      await ocsGuard.logAiAction({
+        agent: 'Jarbas OCS',
+        classification: action?.type === 'automation' ? 'operacional' : 'informativa',
+        module: context.current_module,
+        prompt: input,
+        response: text,
+        action: action?.type
+      });
+
       await saveLog(input, text, isVoice);
 
     } catch (error) {
