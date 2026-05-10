@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useJarbasVoice } from "./useJarbasVoice";
 import { jarbasAutomation } from "../core/jarbasAutomation";
 import { jarbasKnowledge } from "../core/jarbasKnowledge";
+import { ocsGuard } from "../../ocs-guard/core/ocsGuardCore";
 import { toast } from "sonner";
 
 export interface JarbasContext {
