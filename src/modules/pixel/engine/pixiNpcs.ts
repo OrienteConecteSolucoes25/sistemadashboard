@@ -1,6 +1,6 @@
 import * as PIXI from 'pixi.js';
 import { pixiApp, PIXI_LAYERS } from './pixiApp';
-import { TILE_SIZE } from '../core/constants';
+import { TILE_SIZE, STAGE_WIDTH_PX } from '../core/constants';
 import { NPCS_CONFIG } from '../data/npcsConfig';
 
 class PixiNpcManager {
@@ -17,9 +17,8 @@ class PixiNpcManager {
         this.npcsMap.set(npc.id, npcContainer);
         container.addChild(npcContainer);
         
-        // Initial position (simplified for now, just placing based on startX %)
-        // In a real grid, NPCs should have specific tile coords in config
-        const startX = Math.floor((npc.startX / 100) * (pixiApp.getApp()?.screen.width || 800) / TILE_SIZE);
+        // Initial position based on startX %
+        const startX = Math.floor((npc.startX / 100) * STAGE_WIDTH_PX / TILE_SIZE);
         const startY = 10; // Fixed row for now
         
         npcContainer.x = startX * TILE_SIZE + TILE_SIZE / 2;
