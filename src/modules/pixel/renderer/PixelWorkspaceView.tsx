@@ -192,7 +192,7 @@ export const PixelWorkspaceView = ({
                   }
                 }}
               >
-                {sortedLayers.find(l => l.type === selectedItem.type && l.data.id === selectedItem.id)?.data.is_locked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                {(sortedLayers.find(l => l.type === selectedItem.type && l.data.id === selectedItem.id)?.data as any).is_locked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
               </Button>
               <Button variant="destructive" size="sm" onClick={() => handleDeleteItem(selectedItem.type, selectedItem.id)}>
                 <Trash2 className="w-4 h-4" />
