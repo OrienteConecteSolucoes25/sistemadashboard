@@ -9861,6 +9861,7 @@ export type Database = {
           updated_at: string
           user_id: string | null
           workspace_id: string
+          z_index: number
         }
         Insert: {
           created_at?: string
@@ -9875,6 +9876,7 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           workspace_id: string
+          z_index?: number
         }
         Update: {
           created_at?: string
@@ -9889,10 +9891,64 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
           workspace_id?: string
+          z_index?: number
         }
         Relationships: [
           {
             foreignKeyName: "pixel_desks_workspace_id_fkey"
+            columns: ["workspace_id"]
+            isOneToOne: false
+            referencedRelation: "pixel_workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pixel_furniture: {
+        Row: {
+          created_at: string
+          furniture_key: string
+          id: string
+          is_active: boolean
+          is_locked: boolean
+          name: string | null
+          position_x: number
+          position_y: number
+          rotation: number
+          updated_at: string
+          workspace_id: string
+          z_index: number
+        }
+        Insert: {
+          created_at?: string
+          furniture_key: string
+          id?: string
+          is_active?: boolean
+          is_locked?: boolean
+          name?: string | null
+          position_x?: number
+          position_y?: number
+          rotation?: number
+          updated_at?: string
+          workspace_id: string
+          z_index?: number
+        }
+        Update: {
+          created_at?: string
+          furniture_key?: string
+          id?: string
+          is_active?: boolean
+          is_locked?: boolean
+          name?: string | null
+          position_x?: number
+          position_y?: number
+          rotation?: number
+          updated_at?: string
+          workspace_id?: string
+          z_index?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pixel_furniture_workspace_id_fkey"
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "pixel_workspaces"
@@ -10231,6 +10287,7 @@ export type Database = {
           room_type: string
           updated_at: string
           workspace_id: string
+          z_index: number
         }
         Insert: {
           capacity?: number
@@ -10244,6 +10301,7 @@ export type Database = {
           room_type?: string
           updated_at?: string
           workspace_id: string
+          z_index?: number
         }
         Update: {
           capacity?: number
@@ -10257,6 +10315,7 @@ export type Database = {
           room_type?: string
           updated_at?: string
           workspace_id?: string
+          z_index?: number
         }
         Relationships: [
           {

@@ -47,6 +47,7 @@ export default function PixelOfficePage() {
     characters,
     desks,
     rooms,
+    furniture,
     refresh,
   } = usePixelWorkspaceData();
 
@@ -207,12 +208,15 @@ export default function PixelOfficePage() {
               characters={characters}
               desks={desks}
               rooms={rooms}
+              furniture={furniture}
               getPosition={(uid, fb) => getPosition(uid, fb)}
               onSelectCharacter={(c) => setSelected({ kind: "character", data: c })}
               onSelectDesk={(d) => setSelected({ kind: "desk", data: d })}
               onStageClick={handleStageClick}
               recentMessages={bubbles}
               meetings={meetings}
+              isAdmin={isAdmin}
+              onRefresh={refresh}
             />
             {/* NPC Diretor OCS dentro do mapa — abre o chat ao ser clicado */}
             <DiretorAgentChat renderTrigger={(open) => <DiretorNpc onClick={open} notifications={directorNotifs} />} />

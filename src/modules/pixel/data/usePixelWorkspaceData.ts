@@ -41,6 +41,7 @@ export interface DeskLite {
   position_x: number;
   position_y: number;
   rotation: number;
+  z_index?: number;
   /** preenchido via join em memória */
   owner_display_name?: string | null;
   owner_status?: string | null;
@@ -57,6 +58,19 @@ export interface RoomLite {
   position_x: number;
   position_y: number;
   capacity: number;
+  z_index?: number;
+}
+
+export interface FurnitureLite {
+  id: string;
+  workspace_id: string;
+  furniture_key: string;
+  name: string | null;
+  position_x: number;
+  position_y: number;
+  rotation: number;
+  z_index: number;
+  is_locked: boolean;
 }
 
 interface UsePixelWorkspaceDataResult {
@@ -67,6 +81,7 @@ interface UsePixelWorkspaceDataResult {
   characters: PixelCharacter[];
   desks: DeskLite[];
   rooms: RoomLite[];
+  furniture: FurnitureLite[];
   refresh: () => void;
 }
 
@@ -84,6 +99,7 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
   const [characters, setCharacters] = useState<PixelCharacter[]>([]);
   const [desks, setDesks] = useState<DeskLite[]>([]);
   const [rooms, setRooms] = useState<RoomLite[]>([]);
+  const [furniture, setFurniture] = useState<FurnitureLite[]>([]);
   const [reloadTick, setReloadTick] = useState(0);
   const refresh = useCallback(() => setReloadTick((n) => n + 1), []);
 
@@ -130,12 +146,13 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
     };
   }, [user, isAdmin]);
 
-  // 2) Quando troca workspace ativo, carrega tudo dele em 3 queries agrupadas
+  // 2) Quando troca workspace ativo, carrega tudo dele em queries agrupadas
   useEffect(() => {
     if (!activeId) {
       setCharacters([]);
       setDesks([]);
       setRooms([]);
+      setFurniture([]);
       return;
     }
     let cancelled = false;
@@ -159,21 +176,30 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
 
       const desksP = supabase
         .from("pixel_desks")
-        .select("id, workspace_id, user_id, desk_name, desk_type, position_x, position_y, rotation")
+        .select("id, workspace_id, user_id, desk_name, desk_type, position_x, position_y, rotation, z_index")
         .eq("workspace_id", activeId)
         .eq("is_active", true);
 
       const roomsP = supabase
         .from("pixel_rooms")
-        .select("id, workspace_id, room_key, name, room_type, position_x, position_y, capacity")
+        .select("id, workspace_id, room_key, name, room_type, position_x, position_y, capacity, z_index")
         .eq("workspace_id", activeId)
         .eq("is_active", true);
 
-      const [profilesR, positionsR, desksR, roomsR] = await Promise.all([
+      // Usando query direta via supabase.from("pixel_furniture") para evitar erros de tipagem
+      // até que o types.ts seja atualizado
+      const furnitureP = supabase
+        .from("pixel_furniture" as any)
+        .select("id, workspace_id, furniture_key, name, position_x, position_y, rotation, z_index, is_locked")
+        .eq("workspace_id", activeId)
+        .eq("is_active", true);
+
+      const [profilesR, positionsR, desksR, roomsR, furnitureR] = await Promise.all([
         profilesP,
         positionsP,
         desksP,
         roomsP,
+        furnitureP,
       ]);
       if (cancelled) return;
 
@@ -208,7 +234,7 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
       // Enriquecer mesas com dados do dono
       const profileMap = new Map<string, any>();
       (profilesR.data ?? []).forEach((p) => profileMap.set(p.user_id, p));
-      const enrichedDesks: DeskLite[] = (desksR.data ?? []).map((d) => {
+      const enrichedDesks: DeskLite[] = (desksR.data ?? []).map((d: any) => {
         const owner = d.user_id ? profileMap.get(d.user_id) : null;
         const ownerPos = d.user_id ? posMap.get(d.user_id) : null;
         return {
@@ -217,10 +243,11 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
           owner_status: owner?.status ?? null,
           owner_is_sitting: ownerPos?.is_sitting ?? null,
           owner_current_action: ownerPos?.current_action ?? null,
-        };
+        } as unknown as DeskLite;
       });
       setDesks(enrichedDesks);
-      setRooms(roomsR.data ?? []);
+      setRooms((roomsR.data ?? []) as unknown as RoomLite[]);
+      setFurniture((furnitureR.data ?? []) as unknown as FurnitureLite[]);
     })();
     return () => {
       cancelled = true;
@@ -237,6 +264,7 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
     characters,
     desks,
     rooms,
+    furniture,
     refresh,
   };
 }
