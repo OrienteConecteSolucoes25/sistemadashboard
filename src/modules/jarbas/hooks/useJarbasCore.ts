@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useJarbasVoice } from "./useJarbasVoice";
+import { jarbasAutomation } from "../core/jarbasAutomation";
 import { toast } from "sonner";
 
 export interface JarbasContext {
@@ -106,10 +107,45 @@ export function useJarbasCore() {
       case "update_step":
         setContext(prev => ({ ...prev, current_step_index: prev.current_step_index + 1 }));
         break;
+      case "automation":
+        await handleAutomation(action.data);
+        break;
       default:
         console.log("Ação não reconhecida:", action);
     }
   }, [navigate]);
+
+  const handleAutomation = useCallback(async (automationData: any) => {
+    const { type, params, requiresConfirmation } = automationData;
+    const automation = await jarbasAutomation.planAutomation(type, params, requiresConfirmation);
+    
+    if (automation.requiresConfirmation) {
+      setChatHistory(prev => [...prev, { 
+        role: 'jarbas', 
+        text: `Entendido. Preciso que confirme a ação: ${type.replace('_', ' ')}. Posso prosseguir?`, 
+        type: 'alert',
+        automationId: automation.id,
+        timestamp: new Date() 
+      }]);
+    } else {
+      toast.success("Ação automatizada iniciada pelo Jarbas.");
+    }
+  }, []);
+
+  const confirmAutomation = useCallback(async (id: string) => {
+    const success = await jarbasAutomation.confirmAutomation(id);
+    if (success) {
+      toast.success("Ação confirmada e executada.");
+      setChatHistory(prev => [...prev, { 
+        role: 'jarbas', 
+        text: "Ação executada com sucesso.", 
+        type: 'success', 
+        timestamp: new Date() 
+      }]);
+    } else {
+      toast.error("Falha ao executar ação.");
+    }
+  }, []);
 
   const processInput = async (input: string, isVoice: boolean = true) => {
     setIsProcessing(true);
@@ -157,6 +193,7 @@ export function useJarbasCore() {
     isSpeaking,
     isSupported,
     processInput,
+    confirmAutomation,
     handleMicClick: async () => {
       if (isSpeaking) {
         stopSpeaking();
