@@ -266,9 +266,9 @@ export const PixelWorkspaceView = ({
             
             const commonStyle: React.CSSProperties = {
               position: 'absolute',
-              left: layer.data.position_x * TILE_SIZE,
-              top: layer.data.position_y * TILE_SIZE,
-              zIndex: layer.z,
+              left: spriteEngine.tileToPixel(layer.data.position_x),
+              top: spriteEngine.tileToPixel(layer.data.position_y),
+              zIndex: spriteEngine.calculateZIndex(layer.data.position_y, layer.z),
               transform: (layer.data as any).rotation ? `rotate(${(layer.data as any).rotation}deg)` : undefined,
               transition: isDragging && isSelected ? 'none' : 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
               outline: isSelected ? '2px solid #0ea5e9' : 'none',
