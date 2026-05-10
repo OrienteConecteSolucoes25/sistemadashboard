@@ -1,32 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from "@/integrations/supabase/client";
 import { 
   ShoppingBag, 
   Search, 
-  Menu, 
-  User, 
   ShoppingCart, 
+  User, 
   Heart, 
   ChevronRight, 
   Star, 
   ArrowRight,
   Filter,
-  Package,
   TrendingUp,
-  Award
+  Package,
+  Award,
+  Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Carousel, 
-  CarouselContent, 
-  CarouselItem, 
-  CarouselNext, 
-  CarouselPrevious 
-} from "@/components/ui/carousel";
 import { 
   Tabs, 
   TabsContent, 
@@ -34,56 +25,29 @@ import {
   TabsTrigger 
 } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
-
-// Categorias estáticas para fallback visual rápido
-const staticCategories = [
-  { name: "Eletrônicos", icon: "📱", slug: "eletronicos" },
-  { name: "Moda", icon: "👕", slug: "moda" },
-  { name: "Casa", icon: "🏠", slug: "casa" },
-  { name: "Esporte", icon: "⚽", slug: "esporte" },
-  { name: "Beleza", icon: "💄", slug: "beleza" },
-  { name: "Livros", icon: "📚", slug: "livros" },
-];
+import { 
+  getMarketplaceProducts, 
+  getMarketplaceCategories, 
+  MarketplaceProduct, 
+  MarketplaceCategory 
+} from "../lib/marketplaceApi";
 
 export default function MarketplaceHome() {
-  const [products, setProducts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [products, setProducts] = useState<MarketplaceProduct[]>([]);
+  const [categories, setCategories] = useState<MarketplaceCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [prodRes, catRes] = await Promise.all([
-          supabase.from('market_products').select('*, market_stores(name)').eq('is_active', true).limit(12),
-          supabase.from('market_categories').select('*').eq('is_active', true)
+        setLoading(true);
+        const [prodData, catData] = await Promise.all([
+          getMarketplaceProducts(12),
+          getMarketplaceCategories()
         ]);
-
-        if (prodRes.data && prodRes.data.length > 0) {
-          setProducts(prodRes.data.map(p => ({
-            id: p.id,
-            name: p.name,
-            price: p.price,
-            rating: 5.0, // Mocked rating as it's not in DB yet
-            reviews: 0,
-            image: p.images?.[0] || "https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&q=80",
-            category: "Geral",
-            store: p.market_stores?.name || "Loja OCS"
-          })));
-        } else {
-          // Fallback para mock se o banco estiver vazio
-          setProducts([
-            { id: 1, name: "Smartphone Galaxy S24 Ultra", price: 6999.00, rating: 4.8, reviews: 124, image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&q=80", category: "Eletrônicos", store: "Tech OCS" },
-            { id: 2, name: "MacBook Air M3", price: 10499.00, rating: 4.9, reviews: 85, image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&q=80", category: "Informática", store: "Apple Official" },
-            { id: 3, name: "Cadeira Gamer Premium", price: 1499.00, rating: 4.6, reviews: 342, image: "https://images.unsplash.com/photo-1598550476439-6847785fce6c?w=400&q=80", category: "Móveis", store: "Móveis & Cia" },
-            { id: 4, name: "Fone Sony WH-1000XM5", price: 2199.00, rating: 4.7, reviews: 210, image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&q=80", category: "Acessórios", store: "Audio Store" },
-          ]);
-        }
-
-        if (catRes.data && catRes.data.length > 0) {
-          setCategories(catRes.data);
-        } else {
-          setCategories(staticCategories);
-        }
+        setProducts(prodData);
+        setCategories(catData);
       } catch (error) {
         console.error("Erro ao carregar marketplace:", error);
       } finally {
@@ -92,6 +56,11 @@ export default function MarketplaceHome() {
     }
     loadData();
   }, []);
+
+  const filteredProducts = products.filter(p => 
+    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header do Marketplace */}
@@ -107,6 +76,8 @@ export default function MarketplaceHome() {
             <Input 
               placeholder="O que você está procurando hoje?" 
               className="w-full pl-10 h-10 bg-slate-100 border-none focus-visible:ring-primary" 
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
             />
           </div>
 
@@ -155,7 +126,7 @@ export default function MarketplaceHome() {
             {categories.map((cat, i) => (
               <motion.button 
                 whileHover={{ y: -5 }}
-                key={i} 
+                key={cat.id || i} 
                 className="bg-white p-4 rounded-xl border hover:shadow-md transition-all flex flex-col items-center gap-3 group"
               >
                 <span className="text-3xl grayscale group-hover:grayscale-0 transition-all">{cat.icon || "📦"}</span>
@@ -180,11 +151,24 @@ export default function MarketplaceHome() {
             </div>
 
             <TabsContent value="destaque" className="mt-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+              {loading ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                  <p className="text-muted-foreground animate-pulse font-medium">Sincronizando catálogo...</p>
+                </div>
+              ) : filteredProducts.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {filteredProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              ) : (
+                <div className="py-20 text-center border-2 border-dashed rounded-xl bg-slate-50/50">
+                  <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <h3 className="text-lg font-semibold text-slate-900">Nenhum produto encontrado</h3>
+                  <p className="text-muted-foreground">Tente buscar por outro termo ou categoria.</p>
+                </div>
+              )}
             </TabsContent>
             
             <TabsContent value="novidades" className="mt-0">
@@ -237,13 +221,17 @@ export default function MarketplaceHome() {
   );
 }
 
-function ProductCard({ product }: { product: any }) {
+function ProductCard({ product }: { product: MarketplaceProduct }) {
+  const price = product.promo_price || product.price;
+  const originalPrice = product.promo_price ? product.price : null;
+  const image = product.images?.[0] || "https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&q=80";
+
   return (
     <Card className="overflow-hidden group border-none shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full bg-white">
       <div className="relative aspect-square overflow-hidden bg-slate-100">
         <motion.img 
           whileHover={{ scale: 1.05 }}
-          src={product.image} 
+          src={image} 
           alt={product.name} 
           className="w-full h-full object-cover transition-transform duration-500" 
         />
@@ -254,27 +242,34 @@ function ProductCard({ product }: { product: any }) {
         >
           <Heart className="w-4 h-4 text-rose-500" />
         </Button>
-        <Badge className="absolute bottom-2 left-2 bg-primary/90 text-white text-[10px] uppercase font-bold tracking-wider">
-          {product.category}
-        </Badge>
+        {originalPrice && (
+          <Badge className="absolute top-2 left-2 bg-red-500 text-white text-[10px] uppercase font-bold tracking-wider">
+            Oferta
+          </Badge>
+        )}
       </div>
       <CardHeader className="p-4 pb-0 flex-1">
         <div className="flex items-center gap-1 mb-2">
            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-           <span className="text-xs font-bold">{product.rating}</span>
-           <span className="text-xs text-muted-foreground">({product.reviews})</span>
+           <span className="text-xs font-bold">5.0</span>
+           <span className="text-xs text-muted-foreground">(0)</span>
         </div>
         <CardTitle className="text-sm font-semibold line-clamp-2 leading-snug group-hover:text-primary transition-colors">
           {product.name}
         </CardTitle>
         <div className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
-          <Package className="w-3 h-3" /> Vendido por <span className="font-medium text-slate-900 underline decoration-slate-300">{product.store}</span>
+          <Package className="w-3 h-3" /> Vendido por <span className="font-medium text-slate-900 underline decoration-slate-300">{product.market_stores?.name || "Loja OCS"}</span>
         </div>
       </CardHeader>
       <CardFooter className="p-4 pt-4 flex flex-col items-stretch gap-3">
-        <div className="flex items-baseline gap-2">
+        <div className="flex flex-col gap-0.5">
+          {originalPrice && (
+            <span className="text-xs text-muted-foreground line-through">
+              {originalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </span>
+          )}
           <span className="text-lg font-bold text-slate-900">
-            {product.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            {price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </span>
         </div>
         <Button className="w-full rounded-lg shadow-none group-hover:bg-primary/90">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   Package, 
@@ -16,7 +16,8 @@ import {
   Plus,
   Filter,
   MoreVertical,
-  ExternalLink
+  ExternalLink,
+  Loader2
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +27,8 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAcl } from "@/acl/AclProvider";
 import MarketplaceHome from "./MarketplaceHome";
+import { getMarketplaceProducts, MarketplaceProduct } from "../lib/marketplaceApi";
+
 
 // Sub-componentes do Marketplace Admin
 const MarketplaceDashboard = () => (
@@ -111,97 +114,143 @@ const MarketplaceDashboard = () => (
   </div>
 );
 
-const ProductsTab = () => (
-  <Card className="border-none shadow-sm">
-    <CardHeader className="pb-0">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input placeholder="Buscar produtos..." className="pl-10 h-10 bg-slate-50 border-none" />
+const ProductsTab = () => {
+  const [products, setProducts] = useState<MarketplaceProduct[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const data = await getMarketplaceProducts(50);
+        setProducts(data);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  return (
+    <Card className="border-none shadow-sm">
+      <CardHeader className="pb-0">
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input placeholder="Buscar produtos..." className="pl-10 h-10 bg-slate-50 border-none" />
+          </div>
+          <div className="flex items-center gap-2">
+            <Button variant="outline" size="sm" className="h-10">
+              <Filter className="w-4 h-4 mr-2" /> Filtros
+            </Button>
+            <Button size="sm" className="h-10 bg-primary hover:bg-primary/90">
+              <Plus className="w-4 h-4 mr-2" /> Novo Produto
+            </Button>
+          </div>
         </div>
-        <div className="flex items-center gap-2">
-          <Button variant="outline" size="sm" className="h-10">
-            <Filter className="w-4 h-4 mr-2" /> Filtros
-          </Button>
-          <Button size="sm" className="h-10 bg-primary hover:bg-primary/90">
-            <Plus className="w-4 h-4 mr-2" /> Novo Produto
-          </Button>
+        <div className="flex items-center gap-4 mt-6 border-b pb-0 overflow-x-auto no-scrollbar">
+          {["Todos", "Ativos", "Inativos", "Sem Estoque"].map((tab, i) => (
+            <button 
+              key={i} 
+              className={`px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${i === 0 ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
+            >
+              {tab}
+            </button>
+          ))}
         </div>
-      </div>
-      <div className="flex items-center gap-4 mt-6 border-b pb-0 overflow-x-auto no-scrollbar">
-        {["Todos", "Ativos", "Inativos", "Sem Estoque"].map((tab, i) => (
-          <button 
-            key={i} 
-            className={`px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors border-b-2 ${i === 0 ? "border-primary text-primary" : "border-transparent text-muted-foreground hover:text-foreground"}`}
-          >
-            {tab}
-          </button>
-        ))}
-      </div>
-    </CardHeader>
-    <CardContent className="p-0">
-      <div className="overflow-x-auto">
-        <table className="w-full text-sm text-left">
-          <thead className="text-xs text-muted-foreground uppercase bg-slate-50/50">
-            <tr>
-              <th className="px-6 py-4 font-medium">Produto</th>
-              <th className="px-6 py-4 font-medium">Categoria</th>
-              <th className="px-6 py-4 font-medium">Preço</th>
-              <th className="px-6 py-4 font-medium">Estoque</th>
-              <th className="px-6 py-4 font-medium">Status</th>
-              <th className="px-6 py-4 font-medium text-right">Ações</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100">
-            {[1, 2, 3, 4, 5].map((_, i) => (
-              <tr key={i} className="hover:bg-slate-50/50 transition-colors">
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 rounded bg-slate-100 overflow-hidden" />
-                    <div>
-                      <p className="font-semibold text-slate-900">Produto Premium {i + 1}</p>
-                      <p className="text-[10px] text-muted-foreground">SKU: PROD-00{i + 1}</p>
-                    </div>
-                  </div>
-                </td>
-                <td className="px-6 py-4 text-muted-foreground">Eletrônicos</td>
-                <td className="px-6 py-4 font-medium">R$ 1.200,00</td>
-                <td className="px-6 py-4">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium">{12 + i}</span>
-                    <Badge variant="outline" className="text-[9px] h-4">Min: 5</Badge>
-                  </div>
-                </td>
-                <td className="px-6 py-4">
-                  <Badge className="bg-green-50 text-green-700 border-none hover:bg-green-100">Ativo</Badge>
-                </td>
-                <td className="px-6 py-4 text-right">
-                  <Button variant="ghost" size="icon" className="h-8 w-8">
-                    <MoreVertical className="w-4 h-4" />
-                  </Button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </CardContent>
-  </Card>
-);
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          {loading ? (
+            <div className="p-20 flex flex-col items-center justify-center gap-4">
+              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">Carregando catálogo...</p>
+            </div>
+          ) : (
+            <table className="w-full text-sm text-left">
+              <thead className="text-xs text-muted-foreground uppercase bg-slate-50/50">
+                <tr>
+                  <th className="px-6 py-4 font-medium">Produto</th>
+                  <th className="px-6 py-4 font-medium">Categoria</th>
+                  <th className="px-6 py-4 font-medium">Preço</th>
+                  <th className="px-6 py-4 font-medium">Estoque</th>
+                  <th className="px-6 py-4 font-medium">Status</th>
+                  <th className="px-6 py-4 font-medium text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {products.length > 0 ? products.map((product) => (
+                  <tr key={product.id} className="hover:bg-slate-50/50 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded bg-slate-100 overflow-hidden">
+                          {product.images?.[0] && <img src={product.images[0]} alt="" className="w-full h-full object-cover" />}
+                        </div>
+                        <div>
+                          <p className="font-semibold text-slate-900">{product.name}</p>
+                          <p className="text-[10px] text-muted-foreground">SKU: {product.sku || 'N/A'}</p>
+                        </div>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4 text-muted-foreground">{product.market_categories?.name || "Geral"}</td>
+                    <td className="px-6 py-4 font-medium">{product.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{product.stock_quantity}</span>
+                        <Badge variant="outline" className="text-[9px] h-4">Min: {product.min_stock_alert}</Badge>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <Badge className={product.is_active ? "bg-green-50 text-green-700 border-none" : "bg-red-50 text-red-700 border-none"}>
+                        {product.is_active ? "Ativo" : "Inativo"}
+                      </Badge>
+                    </td>
+                    <td className="px-6 py-4 text-right">
+                      <Button variant="ghost" size="icon" className="h-8 w-8">
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </td>
+                  </tr>
+                )) : (
+                  <tr>
+                    <td colSpan={6} className="px-6 py-10 text-center text-muted-foreground italic">Nenhum produto cadastrado</td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
 
 export default function MarketplaceAdmin() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showVitrine, setShowVitrine] = useState(false);
   const { can } = useAcl();
+  
+  // Efeito para checar se a URL pede a vitrine
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('view') === 'vitrine') {
+      setShowVitrine(true);
+    }
+  }, []);
 
   if (showVitrine) {
     return (
-      <div className="relative">
+      <div className="fixed inset-0 z-[100] bg-white overflow-y-auto">
         <Button 
           variant="secondary" 
           size="sm" 
-          className="fixed top-4 left-4 z-[60] shadow-lg border bg-white/80 backdrop-blur-md"
-          onClick={() => setShowVitrine(false)}
+          className="fixed top-4 left-4 z-[110] shadow-lg border bg-white/80 backdrop-blur-md"
+          onClick={() => {
+            setShowVitrine(false);
+            // Limpa a URL
+            window.history.replaceState({}, '', window.location.pathname);
+          }}
         >
           <ArrowLeft className="w-4 h-4 mr-2" /> Voltar ao Painel
         </Button>
