@@ -304,6 +304,27 @@ export default function PixelOfficePage() {
                 />
               )}
             />
+
+            <ModuleAgentChat
+              moduleKey="financeiro"
+              agentName="Conselheira Financeira OCS"
+              icon={DollarSign}
+              welcomeMessage="Olá! Sou a **Conselheira Financeira OCS**. Posso te ajudar a gerenciar suas contas, analisar lucros e planejar suas metas, seja você pessoa física ou jurídica. Qual sua dúvida financeira hoje?"
+              renderTrigger={(open) => (
+                <ModuleAgentNpc
+                  name="Conselheira Financeira"
+                  moduleKey="financeiro"
+                  icon={DollarSign}
+                  primaryColor="#3b82f6"
+                  secondaryColor="#1d4ed8"
+                  startX={28}
+                  onClick={() => {
+                    setActiveAgentPanel("financeiro");
+                    open();
+                  }}
+                />
+              )}
+            />
           </div>
 
           {activeAgentPanel === "ocs_guard" && (
