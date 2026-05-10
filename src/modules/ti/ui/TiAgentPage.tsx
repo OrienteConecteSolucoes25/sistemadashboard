@@ -501,6 +501,151 @@ export default function TiAgentPage() {
                 </>
               )}
             </div>
+          ) : (
+            <div className="grid gap-4">
+              {loading ? (
+                <div className="text-center py-20 text-muted-foreground">Carregando chamados...</div>
+              ) : tickets.length === 0 ? (
+                <Card>
+                  <CardContent className="py-20 text-center space-y-4">
+                    <Bot className="w-12 h-12 text-muted-foreground mx-auto opacity-20" />
+                    <p className="text-muted-foreground">Você não possui chamados abertos no momento.</p>
+                    <Button variant="outline" onClick={() => setIsCreating(true)}>Abrir primeiro chamado</Button>
+                  </CardContent>
+                </Card>
+              ) : (
+                <>
+                  {selectedTicket ? (
+                    <div className="space-y-4 animate-in fade-in zoom-in-95">
+                      <Button variant="ghost" size="sm" onClick={() => setSelectedTicket(null)}>
+                        ← Voltar para lista
+                      </Button>
+                      <div className="grid md:grid-cols-3 gap-6">
+                        <div className="md:col-span-2 space-y-4">
+                          <Card>
+                            <CardHeader className="pb-2">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <Badge variant="outline" className="mb-2 uppercase text-[10px]">{selectedTicket.category.replace('_', ' ')}</Badge>
+                                  <CardTitle>{selectedTicket.title}</CardTitle>
+                                  <CardDescription>Aberto em {new Date(selectedTicket.created_at).toLocaleString()}</CardDescription>
+                                </div>
+                                <Badge className={selectedTicket.priority === 'critica' ? 'bg-destructive' : 'bg-primary'}>
+                                  {selectedTicket.priority.toUpperCase()}
+                                </Badge>
+                              </div>
+                            </CardHeader>
+                            <CardContent className="space-y-6">
+                              <div className="p-4 bg-muted/50 rounded-lg text-sm whitespace-pre-wrap">
+                                {selectedTicket.description}
+                              </div>
+                              <div className="space-y-4">
+                                <h3 className="text-sm font-bold flex items-center gap-2">
+                                  <MessageSquare className="w-4 h-4" /> Comentários e Histórico
+                                </h3>
+                                <ScrollArea className="h-[300px] border rounded-md p-4 bg-background">
+                                  <div className="space-y-4">
+                                    {comments.map(comment => (
+                                      <div key={comment.id} className={`p-3 rounded-lg text-sm ${comment.user_id === user?.id ? 'bg-primary/5 ml-8 border border-primary/10' : 'bg-muted mr-8'}`}>
+                                        <div className="flex justify-between items-center mb-1 text-[10px] text-muted-foreground">
+                                          <span className="font-bold">{comment.user_id === user?.id ? 'Você' : 'Técnico'}</span>
+                                          <span>{new Date(comment.created_at).toLocaleString()}</span>
+                                        </div>
+                                        {comment.content}
+                                      </div>
+                                    ))}
+                                    {comments.length === 0 && <p className="text-center text-muted-foreground text-xs py-10">Nenhum comentário ainda.</p>}
+                                  </div>
+                                </ScrollArea>
+                                <div className="flex gap-2">
+                                  <Textarea 
+                                    value={newComment} 
+                                    onChange={e => setNewComment(e.target.value)} 
+                                    placeholder="Adicionar comentário..." 
+                                    className="min-h-[80px]"
+                                  />
+                                </div>
+                                <Button className="w-full" onClick={handleAddComment}>Enviar Comentário</Button>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                        <div className="space-y-4">
+                          <Card>
+                            <CardHeader className="p-4"><CardTitle className="text-sm">Controle Técnico</CardTitle></CardHeader>
+                            <CardContent className="p-4 pt-0 space-y-4">
+                              <div className="space-y-2">
+                                <Label className="text-xs uppercase text-muted-foreground">Status do Chamado</Label>
+                                <Select 
+                                  value={selectedTicket.status} 
+                                  onValueChange={(v: TicketStatus) => updateTicketStatus(selectedTicket.id, v)}
+                                  disabled={!isAdmin}
+                                >
+                                  <SelectTrigger><SelectValue /></SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="aberto">Aberto</SelectItem>
+                                    <SelectItem value="em_analise">Em Análise</SelectItem>
+                                    <SelectItem value="em_execucao">Em Execução</SelectItem>
+                                    <SelectItem value="aguardando_usuario">Aguardando Usuário</SelectItem>
+                                    <SelectItem value="resolvido">Resolvido</SelectItem>
+                                    <SelectItem value="cancelado">Cancelado</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    tickets.map(ticket => (
+                      <Card 
+                        key={ticket.id} 
+                        className="hover:bg-muted/30 transition-colors cursor-pointer group mb-4"
+                        onClick={() => {
+                          setSelectedTicket(ticket);
+                          loadComments(ticket.id);
+                        }}
+                      >
+                        <CardContent className="p-4 flex items-center justify-between gap-4">
+                          <div className="flex items-center gap-4 flex-1">
+                            <div className={`p-2 rounded-full ${
+                              ticket.status === 'resolvido' ? 'bg-green-500/10 text-green-600' :
+                              ticket.status === 'em_analise' ? 'bg-blue-500/10 text-blue-600' :
+                              'bg-amber-500/10 text-amber-600'
+                            }`}>
+                              {ticket.status === 'resolvido' ? <CheckCircle2 className="w-5 h-5" /> : 
+                               ticket.status === 'aberto' ? <AlertCircle className="w-5 h-5" /> : 
+                               <Clock className="w-5 h-5" />}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className="font-bold text-sm truncate">{ticket.title}</span>
+                                <Badge variant="outline" className="text-[10px] uppercase h-4">{ticket.category.replace('_', ' ')}</Badge>
+                              </div>
+                              <p className="text-xs text-muted-foreground line-clamp-1">{ticket.description}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-6 shrink-0">
+                             <div className="text-right hidden sm:block">
+                                <Badge variant="secondary" className="text-[10px]">{ticket.status.replace('_', ' ')}</Badge>
+                             </div>
+                             <Badge className={`text-[10px] ${
+                               ticket.priority === 'critica' ? 'bg-destructive' :
+                               ticket.priority === 'alta' ? 'bg-orange-500' :
+                               'bg-primary'
+                             }`}>{ticket.priority}</Badge>
+                             <div className="text-right text-[10px] text-muted-foreground">
+                                {new Date(ticket.created_at).toLocaleDateString()}
+                             </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </>
+              )}
+            </div>
           )}
         </TabsContent>
 
