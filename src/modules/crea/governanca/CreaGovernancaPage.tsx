@@ -14,6 +14,8 @@ import { SetoresTab } from "./tabs/SetoresTab";
 import { TagsTab } from "./tabs/TagsTab";
 import { EscoposTab } from "./tabs/EscoposTab";
 import { ClassificacaoTab } from "./tabs/ClassificacaoTab";
+import { FinanceiraTab } from "./tabs/FinanceiraTab";
+import { ConciliacaoTab } from "./tabs/ConciliacaoTab";
 
 const Placeholder = ({ title, description }: { title: string; description: string }) => (
   <Card className="card-elegant">
@@ -76,8 +78,10 @@ export default function CreaGovernancaPage() {
         {TABS.map((t) => (
           <TabsContent key={t.value} value={t.value} className="mt-4">
             {t.value === "executiva" ? <VisaoExecutivaTab filters={filters} />
+             : t.value === "financeira" ? <FinanceiraTab filters={filters} />
              : t.value === "tecnica" ? <TecnicaTab filters={filters} />
              : t.value === "importacoes" ? <ImportacoesTab />
+             : t.value === "conciliacao" ? <ConciliacaoTab />
              : t.value === "setores" ? <SetoresTab />
              : t.value === "tags" ? <TagsTab />
              : t.value === "escopos" ? <EscoposTab />

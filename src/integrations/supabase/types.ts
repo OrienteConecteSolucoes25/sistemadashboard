@@ -9311,6 +9311,15 @@ export type Database = {
         Args: { _action: string; _company: string; _uid: string }
         Returns: boolean
       }
+      crea_gov_conciliate_manual: {
+        Args: { _art: string; _motivo: string; _pagamento: string }
+        Returns: Json
+      }
+      crea_gov_conciliate_run: { Args: { _company: string }; Returns: Json }
+      crea_gov_conciliate_unlink: {
+        Args: { _conciliacao: string; _motivo: string }
+        Returns: Json
+      }
       crea_log_audit: {
         Args: {
           _action: string
