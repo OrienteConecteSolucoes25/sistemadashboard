@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   LayoutDashboard, 
   Package, 
@@ -16,7 +16,8 @@ import {
   Plus,
   Filter,
   MoreVertical,
-  ExternalLink
+  ExternalLink,
+  Loader2
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +27,8 @@ import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAcl } from "@/acl/AclProvider";
 import MarketplaceHome from "./MarketplaceHome";
+import { getMarketplaceProducts, MarketplaceProduct } from "../lib/marketplaceApi";
+
 
 // Sub-componentes do Marketplace Admin
 const MarketplaceDashboard = () => (
