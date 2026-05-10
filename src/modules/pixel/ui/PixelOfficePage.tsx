@@ -214,6 +214,60 @@ export default function PixelOfficePage() {
                 />
               )}
             />
+
+            <ModuleAgentChat
+              moduleKey="ocs_guard"
+              agentName="OCS Guard — Segurança"
+              icon={ShieldAlert}
+              welcomeMessage="Olá! Sou o **OCS Guard**. Sou seu agente de cibersegurança e governança digital. Como posso proteger sua empresa hoje?"
+              renderTrigger={(open) => (
+                <ModuleAgentNpc
+                  name="OCS Guard"
+                  moduleKey="ocs_guard"
+                  icon={ShieldAlert}
+                  primaryColor="#ef4444"
+                  secondaryColor="#b91c1c"
+                  startX={80}
+                  onClick={open}
+                />
+              )}
+            />
+
+            <ModuleAgentChat
+              moduleKey="ti"
+              agentName="Agente de TI OCS"
+              icon={Cpu}
+              welcomeMessage="Olá! Sou o **Agente de TI OCS**. Posso te ajudar a abrir chamados, diagnosticar problemas e gerenciar ativos. Qual sua demanda técnica?"
+              renderTrigger={(open) => (
+                <ModuleAgentNpc
+                  name="Agente de TI"
+                  moduleKey="ti"
+                  icon={Cpu}
+                  primaryColor="#4f46e5"
+                  secondaryColor="#3730a3"
+                  startX={10}
+                  onClick={open}
+                />
+              )}
+            />
+
+            <ModuleAgentChat
+              moduleKey="jarbas"
+              agentName="Jarbas OCS"
+              icon={Zap}
+              welcomeMessage="Olá! Sou o **Jarbas OCS**. Estou pronto para orientar suas atividades de campo, ler manuais técnicos e guiar seus procedimentos por voz. O que vamos executar agora?"
+              renderTrigger={(open) => (
+                <ModuleAgentNpc
+                  name="Jarbas OCS"
+                  moduleKey="jarbas"
+                  icon={Zap}
+                  primaryColor="#0ea5e9"
+                  secondaryColor="#0284c7"
+                  startX={90}
+                  onClick={open}
+                />
+              )}
+            />
           </div>
 
           <PixelMeetingsPanel
