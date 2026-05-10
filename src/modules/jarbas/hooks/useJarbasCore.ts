@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useJarbasVoice } from "./useJarbasVoice";
 import { jarbasAutomation } from "../core/jarbasAutomation";
+import { jarbasKnowledge } from "../core/jarbasKnowledge";
 import { toast } from "sonner";
 
 export interface JarbasContext {
@@ -150,6 +151,15 @@ export function useJarbasCore() {
   const processInput = async (input: string, isVoice: boolean = true) => {
     setIsProcessing(true);
     setChatHistory(prev => [...prev, { role: 'user', text: input, timestamp: new Date() }]);
+
+    // Consulta à Base de Conhecimento Local antes da IA
+    const knowledgeResults = jarbasKnowledge.query(input);
+    if (knowledgeResults.length > 0 && input.length > 10) {
+      const entry = knowledgeResults[0];
+      const knowledgeResponse = `[MEMÓRIA OCS] Encontrei uma referência sobre "${entry.title}": ${entry.content}`;
+      setChatHistory(prev => [...prev, { role: 'jarbas', text: knowledgeResponse, type: 'info', timestamp: new Date() }]);
+      if (isVoice) speak(knowledgeResponse);
+    }
 
     try {
       const { data, error } = await supabase.functions.invoke('jarbas-engine', {

@@ -84,6 +84,7 @@ import TiAgentPage from "./modules/ti/ui/TiAgentPage";
 import FinanceiroDashboard from "./modules/financeiro/ui/FinanceiroDashboard";
 import MarketplaceAdmin from "./modules/marketplace/ui/MarketplaceAdmin";
 import { JarbasCentralDashboard } from "./modules/jarbas/ui/JarbasCentralDashboard";
+import { JarbasKnowledgePage } from "./modules/jarbas/ui/JarbasKnowledgePage";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -214,6 +215,7 @@ const App = () => (
               <Route path="marketplace" element={<MarketplaceAdmin />} />
               <Route path="adm" element={<Adm />} />
               <Route path="jarbas" element={<JarbasCentralDashboard />} />
+              <Route path="jarbas/knowledge" element={<JarbasKnowledgePage />} />
                <Route path="aparencia" element={<ThemeStudioPage />} />
               <Route path="design-system" element={<ThemeStudioPage />} />
             </Route>

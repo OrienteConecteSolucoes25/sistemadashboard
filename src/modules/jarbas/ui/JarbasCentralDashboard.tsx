@@ -7,12 +7,14 @@ import {
   ShieldAlert,
   Zap,
   LayoutDashboard,
-  MessageSquareCode
+  MessageSquareCode,
+  BookOpen
 } from "lucide-react";
 import { jarbasCore } from "../core/jarbasCore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { Link } from "react-router-dom";
 import { useJarbasDashboard } from "../hooks/useJarbasDashboard";
 
 export const JarbasCentralDashboard = () => {
@@ -32,7 +34,10 @@ export const JarbasCentralDashboard = () => {
             <p className="text-[10px] text-cyan-400/60 font-bold uppercase tracking-[0.2em]">Consciência Operacional Global Ativa</p>
           </div>
         </div>
-        <div className="flex gap-6">
+        <div className="flex gap-6 items-center">
+          <Link to="/app/jarbas/knowledge" className="text-[10px] text-cyan-400 border border-cyan-500/30 px-3 py-1 rounded hover:bg-cyan-500/10 transition-colors uppercase font-bold flex items-center gap-2">
+            <BookOpen className="w-3 h-3" /> Base de Conhecimento
+          </Link>
           <div className="text-right">
             <div className="text-[10px] uppercase opacity-50">Health Score</div>
             <div className="text-2xl font-bold">{status.healthScore}%</div>
