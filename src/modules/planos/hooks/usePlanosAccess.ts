@@ -39,9 +39,13 @@ export function usePlanosAccess() {
   }, [user, loading]);
 
   // OCS staff = admin/financeiro_ocs sem vínculo a empresa cliente
-  const isOcsStaff = isFinanceiro && !companyId;
-  // Acesso à página "Minha Empresa": apenas admin OCS, financeiro, ou RH/DP role
-  const canSeeMinhaEmpresa = !!companyId && (isAdmin || isFinanceiro || hasRhDpRole || isCompanyAdmin);
+  // OU equipe interna OCS conforme ACL central (acl_internal_staff)
+  const isOcsStaff = isInternalOcs || (isFinanceiro && !companyId);
+  // Acesso à página "Minha Empresa": admin/financeiro/RH-DP/company admin
+  // OU permissão central `planos.acessar`
+  const canSeeMinhaEmpresa =
+    !!companyId &&
+    (isAdmin || isFinanceiro || hasRhDpRole || isCompanyAdmin || can("planos.acessar"));
 
   return { isAdmin, isFinanceiro, isCompanyAdmin, hasRhDpRole, companyId, isOcsStaff, canSeeMinhaEmpresa, checking };
 }
