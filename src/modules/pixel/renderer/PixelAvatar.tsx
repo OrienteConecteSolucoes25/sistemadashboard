@@ -28,48 +28,58 @@ export const PixelAvatar = ({ character, posX, posY, onClick }: Props) => {
   const grayscale = !character.is_online || status === "offline";
 
   return (
-    <button
-      type="button"
-      onClick={(e) => {
-        e.stopPropagation();
-        onClick?.(character);
-      }}
-      className="absolute group focus:outline-none rounded-md"
-      style={{
-        left,
-        top,
-        width: AVATAR_SIZE,
-        height: AVATAR_SIZE,
-        transition: "transform 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), top 600ms cubic-bezier(0.4, 0, 0.2, 1)",
-        willChange: "left, top",
-      }}
-      aria-label={`Personagem ${character.display_name ?? ""}`}
-    >
-      <div className="relative w-full h-full">
-        <AvatarLayeredSprite customization={character.customization} size={AVATAR_SIZE} faded={faded} grayscale={grayscale} />
+    <TooltipProvider delayDuration={100}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onClick?.(character);
+            }}
+            className="absolute group focus:outline-none rounded-md"
+            style={{
+              left,
+              top,
+              width: AVATAR_SIZE,
+              height: AVATAR_SIZE,
+              transition: "transform 600ms cubic-bezier(0.4, 0, 0.2, 1), left 600ms cubic-bezier(0.4, 0, 0.2, 1), top 600ms cubic-bezier(0.4, 0, 0.2, 1)",
+              willChange: "left, top",
+            }}
+            aria-label={`Personagem ${character.display_name ?? ""}`}
+          >
+            <div className="relative w-full h-full">
+              <AvatarLayeredSprite customization={character.customization} size={AVATAR_SIZE} faded={faded} grayscale={grayscale} />
 
-        {/* Indicador de status discreto */}
-        <span className="absolute -top-1 -right-1">
-          <PixelStatusBadge status={character.is_online ? status : "offline"} />
-        </span>
-      </div>
+              {/* Indicador de status discreto */}
+              <span className="absolute -top-1 -right-1">
+                <PixelStatusBadge status={character.is_online ? status : "offline"} />
+              </span>
+            </div>
 
-      {/* Etiqueta de nome — sempre visível e elegante */}
-      <div
-        className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold px-2 py-0.5 rounded-full pointer-events-none shadow-sm"
-        style={{
-          background: "rgba(15, 12, 25, 0.8)",
-          color: "#fff",
-          border: `1px solid ${palette.badge}`,
-        }}
-      >
-        {character.display_name ?? "—"}
-      </div>
-
-      {/* Tooltip detalhado no hover */}
-      <div className="absolute -bottom-12 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] px-2 py-0.5 rounded-md bg-background/95 border opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
-        {STATUS_LABEL[status]}
-      </div>
-    </button>
+            {/* Etiqueta de nome — sempre visível e elegante */}
+            <div
+              className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold px-2 py-0.5 rounded-full pointer-events-none shadow-sm"
+              style={{
+                background: "rgba(15, 12, 25, 0.8)",
+                color: "#fff",
+                border: `1px solid ${palette.badge}`,
+              }}
+            >
+              {character.display_name ?? "—"}
+            </div>
+          </button>
+        </TooltipTrigger>
+        <TooltipContent side="top" className="text-xs">
+          <div className="font-bold">{character.display_name}</div>
+          <div className="opacity-80">{STATUS_LABEL[character.is_online ? status : "offline"]}</div>
+          {character.is_online ? (
+            <div className="text-[10px] text-green-500 font-mono mt-1">● ONLINE</div>
+          ) : (
+            <div className="text-[10px] text-muted-foreground font-mono mt-1">OFFLINE</div>
+          )}
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
   );
 };
