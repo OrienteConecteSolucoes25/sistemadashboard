@@ -81,6 +81,7 @@ import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
 import { GovernanceUniversalPage } from "./modules/governance/ui/GovernanceUniversalPage";
 import OcsGuardPage from "./modules/ocs-guard/ui/OcsGuardPage";
 import TiAgentPage from "./modules/ti/ui/TiAgentPage";
+import FinanceiroDashboard from "./modules/financeiro/ui/FinanceiroDashboard";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
