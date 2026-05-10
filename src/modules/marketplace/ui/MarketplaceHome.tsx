@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { supabase } from "@/integrations/supabase/client";
 import { 
   ShoppingBag, 
   Search, 
@@ -34,24 +35,63 @@ import {
 } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 
-// Mock para demonstração inicial
-const featuredProducts = [
-  { id: 1, name: "Smartphone Galaxy S24 Ultra", price: 6999.00, rating: 4.8, reviews: 124, image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&q=80", category: "Eletrônicos", store: "Tech OCS" },
-  { id: 2, name: "MacBook Air M3", price: 10499.00, rating: 4.9, reviews: 85, image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&q=80", category: "Informática", store: "Apple Official" },
-  { id: 3, name: "Cadeira Gamer Premium", price: 1499.00, rating: 4.6, reviews: 342, image: "https://images.unsplash.com/photo-1598550476439-6847785fce6c?w=400&q=80", category: "Móveis", store: "Móveis & Cia" },
-  { id: 4, name: "Fone Sony WH-1000XM5", price: 2199.00, rating: 4.7, reviews: 210, image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&q=80", category: "Acessórios", store: "Audio Store" },
-];
-
-const categories = [
-  { name: "Eletrônicos", icon: "📱" },
-  { name: "Moda", icon: "👕" },
-  { name: "Casa", icon: "🏠" },
-  { name: "Esporte", icon: "⚽" },
-  { name: "Beleza", icon: "💄" },
-  { name: "Livros", icon: "📚" },
+// Categorias estáticas para fallback visual rápido
+const staticCategories = [
+  { name: "Eletrônicos", icon: "📱", slug: "eletronicos" },
+  { name: "Moda", icon: "👕", slug: "moda" },
+  { name: "Casa", icon: "🏠", slug: "casa" },
+  { name: "Esporte", icon: "⚽", slug: "esporte" },
+  { name: "Beleza", icon: "💄", slug: "beleza" },
+  { name: "Livros", icon: "📚", slug: "livros" },
 ];
 
 export default function MarketplaceHome() {
+  const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadData() {
+      try {
+        const [prodRes, catRes] = await Promise.all([
+          supabase.from('market_products').select('*, market_stores(name)').eq('is_active', true).limit(12),
+          supabase.from('market_categories').select('*').eq('is_active', true)
+        ]);
+
+        if (prodRes.data && prodRes.data.length > 0) {
+          setProducts(prodRes.data.map(p => ({
+            id: p.id,
+            name: p.name,
+            price: p.price,
+            rating: 5.0, // Mocked rating as it's not in DB yet
+            reviews: 0,
+            image: p.images?.[0] || "https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&q=80",
+            category: "Geral",
+            store: p.market_stores?.name || "Loja OCS"
+          })));
+        } else {
+          // Fallback para mock se o banco estiver vazio
+          setProducts([
+            { id: 1, name: "Smartphone Galaxy S24 Ultra", price: 6999.00, rating: 4.8, reviews: 124, image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&q=80", category: "Eletrônicos", store: "Tech OCS" },
+            { id: 2, name: "MacBook Air M3", price: 10499.00, rating: 4.9, reviews: 85, image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&q=80", category: "Informática", store: "Apple Official" },
+            { id: 3, name: "Cadeira Gamer Premium", price: 1499.00, rating: 4.6, reviews: 342, image: "https://images.unsplash.com/photo-1598550476439-6847785fce6c?w=400&q=80", category: "Móveis", store: "Móveis & Cia" },
+            { id: 4, name: "Fone Sony WH-1000XM5", price: 2199.00, rating: 4.7, reviews: 210, image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&q=80", category: "Acessórios", store: "Audio Store" },
+          ]);
+        }
+
+        if (catRes.data && catRes.data.length > 0) {
+          setCategories(catRes.data);
+        } else {
+          setCategories(staticCategories);
+        }
+      } catch (error) {
+        console.error("Erro ao carregar marketplace:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadData();
+  }, []);
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header do Marketplace */}
@@ -118,7 +158,7 @@ export default function MarketplaceHome() {
                 key={i} 
                 className="bg-white p-4 rounded-xl border hover:shadow-md transition-all flex flex-col items-center gap-3 group"
               >
-                <span className="text-3xl grayscale group-hover:grayscale-0 transition-all">{cat.icon}</span>
+                <span className="text-3xl grayscale group-hover:grayscale-0 transition-all">{cat.icon || "📦"}</span>
                 <span className="text-sm font-medium">{cat.name}</span>
               </motion.button>
             ))}
@@ -141,7 +181,7 @@ export default function MarketplaceHome() {
 
             <TabsContent value="destaque" className="mt-0">
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {featuredProducts.map((product) => (
+                {products.map((product) => (
                   <ProductCard key={product.id} product={product} />
                 ))}
               </div>
