@@ -117,5 +117,6 @@ export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage }: P
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
+    </div>
   );
 };
