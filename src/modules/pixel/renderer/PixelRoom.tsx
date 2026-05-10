@@ -1,3 +1,4 @@
+import React, { memo, useMemo } from "react";
 import { TILE_SIZE } from "../core/constants";
 import { PixelRoomSprite } from "./PixelRoomSprite";
 import { AvatarLayeredSprite } from "./AvatarLayeredSprite";
