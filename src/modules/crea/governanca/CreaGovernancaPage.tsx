@@ -7,6 +7,9 @@ import {
 } from "lucide-react";
 import { GovArtFilterBar } from "./GovArtFilterBar";
 import { GovFilters } from "./lib/govTypes";
+import { VisaoExecutivaTab } from "./tabs/VisaoExecutivaTab";
+import { TecnicaTab } from "./tabs/TecnicaTab";
+import { ImportacoesTab } from "./tabs/ImportacoesTab";
 
 const Placeholder = ({ title, description }: { title: string; description: string }) => (
   <Card className="card-elegant">
