@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { Plus, Trash2, Copy } from "lucide-react";
 import CompanyPermissionsMatrix from "@/modules/planos/ui/CompanyPermissionsMatrix";
 import { usePlanosAccess } from "@/modules/planos/hooks/usePlanosAccess";
+import { useCan } from "@/acl/AclProvider";
 
 type Group = { id: string; name: string; color: string; description: string | null };
 type Profile = { id: string; email: string | null; full_name: string | null };
@@ -24,9 +25,11 @@ type ModuleSetting = { module_key: string; module_label: string; restricted: boo
 const Adm = () => {
   const { isAdmin, loading } = useAuth();
   const { isOcsStaff, checking } = usePlanosAccess();
+  // Leva 3: aceita também via ACL central
+  const canAdmVis = useCan("adm.visibilidade.visualizar");
   if (loading || checking) return null;
-  // Apenas equipe OCS (admin/financeiro_ocs sem vínculo a empresa cliente) acessa
-  if (!isAdmin || !isOcsStaff) return <Navigate to="/app" replace />;
+  // Equipe OCS (legado) OU usuário com permissão ACL central
+  if (!(isOcsStaff || canAdmVis) && !isAdmin) return <Navigate to="/app" replace />;
   return (
     <div className="space-y-4">
       <div>

@@ -15,15 +15,20 @@ import { ImpersonationProvider } from "@/modules/planos/hooks/useImpersonation";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { useUserLayoutPreference } from "@/modules/aparencia/hooks/useUserLayoutPreference";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { useCan } from "@/acl/AclProvider";
 
 const AppLayout = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
+  // Leva 3: ACL central como autoridade primária; legado fica como OR para retrocompatibilidade.
   const { hasAccess: engAccess } = useEngenhariaAccess();
   const { hasAccess: jurAccess } = useJuridicoAccess();
   const { isFinanceiro, isCompanyAdmin, companyId, isOcsStaff, canSeeMinhaEmpresa } = usePlanosAccess();
   const { hasAccess: rhdpAccess } = useRhdpAccess();
   const { hasAccess: creaAccess } = useCreaAccess();
   const { hasAccess: commAccess } = useComunicacaoAccess();
+  const canAparencia = useCan("aparencia.acessar");
+  const canPlanos = useCan("planos.acessar");
+  const canAdmVis = useCan("adm.visibilidade.visualizar");
   const loc = useLocation();
   const [open, setOpen] = useState(false);
   const { collapsed, setCollapsed } = useUserLayoutPreference("__root__");
@@ -88,11 +93,11 @@ const AppLayout = () => {
       {rhdpAccess && <NavItem to="/app/rh-dp" icon={HeartHandshake} label="RH/DP" />}
       {creaAccess && <NavItem to="/app/crea" icon={FileSignature} label="CREA & ART" />}
       {commAccess && <NavItem to="/app/comunicacao" icon={MessageSquare} label="Comunicação OCS" />}
-      {isFinanceiro && <NavItem to="/app/planos" icon={CreditCard} label="Planos" />}
+      {(isFinanceiro || canPlanos) && <NavItem to="/app/planos" icon={CreditCard} label="Planos" />}
       {canSeeMinhaEmpresa && <NavItem to="/app/minha-empresa" icon={Building2} label="Minha Empresa" />}
-      {isAdmin && <NavItem to="/app/aparencia" icon={Palette} label="Aparência & Marca" />}
+      {(isAdmin || canAparencia) && <NavItem to="/app/aparencia" icon={Palette} label="Aparência & Marca" />}
       {isOcsStaff && <NavItem to="/app/pixel-office/admin" icon={Shield} label="Pixel Admin" />}
-      {isOcsStaff && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
+      {(isOcsStaff || canAdmVis) && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
       <div className="mt-auto pt-4 border-t">
         {!collapsed && (
           <>
