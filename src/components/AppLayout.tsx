@@ -162,7 +162,6 @@ const AppLayout = () => {
         </div>
       </main>
       <AssistenteFloating />
-      <JarbasInterface />
     </div>
     </ImpersonationProvider>
   );
