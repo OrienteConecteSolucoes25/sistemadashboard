@@ -132,3 +132,90 @@ export function sumBy<T>(arr: T[], key: (x: T) => string, val: (x: T) => number)
   }
   return Array.from(m, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
 }
+
+// ---------- Pagamentos / Conciliação ----------
+export type GovPagamento = {
+  id: string;
+  uf: string | null;
+  numero_boleto: string | null;
+  valor: number | null;
+  data_pagamento: string | null;
+  data_vencimento: string | null;
+  sacado: string | null;
+  conciliado_art_id: string | null;
+  status: string;
+};
+
+export async function fetchPagamentos(companyId: string, status?: string): Promise<GovPagamento[]> {
+  let q = supabase
+    .from("crea_gov_pagamentos")
+    .select("id,uf,numero_boleto,valor,data_pagamento,data_vencimento,sacado,conciliado_art_id,status")
+    .eq("company_id", companyId)
+    .eq("is_deleted", false)
+    .order("data_pagamento", { ascending: false, nullsFirst: false })
+    .limit(2000);
+  if (status) q = q.eq("status", status);
+  const { data, error } = await q;
+  if (error) throw error;
+  return (data ?? []) as GovPagamento[];
+}
+
+export type GovConciliacao = {
+  id: string;
+  art_id: string | null;
+  pagamento_id: string | null;
+  origem: string;
+  score: number | null;
+  motivo: string | null;
+  status: string;
+  created_at: string;
+  art?: { numero: string; uf: string | null; valor_taxa: number | null } | null;
+  pagamento?: { numero_boleto: string | null; valor: number | null; sacado: string | null; data_pagamento: string | null } | null;
+};
+
+export async function fetchConciliacoes(companyId: string, status?: string): Promise<GovConciliacao[]> {
+  let q = supabase
+    .from("crea_gov_conciliacoes")
+    .select("id,art_id,pagamento_id,origem,score,motivo,status,created_at,art:art_id(numero,uf,valor_taxa),pagamento:pagamento_id(numero_boleto,valor,sacado,data_pagamento)")
+    .eq("company_id", companyId)
+    .order("created_at", { ascending: false })
+    .limit(2000);
+  if (status) q = q.eq("status", status);
+  const { data, error } = await q;
+  if (error) throw error;
+  return (data ?? []) as any as GovConciliacao[];
+}
+
+export async function runAutoConciliacao(companyId: string) {
+  const { data, error } = await supabase.rpc("crea_gov_conciliate_run" as any, { _company: companyId });
+  if (error) throw error;
+  return data as { ok: boolean; matched?: number; divergent?: number; fallback?: number; error?: string };
+}
+
+export async function manualConciliar(pagamentoId: string, artId: string, motivo: string) {
+  const { data, error } = await supabase.rpc("crea_gov_conciliate_manual" as any, {
+    _pagamento: pagamentoId, _art: artId, _motivo: motivo,
+  });
+  if (error) throw error;
+  return data as { ok: boolean; status?: string; error?: string };
+}
+
+export async function unlinkConciliacao(conciliacaoId: string, motivo: string) {
+  const { data, error } = await supabase.rpc("crea_gov_conciliate_unlink" as any, {
+    _conciliacao: conciliacaoId, _motivo: motivo,
+  });
+  if (error) throw error;
+  return data as { ok: boolean; error?: string };
+}
+
+export async function searchArtsByNumero(companyId: string, query: string, limit = 20): Promise<GovArt[]> {
+  const { data, error } = await supabase
+    .from("crea_gov_arts")
+    .select("id,numero,uf,tipo,natureza,cidade,uf_obra,endereco,observacao,proprietario,contratante_id,rt_id,empresa_id,valor_taxa,valor_pago,valor_contrato,data_cadastro,data_pagamento,data_vencimento,data_baixa,ano,mes,status_analise,status_baixa,status_financeiro,boleto_numero,centro_custo")
+    .eq("company_id", companyId)
+    .eq("is_deleted", false)
+    .ilike("numero", `%${query}%`)
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []) as GovArt[];
+}
