@@ -89,6 +89,11 @@ export default function CreaGovernancaPage() {
              : t.value === "tags" ? <TagsTab />
              : t.value === "escopos" ? <EscoposTab />
              : t.value === "classificacao" ? <ClassificacaoTab />
+             : t.value === "auditoria" ? <AuditoriaTab filters={filters} />
+             : t.value === "alertas" ? <AlertasTab />
+             : t.value === "empresas" ? <EmpresasPanel filters={filters} />
+             : t.value === "rts" ? <RtsPanel filters={filters} />
+             : t.value === "clientes" ? <ClientesPanel filters={filters} />
              : <Placeholder title={t.label} description={t.desc} />}
           </TabsContent>
         ))}
