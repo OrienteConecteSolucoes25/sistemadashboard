@@ -17,10 +17,23 @@ interface Props {
 
 const AVATAR_SIZE = 56;
 
-export const PixelAvatar = ({ character, posX, posY, onClick }: Props) => {
+export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage }: Props) => {
   const status = (character.status as PixelStatus) ?? "offline";
   const x = posX ?? character.position_x;
   const y = posY ?? character.position_y;
+  
+  // Track direction
+  const [direction, setDirection] = useState<"left" | "right">("right");
+  const prevX = useRef(x);
+
+  useEffect(() => {
+    if (x > prevX.current) setDirection("right");
+    else if (x < prevX.current) setDirection("left");
+    prevX.current = x;
+  }, [x]);
+
+  const isWalking = character.current_action === "walking";
+
   // Centraliza o sprite no tile clicado
   const left = x * TILE_SIZE + TILE_SIZE / 2 - AVATAR_SIZE / 2;
   const top = y * TILE_SIZE + TILE_SIZE - AVATAR_SIZE; // pés no chão do tile
