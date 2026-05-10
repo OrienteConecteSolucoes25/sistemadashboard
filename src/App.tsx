@@ -79,6 +79,7 @@ import { CompanyThemeProvider } from "./modules/aparencia/hooks/CompanyThemeProv
 import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
 import { GovernanceUniversalPage } from "./modules/governance/ui/GovernanceUniversalPage";
 import OcsGuardPage from "./modules/ocs-guard/ui/OcsGuardPage";
+import TiAgentPage from "./modules/ti/ui/TiAgentPage";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -208,6 +209,7 @@ const App = () => (
               <Route path="visao-geral" element={<VisaoGeralPage />} />
               <Route path="adm" element={<Adm />} />
                <Route path="ocs-guard" element={<OcsGuardPage />} />
+               <Route path="ti" element={<TiAgentPage />} />
                <Route path="aparencia" element={<ThemeStudioPage />} />
               <Route path="design-system" element={<ThemeStudioPage />} />
             </Route>

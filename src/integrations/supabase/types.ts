@@ -9608,6 +9608,156 @@ export type Database = {
         }
         Relationships: []
       }
+      ti_access_requests: {
+        Row: {
+          action_type: string
+          approved_at: string | null
+          approved_by: string | null
+          company_id: string
+          created_at: string
+          id: string
+          module_key: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          approved_at?: string | null
+          approved_by?: string | null
+          company_id: string
+          created_at?: string
+          id?: string
+          module_key: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          approved_at?: string | null
+          approved_by?: string | null
+          company_id?: string
+          created_at?: string
+          id?: string
+          module_key?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      ti_assets: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          name: string
+          serial_number: string | null
+          specification: Json | null
+          status: string
+          type: string
+          user_id: string | null
+          warranty_until: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          name: string
+          serial_number?: string | null
+          specification?: Json | null
+          status?: string
+          type: string
+          user_id?: string | null
+          warranty_until?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          name?: string
+          serial_number?: string | null
+          specification?: Json | null
+          status?: string
+          type?: string
+          user_id?: string | null
+          warranty_until?: string | null
+        }
+        Relationships: []
+      }
+      ti_knowledge_base: {
+        Row: {
+          category: string
+          content: string
+          created_at: string
+          id: string
+          tags: string[] | null
+          title: string
+        }
+        Insert: {
+          category: string
+          content: string
+          created_at?: string
+          id?: string
+          tags?: string[] | null
+          title: string
+        }
+        Update: {
+          category?: string
+          content?: string
+          created_at?: string
+          id?: string
+          tags?: string[] | null
+          title?: string
+        }
+        Relationships: []
+      }
+      ti_tickets: {
+        Row: {
+          assigned_to: string | null
+          category: string
+          company_id: string | null
+          created_at: string
+          description: string
+          diagnostic_info: Json | null
+          id: string
+          priority: string
+          resolved_at: string | null
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          category: string
+          company_id?: string | null
+          created_at?: string
+          description: string
+          diagnostic_info?: Json | null
+          id?: string
+          priority: string
+          resolved_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string
+          company_id?: string | null
+          created_at?: string
+          description?: string
+          diagnostic_info?: Json | null
+          id?: string
+          priority?: string
+          resolved_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_chart_preferences: {
         Row: {
           company_id: string
