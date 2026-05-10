@@ -8,10 +8,13 @@ import {
   Cpu, 
   FileText, 
   CheckCircle2, 
-  AlertCircle 
+  AlertCircle,
+  Eye,
+  Rocket,
+  Presentation
 } from "lucide-react";
 
-export type ModuleType = "engineering" | "legal" | "hr" | "finance" | "ti" | "reception";
+export type ModuleType = "engineering" | "legal" | "hr" | "finance" | "ti" | "reception" | "showroom" | "project_view";
 
 interface Props {
   type: ModuleType;
@@ -81,10 +84,43 @@ export const PixelModuleDashboard = ({ type, x, y }: Props) => {
             { label: "Uptime Infra", value: "99.9%" },
           ]
         };
+      case "showroom":
+        return {
+          icon: <Rocket className="w-3 h-3 text-indigo-400" />,
+          title: "Showroom OCS",
+          color: "border-indigo-500/30",
+          bg: "bg-indigo-950/80",
+          stats: [
+            { label: "Módulos Ativos", value: "15" },
+            { label: "Casos de Sucesso", value: "24" },
+          ]
+        };
+      case "project_view":
+        return {
+          icon: <Presentation className="w-3 h-3 text-sky-400" />,
+          title: "Área do Cliente",
+          color: "border-sky-500/30",
+          bg: "bg-sky-950/80",
+          stats: [
+            { label: "Progresso Real", value: "85%" },
+            { label: "Arquivos Novos", value: "12" },
+          ]
+        };
+      case "reception":
+        return {
+          icon: <Users className="w-3 h-3 text-slate-400" />,
+          title: "Recepção",
+          color: "border-slate-500/30",
+          bg: "bg-slate-900/80",
+          stats: [
+            { label: "Visitantes Hoje", value: "5" },
+            { label: "Check-ins", value: "3" },
+          ]
+        };
       default:
         return {
           icon: <FileText className="w-3 h-3 text-slate-400" />,
-          title: "Recepção",
+          title: "Geral",
           color: "border-slate-500/30",
           bg: "bg-slate-900/80",
           stats: [

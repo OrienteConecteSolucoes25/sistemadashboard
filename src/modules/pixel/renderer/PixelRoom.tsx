@@ -20,11 +20,17 @@ const sizeForCapacity = (cap: number) => {
 const variantOf = (room: RoomLite): ModuleType | "common" => {
   const t = (room.room_type ?? "").toLowerCase();
   const k = (room.room_key ?? "").toLowerCase();
-  if (t.includes("meeting") || k.includes("meeting")) return "finance"; // Financeiro cuida das reuniões importantes
-  if (k.includes("engen") || k.includes("engineer")) return "engineering";
-  if (k.includes("jurid") || k.includes("legal")) return "legal";
-  if (k.includes("ti") || k.includes("tech") || k.includes("support")) return "ti";
-  if (k.includes("rh") || k.includes("people") || k.includes("dp")) return "hr";
+  const n = (room.name ?? "").toLowerCase();
+  
+  if (t.includes("meeting") || k.includes("meeting")) return "finance"; 
+  if (k.includes("engen") || k.includes("engineer") || n.includes("engenharia")) return "engineering";
+  if (k.includes("jurid") || k.includes("legal") || n.includes("jurídico")) return "legal";
+  if (k.includes("ti") || k.includes("tech") || k.includes("support") || n.includes("ti")) return "ti";
+  if (k.includes("rh") || k.includes("people") || k.includes("dp") || n.includes("rh")) return "hr";
+  if (k.includes("reception") || k.includes("lobby") || n.includes("recepção") || n.includes("lobby")) return "reception";
+  if (k.includes("showroom") || n.includes("showroom") || n.includes("vitrine")) return "showroom";
+  if (k.includes("project") || n.includes("projeto") || n.includes("acompanhamento")) return "project_view";
+  
   return "common";
 };
 
@@ -64,7 +70,7 @@ export const PixelRoom = ({ room, onClick, characters = [], meetings }: Props) =
 
       {/* Dashboard Flutuante do Módulo */}
       {variant !== "common" && (
-        <PixelModuleDashboard type={variant as ModuleType} x={width - 20} y={-40} />
+        <PixelModuleDashboard type={variant as ModuleType} x={width - 20} y={-50} />
       )}
 
       {/* Mini cena de reunião */}
