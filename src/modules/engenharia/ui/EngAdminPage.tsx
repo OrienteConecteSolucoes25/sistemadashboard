@@ -47,7 +47,7 @@ export default function EngAdminPage() {
         <TabsList className="flex-wrap h-auto">
           <TabsTrigger value="visao"><Activity className="w-4 h-4 mr-1" /> Visão geral</TabsTrigger>
           <TabsTrigger value="usuarios"><Users className="w-4 h-4 mr-1" /> Usuários & Papéis</TabsTrigger>
-          <TabsTrigger value="permissoes"><ListChecks className="w-4 h-4 mr-1" /> Permissões por módulo</TabsTrigger>
+          {/* Permissões removidas em favor do ACL central */}
           <TabsTrigger value="seguranca"><KeyRound className="w-4 h-4 mr-1" /> Segurança</TabsTrigger>
           <TabsTrigger value="sync"><Database className="w-4 h-4 mr-1" /> Sincronizações</TabsTrigger>
           <TabsTrigger value="auditoria"><ShieldAlert className="w-4 h-4 mr-1" /> Auditoria</TabsTrigger>
