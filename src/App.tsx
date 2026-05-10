@@ -84,6 +84,7 @@ import TiDashboard from "./modules/ti/ui/TiDashboard";
 import CentralChamadosPage from "./modules/ti/ui/CentralChamadosPage";
 import ChatAgenteTIPage from "./modules/ti/ui/ChatAgenteTIPage";
 import FinanceiroDashboard from "./modules/financeiro/ui/FinanceiroDashboard";
+import FinancialAuditPage from "./modules/financeiro/ui/FinancialAuditPage";
 import MarketplaceAdmin from "./modules/marketplace/ui/MarketplaceAdmin";
 import { JarbasCentralDashboard } from "./modules/jarbas/ui/JarbasCentralDashboard";
 import { JarbasKnowledgePage } from "./modules/jarbas/ui/JarbasKnowledgePage";
