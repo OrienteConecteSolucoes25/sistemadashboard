@@ -1,7 +1,7 @@
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, FolderKanban, LogOut, Settings, Gamepad2, HardHat, Scale, Menu, X, CreditCard, Building2, LayoutDashboard, HeartHandshake, Palette, FileSignature, MessageSquare, ChevronLeft, ChevronRight, ShieldAlert, Cpu, ShoppingBag, DollarSign, Store } from "lucide-react";
+import { Shield, FolderKanban, LogOut, Settings, Gamepad2, HardHat, Scale, Menu, X, CreditCard, Building2, LayoutDashboard, HeartHandshake, Palette, FileSignature, MessageSquare, ChevronLeft, ChevronRight, ShieldAlert, Cpu, ShoppingBag, DollarSign, Store, Monitor } from "lucide-react";
 import { useComunicacaoAccess } from "@/modules/comunicacao/hooks/useComunicacaoAccess";
 import { useRhdpAccess } from "@/modules/rhdp/hooks/useRhdpAccess";
 import { useCreaAccess } from "@/modules/crea/hooks/useCreaAccess";
