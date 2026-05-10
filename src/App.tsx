@@ -90,6 +90,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <AuthProvider>
+          <AclProvider>
           <CompanyThemeProvider>
           <Routes>
             <Route path="/" element={<Navigate to="/app" replace />} />
