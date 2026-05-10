@@ -39,6 +39,27 @@ interface ITicket {
   priority: TicketPriority;
   status: TicketStatus;
   created_at: string;
+  module_key?: string;
+  sla_deadline?: string;
+  assigned_to?: string;
+}
+
+interface ITicketComment {
+  id: string;
+  ticket_id: string;
+  user_id: string;
+  content: string;
+  created_at: string;
+  user_email?: string;
+}
+
+interface IAsset {
+  id: string;
+  name: string;
+  type: string;
+  serial_number: string;
+  status: string;
+  responsible_id: string;
 }
 
 export default function TiAgentPage() {
