@@ -93,6 +93,8 @@ export function useCharacterDetails(userId: string | null) {
         desk_id: deskR.data?.id ?? null,
         last_moved_at: positionR.data?.last_moved_at ?? null,
         current_action: positionR.data?.current_action ?? null,
+        last_heartbeat: p.last_heartbeat,
+        is_online: p.last_heartbeat ? (Date.now() - new Date(p.last_heartbeat).getTime() < 45000) : false,
         customization: customizationFromProfile(p),
       });
       setLoading(false);
