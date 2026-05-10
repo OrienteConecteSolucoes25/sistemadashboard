@@ -24,14 +24,13 @@ const Projetos = () => {
   const [form, setForm] = useState({ nome: "", cliente: "", groupId: "" });
 
   const load = async () => {
-    const [{ data: ps }, { data: gs }, { data: ms }] = await Promise.all([
+    const [{ data: ps }, { data: gs }] = await Promise.all([
       supabase.from("projetos").select("*").order("created_at", { ascending: false }),
       supabase.from("visibility_groups").select("id,name,color"),
-      // module_visibility_settings check removido
     ]);
     setItems(ps || []);
     setGroups(gs || []);
-    setModuleRestricted(!!ms?.restricted);
+    setModuleRestricted(false); // Sempre falso agora que o controle central foi removido
     if (ps && ps.length) {
       const { data: rv } = await supabase
         .from("record_visibility")
