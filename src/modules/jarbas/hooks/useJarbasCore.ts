@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useJarbasVoice } from "./useJarbasVoice";
+import { jarbasAutomation } from "../core/jarbasAutomation";
 import { toast } from "sonner";
 
 export interface JarbasContext {
