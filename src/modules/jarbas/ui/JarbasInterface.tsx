@@ -133,13 +133,13 @@ export function JarbasInterface() {
       {/* Área de Mensagens (ScrollArea) */}
       <ScrollArea className="flex-1 p-4 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] bg-fixed" ref={scrollAreaRef}>
         <div className="space-y-4 pb-4">
-          {history.length === 0 && (
+          {chatHistory.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full py-10 opacity-30">
               <Cpu className="w-12 h-12 mb-4 animate-pulse" />
               <p className="text-xs font-mono">AGUARDANDO COMANDO OPERACIONAL...</p>
             </div>
           )}
-          {history.map((item, i) => (
+          {chatHistory.map((item, i) => (
             <div key={i} className={`flex ${item.role === 'user' ? 'justify-end' : 'justify-start'} animate-in slide-in-from-bottom-2 duration-300`}>
               <div className={`max-w-[85%] p-4 rounded-2xl border text-sm shadow-lg ${
                 item.role === 'user' 
