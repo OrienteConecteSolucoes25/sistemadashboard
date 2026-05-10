@@ -6690,6 +6690,451 @@ export type Database = {
         }
         Relationships: []
       }
+      fin_bank_accounts: {
+        Row: {
+          account_type: string
+          balance: number | null
+          bank_name: string
+          created_at: string
+          currency: string | null
+          id: string
+          is_active: boolean | null
+          open_finance_id: string | null
+          profile_id: string
+        }
+        Insert: {
+          account_type: string
+          balance?: number | null
+          bank_name: string
+          created_at?: string
+          currency?: string | null
+          id?: string
+          is_active?: boolean | null
+          open_finance_id?: string | null
+          profile_id: string
+        }
+        Update: {
+          account_type?: string
+          balance?: number | null
+          bank_name?: string
+          created_at?: string
+          currency?: string | null
+          id?: string
+          is_active?: boolean | null
+          open_finance_id?: string | null
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_bank_accounts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "fin_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fin_bills: {
+        Row: {
+          amount: number
+          category_id: string | null
+          created_at: string
+          due_date: string
+          id: string
+          profile_id: string
+          status: string
+          supplier_customer_id: string | null
+          title: string
+          type: string
+        }
+        Insert: {
+          amount: number
+          category_id?: string | null
+          created_at?: string
+          due_date: string
+          id?: string
+          profile_id: string
+          status?: string
+          supplier_customer_id?: string | null
+          title: string
+          type: string
+        }
+        Update: {
+          amount?: number
+          category_id?: string | null
+          created_at?: string
+          due_date?: string
+          id?: string
+          profile_id?: string
+          status?: string
+          supplier_customer_id?: string | null
+          title?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_bills_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "fin_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fin_bills_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "fin_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fin_categories: {
+        Row: {
+          color: string | null
+          icon: string | null
+          id: string
+          is_system: boolean | null
+          name: string
+          parent_id: string | null
+          profile_id: string | null
+          type: string
+        }
+        Insert: {
+          color?: string | null
+          icon?: string | null
+          id?: string
+          is_system?: boolean | null
+          name: string
+          parent_id?: string | null
+          profile_id?: string | null
+          type: string
+        }
+        Update: {
+          color?: string | null
+          icon?: string | null
+          id?: string
+          is_system?: boolean | null
+          name?: string
+          parent_id?: string | null
+          profile_id?: string | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "fin_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fin_categories_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "fin_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fin_cost_centers: {
+        Row: {
+          budget_limit: number | null
+          code: string | null
+          company_id: string
+          id: string
+          is_active: boolean | null
+          name: string
+        }
+        Insert: {
+          budget_limit?: number | null
+          code?: string | null
+          company_id: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+        }
+        Update: {
+          budget_limit?: number | null
+          code?: string | null
+          company_id?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_cost_centers_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fin_credit_cards: {
+        Row: {
+          bank_account_id: string | null
+          brand: string | null
+          closing_day: number | null
+          created_at: string
+          due_day: number | null
+          id: string
+          limit_amount: number | null
+          name: string
+          profile_id: string
+        }
+        Insert: {
+          bank_account_id?: string | null
+          brand?: string | null
+          closing_day?: number | null
+          created_at?: string
+          due_day?: number | null
+          id?: string
+          limit_amount?: number | null
+          name: string
+          profile_id: string
+        }
+        Update: {
+          bank_account_id?: string | null
+          brand?: string | null
+          closing_day?: number | null
+          created_at?: string
+          due_day?: number | null
+          id?: string
+          limit_amount?: number | null
+          name?: string
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_credit_cards_bank_account_id_fkey"
+            columns: ["bank_account_id"]
+            isOneToOne: false
+            referencedRelation: "fin_bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fin_credit_cards_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "fin_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fin_debts: {
+        Row: {
+          created_at: string
+          creditor: string
+          id: string
+          interest_rate: number | null
+          profile_id: string
+          status: string | null
+          total_amount: number
+        }
+        Insert: {
+          created_at?: string
+          creditor: string
+          id?: string
+          interest_rate?: number | null
+          profile_id: string
+          status?: string | null
+          total_amount: number
+        }
+        Update: {
+          created_at?: string
+          creditor?: string
+          id?: string
+          interest_rate?: number | null
+          profile_id?: string
+          status?: string | null
+          total_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_debts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "fin_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fin_goals: {
+        Row: {
+          created_at: string
+          current_amount: number | null
+          deadline: string | null
+          icon: string | null
+          id: string
+          name: string
+          profile_id: string
+          target_amount: number
+        }
+        Insert: {
+          created_at?: string
+          current_amount?: number | null
+          deadline?: string | null
+          icon?: string | null
+          id?: string
+          name: string
+          profile_id: string
+          target_amount: number
+        }
+        Update: {
+          created_at?: string
+          current_amount?: number | null
+          deadline?: string | null
+          icon?: string | null
+          id?: string
+          name?: string
+          profile_id?: string
+          target_amount?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_goals_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "fin_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fin_profiles: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          id: string
+          is_active: boolean | null
+          name: string
+          settings: Json | null
+          type: Database["public"]["Enums"]["financial_profile_type"]
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          settings?: Json | null
+          type?: Database["public"]["Enums"]["financial_profile_type"]
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          settings?: Json | null
+          type?: Database["public"]["Enums"]["financial_profile_type"]
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_profiles_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fin_transactions: {
+        Row: {
+          account_id: string | null
+          amount: number
+          attachment_url: string | null
+          category_id: string | null
+          cost_center_id: string | null
+          created_at: string
+          credit_card_id: string | null
+          date: string
+          description: string
+          id: string
+          is_recurring: boolean | null
+          profile_id: string
+          recurring_period: string | null
+          status: string
+          tags: string[] | null
+          type: string
+        }
+        Insert: {
+          account_id?: string | null
+          amount: number
+          attachment_url?: string | null
+          category_id?: string | null
+          cost_center_id?: string | null
+          created_at?: string
+          credit_card_id?: string | null
+          date?: string
+          description: string
+          id?: string
+          is_recurring?: boolean | null
+          profile_id: string
+          recurring_period?: string | null
+          status?: string
+          tags?: string[] | null
+          type: string
+        }
+        Update: {
+          account_id?: string | null
+          amount?: number
+          attachment_url?: string | null
+          category_id?: string | null
+          cost_center_id?: string | null
+          created_at?: string
+          credit_card_id?: string | null
+          date?: string
+          description?: string
+          id?: string
+          is_recurring?: boolean | null
+          profile_id?: string
+          recurring_period?: string | null
+          status?: string
+          tags?: string[] | null
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fin_transactions_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "fin_bank_accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fin_transactions_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "fin_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fin_transactions_cost_center_id_fkey"
+            columns: ["cost_center_id"]
+            isOneToOne: false
+            referencedRelation: "fin_cost_centers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fin_transactions_credit_card_id_fkey"
+            columns: ["credit_card_id"]
+            isOneToOne: false
+            referencedRelation: "fin_credit_cards"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fin_transactions_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "fin_profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       gov_dataset_columns: {
         Row: {
           col_index: number
@@ -10447,6 +10892,7 @@ export type Database = {
         | "redator"
         | "aprovador"
         | "gestor_produto"
+      financial_profile_type: "personal" | "business_small" | "corporate"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -10601,6 +11047,7 @@ export const Constants = {
         "aprovador",
         "gestor_produto",
       ],
+      financial_profile_type: ["personal", "business_small", "corporate"],
     },
   },
 } as const
