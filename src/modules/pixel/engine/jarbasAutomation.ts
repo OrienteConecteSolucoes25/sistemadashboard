@@ -34,14 +34,13 @@ class JarbasAutomationEngine {
 
   private async createTask(payload: any) {
     const { data, error } = await supabase
-      .from("tasks")
+      .from("eng_atividades" as any)
       .insert([
         {
-          title: payload.title,
-          description: payload.description,
-          status: "todo",
-          priority: payload.priority || "medium",
-          workspace_id: payload.workspace_id
+          titulo: payload.title,
+          descricao: payload.description,
+          status: "pendente",
+          prioridade: payload.priority || "media"
         }
       ]);
     
@@ -56,14 +55,16 @@ class JarbasAutomationEngine {
 
   private async openTicket(payload: any) {
     const { data, error } = await supabase
-      .from("it_tickets")
+      .from("it_tickets" as any)
       .insert([
         {
-          subject: payload.subject,
+          title: payload.title || payload.subject,
           description: payload.description,
           status: "open",
           priority: payload.priority || "medium",
-          category: payload.category || "general"
+          category: payload.category || "general",
+          company_id: payload.company_id,
+          user_id: payload.user_id
         }
       ]);
 
@@ -83,7 +84,7 @@ class JarbasAutomationEngine {
 
   private async sendNotification(payload: any) {
     const { error } = await supabase
-      .from("notifications")
+      .from("eng_internal_notifications" as any)
       .insert([
         {
           user_id: payload.user_id,
