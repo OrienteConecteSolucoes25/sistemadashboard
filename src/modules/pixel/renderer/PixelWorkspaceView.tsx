@@ -29,6 +29,7 @@ interface Props {
   /** Clique em ponto livre (em coordenadas de tile). */
   onStageClick: (tileX: number, tileY: number) => void;
   recentMessages?: Record<string, string | null>;
+  meetings?: any;
 }
 
 /**
