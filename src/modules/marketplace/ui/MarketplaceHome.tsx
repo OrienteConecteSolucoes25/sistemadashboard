@@ -117,7 +117,7 @@ export default function MarketplaceHome() {
         .eq('user_id', userData.user.id)
         .maybeSingle();
       
-      let customerId = customer?.id;
+      let customerId = (customer as any)?.id;
       
       if (!customerId) {
         const { data: newCustomer, error: createError } = await supabase
