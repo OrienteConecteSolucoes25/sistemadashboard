@@ -109,13 +109,26 @@ export default function CentralChamadosPage() {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) return;
 
+      // Pegar company_id do perfil do usuário
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('company_id')
+        .eq('id', userData.user.id)
+        .single();
+
+      if (!profile?.company_id) {
+        toast.error("Usuário sem empresa vinculada");
+        return;
+      }
+
       const { error } = await supabase
         .from('it_tickets')
         .insert([{
           ...newTicket,
           user_id: userData.user.id,
+          company_id: profile.company_id,
           status: 'aberto',
-          sla_deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24h default
+          sla_deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
         }]);
 
       if (error) throw error;
@@ -148,13 +161,14 @@ export default function CentralChamadosPage() {
     try {
       setIsSendingComment(true);
       const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
       
       const { error } = await supabase
         .from('ti_ticket_comments')
         .insert([{
           ticket_id: selectedTicket.id,
-          user_id: userData.user?.id,
-          comment: newComment
+          user_id: userData.user.id,
+          content: newComment
         }]);
 
       if (error) throw error;
