@@ -26,6 +26,7 @@ import { DiretorAgentChat } from "@/modules/comunicacao/ui/DiretorAgentChat";
 import { DiretorNpc } from "./DiretorNpc";
 import { ModuleAgentNpc } from "./ModuleAgentNpc";
 import { ModuleAgentChat } from "./ModuleAgentChat";
+import { NPCS_CONFIG } from "../data/npcsConfig";
 import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare, ShieldAlert, Cpu, Zap, ShoppingCart, DollarSign, Users, Video } from "lucide-react";
 import { ActiveBrandKitProvider } from "@/modules/comunicacao/hooks/useActiveBrandKit";
 
