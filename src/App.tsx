@@ -11,6 +11,7 @@ import ResetPassword from "./pages/ResetPassword";
 // Import Projetos removido
 import Adm from "./pages/Adm";
 import SolucoesVersoPage from "./modules/pixel/ui/SolucoesVersoPage";
+import MarketplaceHome from "./modules/marketplace/ui/MarketplaceHome";
 import PixelAdminPage from "./modules/pixel/ui/admin/PixelAdminPage";
 import EngenhariaGuard from "./modules/engenharia/ui/EngenhariaGuard";
 import EngenhariaDashboard from "./modules/engenharia/ui/EngenhariaDashboard";
