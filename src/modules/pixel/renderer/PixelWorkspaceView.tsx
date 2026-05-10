@@ -78,7 +78,7 @@ export const PixelWorkspaceView = ({
         {/* Decorações estáticas (paredes, plantas, quadro) */}
         <PixelOfficeDecorations />
         {rooms.map((r) => (
-          <PixelRoom key={r.id} room={r} />
+          <PixelRoom key={r.id} room={r} characters={characters} meetings={meetings} />
         ))}
 
         {/* Mesas */}
