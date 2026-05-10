@@ -225,9 +225,77 @@ export default function CentralChamadosPage() {
           <Button variant="outline" className="font-bold text-xs uppercase tracking-widest gap-2">
             <Filter className="w-3 h-3" /> Filtros
           </Button>
-          <Button className="bg-blue-600 hover:bg-blue-700 font-bold text-xs uppercase tracking-widest gap-2 shadow-lg shadow-blue-500/20">
-            <Plus className="w-3 h-3" /> Abrir Chamado
-          </Button>
+          
+          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-blue-600 hover:bg-blue-700 font-bold text-xs uppercase tracking-widest gap-2 shadow-lg shadow-blue-500/20">
+                <Plus className="w-3 h-3" /> Abrir Chamado
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="sm:max-w-[500px] bg-white">
+              <DialogHeader>
+                <DialogTitle className="font-black text-slate-800 uppercase tracking-tight">Novo Chamado de TI</DialogTitle>
+                <DialogDescription className="text-slate-500 font-medium">
+                  Descreva o problema ou solicitação técnica detalhadamente.
+                </DialogDescription>
+              </DialogHeader>
+              <div className="grid gap-6 py-4">
+                <div className="grid gap-2">
+                  <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Assunto</label>
+                  <Input 
+                    placeholder="Ex: Monitor piscando ou Acesso ao ERP" 
+                    value={newTicket.title}
+                    onChange={(e) => setNewTicket({...newTicket, title: e.target.value})}
+                    className="font-bold text-slate-700 border-slate-200"
+                  />
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="grid gap-2">
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Categoria</label>
+                    <Select value={newTicket.category} onValueChange={(v) => setNewTicket({...newTicket, category: v})}>
+                      <SelectTrigger className="font-bold text-slate-700">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="software">Software / ERP</SelectItem>
+                        <SelectItem value="hardware">Hardware / Equipamentos</SelectItem>
+                        <SelectItem value="network">Rede / Internet</SelectItem>
+                        <SelectItem value="access">Acessos / Senhas</SelectItem>
+                        <SelectItem value="other">Outros</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="grid gap-2">
+                    <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Prioridade</label>
+                    <Select value={newTicket.priority} onValueChange={(v) => setNewTicket({...newTicket, priority: v})}>
+                      <SelectTrigger className="font-bold text-slate-700">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-white">
+                        <SelectItem value="baixa">Baixa</SelectItem>
+                        <SelectItem value="media">Média</SelectItem>
+                        <SelectItem value="alta">Alta</SelectItem>
+                        <SelectItem value="critica">Crítica</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid gap-2">
+                  <label className="text-[10px] font-black uppercase text-slate-400 tracking-widest">Descrição detalhada</label>
+                  <Textarea 
+                    placeholder="Descreva o que está acontecendo..." 
+                    className="min-h-[120px] font-medium text-slate-600 border-slate-200"
+                    value={newTicket.description}
+                    onChange={(e) => setNewTicket({...newTicket, description: e.target.value})}
+                  />
+                </div>
+              </div>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setIsCreateOpen(false)} className="font-bold uppercase text-[10px] tracking-widest">Cancelar</Button>
+                <Button onClick={handleCreateTicket} className="bg-blue-600 hover:bg-blue-700 font-bold uppercase text-[10px] tracking-widest">Confirmar Abertura</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </div>
 
