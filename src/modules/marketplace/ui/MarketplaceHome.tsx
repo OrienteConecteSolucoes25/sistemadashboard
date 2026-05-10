@@ -12,7 +12,12 @@ import {
   TrendingUp,
   Package,
   Award,
-  Loader2
+  Loader2,
+  Trash2,
+  Plus as PlusIcon,
+  Minus,
+  CheckCircle2,
+  CreditCard
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,19 +29,131 @@ import {
   TabsList, 
   TabsTrigger 
 } from "@/components/ui/tabs";
-import { motion } from "framer-motion";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter
+} from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   getMarketplaceProducts, 
   getMarketplaceCategories, 
+  createMarketplaceOrder,
   MarketplaceProduct, 
   MarketplaceCategory 
 } from "../lib/marketplaceApi";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+import { ScrollArea } from "@/components/ui/scroll-area";
+
+interface CartItem extends MarketplaceProduct {
+  quantity: number;
+}
 
 export default function MarketplaceHome() {
   const [products, setProducts] = useState<MarketplaceProduct[]>([]);
   const [categories, setCategories] = useState<MarketplaceCategory[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [checkoutStep, setCheckoutStep] = useState(1); // 1: Cart, 2: Payment, 3: Success
+
+  const addToCart = (product: MarketplaceProduct) => {
+    setCart(prev => {
+      const existing = prev.find(item => item.id === product.id);
+      if (existing) {
+        return prev.map(item => 
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+        );
+      }
+      return [...prev, { ...product, quantity: 1 }];
+    });
+    toast.success(`${product.name} adicionado ao carrinho`);
+  };
+
+  const removeFromCart = (productId: string) => {
+    setCart(prev => prev.filter(item => item.id !== productId));
+  };
+
+  const updateQuantity = (productId: string, delta: number) => {
+    setCart(prev => prev.map(item => {
+      if (item.id === productId) {
+        const newQty = Math.max(1, item.quantity + delta);
+        return { ...item, quantity: newQty };
+      }
+      return item;
+    }));
+  };
+
+  const cartTotal = cart.reduce((sum, item) => sum + (item.promo_price || item.price) * item.quantity, 0);
+
+  const handleCheckout = async () => {
+    try {
+      setIsProcessing(true);
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) {
+        toast.error("Você precisa estar logado para comprar");
+        return;
+      }
+
+      // No mundo real, aqui buscaríamos o customer_id ou criaríamos um
+      const { data: customer } = await supabase
+        .from('market_customers' as any)
+        .select('id')
+        .eq('user_id', userData.user.id)
+        .maybeSingle();
+      
+      let customerId = (customer as any)?.id;
+      
+      if (!customerId) {
+        const { data: newCustomer, error: createError } = await supabase
+          .from('market_customers' as any)
+          .insert([{ 
+            user_id: userData.user.id,
+            full_name: userData.user.email?.split('@')[0] || 'Cliente',
+            email: userData.user.email
+          }])
+          .select()
+          .single();
+        
+        if (createError) throw createError;
+        customerId = (newCustomer as any).id;
+      }
+
+      await createMarketplaceOrder({
+        customer_id: customerId,
+        items: cart.map(item => ({
+          product_id: item.id,
+          quantity: item.quantity,
+          unit_price: item.promo_price || item.price
+        })),
+        total_amount: cartTotal,
+        payment_method: 'credit_card'
+      });
+
+      setCheckoutStep(3);
+      setCart([]);
+    } catch (error: any) {
+      toast.error("Erro ao processar pedido: " + error.message);
+    } finally {
+      setIsProcessing(false);
+    }
+  };
 
   useEffect(() => {
     async function loadData() {
@@ -85,10 +202,89 @@ export default function MarketplaceHome() {
             <Button variant="ghost" size="icon" className="hidden sm:flex">
               <Heart className="w-5 h-5" />
             </Button>
-            <Button variant="ghost" size="icon" className="relative">
-              <ShoppingCart className="w-5 h-5" />
-              <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px]">2</Badge>
-            </Button>
+            
+            <Sheet open={isCartOpen} onOpenChange={setIsCartOpen}>
+              <SheetTrigger asChild>
+                <Button variant="ghost" size="icon" className="relative">
+                  <ShoppingCart className="w-5 h-5" />
+                  {cart.length > 0 && (
+                    <Badge className="absolute -top-1 -right-1 h-4 w-4 p-0 flex items-center justify-center text-[10px] bg-primary">
+                      {cart.reduce((s, i) => s + i.quantity, 0)}
+                    </Badge>
+                  )}
+                </Button>
+              </SheetTrigger>
+              <SheetContent className="w-full sm:max-w-md bg-white flex flex-col p-0">
+                <SheetHeader className="p-6 border-b">
+                  <SheetTitle className="flex items-center gap-2">
+                    <ShoppingCart className="w-5 h-5" /> Seu Carrinho
+                  </SheetTitle>
+                  <SheetDescription>
+                    Você tem {cart.length} itens no carrinho.
+                  </SheetDescription>
+                </SheetHeader>
+
+                <ScrollArea className="flex-1 p-6">
+                  {cart.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center h-[400px] text-center gap-4">
+                      <div className="w-20 h-20 rounded-full bg-slate-50 flex items-center justify-center">
+                        <ShoppingBag className="w-10 h-10 text-slate-200" />
+                      </div>
+                      <div>
+                        <h3 className="font-bold text-slate-900">Carrinho vazio</h3>
+                        <p className="text-sm text-muted-foreground">Adicione produtos para começar.</p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-6">
+                      {cart.map((item) => (
+                        <div key={item.id} className="flex gap-4 group">
+                          <div className="w-20 h-20 rounded-lg overflow-hidden bg-slate-100 shrink-0">
+                            <img src={item.images?.[0]} alt={item.name} className="w-full h-full object-cover" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h4 className="text-sm font-bold text-slate-900 truncate">{item.name}</h4>
+                            <p className="text-xs text-muted-foreground mb-2 italic">Vendido por OCS Store</p>
+                            <div className="flex items-center justify-between">
+                              <span className="text-sm font-black">
+                                {((item.promo_price || item.price) * item.quantity).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                              </span>
+                              <div className="flex items-center gap-2 bg-slate-100 rounded-lg p-1">
+                                <Button variant="ghost" size="icon" className="h-6 w-6 rounded-md" onClick={() => updateQuantity(item.id, -1)}>
+                                  <Minus className="w-3 h-3" />
+                                </Button>
+                                <span className="text-xs font-bold w-4 text-center">{item.quantity}</span>
+                                <Button variant="ghost" size="icon" className="h-6 w-6 rounded-md" onClick={() => updateQuantity(item.id, 1)}>
+                                  <PlusIcon className="w-3 h-3" />
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                          <Button variant="ghost" size="icon" className="opacity-0 group-hover:opacity-100 text-slate-400 hover:text-red-500 transition-opacity" onClick={() => removeFromCart(item.id)}>
+                            <Trash2 className="w-4 h-4" />
+                          </Button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </ScrollArea>
+
+                {cart.length > 0 && (
+                  <div className="p-6 border-t bg-slate-50/50 space-y-4">
+                    <div className="flex justify-between items-center font-bold text-slate-900">
+                      <span>Total Estimado</span>
+                      <span className="text-xl">
+                        {cartTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+                      </span>
+                    </div>
+                    <Button className="w-full h-12 text-md font-bold" onClick={() => { setIsCartOpen(false); setIsCheckoutOpen(true); setCheckoutStep(1); }}>
+                      Finalizar Compra
+                    </Button>
+                  </div>
+                )}
+              </SheetContent>
+            </Sheet>
+
             <Button variant="ghost" size="icon">
               <User className="w-5 h-5" />
             </Button>
@@ -159,7 +355,7 @@ export default function MarketplaceHome() {
               ) : filteredProducts.length > 0 ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {filteredProducts.map((product) => (
-                    <ProductCard key={product.id} product={product} />
+                    <ProductCard key={product.id} product={product} onAddToCart={() => addToCart(product)} />
                   ))}
                 </div>
               ) : (
@@ -178,6 +374,83 @@ export default function MarketplaceHome() {
             </TabsContent>
           </Tabs>
         </section>
+
+        {/* Checkout Modal */}
+        <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
+          <DialogContent className="sm:max-w-[500px] bg-white p-0 overflow-hidden">
+            <AnimatePresence mode="wait">
+              {checkoutStep === 1 && (
+                <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="p-6 space-y-6"
+                >
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-black uppercase tracking-tight">Checkout OCS</DialogTitle>
+                    <DialogDescription>Confirme os detalhes do seu pedido antes de prosseguir.</DialogDescription>
+                  </DialogHeader>
+
+                  <div className="space-y-4">
+                    <div className="bg-slate-50 p-4 rounded-xl space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Subtotal</span>
+                        <span className="font-bold">{cartTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Frete</span>
+                        <span className="text-green-600 font-bold uppercase text-[10px]">Grátis</span>
+                      </div>
+                      <div className="pt-2 border-t border-slate-200 flex justify-between">
+                        <span className="font-black uppercase tracking-widest text-xs">Total</span>
+                        <span className="font-black text-xl text-primary">{cartTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                        <CreditCard className="w-3 h-3 text-primary" /> Método de Pagamento
+                      </h4>
+                      <div className="p-4 rounded-xl border-2 border-primary bg-primary/5 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <CreditCard className="w-5 h-5 text-primary" />
+                          <span className="font-bold text-sm text-slate-800">Cartão de Crédito</span>
+                        </div>
+                        <Badge variant="outline" className="text-[10px] border-primary text-primary">Ativo</Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsCheckoutOpen(false)} className="font-bold uppercase text-[10px] tracking-widest">Cancelar</Button>
+                    <Button onClick={handleCheckout} disabled={isProcessing} className="flex-1 font-bold uppercase text-[10px] tracking-widest">
+                      {isProcessing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Confirmar e Pagar"}
+                    </Button>
+                  </DialogFooter>
+                </motion.div>
+              )}
+
+              {checkoutStep === 3 && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="p-12 flex flex-col items-center text-center gap-6"
+                >
+                  <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
+                    <CheckCircle2 className="w-10 h-10 text-green-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Pedido Confirmado!</h2>
+                    <p className="text-slate-500 font-medium mt-2">Seu pedido foi processado com sucesso e a loja já foi notificada.</p>
+                  </div>
+                  <Button className="w-full h-12 font-bold uppercase text-[10px] tracking-widest" onClick={() => setIsCheckoutOpen(false)}>
+                    Voltar para a Loja
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </DialogContent>
+        </Dialog>
 
         {/* Seção Vendedor */}
         <section className="container mx-auto px-4 py-12">
@@ -221,7 +494,7 @@ export default function MarketplaceHome() {
   );
 }
 
-function ProductCard({ product }: { product: MarketplaceProduct }) {
+function ProductCard({ product, onAddToCart }: { product: MarketplaceProduct, onAddToCart: () => void }) {
   const price = product.promo_price || product.price;
   const originalPrice = product.promo_price ? product.price : null;
   const image = product.images?.[0] || "https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&q=80";
@@ -272,7 +545,7 @@ function ProductCard({ product }: { product: MarketplaceProduct }) {
             {price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </span>
         </div>
-        <Button className="w-full rounded-lg shadow-none group-hover:bg-primary/90">
+        <Button className="w-full rounded-lg shadow-none group-hover:bg-primary/90" onClick={onAddToCart}>
           Adicionar ao Carrinho <ArrowRight className="ml-2 w-4 h-4" />
         </Button>
       </CardFooter>

@@ -103,23 +103,39 @@ class PixiCharactersManager {
     const outfit = this.hexToNumber(colors.outfit);
     const bottom = this.hexToNumber(colors.bottom);
     const hair = this.hexToNumber(colors.hair);
+    const shoes = this.hexToNumber(colors.shoes);
 
     const s = SCALE;
     const offX = -8 * s;
     const offY = -24 * s;
 
     // Shadow
-    graphics.ellipse(0, 0, 4 * s, 1 * s);
+    graphics.ellipse(0, 0, 4 * s, 0.8 * s);
     graphics.fill({ color: 0x000000, alpha: 0.35 });
 
-    // Legs
+    // Legs / Pants
     graphics.rect(offX + 5 * s, offY + 16 * s, 3 * s, 5 * s);
     graphics.rect(offX + 8 * s, offY + 16 * s, 3 * s, 5 * s);
     graphics.fill(bottom);
 
-    // Torso
+    // Shoes
+    graphics.rect(offX + 4 * s, offY + 21 * s, 4 * s, 1 * s);
+    graphics.rect(offX + 8 * s, offY + 21 * s, 4 * s, 1 * s);
+    graphics.fill(shoes);
+
+    // Torso (Shirt)
     graphics.rect(offX + 4 * s, offY + 10 * s, 8 * s, 6 * s);
     graphics.fill(outfit);
+
+    // Arms
+    graphics.rect(offX + 3 * s, offY + 10 * s, 1 * s, 5 * s);
+    graphics.rect(offX + 12 * s, offY + 10 * s, 1 * s, 5 * s);
+    graphics.fill(outfit);
+
+    // Hands
+    graphics.rect(offX + 3 * s, offY + 15 * s, 1 * s, 1 * s);
+    graphics.rect(offX + 12 * s, offY + 15 * s, 1 * s, 1 * s);
+    graphics.fill(skin);
 
     // Head
     graphics.rect(offX + 5 * s, offY + 4 * s, 6 * s, 6 * s);
@@ -130,9 +146,23 @@ class PixiCharactersManager {
     graphics.rect(offX + 9 * s, offY + 6 * s, 1 * s, 1 * s);
     graphics.fill(0x1a1a1a);
 
+    // Mouth / Detail
+    graphics.rect(offX + 7 * s, offY + 8 * s, 2 * s, 1 * s);
+    graphics.fill({ color: 0x000000, alpha: 0.1 });
+
     // Hair
     graphics.rect(offX + 5 * s, offY + 3 * s, 6 * s, 2 * s);
+    graphics.rect(offX + 4 * s, offY + 4 * s, 1 * s, 2 * s);
+    graphics.rect(offX + 11 * s, offY + 4 * s, 1 * s, 2 * s);
     graphics.fill(hair);
+
+    // Typing bubble if active
+    if (char.is_typing) {
+      graphics.circle(8 * s, offY - 4 * s, 3 * s);
+      graphics.fill(0xffffff);
+      graphics.circle(8 * s, offY - 4 * s, 1 * s);
+      graphics.fill(0x333333);
+    }
   }
 
   private getCustomizationColors(c: AvatarCustomization) {

@@ -76,3 +76,42 @@ export async function getMarketplaceStores() {
   if (error) throw error;
   return data as MarketplaceStore[];
 }
+
+export async function createMarketplaceOrder(orderData: {
+  customer_id: string;
+  items: { product_id: string; quantity: number; unit_price: number }[];
+  total_amount: number;
+  payment_method?: string;
+}) {
+  // 1. Iniciar transação (mockada pois o JS client não suporta transactions multi-tabela nativamente sem RPC)
+  // Mas para o protótipo faremos sequential inserts ou usaremos uma Edge Function
+  
+  const { data: order, error: orderError } = await supabase
+    .from('market_orders' as any)
+    .insert([{
+      customer_id: orderData.customer_id,
+      total_amount: orderData.total_amount,
+      status: 'pending',
+      payment_method: orderData.payment_method || 'credit_card'
+    }])
+    .select()
+    .single();
+
+  if (orderError) throw orderError;
+
+  const itemsToInsert = orderData.items.map(item => ({
+    order_id: (order as any).id,
+    product_id: item.product_id,
+    quantity: item.quantity,
+    unit_price: item.unit_price,
+    total_price: item.unit_price * item.quantity
+  }));
+
+  const { error: itemsError } = await supabase
+    .from('market_order_items' as any)
+    .insert(itemsToInsert);
+
+  if (itemsError) throw itemsError;
+
+  return order;
+}
