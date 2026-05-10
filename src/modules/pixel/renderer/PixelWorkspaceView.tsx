@@ -20,10 +20,18 @@ import type {
   FurnitureLite,
 } from "../data/usePixelWorkspaceData";
 import { Button } from "@/components/ui/button";
-import { Plus, Move, Trash2, RotateCw, Lock, Unlock, Layers } from "lucide-react";
+import { Plus, Move, Trash2, RotateCw, Lock, Unlock, Layers, Monitor, Cpu } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { mapEngine } from "../engine/mapEngine";
 import { spriteEngine, type RendererType } from "../engine/spriteEngine";
+import { PixiOfficeCanvas } from "../engine/PixiOfficeCanvas";
+import { pixiMap } from "../engine/pixiMap";
+import { pixiCharacters } from "../engine/pixiCharacters";
+import { pixiDesks } from "../engine/pixiDesks";
+import { pixiRooms } from "../engine/pixiRooms";
+import { pixiEvents } from "../engine/pixiEvents";
+
+
 
 interface Props {
   workspace: WorkspaceLite;
@@ -62,9 +70,11 @@ export const PixelWorkspaceView = memo(({
   onRefresh,
   renderer = "dom",
 }: Props) => {
+  const [currentRenderer, setCurrentRenderer] = useState<RendererType>(renderer);
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedItem, setSelectedItem] = useState<{ type: "desk" | "room" | "furniture"; id: string } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+
 
   // Sincroniza colisões quando dados mudam
   useEffect(() => {
@@ -73,8 +83,31 @@ export const PixelWorkspaceView = memo(({
 
   // Define o renderer global da engine
   useEffect(() => {
-    spriteEngine.setRenderer(renderer);
-  }, [renderer]);
+    spriteEngine.setRenderer(currentRenderer);
+  }, [currentRenderer]);
+
+  const handlePixiInit = useCallback(() => {
+    pixiMap.render();
+    pixiCharacters.render(characters);
+    pixiDesks.render(desks);
+    pixiRooms.render(rooms);
+    pixiEvents.setupStage(onStageClick);
+  }, [characters, desks, rooms, onStageClick]);
+
+
+
+  // Sync data to Pixi
+  useEffect(() => {
+    if (currentRenderer === "pixi") {
+      pixiCharacters.render(characters);
+      pixiDesks.render(desks);
+      pixiRooms.render(rooms);
+    }
+  }, [characters, desks, rooms, currentRenderer]);
+
+
+
+
 
   const handleStageClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -151,6 +184,26 @@ export const PixelWorkspaceView = memo(({
     <div className="flex flex-col gap-4">
       {isAdmin && (
         <div className="flex flex-wrap items-center gap-2 bg-slate-900/50 p-2 rounded-lg border border-primary/20">
+          <div className="flex bg-slate-800 rounded-md p-0.5 border border-white/10 mr-2">
+            <Button 
+              variant={currentRenderer === "dom" ? "secondary" : "ghost"} 
+              size="icon" 
+              className="h-8 w-8" 
+              onClick={() => setCurrentRenderer("dom")}
+              title="Renderer DOM (Legado)"
+            >
+              <Monitor className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant={currentRenderer === "pixi" ? "secondary" : "ghost"} 
+              size="icon" 
+              className="h-8 w-8" 
+              onClick={() => setCurrentRenderer("pixi")}
+              title="Renderer PixiJS (Novo)"
+            >
+              <Cpu className="h-4 w-4" />
+            </Button>
+          </div>
           <Button 
             variant={isEditMode ? "default" : "outline"} 
             size="sm" 
@@ -242,109 +295,117 @@ export const PixelWorkspaceView = memo(({
           aria-label={`Workspace ${workspace.name} (${STAGE_WIDTH_TILES}x${STAGE_HEIGHT_TILES})`}
           onClick={handleStageClick}
         >
-          {/* Piso pseudo-iso */}
-          <PixelOfficeMap />
-          
-          {/* Grid visível no modo edição */}
-          {isEditMode && (
-            <div 
-              className="absolute inset-0 pointer-events-none opacity-20" 
-              style={{
-                backgroundImage: `linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)`,
-                backgroundSize: `${TILE_SIZE}px ${TILE_SIZE}px`
-              }} 
-            />
+          {/* Renderer Logic */}
+          {currentRenderer === "pixi" ? (
+            <PixiOfficeCanvas onInit={handlePixiInit} />
+          ) : (
+            <>
+              {/* Piso pseudo-iso */}
+              <PixelOfficeMap />
+              
+              {/* Grid visível no modo edição */}
+              {isEditMode && (
+                <div 
+                  className="absolute inset-0 pointer-events-none opacity-20" 
+                  style={{
+                    backgroundImage: `linear-gradient(to right, white 1px, transparent 1px), linear-gradient(to bottom, white 1px, transparent 1px)`,
+                    backgroundSize: `${TILE_SIZE}px ${TILE_SIZE}px`
+                  }} 
+                />
+              )}
+
+              {/* Decorações estáticas (apenas para fallback, futuramente removidas se tudo for pixel_furniture) */}
+              <PixelOfficeDecorations />
+
+              {/* Camadas ordenadas por Z-index */}
+              {sortedLayers.map((layer) => {
+                const isSelected = selectedItem?.type === layer.type && selectedItem?.id === layer.data.id;
+                const canEdit = isEditMode && (!("is_locked" in layer.data) || !layer.data.is_locked);
+                
+                const commonStyle: React.CSSProperties = {
+                  position: 'absolute',
+                  left: spriteEngine.tileToPixel(layer.data.position_x),
+                  top: spriteEngine.tileToPixel(layer.data.position_y),
+                  zIndex: spriteEngine.calculateZIndex(layer.data.position_y, layer.z),
+                  transform: (layer.data as any).rotation ? `rotate(${(layer.data as any).rotation}deg)` : undefined,
+                  transition: isDragging && isSelected ? 'none' : 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
+                  outline: isSelected ? '2px solid #0ea5e9' : 'none',
+                  outlineOffset: '2px',
+                  cursor: canEdit ? 'pointer' : (isEditMode ? 'not-allowed' : 'inherit')
+                };
+
+                if (layer.type === "room") {
+                  const r = layer.data as RoomLite;
+                  return (
+                    <div key={r.id} style={commonStyle} onClick={(e) => {
+                      if (isEditMode) {
+                        e.stopPropagation();
+                        setSelectedItem({ type: "room", id: r.id });
+                      }
+                    }}>
+                      <PixelRoom room={r} characters={characters} meetings={meetings} />
+                    </div>
+                  );
+                }
+
+                if (layer.type === "desk") {
+                  const d = layer.data as DeskLite;
+                  return (
+                    <div key={d.id} style={commonStyle} onClick={(e) => {
+                      if (isEditMode) {
+                        e.stopPropagation();
+                        setSelectedItem({ type: "desk", id: d.id });
+                      }
+                    }}>
+                      <PixelDesk desk={d} onClick={(desk) => {
+                        if (!isEditMode) onSelectDesk(desk);
+                      }} />
+                    </div>
+                  );
+                }
+
+                if (layer.type === "furniture") {
+                  const f = layer.data as FurnitureLite;
+                  return (
+                    <div key={f.id} style={commonStyle} onClick={(e) => {
+                      if (isEditMode) {
+                        e.stopPropagation();
+                        setSelectedItem({ type: "furniture", id: f.id });
+                      }
+                    }}>
+                      <PixelFurnitureSprite 
+                        kind={f.furniture_key as FurnitureKind} 
+                        width={TILE_SIZE * 2} 
+                        height={TILE_SIZE * 2} 
+                      />
+                    </div>
+                  );
+                }
+
+                return null;
+              })}
+
+              {/* Personagens (Sempre no topo dos objetos, mas com sua própria lógica de profundidade) */}
+              {characters
+                .filter((c) => c.is_visible && !c.is_blocked)
+                .map((c) => {
+                  const pos = getPosition(c.user_id, { x: c.position_x, y: c.position_y });
+                  return (
+                    <div key={c.user_id} style={{ zIndex: 100, position: 'absolute' }}>
+                      <PixelAvatar
+                        character={c}
+                        posX={pos.x}
+                        posY={pos.y}
+                        onClick={onSelectCharacter}
+                        recentMessage={recentMessages[c.user_id]}
+                        isTyping={c.is_typing}
+                      />
+                    </div>
+                  );
+                })}
+            </>
           )}
 
-          {/* Decorações estáticas (apenas para fallback, futuramente removidas se tudo for pixel_furniture) */}
-          <PixelOfficeDecorations />
-
-          {/* Camadas ordenadas por Z-index */}
-          {sortedLayers.map((layer) => {
-            const isSelected = selectedItem?.type === layer.type && selectedItem?.id === layer.data.id;
-            const canEdit = isEditMode && (!("is_locked" in layer.data) || !layer.data.is_locked);
-            
-            const commonStyle: React.CSSProperties = {
-              position: 'absolute',
-              left: spriteEngine.tileToPixel(layer.data.position_x),
-              top: spriteEngine.tileToPixel(layer.data.position_y),
-              zIndex: spriteEngine.calculateZIndex(layer.data.position_y, layer.z),
-              transform: (layer.data as any).rotation ? `rotate(${(layer.data as any).rotation}deg)` : undefined,
-              transition: isDragging && isSelected ? 'none' : 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
-              outline: isSelected ? '2px solid #0ea5e9' : 'none',
-              outlineOffset: '2px',
-              cursor: canEdit ? 'pointer' : (isEditMode ? 'not-allowed' : 'inherit')
-            };
-
-            if (layer.type === "room") {
-              const r = layer.data as RoomLite;
-              return (
-                <div key={r.id} style={commonStyle} onClick={(e) => {
-                  if (isEditMode) {
-                    e.stopPropagation();
-                    setSelectedItem({ type: "room", id: r.id });
-                  }
-                }}>
-                  <PixelRoom room={r} characters={characters} meetings={meetings} />
-                </div>
-              );
-            }
-
-            if (layer.type === "desk") {
-              const d = layer.data as DeskLite;
-              return (
-                <div key={d.id} style={commonStyle} onClick={(e) => {
-                  if (isEditMode) {
-                    e.stopPropagation();
-                    setSelectedItem({ type: "desk", id: d.id });
-                  }
-                }}>
-                  <PixelDesk desk={d} onClick={(desk) => {
-                    if (!isEditMode) onSelectDesk(desk);
-                  }} />
-                </div>
-              );
-            }
-
-            if (layer.type === "furniture") {
-              const f = layer.data as FurnitureLite;
-              return (
-                <div key={f.id} style={commonStyle} onClick={(e) => {
-                  if (isEditMode) {
-                    e.stopPropagation();
-                    setSelectedItem({ type: "furniture", id: f.id });
-                  }
-                }}>
-                  <PixelFurnitureSprite 
-                    kind={f.furniture_key as FurnitureKind} 
-                    width={TILE_SIZE * 2} 
-                    height={TILE_SIZE * 2} 
-                  />
-                </div>
-              );
-            }
-
-            return null;
-          })}
-
-          {/* Personagens (Sempre no topo dos objetos, mas com sua própria lógica de profundidade) */}
-          {characters
-            .filter((c) => c.is_visible && !c.is_blocked)
-            .map((c) => {
-              const pos = getPosition(c.user_id, { x: c.position_x, y: c.position_y });
-              return (
-                <div key={c.user_id} style={{ zIndex: 100, position: 'absolute' }}>
-                  <PixelAvatar
-                    character={c}
-                    posX={pos.x}
-                    posY={pos.y}
-                    onClick={onSelectCharacter}
-                    recentMessage={recentMessages[c.user_id]}
-                    isTyping={c.is_typing}
-                  />
-                </div>
-              );
-            })}
         </div>
       </div>
     </div>
