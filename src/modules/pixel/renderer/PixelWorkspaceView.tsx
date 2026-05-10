@@ -124,9 +124,9 @@ export const PixelWorkspaceView = ({
 
   // Combine and sort by z_index
   const sortedLayers = [
-    ...rooms.map(r => ({ type: "room" as const, data: r, z: r.z_index ?? 5 })),
+    ...rooms.map(r => ({ type: "room" as const, data: r, z: (r as any).z_index ?? 5 })),
     ...furniture.map(f => ({ type: "furniture" as const, data: f, z: f.z_index })),
-    ...desks.map(d => ({ type: "desk" as const, data: d, z: d.z_index ?? 20 })),
+    ...desks.map(d => ({ type: "desk" as const, data: d, z: (d as any).z_index ?? 20 })),
   ].sort((a, b) => a.z - b.z);
 
   return (
