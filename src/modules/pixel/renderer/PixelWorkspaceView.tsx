@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo, useCallback, memo } from "react";
 import {
   STAGE_HEIGHT_PX,
   STAGE_WIDTH_PX,
