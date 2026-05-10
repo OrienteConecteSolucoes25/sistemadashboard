@@ -6908,6 +6908,45 @@ export type Database = {
         }
         Relationships: []
       }
+      enterprise_audit_trail: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          event_code: string
+          id: string
+          integrity_signature: string | null
+          ip_hash: string | null
+          module_name: string
+          organization_id: string
+          severity: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          event_code: string
+          id?: string
+          integrity_signature?: string | null
+          ip_hash?: string | null
+          module_name: string
+          organization_id: string
+          severity?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          event_code?: string
+          id?: string
+          integrity_signature?: string | null
+          ip_hash?: string | null
+          module_name?: string
+          organization_id?: string
+          severity?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       fin_bank_accounts: {
         Row: {
           account_type: string
@@ -10004,6 +10043,39 @@ export type Database = {
         }
         Relationships: []
       }
+      organizations: {
+        Row: {
+          created_at: string | null
+          domain: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          plan_type: string | null
+          settings: Json | null
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          domain?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          plan_type?: string | null
+          settings?: Json | null
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          domain?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          plan_type?: string | null
+          settings?: Json | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       pixel_admin_actions: {
         Row: {
           action_type: string
@@ -10789,6 +10861,33 @@ export type Database = {
         }
         Relationships: []
       }
+      platform_settings: {
+        Row: {
+          description: string | null
+          id: string
+          key: string
+          updated_at: string | null
+          updated_by: string | null
+          value: Json
+        }
+        Insert: {
+          description?: string | null
+          id?: string
+          key: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value: Json
+        }
+        Update: {
+          description?: string | null
+          id?: string
+          key?: string
+          updated_at?: string | null
+          updated_by?: string | null
+          value?: Json
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           company_id: string | null
@@ -10797,6 +10896,7 @@ export type Database = {
           full_name: string | null
           id: string
           last_login_at: string | null
+          organization_id: string | null
           role: string | null
           session_timeout_minutes: number | null
           two_factor_enabled: boolean | null
@@ -10808,6 +10908,7 @@ export type Database = {
           full_name?: string | null
           id: string
           last_login_at?: string | null
+          organization_id?: string | null
           role?: string | null
           session_timeout_minutes?: number | null
           two_factor_enabled?: boolean | null
@@ -10819,11 +10920,20 @@ export type Database = {
           full_name?: string | null
           id?: string
           last_login_at?: string | null
+          organization_id?: string | null
           role?: string | null
           session_timeout_minutes?: number | null
           two_factor_enabled?: boolean | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_organization_id_fkey"
+            columns: ["organization_id"]
+            isOneToOne: false
+            referencedRelation: "organizations"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       projetos: {
         Row: {

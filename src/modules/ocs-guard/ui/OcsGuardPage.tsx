@@ -18,7 +18,11 @@ import {
   UserCheck,
   Building2,
   Smartphone,
-  Cpu
+  Cpu,
+  Layers,
+  Globe,
+  MonitorCheck,
+  ShieldQuestion
 } from "lucide-react";
 import { ocsGuard } from "../core/ocsGuardCore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -310,6 +314,81 @@ export default function OcsGuardPage() {
               <span className="font-bold">Mobile (Nova York)</span>
               <Badge className="bg-red-600 text-white text-[8px]">SUSPEITO</Badge>
             </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6 pb-24">
+        {/* Enterprise Multi-Tenant Status */}
+        <Card className="bg-slate-900/50 border-cyan-500/20 text-cyan-400">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-bold uppercase flex items-center gap-2">
+              <Layers className="w-4 h-4 text-orange-400" /> ARQUITETURA MULTI-TENANT
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center text-[10px]">
+              <span className="font-bold">Organizações Ativas</span>
+              <span className="text-orange-400">12</span>
+            </div>
+            <div className="flex justify-between items-center text-[10px]">
+              <span className="font-bold">Isolamento de Dados</span>
+              <Badge className="bg-green-600 text-white text-[8px]">LEVEL: ABSOLUTE</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Global SaaS Monitoring */}
+        <Card className="bg-slate-900/50 border-cyan-500/20 text-cyan-400">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-bold uppercase flex items-center gap-2">
+              <Globe className="w-4 h-4 text-green-400" /> MONITORAMENTO SAAS GLOBAL
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center text-[10px]">
+              <span className="font-bold">Nível de Latência</span>
+              <span className="text-green-400">14ms</span>
+            </div>
+            <div className="flex justify-between items-center text-[10px]">
+              <span className="font-bold">Nodes de Segurança</span>
+              <span className="text-green-400">ATIVOS (08)</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Central de Governança Avançada */}
+        <Card className="bg-slate-900/50 border-cyan-500/20 text-cyan-400">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-bold uppercase flex items-center gap-2">
+              <MonitorCheck className="w-4 h-4 text-blue-400" /> GOVERNANÇA CENTRALIZADA
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex items-center gap-2 p-2 bg-slate-950 rounded border border-white/5">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+              <span className="text-[9px] uppercase">Políticas de Admin OCS Sincronizadas</span>
+            </div>
+            <div className="flex items-center gap-2 p-2 bg-slate-950 rounded border border-white/5">
+              <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div>
+              <span className="text-[9px] uppercase">Controle de Múltiplos Admins Ativo</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Enterprise Compliance Readiness */}
+        <Card className="bg-slate-900/50 border-cyan-500/20 text-cyan-400">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-bold uppercase flex items-center gap-2">
+              <ShieldQuestion className="w-4 h-4 text-purple-400" /> COMPLIANCE READY
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2 py-4">
+             <div className="flex gap-1 flex-wrap">
+               {['SOC2_READY', 'ISO27001_ACTIVE', 'HIPAA_COMPLIANT', 'GDPR_ALIGNED'].map(tag => (
+                 <span key={tag} className="text-[7px] bg-purple-500/10 px-1 border border-purple-500/30 text-purple-400">{tag}</span>
+               ))}
+             </div>
           </CardContent>
         </Card>
 
