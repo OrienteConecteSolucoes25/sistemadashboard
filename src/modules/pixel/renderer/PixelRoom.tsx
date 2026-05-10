@@ -70,7 +70,7 @@ export const PixelRoom = ({ room, onClick, characters = [], meetings }: Props) =
 
       {/* Dashboard Flutuante do Módulo */}
       {variant !== "common" && (
-        <PixelModuleDashboard type={variant as ModuleType} x={width - 20} y={-40} />
+        <PixelModuleDashboard type={variant as ModuleType} x={width - 20} y={-50} />
       )}
 
       {/* Mini cena de reunião */}
