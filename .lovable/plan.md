@@ -57,7 +57,7 @@ Abas hoje no `CreaGovernancaPage`: Visão Executiva, Técnica, Importações, Se
 | 4    | **Financeira + Conciliação**         | ✅ |
 | 5    | Auditoria + Alertas + Painéis        | ✅ |
 | 6    | CREAs Brasil + PDF                   | ✅ |
-| 7    | Relatórios + Assistente IA           | ⏳         |
+| 7    | Relatórios + Assistente IA           | ✅         |
 
 
 Recomendo seguir pela **Leva 4 (Financeira + Conciliação)** — destrava o módulo financeiramente e alimenta auditoria/alertas da Leva 5.
