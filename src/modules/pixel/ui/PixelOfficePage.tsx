@@ -36,6 +36,8 @@ type Selected =
 
 export default function PixelOfficePage() {
   const { user, isAdmin } = useAuth();
+  const [notifTick, setNotifTick] = useState(0);
+  const [directorNotifs, setDirectorNotifs] = useState<string[]>([]);
   const {
     loading,
     workspaces,
