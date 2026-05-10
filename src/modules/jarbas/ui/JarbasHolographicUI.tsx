@@ -59,10 +59,18 @@ export const JarbasHolographicUI = ({ state }: Props) => {
         >
           {/* Hexágono ou Forma Central */}
           <div 
-            className="w-16 h-16 border-2 rotate-45 flex items-center justify-center shadow-[0_0_20px_rgba(0,242,255,0.2)]"
-            style={{ borderColor: color, backgroundColor: `${color}10` }}
+            className="w-16 h-16 border-2 rotate-45 flex items-center justify-center shadow-[0_0_30px_rgba(0,242,255,0.4)] relative"
+            style={{ borderColor: color, backgroundColor: `${color}20` }}
           >
-            <div className="w-8 h-8 border border-white/20 animate-spin-slow rotate-45" />
+            <div className="absolute inset-0 border border-white/20 animate-pulse" />
+            <div className="w-8 h-8 border border-white/40 animate-spin-slow rotate-45" />
+            {state === 'processing' && (
+              <motion.div 
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+                className="absolute inset-2 border-t-2 border-white rounded-full"
+              />
+            )}
           </div>
         </motion.div>
 

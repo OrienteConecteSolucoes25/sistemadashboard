@@ -13,9 +13,16 @@ class PixiEffectsManager {
     
     // Holographic scanline effect
     const scanline = new PIXI.Graphics();
-    scanline.rect(0, 0, app.screen.width, 2);
-    scanline.fill({ color: 0x0ea5e9, alpha: 0.1 });
+    scanline.rect(0, 0, app.screen.width, 4);
+    scanline.fill({ color: 0x0ea5e9, alpha: 0.15 });
     container.addChild(scanline);
+
+    // Grid Glow overlay (center pulse)
+    const pulse = new PIXI.Graphics();
+    pulse.circle(app.screen.width / 2, app.screen.height / 2, 200);
+    pulse.fill({ color: 0x00f2ff, alpha: 0.05 });
+    pulse.filters = [new PIXI.BlurFilter(50)];
+    container.addChild(pulse);
 
     // Ambient floating particles
     for (let i = 0; i < 20; i++) {
@@ -32,8 +39,13 @@ class PixiEffectsManager {
 
     app.ticker.add((ticker) => {
       // Move scanline
-      scanline.y += 1 * ticker.deltaTime;
+      scanline.y += 1.5 * ticker.deltaTime;
       if (scanline.y > app.screen.height) scanline.y = 0;
+
+      // Pulse effect
+      const time = performance.now() / 1000;
+      pulse.alpha = 0.05 + Math.sin(time * 0.5) * 0.02;
+      pulse.scale.set(1 + Math.sin(time * 0.3) * 0.1);
 
       // Move particles
       this.particles.forEach(p => {

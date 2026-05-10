@@ -18,7 +18,7 @@ export const pixiMap = {
 
     // Grid (Optimized - render to texture or simple graphics)
     const grid = new PIXI.Graphics();
-    grid.setStrokeStyle({ width: 1, color: this.hexToNumber(OFFICE_THEME.floorTileLine), alpha: 0.3 });
+    grid.setStrokeStyle({ width: 1, color: this.hexToNumber(OFFICE_THEME.floorTileLine), alpha: 0.2 });
     
     // Batch lines for performance
     for (let x = 0; x <= STAGE_WIDTH_PX; x += TILE_SIZE) {

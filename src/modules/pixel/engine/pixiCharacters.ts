@@ -185,7 +185,7 @@ class PixiCharactersManager {
     // Eyes
     graphics.rect(offX + 6 * s, offY + 6 * s, 1 * s, 1 * s);
     graphics.rect(offX + 9 * s, offY + 6 * s, 1 * s, 1 * s);
-    graphics.fill(0x1a1a1a);
+    graphics.fill(0x00f2ff); // Futuristic Cyan eyes
 
     // Mouth / Detail
     graphics.rect(offX + 7 * s, offY + 8 * s, 2 * s, 1 * s);
