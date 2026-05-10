@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { jarbasCore } from '../../jarbas/core/jarbasCore';
 import { 
   LayoutDashboard, 
   Package, 
@@ -79,7 +80,25 @@ const MarketplaceDashboard = () => (
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-bold">R$ {(Math.random() * 500 + 100).toFixed(2)}</p>
-                  <Badge variant="secondary" className="text-[10px] h-5">Pendente</Badge>
+                  <div className="flex flex-col items-end gap-1">
+                    <Badge variant="secondary" className="text-[10px] h-5">Pendente</Badge>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 text-[8px] uppercase text-cyan-500 border border-cyan-500/20"
+                      onClick={() => {
+                        jarbasCore.registerEvent({
+                          module: 'marketplace',
+                          type: 'order_review',
+                          title: 'Revisão de Pedido Pendente',
+                          description: `O Jarbas identificou um pedido de R$ ${(Math.random() * 500 + 100).toFixed(2)} que requer atenção operacional.`,
+                          severity: 'medium'
+                        });
+                      }}
+                    >
+                      Audit Jarbas
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
