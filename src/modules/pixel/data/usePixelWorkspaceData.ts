@@ -108,8 +108,9 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
   useEffect(() => {
     if (!user) return;
     const interval = setInterval(async () => {
+      // Usar query silenciosa para evitar trigger de loading global se houver um interceptor
       await supabase.rpc("update_pixel_heartbeat", { _uid: user.id });
-    }, 15000); // a cada 15 segundos
+    }, 30000); // Aumentado para 30 segundos para reduzir carga no DB
     return () => clearInterval(interval);
   }, [user]);
 
