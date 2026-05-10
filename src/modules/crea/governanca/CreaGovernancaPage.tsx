@@ -14,6 +14,8 @@ import { SetoresTab } from "./tabs/SetoresTab";
 import { TagsTab } from "./tabs/TagsTab";
 import { EscoposTab } from "./tabs/EscoposTab";
 import { ClassificacaoTab } from "./tabs/ClassificacaoTab";
+import { FinanceiraTab } from "./tabs/FinanceiraTab";
+import { ConciliacaoTab } from "./tabs/ConciliacaoTab";
 
 const Placeholder = ({ title, description }: { title: string; description: string }) => (
   <Card className="card-elegant">
