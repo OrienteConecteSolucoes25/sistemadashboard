@@ -8570,6 +8570,276 @@ export type Database = {
           },
         ]
       }
+      market_carts: {
+        Row: {
+          id: string
+          items: Json | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          id?: string
+          items?: Json | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          id?: string
+          items?: Json | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      market_categories: {
+        Row: {
+          created_at: string
+          id: string
+          image_url: string | null
+          is_active: boolean | null
+          name: string
+          parent_id: string | null
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name: string
+          parent_id?: string | null
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          image_url?: string | null
+          is_active?: boolean | null
+          name?: string
+          parent_id?: string | null
+          slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "market_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_order_items: {
+        Row: {
+          id: string
+          order_id: string | null
+          price_at_purchase: number
+          product_id: string | null
+          quantity: number
+        }
+        Insert: {
+          id?: string
+          order_id?: string | null
+          price_at_purchase: number
+          product_id?: string | null
+          quantity: number
+        }
+        Update: {
+          id?: string
+          order_id?: string | null
+          price_at_purchase?: number
+          product_id?: string | null
+          quantity?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "market_orders"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "market_order_items_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "market_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_orders: {
+        Row: {
+          created_at: string
+          id: string
+          payment_method: string | null
+          shipping_address: Json | null
+          shipping_cost: number | null
+          status: string
+          store_id: string | null
+          total_amount: number
+          tracking_code: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          payment_method?: string | null
+          shipping_address?: Json | null
+          shipping_cost?: number | null
+          status?: string
+          store_id?: string | null
+          total_amount: number
+          tracking_code?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          payment_method?: string | null
+          shipping_address?: Json | null
+          shipping_cost?: number | null
+          status?: string
+          store_id?: string | null
+          total_amount?: number
+          tracking_code?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_orders_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "market_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_products: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          images: string[] | null
+          is_active: boolean | null
+          min_stock_alert: number | null
+          name: string
+          price: number
+          promo_price: number | null
+          sku: string | null
+          slug: string
+          specifications: Json | null
+          stock_quantity: number | null
+          store_id: string
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          is_active?: boolean | null
+          min_stock_alert?: number | null
+          name: string
+          price: number
+          promo_price?: number | null
+          sku?: string | null
+          slug: string
+          specifications?: Json | null
+          stock_quantity?: number | null
+          store_id: string
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          images?: string[] | null
+          is_active?: boolean | null
+          min_stock_alert?: number | null
+          name?: string
+          price?: number
+          promo_price?: number | null
+          sku?: string | null
+          slug?: string
+          specifications?: Json | null
+          stock_quantity?: number | null
+          store_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_products_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "market_categories"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "market_products_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "market_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_stores: {
+        Row: {
+          banner_url: string | null
+          commission_rate: number | null
+          company_id: string
+          created_at: string
+          description: string | null
+          id: string
+          logo_url: string | null
+          name: string
+          rating: number | null
+          slug: string
+          status: string
+        }
+        Insert: {
+          banner_url?: string | null
+          commission_rate?: number | null
+          company_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name: string
+          rating?: number | null
+          slug: string
+          status?: string
+        }
+        Update: {
+          banner_url?: string | null
+          commission_rate?: number | null
+          company_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          logo_url?: string | null
+          name?: string
+          rating?: number | null
+          slug?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_stores_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       module_visibility_settings: {
         Row: {
           default_assignment: string
