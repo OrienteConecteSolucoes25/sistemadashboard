@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Plus, Trash2, Copy } from "lucide-react";
-import CompanyPermissionsMatrix from "@/modules/planos/ui/CompanyPermissionsMatrix";
+import AclPermissionsMatrix from "@/acl/AclPermissionsMatrix";
 import { usePlanosAccess } from "@/modules/planos/hooks/usePlanosAccess";
 import { useCan } from "@/acl/AclProvider";
 
@@ -362,14 +362,13 @@ const BulkTab = () => {
   );
 };
 
-// ===== Permissões por empresa (matriz vertical Ver/Editar/Excluir) =====
+// ===== Permissões centrais (ACL) =====
 const PermissoesTab = () => {
   const [companies, setCompanies] = useState<{ id: string; nome: string }[]>([]);
   const [companyId, setCompanyId] = useState<string>("");
   useEffect(() => {
     (supabase as any).from("companies").select("id,nome").eq("ativo", true).order("nome").then(({ data }: any) => {
       setCompanies(data || []);
-      if (data?.length && !companyId) setCompanyId(data[0].id);
     });
   }, []);
   return (
@@ -377,22 +376,22 @@ const PermissoesTab = () => {
       <Card>
         <CardContent className="py-3 flex items-end gap-3 flex-wrap">
           <div className="flex-1 min-w-[260px]">
-            <Label>Empresa</Label>
-            <Select value={companyId} onValueChange={setCompanyId}>
-              <SelectTrigger><SelectValue placeholder="Selecionar empresa" /></SelectTrigger>
+            <Label>Escopo</Label>
+            <Select value={companyId || "__global__"} onValueChange={(v) => setCompanyId(v === "__global__" ? "" : v)}>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
+                <SelectItem value="__global__">Global (vale para todas as empresas)</SelectItem>
                 {companies.map(c => <SelectItem key={c.id} value={c.id}>{c.nome}</SelectItem>)}
               </SelectContent>
             </Select>
           </div>
           <p className="text-xs text-muted-foreground flex-1 min-w-[260px]">
-            Cada empresa autoriza suas permissões por usuário (Ver / Editar / Excluir) por módulo do plano contratado.
-            <br />
-            <strong>Admin ERP OCS:</strong> aqui você também pode liberar/ajustar permissões de qualquer usuário em qualquer empresa.
+            <strong>Modelo único de permissões:</strong> escolha o escopo (global ou empresa), busque o usuário e ative as permissões necessárias do catálogo central.
+            Apenas funcionários internos OCS podem alterar.
           </p>
         </CardContent>
       </Card>
-      {companyId && <CompanyPermissionsMatrix companyId={companyId} allModulesOverride />}
+      <AclPermissionsMatrix companyId={companyId || null} />
     </div>
   );
 };

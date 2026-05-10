@@ -9,8 +9,7 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { toast } from "sonner";
-import { UserPlus, Trash2, Users, Shield, CreditCard } from "lucide-react";
-import CompanyPermissionsMatrix from "./CompanyPermissionsMatrix";
+import { UserPlus, Trash2, Users, CreditCard } from "lucide-react";
 
 const sb: any = supabase;
 const fmt = (v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
@@ -117,7 +116,6 @@ export default function CompanySheet({ company, onClose, onChanged }: { company:
         <Tabs defaultValue="users" className="mt-4">
           <TabsList>
             <TabsTrigger value="users"><Users className="w-4 h-4 mr-1" /> Usuários</TabsTrigger>
-            <TabsTrigger value="perms"><Shield className="w-4 h-4 mr-1" /> Permissões V/E/D</TabsTrigger>
             <TabsTrigger value="plan"><CreditCard className="w-4 h-4 mr-1" /> Plano & Valor</TabsTrigger>
           </TabsList>
 
@@ -126,7 +124,9 @@ export default function CompanySheet({ company, onClose, onChanged }: { company:
               <Input placeholder="E-mail do usuário existente" value={emailNew} onChange={e => setEmailNew(e.target.value)} />
               <Button onClick={addUser}><UserPlus className="w-4 h-4 mr-1" /> Adicionar</Button>
             </div>
-            <p className="text-xs text-muted-foreground">O usuário precisa ter cadastro prévio no ERP. Use a tela de cadastro pública para criar a conta dele primeiro.</p>
+            <p className="text-xs text-muted-foreground">
+              O usuário precisa ter cadastro prévio no ERP. As permissões agora são gerenciadas em <b>ADM &gt; Visibilidade &gt; Permissões por setor</b>.
+            </p>
             <Table>
               <TableHeader><TableRow><TableHead>Usuário</TableHead><TableHead>E-mail</TableHead><TableHead className="text-center">Admin</TableHead><TableHead></TableHead></TableRow></TableHeader>
               <TableBody>
@@ -145,11 +145,6 @@ export default function CompanySheet({ company, onClose, onChanged }: { company:
                 {users.length === 0 && <TableRow><TableCell colSpan={4} className="text-center text-muted-foreground text-sm">Nenhum usuário vinculado.</TableCell></TableRow>}
               </TableBody>
             </Table>
-          </TabsContent>
-
-          <TabsContent value="perms" className="space-y-3">
-            <p className="text-xs text-muted-foreground">Cada empresa autoriza suas permissões por usuário. Marque <b>Ver</b>, <b>Editar</b> ou <b>Excluir</b> em cada módulo.</p>
-            <CompanyPermissionsMatrix companyId={company.id} />
           </TabsContent>
 
           <TabsContent value="plan" className="space-y-3">
