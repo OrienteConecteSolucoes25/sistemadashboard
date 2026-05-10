@@ -19,7 +19,7 @@ const Projetos = () => {
   const [items, setItems] = useState<Projeto[]>([]);
   const [groups, setGroups] = useState<Group[]>([]);
   const [tags, setTags] = useState<Record<string, string[]>>({});
-  const [moduleRestricted, setModuleRestricted] = useState(false);
+  // moduleRestricted removido
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ nome: "", cliente: "", groupId: "" });
 
