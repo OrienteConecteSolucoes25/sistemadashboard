@@ -178,7 +178,21 @@ export const PixelWorkspaceView = ({
                   if (item) handleRotateItem(selectedItem.type, selectedItem.id, (item.data as any).rotation || 0);
                 }}
               >
-                <RotateCw className="w-4 h-4" />
+                <RotateCw className="w-4 h-4 mr-1" /> Rotacionar
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={async () => {
+                  const item = sortedLayers.find(l => l.type === selectedItem.type && l.data.id === selectedItem.id);
+                  if (item && "is_locked" in item.data) {
+                    const table = item.type === "furniture" ? "pixel_furniture" : item.type === "desk" ? "pixel_desks" : "pixel_rooms";
+                    await supabase.from(table as any).update({ is_locked: !item.data.is_locked } as any).eq("id", item.data.id);
+                    if (onRefresh) onRefresh();
+                  }
+                }}
+              >
+                {sortedLayers.find(l => l.type === selectedItem.type && l.data.id === selectedItem.id)?.data.is_locked ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
               </Button>
               <Button variant="destructive" size="sm" onClick={() => handleDeleteItem(selectedItem.type, selectedItem.id)}>
                 <Trash2 className="w-4 h-4" />
