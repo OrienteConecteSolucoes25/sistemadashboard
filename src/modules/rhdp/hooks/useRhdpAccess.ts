@@ -2,16 +2,13 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserModules } from "@/modules/planos/hooks/useUserModules";
+import { useAclModuleOverride } from "@/acl/legacyBridge";
 
-/**
- * Acesso ao módulo RH/DP. Usuário tem acesso se:
- * - é admin OCS
- * - tem papel rh_admin / dp_admin / auditor_rh
- * - empresa tem o módulo rhdp.base no plano e ele tem submódulos visíveis
- */
+/** @deprecated Será substituído por `useCan("rhdp.acessar")` na Leva 3. */
 export function useRhdpAccess() {
   const { user, isAdmin, loading } = useAuth();
   const { has, ready: modulesReady } = useUserModules();
+  const { allow: aclAllow, ready: aclReady } = useAclModuleOverride("rhdp");
   const [hasRoleFlag, setHasRoleFlag] = useState(false);
   const [checking, setChecking] = useState(true);
 
@@ -30,7 +27,8 @@ export function useRhdpAccess() {
   }, [user, loading]);
 
   const hasModule = modulesReady && has("rhdp.base");
-  const hasAccess = isAdmin || hasRoleFlag || hasModule;
+  const hasAccess = isAdmin || aclAllow || hasRoleFlag || hasModule;
 
-  return { hasAccess, checking: checking || !modulesReady, isAdmin };
+  return { hasAccess, checking: checking || !modulesReady || !aclReady, isAdmin };
 }
+

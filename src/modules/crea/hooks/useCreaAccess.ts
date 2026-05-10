@@ -2,10 +2,13 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserModules } from "@/modules/planos/hooks/useUserModules";
+import { useAclModuleOverride } from "@/acl/legacyBridge";
 
+/** @deprecated Será substituído por `useCan("crea.acessar")` na Leva 3. */
 export function useCreaAccess() {
   const { user, isAdmin, loading } = useAuth();
   const { has, ready } = useUserModules();
+  const { allow: aclAllow, ready: aclReady } = useAclModuleOverride("crea");
   const [roleFlag, setRoleFlag] = useState(false);
   const [checking, setChecking] = useState(true);
 
@@ -25,6 +28,6 @@ export function useCreaAccess() {
   }, [user, loading]);
 
   const hasModule = ready && has("crea.base");
-  const hasAccess = isAdmin || roleFlag || hasModule;
-  return { hasAccess, checking: checking || !ready, isAdmin };
+  const hasAccess = isAdmin || aclAllow || roleFlag || hasModule;
+  return { hasAccess, checking: checking || !ready || !aclReady };
 }
