@@ -221,6 +221,8 @@ export const PixelWorkspaceView = ({
           {/* Camadas ordenadas por Z-index */}
           {sortedLayers.map((layer) => {
             const isSelected = selectedItem?.type === layer.type && selectedItem?.id === layer.data.id;
+            const canEdit = isEditMode && (!("is_locked" in layer.data) || !layer.data.is_locked);
+            
             const commonStyle: React.CSSProperties = {
               position: 'absolute',
               left: layer.data.position_x * TILE_SIZE,
@@ -230,7 +232,7 @@ export const PixelWorkspaceView = ({
               transition: isDragging && isSelected ? 'none' : 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
               outline: isSelected ? '2px solid #0ea5e9' : 'none',
               outlineOffset: '2px',
-              cursor: isEditMode ? 'pointer' : 'inherit'
+              cursor: canEdit ? 'pointer' : (isEditMode ? 'not-allowed' : 'inherit')
             };
 
             if (layer.type === "room") {
