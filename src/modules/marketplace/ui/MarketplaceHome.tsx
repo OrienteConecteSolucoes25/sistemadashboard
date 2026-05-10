@@ -494,7 +494,7 @@ export default function MarketplaceHome() {
   );
 }
 
-function ProductCard({ product }: { product: MarketplaceProduct }) {
+function ProductCard({ product, onAddToCart }: { product: MarketplaceProduct, onAddToCart: () => void }) {
   const price = product.promo_price || product.price;
   const originalPrice = product.promo_price ? product.price : null;
   const image = product.images?.[0] || "https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&q=80";
@@ -545,7 +545,7 @@ function ProductCard({ product }: { product: MarketplaceProduct }) {
             {price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </span>
         </div>
-        <Button className="w-full rounded-lg shadow-none group-hover:bg-primary/90">
+        <Button className="w-full rounded-lg shadow-none group-hover:bg-primary/90" onClick={onAddToCart}>
           Adicionar ao Carrinho <ArrowRight className="ml-2 w-4 h-4" />
         </Button>
       </CardFooter>
