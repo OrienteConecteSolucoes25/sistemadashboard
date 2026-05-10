@@ -67,7 +67,11 @@ export default function TiAgentPage() {
   const [tickets, setTickets] = useState<ITicket[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreating, setIsCreating] = useState(false);
+  const [selectedTicket, setSelectedTicket] = useState<ITicket | null>(null);
   const [activeTab, setActiveTab] = useState("chamados");
+  const [comments, setComments] = useState<ITicketComment[]>([]);
+  const [newComment, setNewComment] = useState("");
+  const [assets, setAssets] = useState<IAsset[]>([]);
 
   // Form states
   const [newTitle, setNewTitle] = useState("");
