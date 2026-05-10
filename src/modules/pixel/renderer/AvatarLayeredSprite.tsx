@@ -36,7 +36,7 @@ interface Props {
  * 11. óculos
  * 12. ferramenta (na mão)
  */
-export const AvatarLayeredSprite = ({ customization, size = 56, faded, grayscale }: Props) => {
+export const AvatarLayeredSprite = ({ customization, size = 56, faded, grayscale, direction = "right", isWalking }: Props) => {
   const c = customization;
   const skin = getColorValue(skinToneOptions, c.avatar_skin_tone, "#e0b18a");
   const skinShadow = shadeColor(skin, -18);
@@ -63,13 +63,15 @@ export const AvatarLayeredSprite = ({ customization, size = 56, faded, grayscale
     ? "saturate(0.6) brightness(0.85)"
     : undefined;
 
+  const flip = direction === "left" ? "scaleX(-1)" : "scaleX(1)";
+
   return (
     <svg
       viewBox="0 0 16 24"
       width={size}
       height={size}
       shapeRendering="crispEdges"
-      style={{ imageRendering: "pixelated", display: "block", filter }}
+      style={{ imageRendering: "pixelated", display: "block", filter, transform: flip }}
       aria-hidden="true"
     >
       {/* sombra no chão */}
