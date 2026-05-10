@@ -18,7 +18,7 @@ import { Link } from "react-router-dom";
 import { useJarbasDashboard } from "../hooks/useJarbasDashboard";
 
 export const JarbasCentralDashboard = () => {
-  const { events, insights, status, alerts } = useJarbasDashboard();
+  const { events, insights, status, alerts, executiveInsights } = useJarbasDashboard();
 
   return (
     <div className="min-h-screen bg-[#050510] text-[#00f2ff] p-6 font-mono selection:bg-cyan-500/30">
