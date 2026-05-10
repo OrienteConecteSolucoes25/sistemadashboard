@@ -7,7 +7,8 @@ import {
   ShieldAlert,
   Zap,
   LayoutDashboard,
-  MessageSquareCode
+  MessageSquareCode,
+  BookOpen
 } from "lucide-react";
 import { jarbasCore } from "../core/jarbasCore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
