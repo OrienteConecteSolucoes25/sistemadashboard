@@ -211,7 +211,7 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
       const chars: PixelCharacter[] = (profilesR.data ?? []).map((p: any) => {
         const pos = posMap.get(p.user_id);
         const lastHb = p.last_heartbeat ? new Date(p.last_heartbeat).getTime() : 0;
-        const isOnline = Date.now() - lastHb < 45000; // Tolerância de 45 segundos
+        const isOnline = Date.now() - lastHb < 60000; // Tolerância aumentada para 60 segundos
 
         return {
           user_id: p.user_id,
