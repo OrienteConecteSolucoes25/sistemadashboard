@@ -40,10 +40,8 @@ export const PixelRoom = ({ room, onClick, characters = [], meetings }: Props) =
 
   return (
     <div
-      className="absolute"
+      className="w-full h-full"
       style={{
-        left: room.position_x * TILE_SIZE,
-        top: room.position_y * TILE_SIZE,
         width,
         height,
       }}
