@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from "react";
+import { useNavigate } from "react-router-dom";
 import { 
   Mic, 
   MicOff, 
@@ -36,6 +37,8 @@ import { supabase } from "@/integrations/supabase/client";
 export function JarbasInterface() {
   const [isOpen, setIsOpen] = useState(false);
   const [isFieldMode, setIsFieldMode] = useState(false);
+  const [inputText, setInputText] = useState("");
+  const navigate = useNavigate();
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   
   const { 
@@ -205,6 +208,37 @@ export function JarbasInterface() {
         </div>
       </ScrollArea>
 
+      {/* Input de Texto (Híbrido Voz/Texto) */}
+      <div className="p-4 bg-slate-900/50 border-t border-primary/10">
+        <div className="relative">
+          <input 
+            type="text"
+            value={inputText}
+            onChange={(e) => setInputText(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' && inputText.trim()) {
+                processInput(inputText, false);
+                setInputText("");
+              }
+            }}
+            placeholder="Digite um comando ou use a voz..."
+            className="w-full bg-slate-800/50 border border-primary/20 rounded-xl px-4 py-3 text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none focus:border-primary/50 transition-colors pr-12 font-mono"
+          />
+          <div className="absolute right-2 top-1/2 -translate-y-1/2 flex gap-1">
+             {inputText.trim() ? (
+               <Button size="icon" variant="ghost" className="h-8 w-8 text-primary" onClick={() => {
+                 processInput(inputText, false);
+                 setInputText("");
+               }}>
+                 <Terminal className="w-4 h-4" />
+               </Button>
+             ) : (
+               <Badge variant="outline" className="text-[8px] border-primary/20 text-primary/40 uppercase">Jarbas_IDLE</Badge>
+             )}
+          </div>
+        </div>
+      </div>
+
       {/* Control Panel / Modo Campo */}
       <div className={`p-6 bg-slate-950 border-t border-primary/10 flex flex-col items-center justify-center relative ${isFieldMode ? 'h-1/3' : ''}`}>
         <div className="w-full mb-6">
@@ -216,33 +250,42 @@ export function JarbasInterface() {
         </div>
         <div className={`absolute inset-0 bg-primary/5 transition-opacity duration-500 ${isListening || isSpeaking ? 'opacity-100' : 'opacity-0'}`} />
         
-        <button 
-          onClick={handleMicClick}
-          disabled={!isSupported || isProcessing}
-          className={`relative z-10 rounded-full flex items-center justify-center transition-all duration-500 border-2 ${
-            isFieldMode ? 'w-32 h-32' : 'w-24 h-24'
-          } ${
-            isListening 
-              ? 'bg-red-500 border-red-400 shadow-[0_0_50px_rgba(239,68,68,0.7)] scale-110' 
-              : isSpeaking
-                ? 'bg-primary border-primary shadow-[0_0_50px_rgba(37,99,235,0.7)]'
-                : 'bg-slate-900 border-primary/30 hover:border-primary/60 hover:shadow-[0_0_20px_rgba(37,99,235,0.3)]'
-          }`}
-        >
-          {isSpeaking ? (
-            <VolumeX className={isFieldMode ? "w-12 h-12 text-white" : "w-10 h-10 text-white"} />
-          ) : (
-            <Mic className={`${isFieldMode ? "w-12 h-12" : "w-10 h-10"} text-white ${isListening ? 'animate-bounce' : ''}`} />
-          )}
-          
-          {/* Visual Feedback Rings */}
-          {(isListening || isSpeaking) && (
-            <div className="absolute inset-[-12px] border-2 border-primary/30 rounded-full animate-ping pointer-events-none" />
-          )}
-        </button>
+        <div className="flex items-center gap-8 z-10">
+           <Button variant="ghost" size="icon" className="h-10 w-10 text-slate-500" onClick={() => navigate('/app/jarbas')}>
+              <Activity className="w-5 h-5" />
+           </Button>
+
+            <button 
+              onClick={handleMicClick}
+              disabled={!isSupported || isProcessing}
+              className={`relative rounded-full flex items-center justify-center transition-all duration-500 border-2 ${
+                isFieldMode ? 'w-32 h-32' : 'w-24 h-24'
+              } ${
+                isListening 
+                  ? 'bg-red-500 border-red-400 shadow-[0_0_50px_rgba(239,68,68,0.7)] scale-110' 
+                  : isSpeaking
+                    ? 'bg-primary border-primary shadow-[0_0_50px_rgba(37,99,235,0.7)]'
+                    : 'bg-slate-900 border-primary/30 hover:border-primary/60 hover:shadow-[0_0_20px_rgba(37,99,235,0.3)]'
+              }`}
+            >
+              {isSpeaking ? (
+                <VolumeX className={isFieldMode ? "w-12 h-12 text-white" : "w-10 h-10 text-white"} />
+              ) : (
+                <Mic className={`${isFieldMode ? "w-12 h-12" : "w-10 h-10"} text-white ${isListening ? 'animate-bounce' : ''}`} />
+              )}
+              
+              {(isListening || isSpeaking) && (
+                <div className="absolute inset-[-12px] border-2 border-primary/30 rounded-full animate-ping pointer-events-none" />
+              )}
+            </button>
+
+           <Button variant="ghost" size="icon" className="h-10 w-10 text-slate-500" onClick={() => navigate('/app/jarbas/knowledge')}>
+              <Database className="w-5 h-5" />
+           </Button>
+        </div>
 
         <div className="mt-4 text-[10px] text-slate-500 font-mono tracking-[0.2em] z-10">
-          {!isSupported ? 'HARWARE_AUDIO_ERROR' : isListening ? 'ESCUTANDO...' : isSpeaking ? 'FALANDO...' : 'TOQUE PARA COMANDAR'}
+          {!isSupported ? 'HARWARE_AUDIO_ERROR' : isListening ? 'ESCUTANDO...' : isSpeaking ? 'FALANDO...' : 'SISTEMA_AGUARDANDO'}
         </div>
 
         {isFieldMode && (
