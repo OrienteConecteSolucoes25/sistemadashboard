@@ -96,6 +96,7 @@ export const PixelWorkspaceView = ({
                 posX={pos.x}
                 posY={pos.y}
                 onClick={onSelectCharacter}
+                recentMessage={recentMessages[c.user_id]}
               />
             );
           })}
