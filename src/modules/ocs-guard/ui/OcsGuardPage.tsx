@@ -271,6 +271,83 @@ export default function OcsGuardPage() {
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6 pb-20">
+        {/* Sistema de Reputação de Usuários */}
+        <Card className="bg-slate-900/50 border-cyan-500/20 text-cyan-400">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-bold uppercase flex items-center gap-2">
+              <UserCheck className="w-4 h-4 text-green-400" /> REPUTAÇÃO DE USUÁRIOS
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center text-[10px]">
+              <span className="opacity-60 italic">admin@ocs.com</span>
+              <span className="font-bold text-green-400">99 pts</span>
+            </div>
+            <div className="flex justify-between items-center text-[10px]">
+              <span className="opacity-60 italic">user_tmp_9@...</span>
+              <span className="font-bold text-amber-400">72 pts</span>
+            </div>
+            <div className="text-[8px] opacity-40 uppercase mt-4">Fatores: Comportamento, 2FA, Histórico</div>
+          </CardContent>
+        </Card>
+
+        {/* Confiança de Dispositivos & Sessões */}
+        <Card className="bg-slate-900/50 border-cyan-500/20 text-cyan-400">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-bold uppercase flex items-center gap-2">
+              <Smartphone className="w-4 h-4 text-cyan-400" /> CONFIANÇA DE DISPOSITIVOS
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex justify-between items-center text-[10px]">
+              <span className="font-bold">MacBook Pro (São Paulo)</span>
+              <Badge className="bg-green-600 text-white text-[8px]">CONFIÁVEL</Badge>
+            </div>
+            <div className="flex justify-between items-center text-[10px]">
+              <span className="font-bold">Mobile (Nova York)</span>
+              <Badge className="bg-red-600 text-white text-[8px]">SUSPEITO</Badge>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Score de Integrações Externas */}
+        <Card className="bg-slate-900/50 border-cyan-500/20 text-cyan-400">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-bold uppercase flex items-center gap-2">
+              <Building2 className="w-4 h-4 text-blue-400" /> REPUTAÇÃO DE EMPRESAS
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 text-center py-6">
+            <div className="text-3xl font-black text-cyan-500">A+</div>
+            <p className="text-[10px] opacity-60 uppercase">NÍVEL DE CONFIANÇA CORPORATIVO</p>
+          </CardContent>
+        </Card>
+
+        {/* Reputação de Módulos (Uptime/Erros) */}
+        <Card className="bg-slate-900/50 border-cyan-500/20 text-cyan-400">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-xs font-bold uppercase flex items-center gap-2">
+              <Cpu className="w-4 h-4 text-purple-400" /> INTEGRIDADE DE MÓDULOS
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="flex justify-between items-center text-[9px] uppercase font-bold">
+              <span>Financeiro</span>
+              <span className="text-green-500">ESTÁVEL</span>
+            </div>
+            <div className="flex justify-between items-center text-[9px] uppercase font-bold">
+              <span>Jarbas Core</span>
+              <span className="text-green-500">ESTÁVEL</span>
+            </div>
+            <div className="flex justify-between items-center text-[9px] uppercase font-bold">
+              <span>Ocs Guard</span>
+              <span className="text-cyan-500">OTIMIZADO</span>
+            </div>
+          </CardContent>
+        </Card>
 
         {/* Cadeia de Custódia / Evidências */}
         <Card className="bg-slate-900/50 border-cyan-500/20 text-cyan-400">
