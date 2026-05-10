@@ -97,8 +97,8 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/app" element={<AppLayout />}>
               <Route index element={<Projetos />} />
-              <Route path="pixel-office" element={<PixelOfficePage />} />
-              <Route path="pixel-office/meu-personagem" element={<MyCharacterPage />} />
+              <Route path="pixel-office" element={<SolucoesVersoPage />} />
+              <Route path="pixel-office/meu-personagem" element={<SolucoesVersoPage />} />
               <Route path="pixel-office/admin" element={<PixelAdminPage />} />
               <Route path="engenharia" element={<EngenhariaGuard />}>
                 <Route index element={<EngenhariaDashboard />} />
