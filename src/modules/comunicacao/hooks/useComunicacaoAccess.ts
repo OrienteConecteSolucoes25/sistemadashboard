@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useAclModuleOverride } from "@/acl/legacyBridge";
+import { useAcl } from "@/acl/AclProvider";
 
-/** @deprecated Será substituído por `useCan("comunicacao.acessar")` na Leva 3. */
+/** @deprecated Em novos códigos use `useCan("comunicacao.acessar")`. */
 export function useComunicacaoAccess() {
   const { session, isAdmin } = useAuth();
-  const { allow: aclAllow, ready: aclReady } = useAclModuleOverride("comunicacao");
+  const { loading: aclLoading, isInternalOcs, can } = useAcl();
+  const aclAllow = isInternalOcs || can("comunicacao.acessar");
+  const aclReady = !aclLoading;
   const [hasAccess, setHasAccess] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
