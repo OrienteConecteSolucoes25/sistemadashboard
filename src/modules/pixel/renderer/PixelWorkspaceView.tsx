@@ -33,6 +33,7 @@ import { pixiEvents } from "../engine/pixiEvents";
 import { pixiFurniture } from "../engine/pixiFurniture";
 import { pixiNpcs } from "../engine/pixiNpcs";
 import { pixiEffects } from "../engine/pixiEffects";
+import { NPCS_CONFIG } from "../data/npcsConfig";
 
 
 
