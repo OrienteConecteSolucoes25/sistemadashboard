@@ -47,6 +47,7 @@ export default function PixelOfficePage() {
   const [selected, setSelected] = useState<Selected>(null);
   const [meetingModalOpen, setMeetingModalOpen] = useState(false);
   const [preselectInvitee, setPreselectInvitee] = useState<string | null>(null);
+  const [activeAgentPanel, setActiveAgentPanel] = useState<string | null>(null);
 
   const { moveTo, getPosition } = useCharacterMovement({
     workspaceId: activeWorkspace?.id ?? null,
