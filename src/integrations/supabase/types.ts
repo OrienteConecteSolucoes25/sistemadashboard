@@ -8977,6 +8977,7 @@ export type Database = {
           active_os_id: string | null
           checklist_id: string | null
           company_id: string | null
+          current_module: string | null
           current_step_index: number | null
           id: string
           last_location: Json | null
@@ -8988,6 +8989,7 @@ export type Database = {
           active_os_id?: string | null
           checklist_id?: string | null
           company_id?: string | null
+          current_module?: string | null
           current_step_index?: number | null
           id?: string
           last_location?: Json | null
@@ -8999,6 +9001,7 @@ export type Database = {
           active_os_id?: string | null
           checklist_id?: string | null
           company_id?: string | null
+          current_module?: string | null
           current_step_index?: number | null
           id?: string
           last_location?: Json | null
@@ -9014,6 +9017,105 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      jarbas_operational_memory: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          id: string
+          key: string
+          updated_at: string
+          user_id: string
+          value: Json
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          key: string
+          updated_at?: string
+          user_id: string
+          value: Json
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          key?: string
+          updated_at?: string
+          user_id?: string
+          value?: Json
+        }
+        Relationships: []
+      }
+      jarbas_safety_logs: {
+        Row: {
+          company_id: string | null
+          context: Json | null
+          created_at: string
+          description: string
+          event_type: string
+          id: string
+          module_key: string | null
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          context?: Json | null
+          created_at?: string
+          description: string
+          event_type: string
+          id?: string
+          module_key?: string | null
+          severity: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          context?: Json | null
+          created_at?: string
+          description?: string
+          event_type?: string
+          id?: string
+          module_key?: string | null
+          severity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      jarbas_training_patterns: {
+        Row: {
+          created_at: string
+          description: string | null
+          frequency: number | null
+          id: string
+          metadata: Json | null
+          module_key: string | null
+          pattern_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          frequency?: number | null
+          id?: string
+          metadata?: Json | null
+          module_key?: string | null
+          pattern_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          frequency?: number | null
+          id?: string
+          metadata?: Json | null
+          module_key?: string | null
+          pattern_type?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       market_carts: {
         Row: {
