@@ -90,6 +90,7 @@ const AppLayout = () => {
       <NavItem to="/app/visao-geral" icon={LayoutDashboard} label="Visão Geral" />
       <NavItem to="/app/pixel-office" icon={Gamepad2} label="Soluções-Verso" />
       <NavItem to="/app/jarbas" icon={Cpu} label="Jarbas AI Core" />
+      <NavItem to="/app/ti" icon={Monitor} label="TI & Suporte" />
       {engAccess && <NavItem to="/app/engenharia" icon={HardHat} label="Engenharia" />}
       {jurAccess && <NavItem to="/app/juridico" icon={Scale} label="Jurídico" />}
       {rhdpAccess && <NavItem to="/app/rh-dp" icon={HeartHandshake} label="RH/DP" />}
