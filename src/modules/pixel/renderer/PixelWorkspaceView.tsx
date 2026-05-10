@@ -26,6 +26,7 @@ import { mapEngine } from "../engine/mapEngine";
 import { spriteEngine, type RendererType } from "../engine/spriteEngine";
 import { PixiOfficeCanvas } from "../engine/PixiOfficeCanvas";
 import { pixiMap } from "../engine/pixiMap";
+import { pixiCharacters } from "../engine/pixiCharacters";
 
 
 interface Props {
@@ -83,7 +84,16 @@ export const PixelWorkspaceView = memo(({
 
   const handlePixiInit = useCallback(() => {
     pixiMap.render();
-  }, []);
+    pixiCharacters.render(characters);
+  }, [characters]);
+
+  // Sync characters to Pixi
+  useEffect(() => {
+    if (currentRenderer === "pixi") {
+      pixiCharacters.render(characters);
+    }
+  }, [characters, currentRenderer]);
+
 
 
   const handleStageClick = (e: React.MouseEvent<HTMLDivElement>) => {
