@@ -1,3 +1,4 @@
+import React, { memo } from "react";
 import { OFFICE_THEME } from "../core/pixelOfficeTheme";
 
 export type FurnitureKind = "plant" | "coffee" | "board" | "sofa" | "chair" | "divider" | "pc" | "decor";
