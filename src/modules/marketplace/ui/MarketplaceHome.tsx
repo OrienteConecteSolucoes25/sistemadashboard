@@ -12,7 +12,12 @@ import {
   TrendingUp,
   Package,
   Award,
-  Loader2
+  Loader2,
+  Trash2,
+  Plus as PlusIcon,
+  Minus,
+  CheckCircle2,
+  CreditCard
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -24,13 +29,37 @@ import {
   TabsList, 
   TabsTrigger 
 } from "@/components/ui/tabs";
-import { motion } from "framer-motion";
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+  SheetFooter
+} from "@/components/ui/sheet";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter
+} from "@/components/ui/dialog";
+import { motion, AnimatePresence } from "framer-motion";
 import { 
   getMarketplaceProducts, 
   getMarketplaceCategories, 
+  createMarketplaceOrder,
   MarketplaceProduct, 
   MarketplaceCategory 
 } from "../lib/marketplaceApi";
+import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
+
+interface CartItem extends MarketplaceProduct {
+  quantity: number;
+}
 
 export default function MarketplaceHome() {
   const [products, setProducts] = useState<MarketplaceProduct[]>([]);
