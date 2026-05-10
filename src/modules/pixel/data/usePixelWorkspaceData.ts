@@ -180,8 +180,11 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
       const posMap = new Map<string, any>();
       (positionsR.data ?? []).forEach((p) => posMap.set(p.user_id, p));
 
-      const chars: PixelCharacter[] = (profilesR.data ?? []).map((p) => {
+      const chars: PixelCharacter[] = (profilesR.data ?? []).map((p: any) => {
         const pos = posMap.get(p.user_id);
+        const lastHb = p.last_heartbeat ? new Date(p.last_heartbeat).getTime() : 0;
+        const isOnline = Date.now() - lastHb < 45000; // Tolerância de 45 segundos
+
         return {
           user_id: p.user_id,
           display_name: p.display_name,
@@ -194,6 +197,8 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
           position_y: pos?.position_y ?? 4,
           current_action: pos?.current_action ?? "idle",
           is_sitting: pos?.is_sitting ?? false,
+          last_heartbeat: p.last_heartbeat,
+          is_online: isOnline,
           customization: customizationFromProfile(p),
         };
       });
