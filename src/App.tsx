@@ -208,8 +208,6 @@ const App = () => (
               <Route path="minha-empresa" element={<MinhaEmpresaPage />} />
               <Route path="visao-geral" element={<VisaoGeralPage />} />
               <Route path="adm" element={<Adm />} />
-               <Route path="ocs-guard" element={<OcsGuardPage />} />
-               <Route path="ti" element={<TiAgentPage />} />
                <Route path="aparencia" element={<ThemeStudioPage />} />
               <Route path="design-system" element={<ThemeStudioPage />} />
             </Route>
