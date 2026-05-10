@@ -99,6 +99,80 @@ export default function CentralChamadosPage() {
     }
   };
 
+  const handleCreateTicket = async () => {
+    try {
+      if (!newTicket.title || !newTicket.description) {
+        toast.error("Preencha todos os campos");
+        return;
+      }
+
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
+
+      const { error } = await supabase
+        .from('it_tickets')
+        .insert([{
+          ...newTicket,
+          user_id: userData.user.id,
+          status: 'aberto',
+          sla_deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString() // 24h default
+        }]);
+
+      if (error) throw error;
+
+      toast.success("Chamado aberto com sucesso!");
+      setIsCreateOpen(false);
+      setNewTicket({ title: "", description: "", priority: "media", category: "software" });
+      fetchTickets();
+    } catch (e: any) {
+      toast.error("Erro ao criar chamado: " + e.message);
+    }
+  };
+
+  const fetchComments = async (ticketId: string) => {
+    const { data, error } = await supabase
+      .from('ti_ticket_comments')
+      .select(`
+        *,
+        profiles:user_id(full_name)
+      `)
+      .eq('ticket_id', ticketId)
+      .order('created_at', { ascending: true });
+    
+    if (!error) setComments(data || []);
+  };
+
+  const handleSendComment = async () => {
+    if (!newComment.trim() || !selectedTicket) return;
+
+    try {
+      setIsSendingComment(true);
+      const { data: userData } = await supabase.auth.getUser();
+      
+      const { error } = await supabase
+        .from('ti_ticket_comments')
+        .insert([{
+          ticket_id: selectedTicket.id,
+          user_id: userData.user?.id,
+          comment: newComment
+        }]);
+
+      if (error) throw error;
+      setNewComment("");
+      fetchComments(selectedTicket.id);
+    } catch (e: any) {
+      toast.error("Erro ao enviar comentário");
+    } finally {
+      setIsSendingComment(false);
+    }
+  };
+
+  const openDetails = (ticket: any) => {
+    setSelectedTicket(ticket);
+    setIsDetailOpen(true);
+    fetchComments(ticket.id);
+  };
+
   const getPriorityColor = (priority: string) => {
     switch (priority) {
       case 'critica': return 'bg-red-500 text-white';
