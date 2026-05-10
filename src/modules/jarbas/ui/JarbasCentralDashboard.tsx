@@ -13,12 +13,10 @@ import { jarbasCore } from "../core/jarbasCore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
+import { useJarbasDashboard } from "../hooks/useJarbasDashboard";
 
 export const JarbasCentralDashboard = () => {
-  const events = jarbasCore.getEvents();
-  const insights = jarbasCore.getInsights();
-  const status = jarbasCore.getOperationalStatus();
-  const alerts = jarbasCore.getAlerts();
+  const { events, insights, status, alerts } = useJarbasDashboard();
 
   return (
     <div className="min-h-screen bg-[#050510] text-[#00f2ff] p-6 font-mono selection:bg-cyan-500/30">
