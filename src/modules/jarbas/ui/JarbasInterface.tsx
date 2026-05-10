@@ -183,6 +183,13 @@ export function JarbasInterface() {
 
       {/* Control Panel / Modo Campo */}
       <div className={`p-6 bg-slate-950 border-t border-primary/10 flex flex-col items-center justify-center relative ${isFieldMode ? 'h-1/3' : ''}`}>
+        <div className="w-full mb-6">
+          <JarbasVoiceVisualizer 
+            isListening={isListening} 
+            isSpeaking={isSpeaking} 
+            isProcessing={isProcessing} 
+          />
+        </div>
         <div className={`absolute inset-0 bg-primary/5 transition-opacity duration-500 ${isListening || isSpeaking ? 'opacity-100' : 'opacity-0'}`} />
         
         <button 
