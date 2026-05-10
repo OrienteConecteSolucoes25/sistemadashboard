@@ -19,15 +19,18 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
+import { useJarbasVoice } from "../../jarbas/hooks/useJarbasVoice";
 
 export default function OcsGuardPage() {
   const [isEmergency, setIsEmergency] = React.useState(false);
+  const { speak } = useJarbasVoice();
 
   const handleEmergencyMode = async () => {
     try {
       if (!isEmergency) {
         await ocsGuard.activateEmergencyMode("Ativação manual via Painel de Controle.");
         setIsEmergency(true);
+        speak("Atenção. Modo de emergência ativado. Protocolos de segurança nível seis iniciados.");
         toast.error("MODO DE EMERGÊNCIA ATIVADO. Acessos restritos e logs intensificados.", {
           duration: 10000,
         });
