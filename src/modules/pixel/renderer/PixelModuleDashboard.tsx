@@ -8,10 +8,13 @@ import {
   Cpu, 
   FileText, 
   CheckCircle2, 
-  AlertCircle 
+  AlertCircle,
+  Eye,
+  Rocket,
+  Presentation
 } from "lucide-react";
 
-export type ModuleType = "engineering" | "legal" | "hr" | "finance" | "ti" | "reception";
+export type ModuleType = "engineering" | "legal" | "hr" | "finance" | "ti" | "reception" | "showroom" | "project_view";
 
 interface Props {
   type: ModuleType;
