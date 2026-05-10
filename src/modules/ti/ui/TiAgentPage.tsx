@@ -57,9 +57,9 @@ interface IAsset {
   id: string;
   name: string;
   type: string;
-  serial_number: string;
+  serial_number: string | null;
   status: string;
-  responsible_id: string;
+  user_id: string | null;
 }
 
 export default function TiAgentPage() {
