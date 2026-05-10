@@ -190,7 +190,7 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
       // Usando query direta via supabase.from("pixel_furniture") para evitar erros de tipagem
       // até que o types.ts seja atualizado
       const furnitureP = supabase
-        .from("pixel_furniture" as any)
+        .from("pixel_furniture")
         .select("id, workspace_id, furniture_key, name, position_x, position_y, rotation, z_index, is_locked")
         .eq("workspace_id", activeId)
         .eq("is_active", true);

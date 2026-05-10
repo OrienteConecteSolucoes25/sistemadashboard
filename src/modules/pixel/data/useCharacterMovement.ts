@@ -91,6 +91,13 @@ export function useCharacterMovement(opts: {
     [canMove, persist],
   );
 
+  const getPosition = useCallback(
+    (userId: string, fallback: LocalPosition): LocalPosition => {
+      return overrides[userId] ?? fallback;
+    },
+    [overrides],
+  );
+
   const setTyping = useCallback(
     async (isTyping: boolean) => {
       if (!user?.id || !workspaceId) return;

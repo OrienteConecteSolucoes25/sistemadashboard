@@ -119,17 +119,19 @@ export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage, isT
               </span>
             </div>
 
-            {/* Etiqueta de nome — sempre visível e elegante */}
-            <div
-              className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold px-2 py-0.5 rounded-full pointer-events-none shadow-sm"
-              style={{
-                background: "rgba(15, 12, 25, 0.8)",
-                color: "#fff",
-                border: `1px solid ${palette.badge}`,
-              }}
-            >
-              {character.display_name ?? "—"}
-            </div>
+            {/* Etiqueta de nome — condicional por proximidade */}
+            {!hideName && (
+              <div
+                className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold px-2 py-0.5 rounded-full pointer-events-none shadow-sm transition-opacity duration-300"
+                style={{
+                  background: "rgba(15, 12, 25, 0.8)",
+                  color: "#fff",
+                  border: `1px solid ${palette.badge}`,
+                }}
+              >
+                {character.display_name ?? "—"}
+              </div>
+            )}
           </button>
         </TooltipTrigger>
         <TooltipContent side="top" className="text-xs">

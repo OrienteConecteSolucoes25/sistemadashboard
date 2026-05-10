@@ -10114,6 +10114,7 @@ export type Database = {
           direction: string
           id: string
           is_sitting: boolean
+          is_typing: boolean | null
           last_moved_at: string
           position_x: number
           position_y: number
@@ -10128,6 +10129,7 @@ export type Database = {
           direction?: string
           id?: string
           is_sitting?: boolean
+          is_typing?: boolean | null
           last_moved_at?: string
           position_x?: number
           position_y?: number
@@ -10142,6 +10144,7 @@ export type Database = {
           direction?: string
           id?: string
           is_sitting?: boolean
+          is_typing?: boolean | null
           last_moved_at?: string
           position_x?: number
           position_y?: number

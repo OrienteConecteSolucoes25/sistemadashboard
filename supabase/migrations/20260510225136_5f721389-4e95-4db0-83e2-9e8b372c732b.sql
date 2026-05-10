@@ -1,0 +1,1 @@
+ALTER TABLE public.pixel_positions ADD COLUMN IF NOT EXISTS is_typing BOOLEAN DEFAULT false;
