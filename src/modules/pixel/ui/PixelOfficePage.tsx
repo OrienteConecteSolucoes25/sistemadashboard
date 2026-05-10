@@ -20,11 +20,12 @@ import TiAgentPage from "@/modules/ti/ui/TiAgentPage";
 import { JarbasInterface } from "@/modules/jarbas/ui/JarbasInterface";
 import { PixelMeetingsPanel } from "./PixelMeetingsPanel";
 import { PixelCommunityPanel } from "./PixelCommunityPanel";
+import MarketplaceHome from "@/modules/marketplace/ui/MarketplaceHome";
 import { DiretorAgentChat } from "@/modules/comunicacao/ui/DiretorAgentChat";
 import { DiretorNpc } from "./DiretorNpc";
 import { ModuleAgentNpc } from "./ModuleAgentNpc";
 import { ModuleAgentChat } from "./ModuleAgentChat";
-import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare, ShieldAlert, Cpu, Zap } from "lucide-react";
+import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare, ShieldAlert, Cpu, Zap, ShoppingCart } from "lucide-react";
 import { ActiveBrandKitProvider } from "@/modules/comunicacao/hooks/useActiveBrandKit";
 
 type Selected =
@@ -282,6 +283,27 @@ export default function PixelOfficePage() {
                 />
               )}
             />
+
+            <ModuleAgentChat
+              moduleKey="marketplace"
+              agentName="Gestor Marketplace OCS"
+              icon={ShoppingCart}
+              welcomeMessage="Olá! Sou o **Gestor do Marketplace**. Posso te ajudar a gerenciar sua loja, cadastrar produtos e acompanhar suas vendas e logística. Como posso impulsionar seu negócio hoje?"
+              renderTrigger={(open) => (
+                <ModuleAgentNpc
+                  name="Gestor Marketplace"
+                  moduleKey="marketplace"
+                  icon={ShoppingCart}
+                  primaryColor="#16a34a"
+                  secondaryColor="#166534"
+                  startX={42}
+                  onClick={() => {
+                    setActiveAgentPanel("marketplace");
+                    open();
+                  }}
+                />
+              )}
+            />
           </div>
 
           {activeAgentPanel === "ocs_guard" && (
@@ -321,6 +343,20 @@ export default function PixelOfficePage() {
                 </CardContent>
               </Card>
             </div>
+          )}
+
+          {activeAgentPanel === "marketplace" && (
+            <Card className="mt-4 animate-in slide-in-from-bottom duration-300 max-w-[1400px] mx-auto">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xl">Portal Marketplace OCS</CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => setActiveAgentPanel(null)}>Fechar</Button>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="max-h-[80vh] overflow-auto">
+                  <MarketplaceHome />
+                </div>
+              </CardContent>
+            </Card>
           )}
 
           <PixelMeetingsPanel
