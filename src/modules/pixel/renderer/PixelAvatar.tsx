@@ -24,7 +24,7 @@ export const PixelAvatar = ({ character, posX, posY, onClick }: Props) => {
   const palette = ROLE_PALETTES[role];
 
   const faded = status === "away";
-  const grayscale = status === "offline";
+  const grayscale = !character.is_online || status === "offline";
 
   return (
     <button
