@@ -152,6 +152,15 @@ export function useJarbasCore() {
     setIsProcessing(true);
     setChatHistory(prev => [...prev, { role: 'user', text: input, timestamp: new Date() }]);
 
+    // Consulta à Base de Conhecimento Local antes da IA
+    const knowledgeResults = jarbasKnowledge.query(input);
+    if (knowledgeResults.length > 0 && input.length > 10) {
+      const entry = knowledgeResults[0];
+      const knowledgeResponse = `[MEMÓRIA OCS] Encontrei uma referência sobre "${entry.title}": ${entry.content}`;
+      setChatHistory(prev => [...prev, { role: 'jarbas', text: knowledgeResponse, type: 'info', timestamp: new Date() }]);
+      if (isVoice) speak(knowledgeResponse);
+    }
+
     try {
       const { data, error } = await supabase.functions.invoke('jarbas-engine', {
         body: { transcript: input, context, history: chatHistory.slice(-5) }
