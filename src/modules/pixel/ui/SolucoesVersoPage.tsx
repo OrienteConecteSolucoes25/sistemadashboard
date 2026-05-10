@@ -1,4 +1,4 @@
-import { useSearchParams } from "react-router-dom";
+import { useLocation, useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Gamepad2, User } from "lucide-react";
 import PixelOfficePage from "./PixelOfficePage";
@@ -10,7 +10,11 @@ import MyCharacterPage from "./MyCharacterPage";
  */
 export default function SolucoesVersoPage() {
   const [params, setParams] = useSearchParams();
-  const tab = params.get("tab") === "meu-personagem" ? "meu-personagem" : "escritorio";
+  const { pathname } = useLocation();
+  const tab =
+    pathname.endsWith("/meu-personagem") || params.get("tab") === "meu-personagem"
+      ? "meu-personagem"
+      : "escritorio";
 
   const setTab = (v: string) => {
     if (v === "escritorio") params.delete("tab");
