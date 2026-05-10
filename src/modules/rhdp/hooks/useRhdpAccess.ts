@@ -2,13 +2,15 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { useUserModules } from "@/modules/planos/hooks/useUserModules";
-import { useAclModuleOverride } from "@/acl/legacyBridge";
+import { useAcl } from "@/acl/AclProvider";
 
-/** @deprecated Será substituído por `useCan("rhdp.acessar")` na Leva 3. */
+/** @deprecated Em novos códigos use `useCan("rhdp.acessar")`. */
 export function useRhdpAccess() {
   const { user, isAdmin, loading } = useAuth();
   const { has, ready: modulesReady } = useUserModules();
-  const { allow: aclAllow, ready: aclReady } = useAclModuleOverride("rhdp");
+  const { loading: aclLoading, isInternalOcs, can } = useAcl();
+  const aclAllow = isInternalOcs || can("rhdp.acessar");
+  const aclReady = !aclLoading;
   const [hasRoleFlag, setHasRoleFlag] = useState(false);
   const [checking, setChecking] = useState(true);
 

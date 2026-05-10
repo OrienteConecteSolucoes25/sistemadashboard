@@ -1,12 +1,14 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { useAclModuleOverride } from "@/acl/legacyBridge";
+import { useAcl } from "@/acl/AclProvider";
 
-/** @deprecated Será substituído por `useCan("juridico.acessar")` na Leva 3. */
+/** @deprecated Em novos códigos use `useCan("juridico.acessar")`. */
 export function useJuridicoAccess() {
   const { user, isAdmin, loading } = useAuth();
-  const { allow: aclAllow, ready: aclReady } = useAclModuleOverride("juridico");
+  const { loading: aclLoading, isInternalOcs, can } = useAcl();
+  const aclAllow = isInternalOcs || can("juridico.acessar");
+  const aclReady = !aclLoading;
   const [hasAccess, setHasAccess] = useState(false);
   const [checking, setChecking] = useState(true);
 
