@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -27,6 +27,8 @@ export interface PixelCharacter {
   position_y: number;
   current_action: string;
   is_sitting: boolean;
+  last_heartbeat?: string | null;
+  is_online?: boolean;
   customization: AvatarCustomization;
 }
 
@@ -83,7 +85,16 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
   const [desks, setDesks] = useState<DeskLite[]>([]);
   const [rooms, setRooms] = useState<RoomLite[]>([]);
   const [reloadTick, setReloadTick] = useState(0);
-  const refresh = () => setReloadTick((n) => n + 1);
+  const refresh = useCallback(() => setReloadTick((n) => n + 1), []);
+
+  // Heartbeat em tempo real
+  useEffect(() => {
+    if (!user) return;
+    const interval = setInterval(async () => {
+      await supabase.rpc("update_pixel_heartbeat", { _uid: user.id });
+    }, 15000); // a cada 15 segundos
+    return () => clearInterval(interval);
+  }, [user]);
 
   // 1) Carregar workspaces visíveis
   useEffect(() => {
@@ -136,7 +147,7 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
       const profilesP = supabase
         .from("pixel_profiles")
         .select(
-          `user_id, display_name, job_title, avatar_sprite_key, status, is_visible, is_blocked, ${AVATAR_CUSTOMIZATION_COLUMNS}`,
+          `user_id, display_name, job_title, avatar_sprite_key, status, is_visible, is_blocked, last_heartbeat, ${AVATAR_CUSTOMIZATION_COLUMNS}`,
         )
         .eq("visibility_group_id", ws.visibility_group_id)
         .eq("is_visible", true);
@@ -169,8 +180,11 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
       const posMap = new Map<string, any>();
       (positionsR.data ?? []).forEach((p) => posMap.set(p.user_id, p));
 
-      const chars: PixelCharacter[] = (profilesR.data ?? []).map((p) => {
+      const chars: PixelCharacter[] = (profilesR.data ?? []).map((p: any) => {
         const pos = posMap.get(p.user_id);
+        const lastHb = p.last_heartbeat ? new Date(p.last_heartbeat).getTime() : 0;
+        const isOnline = Date.now() - lastHb < 45000; // Tolerância de 45 segundos
+
         return {
           user_id: p.user_id,
           display_name: p.display_name,
@@ -183,6 +197,8 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
           position_y: pos?.position_y ?? 4,
           current_action: pos?.current_action ?? "idle",
           is_sitting: pos?.is_sitting ?? false,
+          last_heartbeat: p.last_heartbeat,
+          is_online: isOnline,
           customization: customizationFromProfile(p),
         };
       });

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -36,6 +36,8 @@ type Selected =
 
 export default function PixelOfficePage() {
   const { user, isAdmin } = useAuth();
+  const [notifTick, setNotifTick] = useState(0);
+  const [directorNotifs, setDirectorNotifs] = useState<string[]>([]);
   const {
     loading,
     workspaces,
@@ -99,6 +101,32 @@ export default function PixelOfficePage() {
     setSelected(null);
   };
 
+  const loadDirectorNotifs = useCallback(async () => {
+    if (!user) return;
+    try {
+      // 1. Eng Pendencias
+      const engP = supabase.from("eng_pendencias").select("id", { count: "exact", head: true }).eq("status", "pendente");
+      // 2. TI Chamados
+      const tiP = supabase.from("ti_tickets").select("id", { count: "exact", head: true }).eq("status", "aberto");
+
+      const [engR, tiR] = await Promise.all([engP, tiP]);
+      
+      const alerts: string[] = [];
+      if ((engR.count ?? 0) > 0) alerts.push(`${engR.count} pendências na Engenharia`);
+      if ((tiR.count ?? 0) > 0) alerts.push(`${tiR.count} chamados de TI abertos`);
+      
+      setDirectorNotifs(alerts);
+    } catch (e) {
+      console.error("Erro ao carregar notificações do diretor", e);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadDirectorNotifs();
+    const interval = setInterval(loadDirectorNotifs, 60000); // 1 minuto
+    return () => clearInterval(interval);
+  }, [loadDirectorNotifs]);
+
   return (
     <ActiveBrandKitProvider>
     <div className="space-y-4">
@@ -147,7 +175,7 @@ export default function PixelOfficePage() {
               onStageClick={handleStageClick}
             />
             {/* NPC Diretor OCS dentro do mapa — abre o chat ao ser clicado */}
-            <DiretorAgentChat renderTrigger={(open) => <DiretorNpc onClick={open} />} />
+            <DiretorAgentChat renderTrigger={(open) => <DiretorNpc onClick={open} notifications={directorNotifs} />} />
 
             {/* Agentes por Módulo */}
             <ModuleAgentChat

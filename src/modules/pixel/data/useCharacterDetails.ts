@@ -23,6 +23,8 @@ export interface CharacterFullDetails {
   desk_id: string | null;
   last_moved_at: string | null;
   current_action: string | null;
+  last_heartbeat?: string | null;
+  is_online?: boolean;
   customization: AvatarCustomization;
 }
 
@@ -47,7 +49,7 @@ export function useCharacterDetails(userId: string | null) {
         supabase
           .from("pixel_profiles")
           .select(
-            `user_id, display_name, job_title, age, show_age, linkedin_url, department, sector_description, avatar_sprite_key, status, visibility_group_id, ${AVATAR_CUSTOMIZATION_COLUMNS}, visibility_groups:visibility_group_id(name, color)`,
+            `user_id, display_name, job_title, age, show_age, linkedin_url, department, sector_description, avatar_sprite_key, status, last_heartbeat, visibility_group_id, ${AVATAR_CUSTOMIZATION_COLUMNS}, visibility_groups:visibility_group_id(name, color)`,
           )
           .eq("user_id", userId)
           .maybeSingle(),
@@ -91,6 +93,8 @@ export function useCharacterDetails(userId: string | null) {
         desk_id: deskR.data?.id ?? null,
         last_moved_at: positionR.data?.last_moved_at ?? null,
         current_action: positionR.data?.current_action ?? null,
+        last_heartbeat: p.last_heartbeat,
+        is_online: p.last_heartbeat ? (Date.now() - new Date(p.last_heartbeat).getTime() < 45000) : false,
         customization: customizationFromProfile(p),
       });
       setLoading(false);
