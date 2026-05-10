@@ -175,7 +175,7 @@ export default function PixelOfficePage() {
               onStageClick={handleStageClick}
             />
             {/* NPC Diretor OCS dentro do mapa — abre o chat ao ser clicado */}
-            <DiretorAgentChat renderTrigger={(open) => <DiretorNpc onClick={open} />} />
+            <DiretorAgentChat renderTrigger={(open) => <DiretorNpc onClick={open} notifications={directorNotifs} />} />
 
             {/* Agentes por Módulo */}
             <ModuleAgentChat
