@@ -10,7 +10,7 @@ import { useJuridicoAccess } from "@/modules/juridico/hooks/useJuridicoAccess";
 import { usePlanosAccess } from "@/modules/planos/hooks/usePlanosAccess";
 import { useEffect, useState } from "react";
 import { NotificationsBell } from "@/components/NotificationsBell";
-import { AssistenteFloating } from "@/components/AssistenteFloating";
+import { JarbasInterface } from "@/modules/jarbas/ui/JarbasInterface";
 import { ImpersonationProvider } from "@/modules/planos/hooks/useImpersonation";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { useUserLayoutPreference } from "@/modules/aparencia/hooks/useUserLayoutPreference";
