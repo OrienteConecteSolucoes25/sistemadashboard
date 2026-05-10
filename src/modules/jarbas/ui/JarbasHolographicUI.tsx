@@ -99,4 +99,4 @@ export const JarbasHolographicUI = ({ state }: Props) => {
   );
 };
 
-const AnimatePresence = ({ children }: { children: React.ReactNode }) => <>{children}</>;
+const AnimatePresence = motion.div;
