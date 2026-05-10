@@ -266,7 +266,12 @@ function PermissoesTab() {
   };
 
   return (
-    <Card>
+    <div className="space-y-3">
+      <LegacyDeprecationBanner
+        title="Permissões granulares de Engenharia — modelo legado"
+        message="Use a matriz central em ADM › Visibilidade. Esta tela permanece para compatibilidade."
+      />
+      <Card>
       <CardHeader>
         <CardTitle className="text-base">Permissões granulares por módulo (sobrescreve papéis)</CardTitle>
         <Select value={selected} onValueChange={setSelected}>
