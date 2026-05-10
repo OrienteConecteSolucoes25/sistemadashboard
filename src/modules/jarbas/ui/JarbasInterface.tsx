@@ -53,7 +53,7 @@ export function JarbasInterface() {
         scrollContainer.scrollTop = scrollContainer.scrollHeight;
       }
     }
-  }, [history]);
+  }, [chatHistory]);
 
   const toggleJarbas = () => {
     setIsOpen(!isOpen);
