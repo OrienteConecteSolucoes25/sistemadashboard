@@ -470,6 +470,26 @@ export default function PixelOfficePage() {
             }}
           />
           <PixelCommunityPanel activeWorkspace={activeWorkspace} workspaces={workspaces} />
+
+          {/* Mobile Navigation Fixa */}
+          <div className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-2 flex justify-around items-center z-[100] safe-area-bottom shadow-lg">
+            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2" onClick={() => setActiveWorkspaceId(workspaces[0]?.id)}>
+              <Cpu className="w-5 h-5" />
+              <span className="text-[10px]">Office</span>
+            </Button>
+            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2" onClick={() => setSelected({ kind: "character", data: characters.find(c => c.user_id === user?.id) as any })}>
+              <Users className="w-5 h-5" />
+              <span className="text-[10px]">Eu</span>
+            </Button>
+            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2">
+              <MessageSquare className="w-5 h-5" />
+              <span className="text-[10px]">Chat</span>
+            </Button>
+            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2">
+              <Video className="w-5 h-5" />
+              <span className="text-[10px]">Reunião</span>
+            </Button>
+          </div>
         </>
       )}
 
