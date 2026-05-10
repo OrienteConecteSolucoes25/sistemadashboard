@@ -7195,6 +7195,51 @@ export type Database = {
           },
         ]
       }
+      financial_security_alerts: {
+        Row: {
+          alert_type: string
+          company_id: string
+          created_at: string | null
+          description: string | null
+          details: Json | null
+          id: string
+          module: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          severity: string | null
+          status: string | null
+          triggered_by: string | null
+        }
+        Insert: {
+          alert_type: string
+          company_id: string
+          created_at?: string | null
+          description?: string | null
+          details?: Json | null
+          id?: string
+          module?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string | null
+          status?: string | null
+          triggered_by?: string | null
+        }
+        Update: {
+          alert_type?: string
+          company_id?: string
+          created_at?: string | null
+          description?: string | null
+          details?: Json | null
+          id?: string
+          module?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          severity?: string | null
+          status?: string | null
+          triggered_by?: string | null
+        }
+        Relationships: []
+      }
       gov_dataset_columns: {
         Row: {
           col_index: number
@@ -11658,6 +11703,16 @@ export type Database = {
       }
       theme_save: { Args: { _company: string; _payload: Json }; Returns: Json }
       ti_is_it_staff: { Args: never; Returns: boolean }
+      trigger_financial_alert: {
+        Args: {
+          p_alert_type: string
+          p_company_id: string
+          p_description: string
+          p_details: Json
+          p_severity?: string
+        }
+        Returns: string
+      }
       update_pixel_heartbeat: { Args: { _uid: string }; Returns: undefined }
       user_company: { Args: { _uid: string }; Returns: string }
       user_group_ids: { Args: { _user_id: string }; Returns: string[] }

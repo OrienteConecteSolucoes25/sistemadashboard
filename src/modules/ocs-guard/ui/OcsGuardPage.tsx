@@ -130,6 +130,22 @@ export default function OcsGuardPage() {
                 </div>
               ))}
             </div>
+
+            {/* Nova Seção: Alertas Financeiros Suspeitos */}
+            <div className="mt-6 border-t border-red-500/20 pt-4">
+              <h3 className="text-[10px] font-bold text-red-500 mb-3 flex items-center gap-2 italic">
+                <ShieldAlert className="w-3 h-3" /> ALERTAS FINANCEIROS DE ALTO RISCO
+              </h3>
+              <div className="space-y-2">
+                <div className="p-2 rounded bg-red-500/10 border border-red-500/30 flex justify-between items-center animate-pulse">
+                  <div className="text-[9px]">
+                    <span className="font-bold block">EXPORTAÇÃO EM MASSA DETECTADA</span>
+                    <span className="opacity-60 uppercase italic">Módulo Financeiro • Há 2 min</span>
+                  </div>
+                  <Button size="sm" variant="destructive" className="h-6 text-[8px] font-bold">BLOQUEAR IP</Button>
+                </div>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
