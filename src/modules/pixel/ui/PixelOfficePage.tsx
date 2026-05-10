@@ -87,6 +87,43 @@ export default function PixelOfficePage() {
     };
   }, [activeWorkspace?.id, user?.id, refresh]);
 
+  // Realtime: Bubbles de chat
+  useEffect(() => {
+    if (!activeWorkspace?.id) return;
+    const channel = supabase
+      .channel(`pixel-bubbles-${activeWorkspace.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "pixel_messages",
+          filter: `workspace_id=eq.${activeWorkspace.id}`,
+        },
+        (payload) => {
+          const row: any = payload.new;
+          if (!row?.sender_user_id || !row?.message) return;
+          
+          setBubbles(prev => ({ ...prev, [row.sender_user_id]: row.message }));
+          
+          // Remove a bubble após 5 segundos
+          setTimeout(() => {
+            setBubbles(prev => {
+              const next = { ...prev };
+              if (next[row.sender_user_id] === row.message) {
+                delete next[row.sender_user_id];
+              }
+              return next;
+            });
+          }, 5000);
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [activeWorkspace?.id]);
+
   // Personagens "em reunião" recebem badge meeting (via status do profile já vem)
   // Posicionar personagens joined dentro/perto da sala da reunião visualmente
   // (Para simplicidade, sala de reunião visual fica no painel lateral abaixo.)
