@@ -95,6 +95,39 @@ class OcsGuardCore {
       .single();
     return data;
   }
+
+  public async logAiAction(params: {
+    agent: string;
+    classification: 'informativa' | 'operacional' | 'administrativa' | 'critica';
+    module: string;
+    prompt: string;
+    response: string;
+    action?: string;
+    impact?: string;
+    requiresApproval?: boolean;
+  }) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('company_id')
+      .eq('id', user.id)
+      .single();
+
+    return await supabase.from('ai_governance_logs').insert({
+      user_id: user.id,
+      company_id: profile?.company_id,
+      agent_name: params.agent,
+      classification: params.classification,
+      module: params.module,
+      prompt_text: params.prompt,
+      response_text: params.response,
+      action_executed: params.action,
+      impact_description: params.impact,
+      requires_approval: params.requiresApproval || params.classification === 'critica'
+    });
+  }
 }
 
 export const ocsGuard = OcsGuardCore.getInstance();

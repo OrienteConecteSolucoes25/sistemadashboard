@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useJarbasVoice } from "./useJarbasVoice";
 import { jarbasAutomation } from "../core/jarbasAutomation";
 import { jarbasKnowledge } from "../core/jarbasKnowledge";
+import { ocsGuard } from "../../ocs-guard/core/ocsGuardCore";
 import { toast } from "sonner";
 
 export interface JarbasContext {
@@ -179,6 +180,16 @@ export function useJarbasCore() {
       if (action) {
         await executeAction(action);
       }
+
+      // Governança de IA: Logar ação no OCS Guard
+      await ocsGuard.logAiAction({
+        agent: 'Jarbas OCS',
+        classification: action?.type === 'automation' ? 'operacional' : 'informativa',
+        module: context.current_module,
+        prompt: input,
+        response: text,
+        action: action?.type
+      });
 
       await saveLog(input, text, isVoice);
 
