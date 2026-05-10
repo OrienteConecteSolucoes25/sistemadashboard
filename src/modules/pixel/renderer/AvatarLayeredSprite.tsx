@@ -15,6 +15,8 @@ interface Props {
   size?: number;
   faded?: boolean;
   grayscale?: boolean;
+  direction?: "left" | "right";
+  isWalking?: boolean;
 }
 
 /**
