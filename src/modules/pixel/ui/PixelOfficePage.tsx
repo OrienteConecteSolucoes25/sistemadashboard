@@ -284,7 +284,14 @@ export default function PixelOfficePage() {
             />
           </div>
 
-          {activeAgentPanel === "ocs_guard" && (
+          <PixelMeetingsPanel
+            meetings={meetings}
+            characters={characters}
+            onNewMeeting={() => {
+              setPreselectInvitee(null);
+              setMeetingModalOpen(true);
+            }}
+          />
             <Card className="mt-4 animate-in slide-in-from-bottom duration-300">
               <CardHeader className="flex flex-row items-center justify-between pb-2">
                 <CardTitle className="text-xl">Painel OCS Guard</CardTitle>
