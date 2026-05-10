@@ -419,7 +419,7 @@ export default function OcsGuardPage() {
                         </div>
                       </div>
                       <div className="flex items-center gap-2">
-                        <Badge variant={int.risk === 'Baixo' ? 'outline' : 'warning'}>{int.risk} Risco</Badge>
+                        <Badge variant={int.risk === 'Baixo' ? 'outline' : 'secondary'}>{int.risk} Risco</Badge>
                         <Button size="icon" variant="ghost" className="h-8 w-8"><ExternalLink className="w-4 h-4" /></Button>
                       </div>
                     </div>
