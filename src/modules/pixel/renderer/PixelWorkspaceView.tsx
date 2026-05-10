@@ -41,6 +41,7 @@ interface Props {
   meetings?: any;
   isAdmin?: boolean;
   onRefresh?: () => void;
+  renderer?: RendererType;
 }
 
 export const PixelWorkspaceView = ({
