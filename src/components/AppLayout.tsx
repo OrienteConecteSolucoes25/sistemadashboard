@@ -89,6 +89,7 @@ const AppLayout = () => {
       {/* Módulo Projetos removido por não ter ligação funcional com o Soluções-Verso */}
       <NavItem to="/app/visao-geral" icon={LayoutDashboard} label="Visão Geral" />
       <NavItem to="/app/pixel-office" icon={Gamepad2} label="Soluções-Verso" />
+      <NavItem to="/app/jarbas" icon={Cpu} label="Jarbas AI Core" />
       {engAccess && <NavItem to="/app/engenharia" icon={HardHat} label="Engenharia" />}
       {jurAccess && <NavItem to="/app/juridico" icon={Scale} label="Jurídico" />}
       {rhdpAccess && <NavItem to="/app/rh-dp" icon={HeartHandshake} label="RH/DP" />}
