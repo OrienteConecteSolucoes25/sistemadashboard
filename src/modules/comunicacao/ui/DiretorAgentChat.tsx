@@ -63,10 +63,10 @@ export function DiretorAgentChat({ renderTrigger }: { renderTrigger?: (open: () 
     }).select().single();
     if (error) { toast.error(error.message); return; }
     setConvId(data.id);
-    setMessages([{
-      role: "assistant",
-      content: `Olá! Sou o **Diretor de Comunicação OCS**. Posso te ajudar a planejar e criar tudo no módulo de Comunicação:\n\n- 📅 Calendário editorial\n- ✍️ Posts, legendas, carrosséis, newsletter\n- 🎨 Design (grade Instagram)\n- 💡 Ideias e campanhas\n- 📢 Comunicados internos\n\nMe diga o que você quer fazer. ${activeBrand ? `Estou usando o brand kit **${activeBrand.nome}**.` : "⚠️ Selecione um cliente/marca no topo para começar."}`,
-    }]);
+    const welcome = activeBrand
+      ? `Olá! Sou o **Diretor de Comunicação OCS**. Estou usando o brand kit **${activeBrand.nome}**.\n\nPosso te ajudar a:\n\n- 📅 Planejar calendário editorial\n- ✍️ Criar posts, legendas, carrosséis, newsletter\n- 🎨 Orientar arte no Design Studio\n- 💡 Gerar ideias e campanhas\n- 📢 Redigir comunicados internos\n\nMe diga o que você quer fazer.`
+      : `Olá! Sou o **Diretor de Comunicação OCS**.\n\nVocê ainda não selecionou um cliente/marca, então estou em **modo consultivo**: posso explicar o módulo inteiro, cada aba, como usar e os fluxos.\n\nExperimente perguntar:\n- *"Como funciona a aba Calendário Editorial?"*\n- *"Para que serve o Banco de Ideias?"*\n- *"Qual é o fluxo de aprovação de um post?"*\n- *"O que é um Brand Kit e como crio um?"*\n\nQuando quiser **criar conteúdo**, selecione um cliente no topo desta janela.`;
+    setMessages([{ role: "assistant", content: welcome }]);
     setView("chat");
   }
 
@@ -160,8 +160,8 @@ export function DiretorAgentChat({ renderTrigger }: { renderTrigger?: (open: () 
               <BrandKitSelector />
             </div>
             {!activeBrand && (
-              <div className="text-[11px] text-amber-600">
-                Selecione um cliente acima para iniciar a conversa.
+              <div className="text-[11px] text-muted-foreground">
+                Sem cliente selecionado: posso explicar o módulo. Selecione um cliente acima para criar conteúdo.
               </div>
             )}
             <div className="grid grid-cols-2 gap-2">
@@ -172,7 +172,7 @@ export function DiretorAgentChat({ renderTrigger }: { renderTrigger?: (open: () 
                   <SelectItem value="interna">Comunicação interna</SelectItem>
                 </SelectContent>
               </Select>
-              <Button size="sm" onClick={newChat} disabled={!companyId || !activeBrandId}>
+              <Button size="sm" onClick={newChat} disabled={!companyId}>
                 <Plus className="h-4 w-4 mr-1" /> Nova conversa
               </Button>
             </div>
