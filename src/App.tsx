@@ -216,6 +216,7 @@ const App = () => (
               <Route path="adm" element={<Adm />} />
               <Route path="jarbas" element={<JarbasCentralDashboard />} />
               <Route path="jarbas/knowledge" element={<JarbasKnowledgePage />} />
+              <Route path="ocs-guard" element={<OcsGuardPage />} />
                <Route path="aparencia" element={<ThemeStudioPage />} />
               <Route path="design-system" element={<ThemeStudioPage />} />
             </Route>
