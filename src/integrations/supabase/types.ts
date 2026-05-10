@@ -9682,54 +9682,36 @@ export type Database = {
         }
         Relationships: []
       }
-      market_carts: {
-        Row: {
-          id: string
-          items: Json | null
-          updated_at: string
-          user_id: string | null
-        }
-        Insert: {
-          id?: string
-          items?: Json | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Update: {
-          id?: string
-          items?: Json | null
-          updated_at?: string
-          user_id?: string | null
-        }
-        Relationships: []
-      }
       market_categories: {
         Row: {
-          created_at: string
+          created_at: string | null
+          icon: string | null
           id: string
-          image_url: string | null
           is_active: boolean | null
           name: string
           parent_id: string | null
           slug: string
+          store_id: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
+          icon?: string | null
           id?: string
-          image_url?: string | null
           is_active?: boolean | null
           name: string
           parent_id?: string | null
           slug: string
+          store_id?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
+          icon?: string | null
           id?: string
-          image_url?: string | null
           is_active?: boolean | null
           name?: string
           parent_id?: string | null
           slug?: string
+          store_id?: string | null
         }
         Relationships: [
           {
@@ -9739,49 +9721,53 @@ export type Database = {
             referencedRelation: "market_categories"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "market_categories_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "market_stores"
+            referencedColumns: ["id"]
+          },
         ]
       }
       market_coupons: {
         Row: {
           code: string
           created_at: string | null
-          expires_at: string | null
           id: string
           is_active: boolean | null
-          min_purchase_amount: number | null
-          starts_at: string | null
+          min_purchase: number | null
           store_id: string | null
           type: string
           usage_count: number | null
           usage_limit: number | null
+          valid_until: string | null
           value: number
         }
         Insert: {
           code: string
           created_at?: string | null
-          expires_at?: string | null
           id?: string
           is_active?: boolean | null
-          min_purchase_amount?: number | null
-          starts_at?: string | null
+          min_purchase?: number | null
           store_id?: string | null
           type: string
           usage_count?: number | null
           usage_limit?: number | null
+          valid_until?: string | null
           value: number
         }
         Update: {
           code?: string
           created_at?: string | null
-          expires_at?: string | null
           id?: string
           is_active?: boolean | null
-          min_purchase_amount?: number | null
-          starts_at?: string | null
+          min_purchase?: number | null
           store_id?: string | null
           type?: string
           usage_count?: number | null
           usage_limit?: number | null
+          valid_until?: string | null
           value?: number
         }
         Relationships: [
@@ -9798,152 +9784,67 @@ export type Database = {
         Row: {
           address: Json | null
           created_at: string | null
-          document: string | null
           email: string
           full_name: string
           id: string
           phone: string | null
-          updated_at: string | null
-          user_id: string | null
+          profile_id: string | null
         }
         Insert: {
           address?: Json | null
           created_at?: string | null
-          document?: string | null
           email: string
           full_name: string
           id?: string
           phone?: string | null
-          updated_at?: string | null
-          user_id?: string | null
+          profile_id?: string | null
         }
         Update: {
           address?: Json | null
           created_at?: string | null
-          document?: string | null
           email?: string
           full_name?: string
           id?: string
           phone?: string | null
-          updated_at?: string | null
-          user_id?: string | null
-        }
-        Relationships: []
-      }
-      market_inventory_movements: {
-        Row: {
-          created_at: string | null
-          id: string
-          product_id: string
-          quantity: number
-          reason: string | null
-          reference_id: string | null
-          type: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          product_id: string
-          quantity: number
-          reason?: string | null
-          reference_id?: string | null
-          type: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          product_id?: string
-          quantity?: number
-          reason?: string | null
-          reference_id?: string | null
-          type?: string
+          profile_id?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "market_inventory_movements_product_id_fkey"
-            columns: ["product_id"]
+            foreignKeyName: "market_customers_profile_id_fkey"
+            columns: ["profile_id"]
             isOneToOne: false
-            referencedRelation: "market_products"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      market_messages: {
-        Row: {
-          created_at: string | null
-          customer_id: string
-          id: string
-          message: string
-          order_id: string | null
-          read_at: string | null
-          sender_type: string
-          store_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          customer_id: string
-          id?: string
-          message: string
-          order_id?: string | null
-          read_at?: string | null
-          sender_type: string
-          store_id: string
-        }
-        Update: {
-          created_at?: string | null
-          customer_id?: string
-          id?: string
-          message?: string
-          order_id?: string | null
-          read_at?: string | null
-          sender_type?: string
-          store_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "market_messages_customer_id_fkey"
-            columns: ["customer_id"]
-            isOneToOne: false
-            referencedRelation: "market_customers"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "market_messages_order_id_fkey"
-            columns: ["order_id"]
-            isOneToOne: false
-            referencedRelation: "market_orders"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "market_messages_store_id_fkey"
-            columns: ["store_id"]
-            isOneToOne: false
-            referencedRelation: "market_stores"
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
       }
       market_order_items: {
         Row: {
+          created_at: string | null
           id: string
-          order_id: string | null
-          price_at_purchase: number
+          order_id: string
           product_id: string | null
           quantity: number
+          total_price: number
+          unit_price: number
         }
         Insert: {
+          created_at?: string | null
           id?: string
-          order_id?: string | null
-          price_at_purchase: number
+          order_id: string
           product_id?: string | null
           quantity: number
+          total_price: number
+          unit_price: number
         }
         Update: {
+          created_at?: string | null
           id?: string
-          order_id?: string | null
-          price_at_purchase?: number
+          order_id?: string
           product_id?: string | null
           quantity?: number
+          total_price?: number
+          unit_price?: number
         }
         Relationships: [
           {
@@ -9964,45 +9865,52 @@ export type Database = {
       }
       market_orders: {
         Row: {
-          created_at: string
+          created_at: string | null
+          customer_id: string
+          discount_amount: number | null
           id: string
-          payment_method: string | null
-          shipping_address: Json | null
-          shipping_cost: number | null
+          notes: string | null
+          shipping_amount: number | null
           status: string
-          store_id: string | null
+          store_id: string
           total_amount: number
           tracking_code: string | null
-          updated_at: string
-          user_id: string | null
+          updated_at: string | null
         }
         Insert: {
-          created_at?: string
+          created_at?: string | null
+          customer_id: string
+          discount_amount?: number | null
           id?: string
-          payment_method?: string | null
-          shipping_address?: Json | null
-          shipping_cost?: number | null
+          notes?: string | null
+          shipping_amount?: number | null
           status?: string
-          store_id?: string | null
+          store_id: string
           total_amount: number
           tracking_code?: string | null
-          updated_at?: string
-          user_id?: string | null
+          updated_at?: string | null
         }
         Update: {
-          created_at?: string
+          created_at?: string | null
+          customer_id?: string
+          discount_amount?: number | null
           id?: string
-          payment_method?: string | null
-          shipping_address?: Json | null
-          shipping_cost?: number | null
+          notes?: string | null
+          shipping_amount?: number | null
           status?: string
-          store_id?: string | null
+          store_id?: string
           total_amount?: number
           tracking_code?: string | null
-          updated_at?: string
-          user_id?: string | null
+          updated_at?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "market_orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "market_customers"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "market_orders_store_id_fkey"
             columns: ["store_id"]
@@ -10015,57 +9923,60 @@ export type Database = {
       market_products: {
         Row: {
           category_id: string | null
-          created_at: string
+          created_at: string | null
           description: string | null
           id: string
           images: string[] | null
           is_active: boolean | null
+          is_featured: boolean | null
+          metadata: Json | null
           min_stock_alert: number | null
           name: string
           price: number
           promo_price: number | null
           sku: string | null
-          slug: string
-          specifications: Json | null
           stock_quantity: number | null
           store_id: string
-          updated_at: string
+          tags: string[] | null
+          updated_at: string | null
         }
         Insert: {
           category_id?: string | null
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           id?: string
           images?: string[] | null
           is_active?: boolean | null
+          is_featured?: boolean | null
+          metadata?: Json | null
           min_stock_alert?: number | null
           name: string
           price: number
           promo_price?: number | null
           sku?: string | null
-          slug: string
-          specifications?: Json | null
           stock_quantity?: number | null
           store_id: string
-          updated_at?: string
+          tags?: string[] | null
+          updated_at?: string | null
         }
         Update: {
           category_id?: string | null
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           id?: string
           images?: string[] | null
           is_active?: boolean | null
+          is_featured?: boolean | null
+          metadata?: Json | null
           min_stock_alert?: number | null
           name?: string
           price?: number
           promo_price?: number | null
           sku?: string | null
-          slug?: string
-          specifications?: Json | null
           stock_quantity?: number | null
           store_id?: string
-          updated_at?: string
+          tags?: string[] | null
+          updated_at?: string | null
         }
         Relationships: [
           {
@@ -10087,49 +9998,49 @@ export type Database = {
       market_stores: {
         Row: {
           banner_url: string | null
-          commission_rate: number | null
-          company_id: string
-          created_at: string
+          created_at: string | null
           description: string | null
           id: string
+          is_active: boolean | null
           logo_url: string | null
           name: string
-          rating: number | null
+          organization_id: string | null
+          settings: Json | null
           slug: string
-          status: string
+          updated_at: string | null
         }
         Insert: {
           banner_url?: string | null
-          commission_rate?: number | null
-          company_id: string
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           id?: string
+          is_active?: boolean | null
           logo_url?: string | null
           name: string
-          rating?: number | null
+          organization_id?: string | null
+          settings?: Json | null
           slug: string
-          status?: string
+          updated_at?: string | null
         }
         Update: {
           banner_url?: string | null
-          commission_rate?: number | null
-          company_id?: string
-          created_at?: string
+          created_at?: string | null
           description?: string | null
           id?: string
+          is_active?: boolean | null
           logo_url?: string | null
           name?: string
-          rating?: number | null
+          organization_id?: string | null
+          settings?: Json | null
           slug?: string
-          status?: string
+          updated_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "market_stores_company_id_fkey"
-            columns: ["company_id"]
+            foreignKeyName: "market_stores_organization_id_fkey"
+            columns: ["organization_id"]
             isOneToOne: false
-            referencedRelation: "companies"
+            referencedRelation: "organizations"
             referencedColumns: ["id"]
           },
         ]
