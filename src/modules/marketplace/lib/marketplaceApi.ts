@@ -1,4 +1,5 @@
 import { supabase } from "@/integrations/supabase/client";
+import { jarbasCore } from "../../jarbas/core/jarbasCore";
 
 export interface MarketplaceStore {
   id: string;
@@ -112,6 +113,15 @@ export async function createMarketplaceOrder(orderData: {
     .insert(itemsToInsert);
 
   if (itemsError) throw itemsError;
+
+  // Notificar Jarbas sobre a nova venda
+  jarbasCore.registerEvent({
+    module: "marketplace",
+    type: "new_order",
+    title: `Venda Realizada: R$ ${orderData.total_amount.toFixed(2)}`,
+    description: `Um novo pedido foi gerado no Marketplace. Cliente ID: ${orderData.customer_id}`,
+    severity: "low"
+  });
 
   return order;
 }
