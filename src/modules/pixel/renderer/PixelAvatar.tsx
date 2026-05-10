@@ -154,4 +154,4 @@ export const PixelAvatar = memo(({ character, posX, posY, onClick, recentMessage
     </TooltipProvider>
     </div>
   );
-};
+});
