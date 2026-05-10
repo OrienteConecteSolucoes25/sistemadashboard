@@ -323,6 +323,14 @@ export default function PixelOfficePage() {
             </div>
           )}
 
+          <PixelMeetingsPanel
+            meetings={meetings}
+            characters={characters}
+            onNewMeeting={() => {
+              setPreselectInvitee(null);
+              setMeetingModalOpen(true);
+            }}
+          />
           <PixelCommunityPanel activeWorkspace={activeWorkspace} workspaces={workspaces} />
         </>
       )}
