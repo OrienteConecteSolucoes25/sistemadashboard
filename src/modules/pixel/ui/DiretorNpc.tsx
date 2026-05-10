@@ -5,7 +5,7 @@ import { Sparkles } from "lucide-react";
  * Diretor OCS — NPC pixel-art que **anda** pela base do mapa e periodicamente
  * **senta** na mesa dele (canto inferior direito). Clique abre o chat.
  */
-export function DiretorNpc({ onClick }: { onClick: () => void }) {
+export function DiretorNpc({ onClick, notifications = [] }: { onClick: () => void; notifications?: string[] }) {
   const [hover, setHover] = useState(false);
   // x em % da largura do container; pose: walk-l, walk-r, sit
   const [x, setX] = useState(70);
