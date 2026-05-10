@@ -3,7 +3,7 @@ import { OFFICE_THEME } from "../core/pixelOfficeTheme";
 interface Props {
   width: number;
   height: number;
-  variant?: "meeting" | "engineering" | "legal" | "common";
+  variant?: "meeting" | "engineering" | "legal" | "common" | "hr" | "finance" | "ti" | "reception";
   label?: string;
 }
 
@@ -12,9 +12,17 @@ const variantColors = (v: Props["variant"]) => {
     case "meeting":
       return { carpet: OFFICE_THEME.carpetMeeting, accent: "#c9a8ff" };
     case "engineering":
-      return { carpet: "#5a3a1a", accent: "#ffb066" };
+      return { carpet: "#1f2937", accent: "#3b82f6" };
     case "legal":
-      return { carpet: "#1f3a6a", accent: "#a8c0ff" };
+      return { carpet: "#1e1b4b", accent: "#f59e0b" };
+    case "hr":
+      return { carpet: "#064e3b", accent: "#10b981" };
+    case "finance":
+      return { carpet: "#4c1d95", accent: "#a78bfa" };
+    case "ti":
+      return { carpet: "#164e63", accent: "#22d3ee" };
+    case "reception":
+      return { carpet: "#334155", accent: "#94a3b8" };
     default:
       return { carpet: OFFICE_THEME.carpetCommon, accent: "#a8d8cc" };
   }

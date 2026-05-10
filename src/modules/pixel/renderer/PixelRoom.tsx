@@ -1,6 +1,7 @@
 import { TILE_SIZE } from "../core/constants";
 import { PixelRoomSprite } from "./PixelRoomSprite";
 import { AvatarLayeredSprite } from "./AvatarLayeredSprite";
+import { PixelModuleDashboard, type ModuleType } from "./PixelModuleDashboard";
 import type { RoomLite, PixelCharacter } from "../data/usePixelWorkspaceData";
 
 interface Props {
@@ -16,16 +17,19 @@ const sizeForCapacity = (cap: number) => {
   return { w: 5, h: 4 };
 };
 
-const variantOf = (room: RoomLite): "meeting" | "engineering" | "legal" | "common" => {
+const variantOf = (room: RoomLite): ModuleType | "common" => {
   const t = (room.room_type ?? "").toLowerCase();
   const k = (room.room_key ?? "").toLowerCase();
-  if (t.includes("meeting") || k.includes("meeting")) return "meeting";
+  if (t.includes("meeting") || k.includes("meeting")) return "finance"; // Financeiro cuida das reuniões importantes
   if (k.includes("engen") || k.includes("engineer")) return "engineering";
   if (k.includes("jurid") || k.includes("legal")) return "legal";
+  if (k.includes("ti") || k.includes("tech") || k.includes("support")) return "ti";
+  if (k.includes("rh") || k.includes("people") || k.includes("dp")) return "hr";
   return "common";
 };
 
 export const PixelRoom = ({ room, onClick, characters = [], meetings }: Props) => {
+  const variant = variantOf(room);
   const { w, h } = sizeForCapacity(room.capacity);
   const width = w * TILE_SIZE;
   const height = h * TILE_SIZE;
@@ -55,8 +59,13 @@ export const PixelRoom = ({ room, onClick, characters = [], meetings }: Props) =
         className="w-full h-full focus:outline-none"
         title={room.name}
       >
-        <PixelRoomSprite width={width} height={height} variant={variantOf(room)} label={room.name} />
+        <PixelRoomSprite width={width} height={height} variant={variant} label={room.name} />
       </button>
+
+      {/* Dashboard Flutuante do Módulo */}
+      {variant !== "common" && (
+        <PixelModuleDashboard type={variant as ModuleType} x={width - 20} y={-40} />
+      )}
 
       {/* Mini cena de reunião */}
       {participants.length > 0 && (
