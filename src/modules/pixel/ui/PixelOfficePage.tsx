@@ -20,6 +20,7 @@ import TiAgentPage from "@/modules/ti/ui/TiAgentPage";
 import { JarbasInterface } from "@/modules/jarbas/ui/JarbasInterface";
 import { PixelMeetingsPanel } from "./PixelMeetingsPanel";
 import { PixelCommunityPanel } from "./PixelCommunityPanel";
+import MarketplaceHome from "@/modules/marketplace/ui/MarketplaceHome";
 import { DiretorAgentChat } from "@/modules/comunicacao/ui/DiretorAgentChat";
 import { DiretorNpc } from "./DiretorNpc";
 import { ModuleAgentNpc } from "./ModuleAgentNpc";
