@@ -12,6 +12,7 @@ interface Props {
   posX?: number;
   posY?: number;
   onClick?: (c: PixelCharacter) => void;
+  recentMessage?: string | null;
 }
 
 const AVATAR_SIZE = 56;
