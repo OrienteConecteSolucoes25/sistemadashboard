@@ -208,6 +208,73 @@ export async function unlinkConciliacao(conciliacaoId: string, motivo: string) {
   return data as { ok: boolean; error?: string };
 }
 
+// ---------- Alertas ----------
+export type GovAlerta = {
+  id: string;
+  company_id: string;
+  tipo: string;
+  criticidade: string;
+  status: string;
+  responsavel_id: string | null;
+  art_id: string | null;
+  pagamento_id: string | null;
+  prazo: string | null;
+  observacoes: string | null;
+  historico: any;
+  created_at: string;
+  updated_at: string;
+  art?: { numero: string; uf: string | null } | null;
+};
+
+export async function fetchAlertas(companyId: string, status?: string): Promise<GovAlerta[]> {
+  let q = supabase
+    .from("crea_gov_alertas")
+    .select("id,company_id,tipo,criticidade,status,responsavel_id,art_id,pagamento_id,prazo,observacoes,historico,created_at,updated_at,art:art_id(numero,uf)")
+    .eq("company_id", companyId)
+    .eq("is_deleted", false)
+    .order("created_at", { ascending: false })
+    .limit(2000);
+  if (status) q = q.eq("status", status);
+  const { data, error } = await q;
+  if (error) throw error;
+  return (data ?? []) as any as GovAlerta[];
+}
+
+export async function upsertAlerta(companyId: string, hit: {
+  tipo: string; criticidade: string; art_id?: string | null; pagamento_id?: string | null;
+  observacoes?: string | null; prazo?: string | null;
+}): Promise<void> {
+  // Evita duplicar alertas abertos para mesma combinação tipo+art/pagamento
+  const filterCol = hit.art_id ? "art_id" : "pagamento_id";
+  const filterVal = hit.art_id ?? hit.pagamento_id ?? null;
+  if (filterVal) {
+    const { data: existing } = await supabase
+      .from("crea_gov_alertas")
+      .select("id").eq("company_id", companyId).eq("tipo", hit.tipo).eq("status", "aberto")
+      .eq(filterCol, filterVal).eq("is_deleted", false).limit(1);
+    if (existing && existing.length > 0) return;
+  }
+  const { error } = await supabase.from("crea_gov_alertas").insert({
+    company_id: companyId, tipo: hit.tipo, criticidade: hit.criticidade,
+    art_id: hit.art_id ?? null, pagamento_id: hit.pagamento_id ?? null,
+    observacoes: hit.observacoes ?? null, prazo: hit.prazo ?? null,
+  });
+  if (error) throw error;
+}
+
+export async function updateAlerta(id: string, patch: Partial<{
+  status: string; responsavel_id: string | null; observacoes: string | null; prazo: string | null;
+}>, note?: string): Promise<void> {
+  const updates: any = { ...patch, updated_at: new Date().toISOString() };
+  if (note) {
+    const { data: cur } = await supabase.from("crea_gov_alertas").select("historico").eq("id", id).maybeSingle();
+    const hist = Array.isArray(cur?.historico) ? cur!.historico : [];
+    updates.historico = [...hist, { at: new Date().toISOString(), note, patch }];
+  }
+  const { error } = await supabase.from("crea_gov_alertas").update(updates).eq("id", id);
+  if (error) throw error;
+}
+
 export async function searchArtsByNumero(companyId: string, query: string, limit = 20): Promise<GovArt[]> {
   const { data, error } = await supabase
     .from("crea_gov_arts")
