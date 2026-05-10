@@ -10528,22 +10528,37 @@ export type Database = {
       }
       profiles: {
         Row: {
+          company_id: string | null
           created_at: string
           email: string | null
           full_name: string | null
           id: string
+          last_login_at: string | null
+          role: string | null
+          session_timeout_minutes: number | null
+          two_factor_enabled: boolean | null
         }
         Insert: {
+          company_id?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id: string
+          last_login_at?: string | null
+          role?: string | null
+          session_timeout_minutes?: number | null
+          two_factor_enabled?: boolean | null
         }
         Update: {
+          company_id?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
+          last_login_at?: string | null
+          role?: string | null
+          session_timeout_minutes?: number | null
+          two_factor_enabled?: boolean | null
         }
         Relationships: []
       }
@@ -10602,6 +10617,249 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      security_approvals: {
+        Row: {
+          action_type: string
+          approved_by: string | null
+          company_id: string
+          created_at: string | null
+          id: string
+          module: string
+          payload: Json | null
+          reason: string | null
+          requested_by: string
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          action_type: string
+          approved_by?: string | null
+          company_id: string
+          created_at?: string | null
+          id?: string
+          module: string
+          payload?: Json | null
+          reason?: string | null
+          requested_by: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          action_type?: string
+          approved_by?: string | null
+          company_id?: string
+          created_at?: string | null
+          id?: string
+          module?: string
+          payload?: Json | null
+          reason?: string | null
+          requested_by?: string
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      security_audit_logs: {
+        Row: {
+          action_type: string
+          company_id: string | null
+          created_at: string | null
+          description: string | null
+          id: string
+          ip_address: string | null
+          module: string
+          payload: Json | null
+          severity: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          company_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          ip_address?: string | null
+          module: string
+          payload?: Json | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          company_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          ip_address?: string | null
+          module?: string
+          payload?: Json | null
+          severity?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      security_emergency_mode: {
+        Row: {
+          activated_at: string | null
+          activated_by: string
+          company_id: string
+          deactivated_at: string | null
+          id: string
+          reason: string | null
+          status: boolean | null
+        }
+        Insert: {
+          activated_at?: string | null
+          activated_by: string
+          company_id: string
+          deactivated_at?: string | null
+          id?: string
+          reason?: string | null
+          status?: boolean | null
+        }
+        Update: {
+          activated_at?: string | null
+          activated_by?: string
+          company_id?: string
+          deactivated_at?: string | null
+          id?: string
+          reason?: string | null
+          status?: boolean | null
+        }
+        Relationships: []
+      }
+      security_policies: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          policy_type: string
+          settings: Json
+          updated_at: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          policy_type: string
+          settings?: Json
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          policy_type?: string
+          settings?: Json
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      security_scores: {
+        Row: {
+          company_id: string
+          eng_score: number | null
+          finance_score: number | null
+          hr_score: number | null
+          id: string
+          legal_score: number | null
+          overall_score: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id: string
+          eng_score?: number | null
+          finance_score?: number | null
+          hr_score?: number | null
+          id?: string
+          legal_score?: number | null
+          overall_score?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string
+          eng_score?: number | null
+          finance_score?: number | null
+          hr_score?: number | null
+          id?: string
+          legal_score?: number | null
+          overall_score?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      security_vault: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          encrypted_secret: string | null
+          id: string
+          integration_name: string
+          key_hint: string | null
+          last_accessed_at: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          encrypted_secret?: string | null
+          id?: string
+          integration_name: string
+          key_hint?: string | null
+          last_accessed_at?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          encrypted_secret?: string | null
+          id?: string
+          integration_name?: string
+          key_hint?: string | null
+          last_accessed_at?: string | null
+        }
+        Relationships: []
+      }
+      security_vulnerabilities: {
+        Row: {
+          company_id: string
+          description: string | null
+          detected_at: string | null
+          id: string
+          mitigation_plan: string | null
+          module: string
+          resolved_at: string | null
+          risk_level: string
+          status: string | null
+        }
+        Insert: {
+          company_id: string
+          description?: string | null
+          detected_at?: string | null
+          id?: string
+          mitigation_plan?: string | null
+          module: string
+          resolved_at?: string | null
+          risk_level: string
+          status?: string | null
+        }
+        Update: {
+          company_id?: string
+          description?: string | null
+          detected_at?: string | null
+          id?: string
+          mitigation_plan?: string | null
+          module?: string
+          resolved_at?: string | null
+          risk_level?: string
+          status?: string | null
+        }
+        Relationships: []
       }
       theme_audit_logs: {
         Row: {
