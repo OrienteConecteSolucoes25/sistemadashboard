@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,7 +26,7 @@ import { DiretorAgentChat } from "@/modules/comunicacao/ui/DiretorAgentChat";
 import { DiretorNpc } from "./DiretorNpc";
 import { ModuleAgentNpc } from "./ModuleAgentNpc";
 import { ModuleAgentChat } from "./ModuleAgentChat";
-import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare, ShieldAlert, Cpu, Zap, ShoppingCart, DollarSign } from "lucide-react";
+import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare, ShieldAlert, Cpu, Zap, ShoppingCart, DollarSign, Users, Video } from "lucide-react";
 import { ActiveBrandKitProvider } from "@/modules/comunicacao/hooks/useActiveBrandKit";
 
 type Selected =
@@ -38,6 +38,7 @@ export default function PixelOfficePage() {
   const { user, isAdmin } = useAuth();
   const [notifTick, setNotifTick] = useState(0);
   const [directorNotifs, setDirectorNotifs] = useState<string[]>([]);
+  const [bubbles, setBubbles] = useState<Record<string, string>>({});
   const {
     loading,
     workspaces,
@@ -85,6 +86,43 @@ export default function PixelOfficePage() {
       supabase.removeChannel(channel);
     };
   }, [activeWorkspace?.id, user?.id, refresh]);
+
+  // Realtime: Bubbles de chat
+  useEffect(() => {
+    if (!activeWorkspace?.id) return;
+    const channel = supabase
+      .channel(`pixel-bubbles-${activeWorkspace.id}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "pixel_messages",
+          filter: `workspace_id=eq.${activeWorkspace.id}`,
+        },
+        (payload) => {
+          const row: any = payload.new;
+          if (!row?.sender_user_id || !row?.message) return;
+          
+          setBubbles(prev => ({ ...prev, [row.sender_user_id]: row.message }));
+          
+          // Remove a bubble após 5 segundos
+          setTimeout(() => {
+            setBubbles(prev => {
+              const next = { ...prev };
+              if (next[row.sender_user_id] === row.message) {
+                delete next[row.sender_user_id];
+              }
+              return next;
+            });
+          }, 5000);
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [activeWorkspace?.id]);
 
   // Personagens "em reunião" recebem badge meeting (via status do profile já vem)
   // Posicionar personagens joined dentro/perto da sala da reunião visualmente
@@ -173,6 +211,8 @@ export default function PixelOfficePage() {
               onSelectCharacter={(c) => setSelected({ kind: "character", data: c })}
               onSelectDesk={(d) => setSelected({ kind: "desk", data: d })}
               onStageClick={handleStageClick}
+              recentMessages={bubbles}
+              meetings={meetings}
             />
             {/* NPC Diretor OCS dentro do mapa — abre o chat ao ser clicado */}
             <DiretorAgentChat renderTrigger={(open) => <DiretorNpc onClick={open} notifications={directorNotifs} />} />
@@ -430,6 +470,26 @@ export default function PixelOfficePage() {
             }}
           />
           <PixelCommunityPanel activeWorkspace={activeWorkspace} workspaces={workspaces} />
+
+          {/* Mobile Navigation Fixa */}
+          <div className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-2 flex justify-around items-center z-[100] safe-area-bottom shadow-lg">
+            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2" onClick={() => setActiveWorkspaceId(workspaces[0]?.id)}>
+              <Cpu className="w-5 h-5" />
+              <span className="text-[10px]">Office</span>
+            </Button>
+            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2" onClick={() => setSelected({ kind: "character", data: characters.find(c => c.user_id === user?.id) as any })}>
+              <Users className="w-5 h-5" />
+              <span className="text-[10px]">Eu</span>
+            </Button>
+            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2">
+              <MessageSquare className="w-5 h-5" />
+              <span className="text-[10px]">Chat</span>
+            </Button>
+            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2">
+              <Video className="w-5 h-5" />
+              <span className="text-[10px]">Reunião</span>
+            </Button>
+          </div>
         </>
       )}
 

@@ -28,6 +28,8 @@ interface Props {
   onSelectDesk: (d: DeskLite) => void;
   /** Clique em ponto livre (em coordenadas de tile). */
   onStageClick: (tileX: number, tileY: number) => void;
+  recentMessages?: Record<string, string | null>;
+  meetings?: any;
 }
 
 /**
@@ -45,6 +47,8 @@ export const PixelWorkspaceView = ({
   onSelectCharacter,
   onSelectDesk,
   onStageClick,
+  recentMessages = {},
+  meetings,
 }: Props) => {
   const handleStageClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -74,7 +78,7 @@ export const PixelWorkspaceView = ({
         {/* Decorações estáticas (paredes, plantas, quadro) */}
         <PixelOfficeDecorations />
         {rooms.map((r) => (
-          <PixelRoom key={r.id} room={r} />
+          <PixelRoom key={r.id} room={r} characters={characters} meetings={meetings} />
         ))}
 
         {/* Mesas */}
@@ -94,6 +98,7 @@ export const PixelWorkspaceView = ({
                 posX={pos.x}
                 posY={pos.y}
                 onClick={onSelectCharacter}
+                recentMessage={recentMessages[c.user_id]}
               />
             );
           })}

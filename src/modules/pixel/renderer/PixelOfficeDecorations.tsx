@@ -12,35 +12,57 @@ export const PixelOfficeDecorations = () => {
       {/* Parede superior pixel art */}
       <Wall />
 
-      {/* Plantas nos cantos */}
-      <Plant style={{ left: TILE_SIZE * 0.4, top: TILE_SIZE * 1.2 }} />
-      <Plant style={{ left: STAGE_WIDTH_PX - TILE_SIZE * 1.6, top: TILE_SIZE * 1.2 }} />
+      {/* Rótulos das Áreas */}
+      <ZoneLabel label="Recepção" x={TILE_SIZE * 0.5} y={TILE_SIZE * 1.5} color={OFFICE_THEME.carpetReception} />
+      <ZoneLabel label="Engenharia" x={TILE_SIZE * 7.5} y={TILE_SIZE * 1.5} color={OFFICE_THEME.carpetEngineer} />
+      <ZoneLabel label="TI & Suporte" x={STAGE_WIDTH_PX - TILE_SIZE * 6.5} y={TILE_SIZE * 1.5} color={OFFICE_THEME.carpetIT} />
+      <ZoneLabel label="Jurídico" x={TILE_SIZE * 6.5} y={STAGE_HEIGHT_PX - TILE_SIZE * 5.5} color={OFFICE_THEME.carpetLegal} />
+      <ZoneLabel label="Espaço Café" x={TILE_SIZE * 0.5} y={STAGE_HEIGHT_PX - TILE_SIZE * 4.5} color={OFFICE_THEME.carpetCommon} />
+      <ZoneLabel label="Sala de Reuniões" x={STAGE_WIDTH_PX - TILE_SIZE * 8.5} y={STAGE_HEIGHT_PX - TILE_SIZE * 7.5} color={OFFICE_THEME.carpetMeeting} />
+
+      {/* Objetos Decorativos */}
+      {/* Plantas */}
+      <Plant style={{ left: TILE_SIZE * 5.5, top: TILE_SIZE * 1.2 }} />
+      <Plant style={{ left: STAGE_WIDTH_PX - TILE_SIZE * 7.5, top: TILE_SIZE * 1.2 }} />
       <Plant style={{ left: TILE_SIZE * 0.4, top: STAGE_HEIGHT_PX - TILE_SIZE * 2.2 }} />
-      <Plant
-        style={{
-          left: STAGE_WIDTH_PX - TILE_SIZE * 1.6,
-          top: STAGE_HEIGHT_PX - TILE_SIZE * 2.2,
-        }}
-      />
+      <Plant style={{ left: STAGE_WIDTH_PX - TILE_SIZE * 1.6, top: STAGE_HEIGHT_PX - TILE_SIZE * 2.2 }} />
+      
+      {/* Bebedouro / Café */}
+      <CoffeeMachine style={{ left: TILE_SIZE * 0.5, top: STAGE_HEIGHT_PX - TILE_SIZE * 1.5 }} />
 
       {/* Quadro/mural na parede */}
-      <Board style={{ left: STAGE_WIDTH_PX / 2 - 40, top: 4 }} />
+      <Board style={{ left: TILE_SIZE * 8, top: 4 }} />
+      <Board style={{ left: STAGE_WIDTH_PX - TILE_SIZE * 4, top: 4 }} />
 
-      {/* Divisória central sutil */}
-      <div
-        className="absolute"
-        style={{
-          left: STAGE_WIDTH_PX / 2 - 1,
-          top: TILE_SIZE * 4,
-          width: 2,
-          height: TILE_SIZE * 6,
-          background: OFFICE_THEME.divider,
-          opacity: 0.5,
-        }}
-      />
+      {/* Divisórias Sutis */}
+      <Divider x={TILE_SIZE * 6.5} y={TILE_SIZE} h={TILE_SIZE * 4} />
+      <Divider x={STAGE_WIDTH_PX - TILE_SIZE * 7.5} y={TILE_SIZE} h={TILE_SIZE * 5} />
     </div>
   );
 };
+
+const ZoneLabel = ({ label, x, y, color }: { label: string; x: number; y: number; color: string }) => (
+  <div
+    className="absolute whitespace-nowrap text-[9px] font-bold uppercase tracking-tighter opacity-40"
+    style={{ left: x, top: y, color }}
+  >
+    {label}
+  </div>
+);
+
+const Divider = ({ x, y, h }: { x: number; y: number; h: number }) => (
+  <div
+    className="absolute"
+    style={{
+      left: x,
+      top: y,
+      width: 1,
+      height: h,
+      background: "rgba(255,255,255,0.08)",
+      boxShadow: "1px 0 0 rgba(0,0,0,0.15)"
+    }}
+  />
+);
 
 const Wall = () => (
   <svg
@@ -92,5 +114,25 @@ const Board = ({ style }: { style: React.CSSProperties }) => (
     <rect x="6" y="11" width="60" height="2" fill="#3a3a3a" />
     <rect x="6" y="16" width="30" height="2" fill="#3a3a3a" />
     <rect x="6" y="21" width="50" height="2" fill="#a02a2a" />
+  </svg>
+);
+
+const CoffeeMachine = ({ style }: { style: React.CSSProperties }) => (
+  <svg
+    width={24}
+    height={32}
+    viewBox="0 0 12 16"
+    shapeRendering="crispEdges"
+    className="absolute"
+    style={{ ...style, imageRendering: "pixelated" }}
+  >
+    {/* Base */}
+    <rect x="2" y="10" width="8" height="6" fill="#3a3a45" />
+    <rect x="3" y="11" width="6" height="4" fill="#1a1a1a" opacity="0.3" />
+    {/* Tanque de água (azul) */}
+    <rect x="3" y="2" width="6" height="8" rx="2" fill="#5a8acb" />
+    <rect x="4" y="3" width="1" height="6" fill="#fff" opacity="0.2" />
+    {/* Saída de água */}
+    <rect x="5" y="10" width="2" height="1" fill="#a0a0a0" />
   </svg>
 );

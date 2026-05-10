@@ -1,23 +1,39 @@
+import { useEffect, useState, useRef } from "react";
 import { TILE_SIZE, STATUS_LABEL, type PixelStatus } from "../core/constants";
 import { roleFromSpriteKey, ROLE_PALETTES } from "../core/pixelOfficeTheme";
 import { AvatarLayeredSprite } from "./AvatarLayeredSprite";
 import { PixelStatusBadge } from "./PixelStatusBadge";
 import type { PixelCharacter } from "../data/usePixelWorkspaceData";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Props {
   character: PixelCharacter;
   posX?: number;
   posY?: number;
   onClick?: (c: PixelCharacter) => void;
+  recentMessage?: string | null;
 }
 
 const AVATAR_SIZE = 56;
 
-export const PixelAvatar = ({ character, posX, posY, onClick }: Props) => {
+export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage }: Props) => {
   const status = (character.status as PixelStatus) ?? "offline";
   const x = posX ?? character.position_x;
   const y = posY ?? character.position_y;
+  
+  // Track direction
+  const [direction, setDirection] = useState<"left" | "right">("right");
+  const prevX = useRef(x);
+
+  useEffect(() => {
+    if (x > prevX.current) setDirection("right");
+    else if (x < prevX.current) setDirection("left");
+    prevX.current = x;
+  }, [x]);
+
+  const isWalking = character.current_action === "walking";
+
   // Centraliza o sprite no tile clicado
   const left = x * TILE_SIZE + TILE_SIZE / 2 - AVATAR_SIZE / 2;
   const top = y * TILE_SIZE + TILE_SIZE - AVATAR_SIZE; // pés no chão do tile
@@ -49,7 +65,21 @@ export const PixelAvatar = ({ character, posX, posY, onClick }: Props) => {
             aria-label={`Personagem ${character.display_name ?? ""}`}
           >
             <div className="relative w-full h-full">
-              <AvatarLayeredSprite customization={character.customization} size={AVATAR_SIZE} faded={faded} grayscale={grayscale} />
+              <AvatarLayeredSprite customization={character.customization} size={AVATAR_SIZE} faded={faded} grayscale={grayscale} direction={direction} isWalking={isWalking} />
+
+              <AnimatePresence>
+                {recentMessage && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.8 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, scale: 0.8 }}
+                    className="absolute -top-10 left-1/2 -translate-x-1/2 bg-white text-slate-900 px-2 py-1 rounded-lg shadow-xl text-[10px] font-medium border whitespace-nowrap z-50 max-w-[120px] truncate"
+                  >
+                    {recentMessage}
+                    <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-2 h-2 bg-white border-b border-r rotate-45" />
+                  </motion.div>
+                )}
+              </AnimatePresence>
 
               {/* Indicador de status discreto */}
               <span className="absolute -top-1 -right-1">
