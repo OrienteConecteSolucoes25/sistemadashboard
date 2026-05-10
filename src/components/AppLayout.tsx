@@ -84,7 +84,7 @@ const AppLayout = () => {
           </button>
         </div>
       </div>
-      <NavItem to="/app" icon={FolderKanban} label="Projetos" />
+      {/* Módulo Projetos removido por não ter ligação funcional com o Soluções-Verso */}
       <NavItem to="/app/visao-geral" icon={LayoutDashboard} label="Visão Geral" />
       <NavItem to="/app/pixel-office" icon={Gamepad2} label="Soluções-Verso" />
       {engAccess && <NavItem to="/app/engenharia" icon={HardHat} label="Engenharia" />}

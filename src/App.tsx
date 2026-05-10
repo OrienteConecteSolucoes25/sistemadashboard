@@ -8,7 +8,7 @@ import { AclProvider } from "@/acl/AclProvider";
 import AppLayout from "@/components/AppLayout";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
-import Projetos from "./pages/Projetos";
+// Import Projetos removido
 import Adm from "./pages/Adm";
 import SolucoesVersoPage from "./modules/pixel/ui/SolucoesVersoPage";
 import PixelAdminPage from "./modules/pixel/ui/admin/PixelAdminPage";
@@ -96,7 +96,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/app" element={<AppLayout />}>
-              <Route index element={<Projetos />} />
+              <Route index element={<Navigate to="/app/pixel-office" replace />} />
               <Route path="pixel-office" element={<SolucoesVersoPage />} />
               <Route path="pixel-office/meu-personagem" element={<SolucoesVersoPage />} />
               <Route path="pixel-office/admin" element={<PixelAdminPage />} />
