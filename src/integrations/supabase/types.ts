@@ -3528,6 +3528,925 @@ export type Database = {
         }
         Relationships: []
       }
+      crea_gov_alertas: {
+        Row: {
+          art_id: string | null
+          company_id: string
+          created_at: string
+          criticidade: string
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          historico: Json
+          id: string
+          is_deleted: boolean
+          observacoes: string | null
+          pagamento_id: string | null
+          prazo: string | null
+          responsavel_id: string | null
+          status: string
+          tipo: string
+          updated_at: string
+        }
+        Insert: {
+          art_id?: string | null
+          company_id: string
+          created_at?: string
+          criticidade?: string
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          historico?: Json
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          pagamento_id?: string | null
+          prazo?: string | null
+          responsavel_id?: string | null
+          status?: string
+          tipo: string
+          updated_at?: string
+        }
+        Update: {
+          art_id?: string | null
+          company_id?: string
+          created_at?: string
+          criticidade?: string
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          historico?: Json
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          pagamento_id?: string | null
+          prazo?: string | null
+          responsavel_id?: string | null
+          status?: string
+          tipo?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_gov_alertas_art_id_fkey"
+            columns: ["art_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_arts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_gov_alertas_pagamento_id_fkey"
+            columns: ["pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_pagamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crea_gov_art_atividades: {
+        Row: {
+          art_id: string
+          codigo_tos: string | null
+          created_at: string
+          descricao: string | null
+          id: string
+          quantidade: number | null
+          unidade_medida: string | null
+        }
+        Insert: {
+          art_id: string
+          codigo_tos?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          quantidade?: number | null
+          unidade_medida?: string | null
+        }
+        Update: {
+          art_id?: string
+          codigo_tos?: string | null
+          created_at?: string
+          descricao?: string | null
+          id?: string
+          quantidade?: number | null
+          unidade_medida?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_gov_art_atividades_art_id_fkey"
+            columns: ["art_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_arts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crea_gov_art_setores_extra: {
+        Row: {
+          art_id: string
+          setor_id: string
+        }
+        Insert: {
+          art_id: string
+          setor_id: string
+        }
+        Update: {
+          art_id?: string
+          setor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_gov_art_setores_extra_art_id_fkey"
+            columns: ["art_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_arts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_gov_art_setores_extra_setor_id_fkey"
+            columns: ["setor_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_setores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crea_gov_art_tags: {
+        Row: {
+          art_id: string
+          origem: string
+          tag_id: string
+        }
+        Insert: {
+          art_id: string
+          origem?: string
+          tag_id: string
+        }
+        Update: {
+          art_id?: string
+          origem?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_gov_art_tags_art_id_fkey"
+            columns: ["art_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_arts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_gov_art_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crea_gov_arts: {
+        Row: {
+          ano: number | null
+          arquivo_origem_id: string | null
+          atividades_texto: string | null
+          boleto_numero: string | null
+          centro_custo: string | null
+          cep: string | null
+          cidade: string | null
+          classificado_em: string | null
+          classificado_por: string | null
+          codigo_tos: string | null
+          company_id: string
+          contratante_id: string | null
+          crea_codigo: string | null
+          created_at: string
+          created_by: string | null
+          data_baixa: string | null
+          data_cadastro: string | null
+          data_pagamento: string | null
+          data_vencimento: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          duplicado_de: string | null
+          empresa_id: string | null
+          endereco: string | null
+          escopo_ia_sugerido_id: string | null
+          escopo_id: string | null
+          forma_registro: string | null
+          hash_unico: string | null
+          id: string
+          is_deleted: boolean
+          mes: number | null
+          natureza: string | null
+          numero: string
+          observacao: string | null
+          participacao_tecnica: string | null
+          proprietario: string | null
+          quantidade: number | null
+          raw: Json | null
+          rt_id: string | null
+          setor_ia_sugerido_id: string | null
+          setor_principal_id: string | null
+          status_analise: string | null
+          status_baixa: string | null
+          status_financeiro: string | null
+          status_governanca: string | null
+          tipo: string | null
+          uf: string | null
+          uf_obra: string | null
+          unidade_medida: string | null
+          updated_at: string
+          updated_by: string | null
+          valor_contrato: number | null
+          valor_pago: number | null
+          valor_taxa: number | null
+        }
+        Insert: {
+          ano?: number | null
+          arquivo_origem_id?: string | null
+          atividades_texto?: string | null
+          boleto_numero?: string | null
+          centro_custo?: string | null
+          cep?: string | null
+          cidade?: string | null
+          classificado_em?: string | null
+          classificado_por?: string | null
+          codigo_tos?: string | null
+          company_id: string
+          contratante_id?: string | null
+          crea_codigo?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_baixa?: string | null
+          data_cadastro?: string | null
+          data_pagamento?: string | null
+          data_vencimento?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          duplicado_de?: string | null
+          empresa_id?: string | null
+          endereco?: string | null
+          escopo_ia_sugerido_id?: string | null
+          escopo_id?: string | null
+          forma_registro?: string | null
+          hash_unico?: string | null
+          id?: string
+          is_deleted?: boolean
+          mes?: number | null
+          natureza?: string | null
+          numero: string
+          observacao?: string | null
+          participacao_tecnica?: string | null
+          proprietario?: string | null
+          quantidade?: number | null
+          raw?: Json | null
+          rt_id?: string | null
+          setor_ia_sugerido_id?: string | null
+          setor_principal_id?: string | null
+          status_analise?: string | null
+          status_baixa?: string | null
+          status_financeiro?: string | null
+          status_governanca?: string | null
+          tipo?: string | null
+          uf?: string | null
+          uf_obra?: string | null
+          unidade_medida?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          valor_contrato?: number | null
+          valor_pago?: number | null
+          valor_taxa?: number | null
+        }
+        Update: {
+          ano?: number | null
+          arquivo_origem_id?: string | null
+          atividades_texto?: string | null
+          boleto_numero?: string | null
+          centro_custo?: string | null
+          cep?: string | null
+          cidade?: string | null
+          classificado_em?: string | null
+          classificado_por?: string | null
+          codigo_tos?: string | null
+          company_id?: string
+          contratante_id?: string | null
+          crea_codigo?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_baixa?: string | null
+          data_cadastro?: string | null
+          data_pagamento?: string | null
+          data_vencimento?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          duplicado_de?: string | null
+          empresa_id?: string | null
+          endereco?: string | null
+          escopo_ia_sugerido_id?: string | null
+          escopo_id?: string | null
+          forma_registro?: string | null
+          hash_unico?: string | null
+          id?: string
+          is_deleted?: boolean
+          mes?: number | null
+          natureza?: string | null
+          numero?: string
+          observacao?: string | null
+          participacao_tecnica?: string | null
+          proprietario?: string | null
+          quantidade?: number | null
+          raw?: Json | null
+          rt_id?: string | null
+          setor_ia_sugerido_id?: string | null
+          setor_principal_id?: string | null
+          status_analise?: string | null
+          status_baixa?: string | null
+          status_financeiro?: string | null
+          status_governanca?: string | null
+          tipo?: string | null
+          uf?: string | null
+          uf_obra?: string | null
+          unidade_medida?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          valor_contrato?: number | null
+          valor_pago?: number | null
+          valor_taxa?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_gov_arts_arquivo_origem_id_fkey"
+            columns: ["arquivo_origem_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_importacoes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_gov_arts_contratante_id_fkey"
+            columns: ["contratante_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_contratantes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_gov_arts_escopo_ia_sugerido_id_fkey"
+            columns: ["escopo_ia_sugerido_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_escopos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_gov_arts_escopo_id_fkey"
+            columns: ["escopo_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_escopos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_gov_arts_setor_ia_sugerido_id_fkey"
+            columns: ["setor_ia_sugerido_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_setores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_gov_arts_setor_principal_id_fkey"
+            columns: ["setor_principal_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_setores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crea_gov_classificacao_regras: {
+        Row: {
+          ativa: boolean
+          company_id: string
+          created_at: string
+          escopo_id: string | null
+          id: string
+          is_regex: boolean
+          palavra: string
+          peso: number
+          setor_id: string | null
+          tag_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          ativa?: boolean
+          company_id: string
+          created_at?: string
+          escopo_id?: string | null
+          id?: string
+          is_regex?: boolean
+          palavra: string
+          peso?: number
+          setor_id?: string | null
+          tag_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          ativa?: boolean
+          company_id?: string
+          created_at?: string
+          escopo_id?: string | null
+          id?: string
+          is_regex?: boolean
+          palavra?: string
+          peso?: number
+          setor_id?: string | null
+          tag_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_gov_classificacao_regras_escopo_id_fkey"
+            columns: ["escopo_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_escopos"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_gov_classificacao_regras_setor_id_fkey"
+            columns: ["setor_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_setores"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_gov_classificacao_regras_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crea_gov_conciliacoes: {
+        Row: {
+          art_id: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          id: string
+          motivo: string | null
+          origem: string
+          pagamento_id: string | null
+          score: number | null
+          status: string
+        }
+        Insert: {
+          art_id?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          motivo?: string | null
+          origem?: string
+          pagamento_id?: string | null
+          score?: number | null
+          status?: string
+        }
+        Update: {
+          art_id?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          id?: string
+          motivo?: string | null
+          origem?: string
+          pagamento_id?: string | null
+          score?: number | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_gov_conciliacoes_art_id_fkey"
+            columns: ["art_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_arts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_gov_conciliacoes_pagamento_id_fkey"
+            columns: ["pagamento_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_pagamentos"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crea_gov_contratantes: {
+        Row: {
+          cidade: string | null
+          cnpj: string | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          nome: string
+          observacoes: string | null
+          uf: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          cidade?: string | null
+          cnpj?: string | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          nome: string
+          observacoes?: string | null
+          uf?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          cidade?: string | null
+          cnpj?: string | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          nome?: string
+          observacoes?: string | null
+          uf?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      crea_gov_creas_config: {
+        Row: {
+          campos_personalizados: Json
+          created_at: string
+          id: string
+          layout_xls: Json
+          nome: string
+          observacoes: string | null
+          regras_extracao: Json
+          status: string
+          taxa_padrao: number | null
+          uf: string
+          updated_at: string
+        }
+        Insert: {
+          campos_personalizados?: Json
+          created_at?: string
+          id?: string
+          layout_xls?: Json
+          nome: string
+          observacoes?: string | null
+          regras_extracao?: Json
+          status?: string
+          taxa_padrao?: number | null
+          uf: string
+          updated_at?: string
+        }
+        Update: {
+          campos_personalizados?: Json
+          created_at?: string
+          id?: string
+          layout_xls?: Json
+          nome?: string
+          observacoes?: string | null
+          regras_extracao?: Json
+          status?: string
+          taxa_padrao?: number | null
+          uf?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      crea_gov_escopos: {
+        Row: {
+          company_id: string
+          created_at: string
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          descricao: string | null
+          id: string
+          is_deleted: boolean
+          nome: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao?: string | null
+          id?: string
+          is_deleted?: boolean
+          nome: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao?: string | null
+          id?: string
+          is_deleted?: boolean
+          nome?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      crea_gov_importacoes: {
+        Row: {
+          arquivo_nome: string | null
+          arquivo_path: string | null
+          company_id: string
+          created_at: string
+          falhas: number | null
+          id: string
+          kind: string
+          log: Json | null
+          mapeamento: Json | null
+          ok: number | null
+          ran_at: string
+          ran_by: string | null
+          status: string
+          total_linhas: number | null
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          arquivo_nome?: string | null
+          arquivo_path?: string | null
+          company_id: string
+          created_at?: string
+          falhas?: number | null
+          id?: string
+          kind: string
+          log?: Json | null
+          mapeamento?: Json | null
+          ok?: number | null
+          ran_at?: string
+          ran_by?: string | null
+          status?: string
+          total_linhas?: number | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          arquivo_nome?: string | null
+          arquivo_path?: string | null
+          company_id?: string
+          created_at?: string
+          falhas?: number | null
+          id?: string
+          kind?: string
+          log?: Json | null
+          mapeamento?: Json | null
+          ok?: number | null
+          ran_at?: string
+          ran_by?: string | null
+          status?: string
+          total_linhas?: number | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      crea_gov_pagamentos: {
+        Row: {
+          company_id: string
+          conciliado_art_id: string | null
+          created_at: string
+          data_pagamento: string | null
+          data_vencimento: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          numero_boleto: string | null
+          origem_importacao_id: string | null
+          raw: Json | null
+          sacado: string | null
+          status: string
+          uf: string | null
+          updated_at: string
+          valor: number | null
+        }
+        Insert: {
+          company_id: string
+          conciliado_art_id?: string | null
+          created_at?: string
+          data_pagamento?: string | null
+          data_vencimento?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          numero_boleto?: string | null
+          origem_importacao_id?: string | null
+          raw?: Json | null
+          sacado?: string | null
+          status?: string
+          uf?: string | null
+          updated_at?: string
+          valor?: number | null
+        }
+        Update: {
+          company_id?: string
+          conciliado_art_id?: string | null
+          created_at?: string
+          data_pagamento?: string | null
+          data_vencimento?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          numero_boleto?: string | null
+          origem_importacao_id?: string | null
+          raw?: Json | null
+          sacado?: string | null
+          status?: string
+          uf?: string | null
+          updated_at?: string
+          valor?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crea_gov_pagamentos_conciliado_art_id_fkey"
+            columns: ["conciliado_art_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_arts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "crea_gov_pagamentos_origem_importacao_id_fkey"
+            columns: ["origem_importacao_id"]
+            isOneToOne: false
+            referencedRelation: "crea_gov_importacoes"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crea_gov_setores: {
+        Row: {
+          company_id: string
+          cor: string | null
+          created_at: string
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          descricao: string | null
+          id: string
+          is_deleted: boolean
+          nome: string
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          company_id: string
+          cor?: string | null
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao?: string | null
+          id?: string
+          is_deleted?: boolean
+          nome: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          cor?: string | null
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          descricao?: string | null
+          id?: string
+          is_deleted?: boolean
+          nome?: string
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      crea_gov_tags: {
+        Row: {
+          company_id: string
+          cor: string | null
+          created_at: string
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          nome: string
+          regex_sugerido: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          company_id: string
+          cor?: string | null
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          nome: string
+          regex_sugerido?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          company_id?: string
+          cor?: string | null
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          nome?: string
+          regex_sugerido?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      crea_gov_user_filters: {
+        Row: {
+          company_id: string
+          created_at: string
+          filtros: Json
+          id: string
+          is_default: boolean
+          nome: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          filtros?: Json
+          id?: string
+          is_default?: boolean
+          nome: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          filtros?: Json
+          id?: string
+          is_default?: boolean
+          nome?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       crea_links_oficiais: {
         Row: {
           atendimento: string | null
@@ -3604,6 +4523,10 @@ export type Database = {
           can_delete: boolean
           can_edit: boolean
           can_export: boolean
+          can_governance: boolean
+          can_governance_audit: boolean
+          can_governance_finance: boolean
+          can_governance_import: boolean
           can_import: boolean
           can_manage_ai_sources: boolean
           can_manage_credentials: boolean
@@ -3623,6 +4546,10 @@ export type Database = {
           can_delete?: boolean
           can_edit?: boolean
           can_export?: boolean
+          can_governance?: boolean
+          can_governance_audit?: boolean
+          can_governance_finance?: boolean
+          can_governance_import?: boolean
           can_import?: boolean
           can_manage_ai_sources?: boolean
           can_manage_credentials?: boolean
@@ -3642,6 +4569,10 @@ export type Database = {
           can_delete?: boolean
           can_edit?: boolean
           can_export?: boolean
+          can_governance?: boolean
+          can_governance_audit?: boolean
+          can_governance_finance?: boolean
+          can_governance_import?: boolean
           can_import?: boolean
           can_manage_ai_sources?: boolean
           can_manage_credentials?: boolean
