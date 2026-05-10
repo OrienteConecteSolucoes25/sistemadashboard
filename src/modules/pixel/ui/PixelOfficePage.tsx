@@ -101,6 +101,36 @@ export default function PixelOfficePage() {
     setSelected(null);
   };
 
+  const loadDirectorNotifs = useCallback(async () => {
+    if (!user) return;
+    try {
+      // 1. Eng Pendencias
+      const engP = supabase.from("eng_pendencias").select("id", { count: "exact", head: true }).eq("status", "pendente");
+      // 2. Jur Processos com Prazos Proximos (7 dias)
+      const sevenDays = new Date(Date.now() + 7 * 86400 * 1000).toISOString();
+      const jurP = supabase.from("jur_prazos").select("id", { count: "exact", head: true }).lte("data_vencimento", sevenDays).eq("concluido", false);
+      // 3. TI Chamados em Analise
+      const tiP = supabase.from("ti_tickets").select("id", { count: "exact", head: true }).eq("status", "aberto");
+
+      const [engR, jurR, tiR] = await Promise.all([engP, jurP, tiP]);
+      
+      const alerts: string[] = [];
+      if ((engR.count ?? 0) > 0) alerts.push(`${engR.count} pendências na Engenharia`);
+      if ((jurR.count ?? 0) > 0) alerts.push(`${jurR.count} prazos jurídicos próximos`);
+      if ((tiR.count ?? 0) > 0) alerts.push(`${tiR.count} chamados de TI abertos`);
+      
+      setDirectorNotifs(alerts);
+    } catch (e) {
+      console.error("Erro ao carregar notificações do diretor", e);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    loadDirectorNotifs();
+    const interval = setInterval(loadDirectorNotifs, 60000); // 1 minuto
+    return () => clearInterval(interval);
+  }, [loadDirectorNotifs]);
+
   return (
     <ActiveBrandKitProvider>
     <div className="space-y-4">
