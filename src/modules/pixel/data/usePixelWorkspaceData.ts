@@ -241,11 +241,11 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
           owner_status: owner?.status ?? null,
           owner_is_sitting: ownerPos?.is_sitting ?? null,
           owner_current_action: ownerPos?.current_action ?? null,
-        };
+        } as DeskLite;
       });
       setDesks(enrichedDesks);
-      setRooms(roomsR.data ?? []);
-      setFurniture(furnitureR.data ?? []);
+      setRooms((roomsR.data ?? []) as RoomLite[]);
+      setFurniture((furnitureR.data ?? []) as FurnitureLite[]);
     })();
     return () => {
       cancelled = true;
