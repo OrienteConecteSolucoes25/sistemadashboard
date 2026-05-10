@@ -30,7 +30,7 @@ const Projetos = () => {
     ]);
     setItems(ps || []);
     setGroups(gs || []);
-    setModuleRestricted(false); // Sempre falso agora que o controle central foi removido
+    // setModuleRestricted removido
     if (ps && ps.length) {
       const { data: rv } = await supabase
         .from("record_visibility")
