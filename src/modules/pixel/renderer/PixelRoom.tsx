@@ -1,6 +1,7 @@
 import { TILE_SIZE } from "../core/constants";
 import { PixelRoomSprite } from "./PixelRoomSprite";
 import { AvatarLayeredSprite } from "./AvatarLayeredSprite";
+import { PixelModuleDashboard, type ModuleType } from "./PixelModuleDashboard";
 import type { RoomLite, PixelCharacter } from "../data/usePixelWorkspaceData";
 
 interface Props {
