@@ -3,13 +3,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Gauge, DollarSign, Table2, ShieldCheck, Building2, Users, UserSquare2,
-  Tags, Shapes, Layers, Upload, Link2, Bell, MapPin, FileText, Bot,
+  Tags, Shapes, Layers, Upload, Link2, Bell, MapPin, FileText, Bot, Sparkles,
 } from "lucide-react";
 import { GovArtFilterBar } from "./GovArtFilterBar";
 import { GovFilters } from "./lib/govTypes";
 import { VisaoExecutivaTab } from "./tabs/VisaoExecutivaTab";
 import { TecnicaTab } from "./tabs/TecnicaTab";
 import { ImportacoesTab } from "./tabs/ImportacoesTab";
+import { SetoresTab } from "./tabs/SetoresTab";
+import { TagsTab } from "./tabs/TagsTab";
+import { EscoposTab } from "./tabs/EscoposTab";
+import { ClassificacaoTab } from "./tabs/ClassificacaoTab";
 
 const Placeholder = ({ title, description }: { title: string; description: string }) => (
   <Card className="card-elegant">
