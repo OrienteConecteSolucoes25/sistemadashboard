@@ -22,6 +22,8 @@ import {
   BrainCircuit,
   Database
 } from "lucide-react";
+import { JarbasHolographicUI } from "./JarbasHolographicUI";
+import { JarbasVoiceVisualizer } from "./JarbasVoiceVisualizer";
 import { useJarbasCore } from "../hooks/useJarbasCore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
