@@ -215,6 +215,11 @@ const App = () => (
               <Route path="planos" element={<PlanosPage />} />
               <Route path="minha-empresa" element={<MinhaEmpresaPage />} />
               <Route path="visao-geral" element={<VisaoGeralPage />} />
+              <Route path="financeiro">
+                <Route index element={<FinanceiroDashboard />} />
+                <Route path="auditoria" element={<FinancialAuditPage />} />
+                <Route path="governanca" element={<GovernanceUniversalPage moduleKey="financeiro" />} />
+              </Route>
               <Route path="marketplace" element={<MarketplaceAdmin />} />
               <Route path="adm" element={<Adm />} />
               <Route path="jarbas" element={<JarbasCentralDashboard />} />
