@@ -18,7 +18,12 @@ import {
   UserCheck,
   Building2,
   Smartphone,
-  Cpu
+  Cpu,
+  Layers,
+  Globe,
+  MonitorCheck,
+  ShieldQuestion
+} from "lucide-react";
 } from "lucide-react";
 import { ocsGuard } from "../core/ocsGuardCore";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
