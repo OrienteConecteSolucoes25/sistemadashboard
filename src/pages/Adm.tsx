@@ -20,7 +20,7 @@ import { useCan } from "@/acl/AclProvider";
 
 type Group = { id: string; name: string; color: string; description: string | null };
 type Profile = { id: string; email: string | null; full_name: string | null };
-type ModuleSetting = { module_key: string; module_label: string; restricted: boolean };
+
 
 const Adm = () => {
   const { isAdmin, loading } = useAuth();
@@ -239,45 +239,6 @@ const UsuariosTab = () => {
           <DialogFooter><Button onClick={mirror} disabled={!mirrorSource}>Espelhar</Button></DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
-  );
-};
-
-// ===== Módulos =====
-const ModulosTab = () => {
-  const [mods, setMods] = useState<ModuleSetting[]>([]);
-  const load = async () => {
-    const { data } = await supabase.from("module_visibility_settings").select("module_key,module_label,restricted").order("module_label");
-    setMods(data || []);
-  };
-  useEffect(() => { load(); }, []);
-  const toggle = async (key: string, restricted: boolean) => {
-    const { error } = await supabase.from("module_visibility_settings").update({ restricted }).eq("module_key", key);
-    if (error) toast.error(error.message);
-    else {
-      await supabase.from("visibility_audit").insert({ action: "toggle_module", details: { module: key, restricted } });
-      load();
-    }
-  };
-  return (
-    <div className="space-y-2 mt-4">
-      <p className="text-sm text-muted-foreground">
-        Quando ativado, apenas usuários com pelo menos um grupo em comum com o registro verão o registro. Admins sempre veem tudo.
-      </p>
-      {mods.map((m) => (
-        <Card key={m.module_key}>
-          <CardContent className="py-3 flex items-center justify-between">
-            <div>
-              <div className="font-medium">{m.module_label}</div>
-              <div className="text-xs text-muted-foreground">{m.module_key}</div>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground">{m.restricted ? "Restrito por grupo" : "Aberto a todos"}</span>
-              <Switch checked={m.restricted} onCheckedChange={(v) => toggle(m.module_key, v)} />
-            </div>
-          </CardContent>
-        </Card>
-      ))}
     </div>
   );
 };
