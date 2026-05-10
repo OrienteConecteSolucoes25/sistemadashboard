@@ -20,6 +20,8 @@ import { AuditoriaTab } from "./tabs/AuditoriaTab";
 import { AlertasTab } from "./tabs/AlertasTab";
 import { EmpresasPanel, RtsPanel, ClientesPanel } from "./tabs/PainelTabs";
 import { CreasBrasilTab } from "./tabs/CreasBrasilTab";
+import { RelatoriosTab } from "./tabs/RelatoriosTab";
+import { AssistenteIaTab } from "./tabs/AssistenteIaTab";
 
 const Placeholder = ({ title, description }: { title: string; description: string }) => (
   <Card className="card-elegant">
@@ -96,6 +98,8 @@ export default function CreaGovernancaPage() {
              : t.value === "rts" ? <RtsPanel filters={filters} />
              : t.value === "clientes" ? <ClientesPanel filters={filters} />
              : t.value === "creas" ? <CreasBrasilTab />
+             : t.value === "relatorios" ? <RelatoriosTab filters={filters} />
+             : t.value === "ia" ? <AssistenteIaTab />
              : <Placeholder title={t.label} description={t.desc} />}
           </TabsContent>
         ))}
