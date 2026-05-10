@@ -355,8 +355,107 @@ export default function TiAgentPage() {
                   </CardContent>
                 </Card>
               ) : (
+              {selectedTicket ? (
+                <div className="space-y-4 animate-in fade-in zoom-in-95">
+                  <Button variant="ghost" size="sm" onClick={() => setSelectedTicket(null)}>
+                    ← Voltar para lista
+                  </Button>
+                  <div className="grid md:grid-cols-3 gap-6">
+                    <div className="md:col-span-2 space-y-4">
+                      <Card>
+                        <CardHeader className="pb-2">
+                          <div className="flex justify-between items-start">
+                            <div>
+                              <Badge variant="outline" className="mb-2 uppercase text-[10px]">{selectedTicket.category.replace('_', ' ')}</Badge>
+                              <CardTitle>{selectedTicket.title}</CardTitle>
+                              <CardDescription>Aberto em {new Date(selectedTicket.created_at).toLocaleString()}</CardDescription>
+                            </div>
+                            <Badge className={selectedTicket.priority === 'critica' ? 'bg-destructive' : 'bg-primary'}>
+                              {selectedTicket.priority.toUpperCase()}
+                            </Badge>
+                          </div>
+                        </CardHeader>
+                        <CardContent className="space-y-6">
+                          <div className="p-4 bg-muted/50 rounded-lg text-sm whitespace-pre-wrap">
+                            {selectedTicket.description}
+                          </div>
+                          
+                          <div className="space-y-4">
+                            <h3 className="text-sm font-bold flex items-center gap-2">
+                              <MessageSquare className="w-4 h-4" /> Comentários e Histórico
+                            </h3>
+                            <ScrollArea className="h-[300px] border rounded-md p-4 bg-background">
+                              <div className="space-y-4">
+                                {comments.map(comment => (
+                                  <div key={comment.id} className={`p-3 rounded-lg text-sm ${comment.user_id === user?.id ? 'bg-primary/5 ml-8 border border-primary/10' : 'bg-muted mr-8'}`}>
+                                    <div className="flex justify-between items-center mb-1 text-[10px] text-muted-foreground">
+                                      <span className="font-bold">{comment.user_id === user?.id ? 'Você' : 'Técnico'}</span>
+                                      <span>{new Date(comment.created_at).toLocaleString()}</span>
+                                    </div>
+                                    {comment.content}
+                                  </div>
+                                ))}
+                                {comments.length === 0 && <p className="text-center text-muted-foreground text-xs py-10">Nenhum comentário ainda.</p>}
+                              </div>
+                            </ScrollArea>
+                            <div className="flex gap-2">
+                              <Textarea 
+                                value={newComment} 
+                                onChange={e => setNewComment(e.target.value)} 
+                                placeholder="Adicionar comentário..." 
+                                className="min-h-[80px]"
+                              />
+                            </div>
+                            <Button className="w-full" onClick={handleAddComment}>Enviar Comentário</Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <div className="space-y-4">
+                      <Card>
+                        <CardHeader className="p-4"><CardTitle className="text-sm">Controle Técnico</CardTitle></CardHeader>
+                        <CardContent className="p-4 pt-0 space-y-4">
+                          <div className="space-y-2">
+                            <Label className="text-xs uppercase text-muted-foreground">Status do Chamado</Label>
+                            <Select 
+                              value={selectedTicket.status} 
+                              onValueChange={(v: TicketStatus) => updateTicketStatus(selectedTicket.id, v)}
+                              disabled={!isAdmin}
+                            >
+                              <SelectTrigger><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="aberto">Aberto</SelectItem>
+                                <SelectItem value="em_analise">Em Análise</SelectItem>
+                                <SelectItem value="em_execucao">Em Execução</SelectItem>
+                                <SelectItem value="aguardando_usuario">Aguardando Usuário</SelectItem>
+                                <SelectItem value="resolvido">Resolvido</SelectItem>
+                                <SelectItem value="cancelado">Cancelado</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          {isAdmin && (
+                            <div className="p-3 bg-primary/5 border border-primary/10 rounded-lg space-y-2">
+                               <p className="text-[10px] font-bold text-primary uppercase">Painel de Administração</p>
+                               <Button variant="outline" size="sm" className="w-full text-xs">Atribuir a mim</Button>
+                               <Button variant="outline" size="sm" className="w-full text-xs">Definir SLA</Button>
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </div>
+                </div>
+              ) : (
                 tickets.map(ticket => (
-                  <Card key={ticket.id} className="hover:bg-muted/30 transition-colors cursor-pointer group">
+                  <Card 
+                    key={ticket.id} 
+                    className="hover:bg-muted/30 transition-colors cursor-pointer group"
+                    onClick={() => {
+                      setSelectedTicket(ticket);
+                      loadComments(ticket.id);
+                    }}
+                  >
                     <CardContent className="p-4 flex items-center justify-between gap-4">
                       <div className="flex items-center gap-4 flex-1">
                         <div className={`p-2 rounded-full ${
@@ -396,6 +495,7 @@ export default function TiAgentPage() {
                     </CardContent>
                   </Card>
                 ))
+              )}
               )}
             </div>
           )}
