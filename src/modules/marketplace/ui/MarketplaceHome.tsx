@@ -375,6 +375,83 @@ export default function MarketplaceHome() {
           </Tabs>
         </section>
 
+        {/* Checkout Modal */}
+        <Dialog open={isCheckoutOpen} onOpenChange={setIsCheckoutOpen}>
+          <DialogContent className="sm:max-w-[500px] bg-white p-0 overflow-hidden">
+            <AnimatePresence mode="wait">
+              {checkoutStep === 1 && (
+                <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="p-6 space-y-6"
+                >
+                  <DialogHeader>
+                    <DialogTitle className="text-2xl font-black uppercase tracking-tight">Checkout OCS</DialogTitle>
+                    <DialogDescription>Confirme os detalhes do seu pedido antes de prosseguir.</DialogDescription>
+                  </DialogHeader>
+
+                  <div className="space-y-4">
+                    <div className="bg-slate-50 p-4 rounded-xl space-y-2">
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Subtotal</span>
+                        <span className="font-bold">{cartTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span className="text-muted-foreground">Frete</span>
+                        <span className="text-green-600 font-bold uppercase text-[10px]">Grátis</span>
+                      </div>
+                      <div className="pt-2 border-t border-slate-200 flex justify-between">
+                        <span className="font-black uppercase tracking-widest text-xs">Total</span>
+                        <span className="font-black text-xl text-primary">{cartTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3">
+                      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
+                        <CreditCard className="w-3 h-3 text-primary" /> Método de Pagamento
+                      </h4>
+                      <div className="p-4 rounded-xl border-2 border-primary bg-primary/5 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <CreditCard className="w-5 h-5 text-primary" />
+                          <span className="font-bold text-sm text-slate-800">Cartão de Crédito</span>
+                        </div>
+                        <Badge variant="outline" className="text-[10px] border-primary text-primary">Ativo</Badge>
+                      </div>
+                    </div>
+                  </div>
+
+                  <DialogFooter>
+                    <Button variant="outline" onClick={() => setIsCheckoutOpen(false)} className="font-bold uppercase text-[10px] tracking-widest">Cancelar</Button>
+                    <Button onClick={handleCheckout} disabled={isProcessing} className="flex-1 font-bold uppercase text-[10px] tracking-widest">
+                      {isProcessing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Confirmar e Pagar"}
+                    </Button>
+                  </DialogFooter>
+                </motion.div>
+              )}
+
+              {checkoutStep === 3 && (
+                <motion.div 
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  className="p-12 flex flex-col items-center text-center gap-6"
+                >
+                  <div className="w-20 h-20 rounded-full bg-green-100 flex items-center justify-center">
+                    <CheckCircle2 className="w-10 h-10 text-green-600" />
+                  </div>
+                  <div>
+                    <h2 className="text-2xl font-black text-slate-800 uppercase tracking-tight">Pedido Confirmado!</h2>
+                    <p className="text-slate-500 font-medium mt-2">Seu pedido foi processado com sucesso e a loja já foi notificada.</p>
+                  </div>
+                  <Button className="w-full h-12 font-bold uppercase text-[10px] tracking-widest" onClick={() => setIsCheckoutOpen(false)}>
+                    Voltar para a Loja
+                  </Button>
+                </motion.div>
+              )}
+            </AnimatePresence>
+          </DialogContent>
+        </Dialog>
+
         {/* Seção Vendedor */}
         <section className="container mx-auto px-4 py-12">
           <div className="bg-slate-900 rounded-2xl p-8 md:p-12 text-white flex flex-col md:flex-row items-center justify-between gap-8 overflow-hidden relative">
