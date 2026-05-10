@@ -17,12 +17,14 @@ const sizeForCapacity = (cap: number) => {
   return { w: 5, h: 4 };
 };
 
-const variantOf = (room: RoomLite): "meeting" | "engineering" | "legal" | "common" => {
+const variantOf = (room: RoomLite): ModuleType | "common" => {
   const t = (room.room_type ?? "").toLowerCase();
   const k = (room.room_key ?? "").toLowerCase();
-  if (t.includes("meeting") || k.includes("meeting")) return "meeting";
+  if (t.includes("meeting") || k.includes("meeting")) return "finance"; // Financeiro cuida das reuniões importantes
   if (k.includes("engen") || k.includes("engineer")) return "engineering";
   if (k.includes("jurid") || k.includes("legal")) return "legal";
+  if (k.includes("ti") || k.includes("tech") || k.includes("support")) return "ti";
+  if (k.includes("rh") || k.includes("people") || k.includes("dp")) return "hr";
   return "common";
 };
 
