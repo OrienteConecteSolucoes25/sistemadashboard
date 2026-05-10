@@ -10,8 +10,7 @@ import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import Projetos from "./pages/Projetos";
 import Adm from "./pages/Adm";
-import MyCharacterPage from "./modules/pixel/ui/MyCharacterPage";
-import PixelOfficePage from "./modules/pixel/ui/PixelOfficePage";
+import SolucoesVersoPage from "./modules/pixel/ui/SolucoesVersoPage";
 import PixelAdminPage from "./modules/pixel/ui/admin/PixelAdminPage";
 import EngenhariaGuard from "./modules/engenharia/ui/EngenhariaGuard";
 import EngenhariaDashboard from "./modules/engenharia/ui/EngenhariaDashboard";
@@ -98,8 +97,8 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/app" element={<AppLayout />}>
               <Route index element={<Projetos />} />
-              <Route path="pixel-office" element={<PixelOfficePage />} />
-              <Route path="pixel-office/meu-personagem" element={<MyCharacterPage />} />
+              <Route path="pixel-office" element={<SolucoesVersoPage />} />
+              <Route path="pixel-office/meu-personagem" element={<SolucoesVersoPage />} />
               <Route path="pixel-office/admin" element={<PixelAdminPage />} />
               <Route path="engenharia" element={<EngenhariaGuard />}>
                 <Route index element={<EngenhariaDashboard />} />

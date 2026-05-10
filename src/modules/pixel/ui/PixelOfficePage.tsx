@@ -93,12 +93,9 @@ export default function PixelOfficePage() {
     <ActiveBrandKitProvider>
     <div className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight">Pixel Office OCS</h1>
-          <p className="text-sm text-muted-foreground">
-            Escritório virtual da Comunidade OCS — clique no piso para mover, nos personagens ou mesas para detalhes.
-          </p>
-        </div>
+        <p className="text-sm text-muted-foreground">
+          Clique no piso para mover, nos personagens ou mesas para ver detalhes.
+        </p>
         <PixelWorkspaceSelector
           workspaces={workspaces}
           activeId={activeWorkspace?.id ?? null}
