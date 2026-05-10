@@ -53,25 +53,21 @@ class PixiRoomsManager {
     const dashBg = new PIXI.Graphics();
     dashboard.addChild(dashBg);
 
-    const titleText = new PIXI.Text({
-      text: '',
-      style: {
-        fontFamily: 'Orbitron, monospace',
-        fontSize: 9,
-        fill: 0xffffff,
-        fontWeight: 'bold',
-      }
+    const titleText = new PIXI.Text({ text: '' });
+    titleText.style = new PIXI.TextStyle({
+      fontFamily: 'Orbitron, monospace',
+      fontSize: 9,
+      fill: 0xffffff,
+      fontWeight: 'bold',
     });
     titleText.label = 'title';
     dashboard.addChild(titleText);
 
-    const statsText = new PIXI.Text({
-      text: '',
-      style: {
-        fontFamily: 'monospace',
-        fontSize: 8,
-        fill: 0x00f2ff,
-      }
+    const statsText = new PIXI.Text({ text: '' });
+    statsText.style = new PIXI.TextStyle({
+      fontFamily: 'monospace',
+      fontSize: 8,
+      fill: 0x00f2ff,
     });
     statsText.label = 'stats';
     statsText.y = 12;
