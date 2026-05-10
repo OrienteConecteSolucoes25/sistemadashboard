@@ -1,143 +1,171 @@
 
-# Plano — Comunicação OCS (leva grande)
+# Governança ART · módulo CREA & ART
 
-Vamos atacar tudo em uma leva organizada. Os itens estão agrupados por tema; a ordem da implementação seguirá A → H.
+Aba central estratégica que consolida ARTs de qualquer CREA (UF) do Brasil em um único centro de governança: dashboards, custos, conciliação financeira, classificação por setor/tag/escopo (cadastrados pela própria empresa), auditoria de qualidade e Assistente IA. Arquitetura multiempresa, multi-CREA, multi-ano e preparada para milhares de ARTs.
 
----
+A aba reaproveita o padrão Eng/Jur (sidebar dark + EngPageHeader + KpiGrid + Tabs), o `DataActionsToolbar` (xlsx/csv/docx + modelo + import), `DeleteWithPasswordModal` + `eng_soft_delete`, `useBulkSelection` + `BulkActionsBar` e o tema Oriente.
 
-## A. Aba "Clientes & Marcas" (multi-marca)
+## Rota e navegação
 
-Nova aba **`/app/comunicacao/clientes`** (substitui a Brand Kit atual como hub principal de identidade).
+- Nova rota: `/app/crea/governanca` (componente `CreaGovernancaPage`)
+- Item no `CreaLayout` no grupo **Governança** (acima de Auditoria), ícone `ShieldCheck`/`Gauge`, `moduleKey: "crea.governanca"`
+- Guarda por permissão usando `crea_can(uid, company, 'view')` + nova permissão `can_governance` em `crea_module_permissions`
 
-- Tabela `comm_client_brands` (por `company_id` da agência):
-  - `nome_cliente`, `segmento`, `sobre`, `missao`, `visao`, `valores`
-  - `tom_de_voz`, `persona`, `publico_alvo`, `proposta_valor`, `diferenciais`
-  - `paleta` (até 4 cores), `tipografia`, `logo_url`, `cta_padrao`
-  - `palavras_permitidas[]`, `palavras_proibidas[]`
-  - `instagram`, `linkedin`, `tiktok`, `site`, `whatsapp`
-  - `is_default` (1 por empresa)
-- Cada cliente vira **automaticamente um Brand Kit** (registro espelhado em `comm_brand_kits` via trigger) — Posts/Carrossel/Newsletter passam a usar o brand kit do cliente selecionado.
-- **Seletor global de cliente ativo** no topo do `ComunicacaoLayout` (Combobox persistido em `localStorage` + `user_layout_preferences`).
-- Toda geração (posts, legendas, ideias, design) recebe o `client_brand_id` ativo.
-
-## B. Fixes globais — botões e formulários quebrados
-
-Auditoria completa de **todas as abas** (`ComunicacaoPages.tsx`, `ComunicacaoStudio.tsx`, Calendário, Posts, Legendas, Carrossel, Newsletter, Interna, Design Studio, Galeria IA, Campanhas, Produto, Ideias, Prompts, Aprovações, Publicações, Marca, Auditoria):
-
-- Cada botão "Salvar / Gerar / Aprovar / Excluir / Exportar" terá handler real conectado a `comm-ai`, `comm-image-gen` ou Supabase.
-- **Calendário Editorial**: corrigir `salvar item` (insert em `comm_editorial_calendar` com `company_id` + `client_brand_id`); adicionar campos opcionais **legenda** e **texto** (textareas) e link para Post/Carrossel/Newsletter já criado.
-- **Gerador de Posts**: corrigir o seletor de Brand Kit (Combobox vazio) — popular a partir de `comm_client_brands` da empresa do usuário; pré-selecionar o cliente ativo.
-- Padronizar feedback (`toast.success/error`) e `disabled` durante loading.
-
-## C. Sino de notificações por módulo
-
-`NotificationsBell` passa a aceitar `scope` (engenharia | juridico | comunicacao | crea | rhdp). O componente lê a rota atual (`useLocation`) e:
-- Filtra `internal_notifications.modulo` pelo prefixo do módulo atual.
-- Badge e dropdown só mostram itens daquele módulo.
-- Em `/app` (home) mostra tudo.
-
-## D. Sidebar global ERP OCS recolhível (igual módulos)
-
-- `AppLayout.tsx` ganha botão de toggle (chevron) e largura `w-60 ↔ w-16`.
-- Estado salvo em `user_layout_preferences` com `module_key='__root__'` (reaproveita hook `useUserLayoutPreference`).
-- Quando recolhido: só ícones + tooltip; logo OCS minimalista.
-
-## E. Design Studio — Grade Instagram + IA
-
-Reescrita da página `DesignStudioPage`:
-
-1. **Painel de configuração**: cliente ativo, **4 color pickers** (paleta), tipografia, estilo (minimal/vibrante/sério/divertido), formato (1:1, 4:5, 9:16).
-2. **Upload opcional de referência**: imagem-modelo ou print de perfil (input file → base64) que vira contexto da geração.
-3. **Botão "Gerar Grade 3x3"**: chama edge `comm-image-gen` 9 vezes (em paralelo, com `concurrency=3`) usando `google/gemini-3.1-flash-image-preview`. Prompt construído com:
-   - Brand kit + paleta 4 cores + tipografia
-   - Tipos rotativos (capa, citação, dica, produto, depoimento, CTA, bastidor, dado, série)
-   - Instrução de coerência visual (mesma família tipográfica/elementos)
-4. **Preview em grade 3x3** simulando feed do Instagram + botão por card: regenerar, baixar PNG, **publicar no calendário**, salvar em `comm_generated_designs`.
-5. **Corrigir export PNG**: usar `html-to-image` em vez de `toBlob` direto (evita `Tainted canvas`); imagens vindas da IA são salvas no bucket `comm-generated-images` e servidas via signed URL com `crossOrigin="anonymous"`.
-
-## F. Banco de Ideias com base na marca
-
-- Botão "Gerar 10 ideias" usa `comm-ai` kind `ideia` passando o **brand kit do cliente ativo** (sobre, persona, público, proposta, diferenciais, palavras permitidas/proibidas).
-- Ideias salvas em `comm_idea_bank` com `client_brand_id`, `categoria`, `prioridade`.
-- Filtros por cliente, categoria e status (nova / em produção / publicada / descartada).
-- Conversão 1-clique: "Virar Post", "Virar Carrossel", "Agendar no Calendário".
-
-## G. Product Management (completar)
-
-Página com sub-abas:
-- **Roadmap** (kanban: Discovery / Backlog / Em produção / Lançado)
-- **Posicionamento** (one-pager por produto: dor, ganho, persona, diferenciais)
-- **Lançamentos** (campanha de lançamento, datas, peças)
-- **Pesquisa** (NPS/feedback colado manualmente; resumo IA)
-- **Métricas** (campos manuais + chart simples)
-
-Tabela `comm_product_items` ganha colunas: `tipo`, `status_kanban`, `posicionamento`, `metricas` (jsonb), `pesquisa` (jsonb).
-
-## H. Agente "Diretor de Comunicação OCS" (Pixel)
-
-Personagem pixel na sala do escritório (módulo Pixel Office) + chat flutuante exclusivo dentro de `/app/comunicacao/*`.
-
-### Backend
-- Edge `comm-director-agent` (streaming, OpenAI-compatible via Lovable AI):
-  - Lê **brand kit do cliente ativo**, calendário, posts, ideias, campanhas (filtra por `company_id` + `client_brand_id`).
-  - Aceita modo **comunicação interna** com lista opcional de módulos autorizados (`engenharia`, `rhdp`, etc.) → faz read-only nas tabelas correspondentes para gerar comunicados internos.
-  - **Tool calling** com ferramentas:
-    - `criar_calendario_item`, `gerar_posts`, `gerar_carrossel`, `gerar_newsletter`, `gerar_comunicado_interno`, `gerar_ideias`, `criar_campanha`, `gerar_grade_design`
-  - Cada tool insere registro real (respeitando `comm_can`) e retorna o id.
-- Tabelas:
-  - `comm_director_conversations` (id, user_id, company_id, client_brand_id, scope `externa|interna`, allowed_modules[])
-  - `comm_director_messages` (conversation_id, role, content, tool_calls jsonb)
-  - RLS: cada usuário só vê suas próprias conversas (privadas).
-
-### Frontend
-- Componente `DiretorAgentChat` (substitui o `AssistenteFloating` quando rota começa com `/app/comunicacao/`):
-  - Markdown streaming, lista de conversas anteriores, seletor de cliente + escopo (Externa/Interna) + módulos liberados.
-  - Quando uma tool roda, mostra card "Calendário criado · ver →" linkando para a aba.
-- **Personagem Pixel**: novo NPC `diretor_comunicacao` no `PixelOfficeMap` com sprite próprio; ao clicar abre o chat (mesmo componente).
-- Disponível para **todos os clientes** com acesso ao módulo Comunicação.
-
----
-
-## Detalhes técnicos
+## Estrutura interna (sub-abas)
 
 ```text
-Migrations:
-  + comm_client_brands (multi-marca por agência)
-  + comm_director_conversations
-  + comm_director_messages
-  + alter comm_editorial_calendar add legenda text, texto text, client_brand_id uuid
-  + alter comm_brand_kits add client_brand_id uuid (link)
-  + alter comm_product_items add tipo, status_kanban, posicionamento jsonb, metricas jsonb, pesquisa jsonb
-  + alter user_layout_preferences (já suporta module_key) — usar '__root__' p/ sidebar global
-  + alter internal_notifications garantir coluna `modulo` (já existe? verificar; se não, adicionar)
-  + RLS: comm_can(uid, company_id, action) já cobre — adicionar policies análogas para client_brands e director_*
-
-Edge functions:
-  + comm-director-agent (streaming + tool calling)
-  ~ comm-ai já existe — manter, mas passar client_brand_id no payload
-  ~ comm-image-gen já existe — adicionar parâmetro grid (1..9) p/ Design Studio
-
-Frontend:
-  + src/modules/comunicacao/ui/ClientesPage.tsx
-  + src/modules/comunicacao/ui/ClientBrandSelector.tsx (no Layout)
-  + src/modules/comunicacao/ui/DiretorAgentChat.tsx
-  + src/modules/comunicacao/hooks/useActiveClientBrand.ts
-  + src/modules/comunicacao/hooks/useScopedNotifications.ts
-  ~ DesignStudioPage.tsx (reescrita)
-  ~ CalendarioPage.tsx (fix salvar + legenda/texto)
-  ~ PostsPage.tsx (fix Brand Kit Combobox)
-  ~ ProductPage.tsx (sub-abas)
-  ~ IdeiasPage.tsx (gerar com brand kit)
-  ~ AppLayout.tsx (toggle global recolhível)
-  ~ NotificationsBell.tsx (scope por módulo via rota)
-  ~ ComunicacaoLayout.tsx (seletor de cliente + nova aba Clientes)
-  + Pixel: NPC diretor_comunicacao (sprite + interação)
-
-Fix runtime: SecurityError toBlob → trocar export PNG por html-to-image + crossOrigin nas <img>.
+Governança ART
+├── Visão Executiva       (KPIs + gráficos + ranking)
+├── Financeira            (taxa CREA, contratos, custo, divergências)
+├── Técnica               (tabela completa com 30+ colunas, filtros, edição)
+├── Dados (Auditoria)     (qualidade: duplicadas, sem RT, divergentes…)
+├── Empresas              (panel por empresa)
+├── Resp. Técnicos        (panel por RT)
+├── Clientes              (panel por contratante)
+├── Setores               (CRUD por empresa)
+├── Tags                  (CRUD por empresa)
+├── Escopos               (CRUD por empresa)
+├── Importações           (upload xls/xlsx/csv/pdf + histórico + reprocessar)
+├── Conciliação Financeira(boleto×ART, automática + manual)
+├── Alertas & Pendências  (queue de exceções com SLA/responsável)
+├── CREAs Brasil          (configuração por UF: layout, taxa, regras)
+├── Relatórios            (gerenciais com export xlsx/docx/pdf)
+└── Assistente IA         (chat com gráficos/tabelas/insights)
 ```
 
-## Fora deste escopo (próxima leva, se quiser)
+## Filtros globais (FilterBar persistente)
 
-- Integração real com Instagram/Meta API para publicação automática
-- Agendamento programado (cron real) — por ora ficam só no calendário
-- Editor visual drag-and-drop de templates (vamos com presets)
+Componente `GovArtFilterBar` no topo da aba, salvo por usuário em `crea_gov_user_filters`. Campos: empresa, RT, CREA/UF, ano, mês, cliente, setor, tags, escopo, status ART, status financeiro, tipo, natureza, cidade, UF, número ART, número boleto, período (cadastro/pagamento/vencimento), faixa de valor, centro de custo. Todos os gráficos respeitam estes filtros e qualquer clique em barra/fatia aplica filtro adicional na tabela técnica.
+
+## KPIs (cards)
+
+Reuso do `KpiGrid`. 22 indicadores: total ARTs, ARTs no ano, registradas, aguardando pagamento, vencidas, aptas baixa, baixadas, canceladas, invalidadas; valor emitido / pago / pendente / vencido; ticket médio ART, ticket médio taxa CREA, valor total contratos; top RT, top empresa, top cliente, CREA com maior custo, setor com maior volume, tag mais utilizada.
+
+## Modelo de dados (migration única)
+
+Tabelas novas (todas com `company_id`, `is_deleted`, soft delete via `crea_soft_delete`, RLS via `crea_can`):
+
+- `crea_gov_arts` — fato central da ART (uma linha por ART). Campos:
+  numero, uf, crea_codigo, tipo, natureza, participacao_tecnica, forma_registro,
+  empresa_id, contratante_id, rt_id, proprietario, endereco, cidade, uf_obra, cep,
+  observacao, atividades_texto, codigo_tos, quantidade, unidade_medida,
+  valor_taxa, valor_pago, valor_contrato, centro_custo,
+  data_cadastro, data_pagamento, data_vencimento, data_baixa,
+  status_analise, status_baixa, status_financeiro, status_governanca,
+  boleto_numero, arquivo_origem_id, raw jsonb (linha original), classificado_por,
+  setor_principal_id, setor_ia_sugerido_id, escopo_id, escopo_ia_sugerido_id,
+  duplicado_de uuid, hash_unico text (para dedupe).
+- `crea_gov_art_atividades` — N atividades técnicas por ART (código TOS, qtd, unidade).
+- `crea_gov_art_setores_extra` — N:N para setores secundários.
+- `crea_gov_art_tags` — N:N com `crea_gov_tags`.
+- `crea_gov_setores` — setor por empresa (nome, descricao, cor, status).
+- `crea_gov_tags` — tag por empresa (nome, cor, regex sugerido).
+- `crea_gov_escopos` — escopo operacional por empresa.
+- `crea_gov_contratantes` — clientes/contratantes (nome, cnpj, cidade, uf).
+- `crea_gov_pagamentos` — pagamentos/boletos importados (numero_boleto, valor, data, sacado, conciliado_art_id, status).
+- `crea_gov_conciliacoes` — match boleto×ART (origem auto/manual, score, motivo, status).
+- `crea_gov_alertas` — fila de exceções (tipo, criticidade, status, responsavel_id, art_id, prazo, historico jsonb).
+- `crea_gov_importacoes` — runs de importação (arquivo, kind, total_linhas, ok, falhas, mapeamento jsonb, ran_by, status, log).
+- `crea_gov_classificacao_regras` — regras de palavra-chave/regex por empresa (palavra, setor_id, tag_id, escopo_id, peso).
+- `crea_gov_creas_config` — config por UF (layout_xls, regras_extracao jsonb, taxa_padrao, status, campos_personalizados jsonb).
+- `crea_gov_user_filters` — preset de filtros por usuário.
+- Reuso de `crea_companies_crea` (empresas/CREAs já existentes) e `crea_responsible_technicians` (RTs).
+
+Índices em `(company_id, ano)`, `(numero, uf)`, `hash_unico` único parcial, `gin(raw)` para busca livre. Trigger `set_updated_at_generic`. RPCs:
+- `crea_gov_dedupe_run(_company)` — recalcula `hash_unico` e marca duplicatas.
+- `crea_gov_classify_run(_company, _art_ids)` — aplica regras + IA, grava sugestões sem sobrescrever.
+- `crea_gov_conciliate_run(_company)` — gera matches em `crea_gov_conciliacoes`.
+- `crea_gov_kpis(_company, _filters jsonb)` — agrega KPIs (usado pelos cards).
+
+## Importação dos relatórios CREA
+
+`ImportarRelatorioModal` (drag-drop) aceita `.xls/.xlsx/.csv/.pdf`. Pipeline:
+
+1. **Upload** para bucket `crea-attachments/gov/<company>/`.
+2. **Detecção**: edge function `crea-gov-import` lê cabeçalhos e classifica em: ARTs Todas, Genérico, Financeiro/Pagamentos, Profissional, Empresa, Contratante. Usa `crea_gov_creas_config.regras_extracao` para mapear colunas por UF (default = layout BA/SITAC observado: NÚMERO, DETALHE, ANÁLISE, BAIXA, BOLETO, PAGAMENTO, CADASTRO, EMPRESA, CONTRATANTE, ENDEREÇO, OBSERVAÇÃO).
+3. **Parsing**: XLS/XLSX/CSV via `xlsx` (já no projeto). PDF: extração de tabelas via pdf.js + heurística por colunas (apenas para conferência visual; gera linhas em `crea_gov_pdf_paginas` com snapshot e link, sem importar dados financeiros do PDF salvo se XLS estiver ausente).
+4. **Normalização** dos campos `Tipo / Participação Técnica / Forma de Registro` (string concatenada vista nos relatórios), datas pt-BR, valores BR.
+5. **Upsert** por `(uf, numero)` com `hash_unico = sha1(uf|numero|cadastro|empresa)`.
+6. **Vinculação** de RT, empresa e contratante (cria contratante se não existir; pergunta antes de criar empresa).
+7. **Classificação** automática (motor abaixo).
+8. **Run** registrado em `crea_gov_importacoes` com pré-visualização e botão "Reprocessar".
+
+Edge functions necessárias:
+- `crea-gov-import` — recebe storage path, faz parsing pesado e bulk insert.
+- `crea-gov-conciliate` — roda conciliação automática.
+- `crea-gov-ai` — Assistente IA (Lovable AI Gateway, modelo `google/gemini-2.5-flash`) com tool-calling para consultar `crea_gov_arts` via funções SQL parametrizadas (sem SQL livre).
+
+## Motor de classificação automática
+
+`src/modules/crea/lib/govClassifier.ts` aplica `crea_gov_classificacao_regras` (regex/palavra-chave por empresa) sobre `observacao + atividades_texto + codigo_tos` e devolve `{ setor_id?, tag_ids[], escopo_id? }` com score. Resultado vai para campos `*_ia_sugerido_*`. Usuário pode aceitar/alterar/remover via `ArtClassificacaoSheet`. Sugestões iniciais cadastradas: preventiva, corretiva, vistoria, laudo, torre, SPDA, fundação, montagem, desmontagem, estrutura metálica, reaperto, fibra, telecom, elétrica, civil. Empresa pode editar livremente.
+
+## Conciliação financeira
+
+Tela `ConciliacaoPage` com 3 listas: **Conciliados**, **Divergentes**, **Sem par**. Auto-match por (numero_boleto) → fallback (valor + janela de datas + sacado≈contratante). Confirmação manual em modal com side-by-side. Gera registro em `crea_gov_conciliacoes` e atualiza `status_financeiro` da ART.
+
+## Auditoria de dados (Governança de Dados)
+
+Lista de regras (`govRules.ts`) executadas sob demanda + agendadas: ART duplicada, ART sem pagamento, pagamento sem ART, ART sem empresa/RT/cliente/setor/tag/escopo, divergência financeira, ART cancelada/inválida ainda ativa, ART sem baixa, ART apta baixa, boleto vencido. Cada hit vira `crea_gov_alertas` com criticidade (low/med/high), responsável, SLA e histórico jsonb.
+
+## CREAs Brasil
+
+Tabela `crea_gov_creas_config` pré-populada com as 27 UFs (AC..TO). UI permite ajustar por UF: layout do XLS (mapeamento de colunas), regras de extração de PDF, taxa padrão, status (ativo/em homologação), campos personalizados, modelo de relatório.
+
+## Permissões
+
+Adicionar à tabela existente `crea_module_permissions`: `can_governance bool`, `can_governance_finance bool`, `can_governance_audit bool`, `can_governance_import bool`. Função `crea_can` ganha cases novos. Perfis sugeridos (preset no Admin CREA): Administrador OCS, Governança ART, Financeiro, RT, Empresa Cliente, Auditor, Visualizador.
+
+## Componentes (frontend)
+
+```text
+src/modules/crea/governanca/
+├── CreaGovernancaPage.tsx         (Tabs principal + FilterBar + Header)
+├── GovArtFilterBar.tsx
+├── GovKpis.tsx
+├── tabs/
+│   ├── VisaoExecutivaTab.tsx       (Recharts: barras/linhas/donut, drilldown)
+│   ├── FinanceiraTab.tsx
+│   ├── TecnicaTab.tsx              (DataTable + DataActionsToolbar + bulk)
+│   ├── DadosAuditoriaTab.tsx
+│   ├── EmpresasTab.tsx
+│   ├── RtsTab.tsx
+│   ├── ClientesTab.tsx
+│   ├── SetoresTab.tsx              (CRUD)
+│   ├── TagsTab.tsx                 (CRUD)
+│   ├── EscoposTab.tsx              (CRUD)
+│   ├── ImportacoesTab.tsx
+│   ├── ConciliacaoTab.tsx
+│   ├── AlertasTab.tsx
+│   ├── CreasBrasilTab.tsx
+│   ├── RelatoriosTab.tsx
+│   └── AssistenteIaTab.tsx
+├── modals/
+│   ├── ImportarRelatorioModal.tsx
+│   ├── ArtDetailGovSheet.tsx
+│   ├── ArtClassificacaoSheet.tsx
+│   ├── ConciliacaoManualModal.tsx
+│   └── AlertaResolverModal.tsx
+└── lib/
+    ├── govClassifier.ts
+    ├── govRules.ts
+    ├── govKpis.ts
+    └── govTypes.ts
+```
+
+Tabela técnica usa virtualização (`@tanstack/react-table` + janela manual já no padrão), seleção múltipla, exclusão em lote via `DeleteWithPasswordModal` + `crea_soft_delete('crea_gov_arts', …)` e export via `dataIO`.
+
+## Assistente IA Governança ART
+
+Edge `crea-gov-ai` recebe `{ company_id, question, filters }` e usa Lovable AI com **tool calling** estruturado para invocar funções pré-aprovadas (`kpis`, `top_rts`, `top_empresas`, `top_clientes`, `por_setor`, `pendencias`, `vencidas`, `aptas_baixa`, `divergencias`, `custo_por_dimensao`). A resposta inclui texto + dados estruturados que o frontend renderiza como gráfico (Recharts) ou tabela inline. Sem SQL livre, sem invenção de números.
+
+## Plano de entrega (levas)
+
+1. **Leva 1 — Fundação**: migration completa + permissões + rota + layout da aba com Tabs vazias e FilterBar.
+2. **Leva 2 — Importação XLS/CSV** + tabela técnica + KPIs + Visão Executiva (gráficos).
+3. **Leva 3 — Setores/Tags/Escopos (CRUD por empresa) + motor de classificação + ArtClassificacaoSheet**.
+4. **Leva 4 — Financeira + Conciliação automática/manual + Pagamentos**.
+5. **Leva 5 — Auditoria/Alertas + Empresas/RTs/Clientes panels**.
+6. **Leva 6 — CREAs Brasil (config 27 UFs) + parsing de PDF para conferência**.
+7. **Leva 7 — Relatórios gerenciais (xlsx/docx/pdf) + Assistente IA com tool-calling**.
+
+Confirme que posso começar pela **Leva 1 (migration + esqueleto da aba)** que já habilita todo o resto.
