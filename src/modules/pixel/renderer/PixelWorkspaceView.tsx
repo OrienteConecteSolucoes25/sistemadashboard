@@ -72,7 +72,7 @@ export const PixelWorkspaceView = memo(({
   meetings,
   isAdmin,
   onRefresh,
-  renderer = "dom",
+  renderer = "pixi",
 }: Props) => {
   const [currentRenderer, setCurrentRenderer] = useState<RendererType>(renderer);
   const [isEditMode, setIsEditMode] = useState(false);
