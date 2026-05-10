@@ -83,6 +83,7 @@ import OcsGuardPage from "./modules/ocs-guard/ui/OcsGuardPage";
 import TiAgentPage from "./modules/ti/ui/TiAgentPage";
 import FinanceiroDashboard from "./modules/financeiro/ui/FinanceiroDashboard";
 import MarketplaceAdmin from "./modules/marketplace/ui/MarketplaceAdmin";
+import { JarbasCentralDashboard } from "./modules/jarbas/ui/JarbasCentralDashboard";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
