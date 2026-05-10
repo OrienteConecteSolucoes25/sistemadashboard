@@ -160,8 +160,8 @@ export function DiretorAgentChat({ renderTrigger }: { renderTrigger?: (open: () 
               <BrandKitSelector />
             </div>
             {!activeBrand && (
-              <div className="text-[11px] text-amber-600">
-                Selecione um cliente acima para iniciar a conversa.
+              <div className="text-[11px] text-muted-foreground">
+                Sem cliente selecionado: posso explicar o módulo. Selecione um cliente acima para criar conteúdo.
               </div>
             )}
             <div className="grid grid-cols-2 gap-2">
@@ -172,7 +172,7 @@ export function DiretorAgentChat({ renderTrigger }: { renderTrigger?: (open: () 
                   <SelectItem value="interna">Comunicação interna</SelectItem>
                 </SelectContent>
               </Select>
-              <Button size="sm" onClick={newChat} disabled={!companyId || !activeBrandId}>
+              <Button size="sm" onClick={newChat} disabled={!companyId}>
                 <Plus className="h-4 w-4 mr-1" /> Nova conversa
               </Button>
             </div>
