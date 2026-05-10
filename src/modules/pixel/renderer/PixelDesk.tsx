@@ -65,4 +65,4 @@ export const PixelDesk = memo(({ desk, onClick }: Props) => {
       )}
     </button>
   );
-};
+});
