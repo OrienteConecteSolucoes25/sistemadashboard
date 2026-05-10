@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Plus, Trash2, Copy } from "lucide-react";
-import AclPermissionsMatrix from "@/acl/AclPermissionsMatrix";
+import AclPermissionsForm from "@/acl/AclPermissionsForm";
 import { usePlanosAccess } from "@/modules/planos/hooks/usePlanosAccess";
 import { useCan } from "@/acl/AclProvider";
 
@@ -384,12 +384,12 @@ const PermissoesTab = () => {
             </Select>
           </div>
           <p className="text-xs text-muted-foreground flex-1 min-w-[260px]">
-            <strong>Modelo único de permissões:</strong> escolha o escopo (global ou empresa), busque o usuário e ative as permissões necessárias do catálogo central.
+            <strong>Modelo único de permissões:</strong> escolha o escopo (global ou empresa), selecione o usuário e marque as permissões (Ver / Editar / Excluir / Acessar) por recurso.
             Apenas funcionários internos OCS podem alterar.
           </p>
         </CardContent>
       </Card>
-      <AclPermissionsMatrix companyId={companyId || null} />
+      <AclPermissionsForm companyId={companyId || null} />
     </div>
   );
 };
