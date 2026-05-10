@@ -27,7 +27,7 @@ export default function SolucoesVersoPage() {
       <div>
         <h1 className="text-2xl font-bold tracking-tight">Soluções-Verso</h1>
         <p className="text-sm text-muted-foreground">
-          Universo virtual da Comunidade OCS — escritório, personagens e interações em tempo real.
+          Escritório digital interligado com funcionários, integrações e agentes virtuais.
         </p>
       </div>
 
