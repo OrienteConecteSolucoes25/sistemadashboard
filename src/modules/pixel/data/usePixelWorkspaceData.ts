@@ -85,7 +85,16 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
   const [desks, setDesks] = useState<DeskLite[]>([]);
   const [rooms, setRooms] = useState<RoomLite[]>([]);
   const [reloadTick, setReloadTick] = useState(0);
-  const refresh = () => setReloadTick((n) => n + 1);
+  const refresh = useCallback(() => setReloadTick((n) => n + 1), []);
+
+  // Heartbeat em tempo real
+  useEffect(() => {
+    if (!user) return;
+    const interval = setInterval(async () => {
+      await supabase.rpc("update_pixel_heartbeat", { _uid: user.id });
+    }, 15000); // a cada 15 segundos
+    return () => clearInterval(interval);
+  }, [user]);
 
   // 1) Carregar workspaces visíveis
   useEffect(() => {
