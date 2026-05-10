@@ -116,3 +116,23 @@ const Board = ({ style }: { style: React.CSSProperties }) => (
     <rect x="6" y="21" width="50" height="2" fill="#a02a2a" />
   </svg>
 );
+
+const CoffeeMachine = ({ style }: { style: React.CSSProperties }) => (
+  <svg
+    width={24}
+    height={32}
+    viewBox="0 0 12 16"
+    shapeRendering="crispEdges"
+    className="absolute"
+    style={{ ...style, imageRendering: "pixelated" }}
+  >
+    {/* Base */}
+    <rect x="2" y="10" width="8" height="6" fill="#3a3a45" />
+    <rect x="3" y="11" width="6" height="4" fill="#1a1a1a" opacity="0.3" />
+    {/* Tanque de água (azul) */}
+    <rect x="3" y="2" width="6" height="8" rx="2" fill="#5a8acb" />
+    <rect x="4" y="3" width="1" height="6" fill="#fff" opacity="0.2" />
+    {/* Saída de água */}
+    <rect x="5" y="10" width="2" height="1" fill="#a0a0a0" />
+  </svg>
+);
