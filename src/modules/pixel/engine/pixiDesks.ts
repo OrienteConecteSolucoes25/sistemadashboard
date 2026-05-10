@@ -36,6 +36,8 @@ class PixiDesksManager {
   private createDeskSprite(desk: DeskLite): PIXI.Container {
     const container = new PIXI.Container();
     container.label = `desk-${desk.id}`;
+    container.eventMode = 'static';
+    container.cursor = 'pointer';
     
     const graphics = new PIXI.Graphics();
     container.addChild(graphics);
@@ -70,8 +72,11 @@ class PixiDesksManager {
     graphics.fill({ color: 0x000000, alpha: 0.2 });
 
     if (desk.owner_display_name) {
-      graphics.rect(w/2 - 10, h/2 - 10, 20, 20);
-      graphics.fill(0xff0000);
+      // Laptop indicator
+      graphics.rect(w/2 - 8, h/2 - 6, 16, 12);
+      graphics.fill(0x333333);
+      graphics.rect(w/2 - 7, h/2 - 5, 14, 8);
+      graphics.fill(0x00f2ff);
     }
   }
 }

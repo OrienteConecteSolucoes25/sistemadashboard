@@ -99,15 +99,26 @@ export const PixelWorkspaceView = memo(({
     pixiNpcs.render();
     pixiEffects.render();
     
-    // Pass callback to handle NPC clicks in Pixi
-    pixiEvents.setupStage(onStageClick, (npcId) => {
-      // Find the trigger to open the corresponding agent chat
-      const npcTrigger = document.querySelector(`[aria-label="Falar com ${NPCS_CONFIG[npcId]?.name}"]`) as HTMLButtonElement;
-      if (npcTrigger) {
-        npcTrigger.click();
+    // Pass callback to handle clicks in Pixi
+    pixiEvents.setupStage(
+      onStageClick, 
+      (npcId) => {
+        const npcTrigger = document.querySelector(`[aria-label="Falar com ${NPCS_CONFIG[npcId]?.name}"]`) as HTMLButtonElement;
+        if (npcTrigger) npcTrigger.click();
+      },
+      (userId) => {
+        const char = characters.find(c => c.user_id === userId);
+        if (char) onSelectCharacter(char);
+      },
+      (deskId) => {
+        const desk = desks.find(d => d.id === deskId);
+        if (desk) onSelectDesk(desk);
+      },
+      (roomId) => {
+        console.log("Room clicked:", roomId);
       }
-    });
-  }, [characters, desks, rooms, furniture, onStageClick]);
+    );
+  }, [characters, desks, rooms, furniture, onStageClick, onSelectCharacter, onSelectDesk]);
 
 
 
@@ -118,8 +129,9 @@ export const PixelWorkspaceView = memo(({
       pixiDesks.render(desks);
       pixiRooms.render(rooms);
       pixiFurniture.render(furniture);
+      pixiNpcs.render(); // Ensure NPCs are rendered even on data updates
     }
-  }, [characters, desks, rooms, currentRenderer]);
+  }, [characters, desks, rooms, furniture, currentRenderer]);
 
 
 

@@ -52,6 +52,8 @@ class PixiCharactersManager {
   private createCharacterSprite(char: PixelCharacter): PIXI.Container {
     const container = new PIXI.Container();
     container.label = `char-${char.user_id}`;
+    container.eventMode = 'static';
+    container.cursor = 'pointer';
     
     // Base Graphics for the layered look
     const graphics = new PIXI.Graphics();
