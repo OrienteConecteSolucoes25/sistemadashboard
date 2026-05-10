@@ -95,7 +95,7 @@ export default function MinhaEmpresaPage() {
         <TabsList>
           <TabsTrigger value="plano">Plano</TabsTrigger>
           {isCompanyAdmin && <TabsTrigger value="branding"><ImgIcon className="w-4 h-4 mr-1" /> Branding</TabsTrigger>}
-          {isCompanyAdmin && <TabsTrigger value="permissoes"><Shield className="w-4 h-4 mr-1" /> Permissões</TabsTrigger>}
+          {/* Permissões removidas em favor do ACL central */}
         </TabsList>
 
         <TabsContent value="plano" className="space-y-4">
