@@ -26,6 +26,7 @@ import { DiretorAgentChat } from "@/modules/comunicacao/ui/DiretorAgentChat";
 import { DiretorNpc } from "./DiretorNpc";
 import { ModuleAgentNpc } from "./ModuleAgentNpc";
 import { ModuleAgentChat } from "./ModuleAgentChat";
+import { NPCS_CONFIG } from "../data/npcsConfig";
 import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare, ShieldAlert, Cpu, Zap, ShoppingCart, DollarSign, Users, Video } from "lucide-react";
 import { ActiveBrandKitProvider } from "@/modules/comunicacao/hooks/useActiveBrandKit";
 
@@ -228,183 +229,33 @@ export default function PixelOfficePage() {
             {/* NPC Diretor OCS dentro do mapa — abre o chat ao ser clicado */}
             <DiretorAgentChat renderTrigger={(open) => <DiretorNpc onClick={open} notifications={directorNotifs} />} />
 
-            {/* Agentes por Módulo */}
-            <ModuleAgentChat
-              moduleKey="engenharia"
-              agentName="Engenheiro OCS"
-              icon={HardHat}
-              welcomeMessage="Olá! Sou o **Engenheiro OCS**. Posso te ajudar com obras, sites, suprimentos, materiais e gestão de projetos técnicos. Como posso te auxiliar na Engenharia hoje?"
-              renderTrigger={(open) => (
-                <ModuleAgentNpc
-                  name="Engenheiro OCS"
-                  moduleKey="engenharia"
-                  icon={HardHat}
-                  primaryColor="#f59e0b"
-                  secondaryColor="#d97706"
-                  startX={20}
-                  onClick={open}
-                />
-              )}
-            />
-
-            <ModuleAgentChat
-              moduleKey="juridico"
-              agentName="Consultor Jurídico OCS"
-              icon={Scale}
-              welcomeMessage="Olá! Sou o **Consultor Jurídico OCS**. Estou aqui para ajudar com processos, prazos, documentos e governança jurídica. Como posso te apoiar hoje?"
-              renderTrigger={(open) => (
-                <ModuleAgentNpc
-                  name="Consultor Jurídico OCS"
-                  moduleKey="juridico"
-                  icon={Scale}
-                  primaryColor="#3b82f6"
-                  secondaryColor="#2563eb"
-                  startX={35}
-                  onClick={open}
-                />
-              )}
-            />
-
-            <ModuleAgentChat
-              moduleKey="rhdp"
-              agentName="Diretora de RH/DP OCS"
-              icon={HeartHandshake}
-              welcomeMessage="Olá! Sou a **Diretora de RH/DP OCS**. Posso te ajudar com colaboradores, recrutamento, benefícios, folha de pagamento e solicitações de RH. Como posso te ajudar?"
-              renderTrigger={(open) => (
-                <ModuleAgentNpc
-                  name="Diretora de RH/DP OCS"
-                  moduleKey="rhdp"
-                  icon={HeartHandshake}
-                  primaryColor="#ec4899"
-                  secondaryColor="#db2777"
-                  startX={50}
-                  onClick={open}
-                />
-              )}
-            />
-
-            <ModuleAgentChat
-              moduleKey="crea"
-              agentName="Analista de CREA/ART OCS"
-              icon={FileSignature}
-              welcomeMessage="Olá! Sou o **Analista de CREA/ART OCS**. Posso te auxiliar com registros de ART, protocolos, certidões e tratativas junto ao conselho. O que você precisa?"
-              renderTrigger={(open) => (
-                <ModuleAgentNpc
-                  name="Analista de CREA/ART OCS"
-                  moduleKey="crea"
-                  icon={FileSignature}
-                  primaryColor="#10b981"
-                  secondaryColor="#059669"
-                  startX={65}
-                  onClick={open}
-                />
-              )}
-            />
-
-            <ModuleAgentChat
-              moduleKey="ocs_guard"
-              agentName="OCS Guard — Segurança"
-              icon={ShieldAlert}
-              welcomeMessage="Olá! Sou o **OCS Guard**. Sou seu agente de cibersegurança e governança digital. Como posso proteger sua empresa hoje?"
-              renderTrigger={(open) => (
-                <ModuleAgentNpc
-                  name="OCS Guard"
-                  moduleKey="ocs_guard"
-                  icon={ShieldAlert}
-                  primaryColor="#ef4444"
-                  secondaryColor="#b91c1c"
-                  startX={80}
-                  onClick={() => {
-                    setActiveAgentPanel("ocs_guard");
-                    open();
-                  }}
-                />
-              )}
-            />
-
-            <ModuleAgentChat
-              moduleKey="ti"
-              agentName="Agente de TI OCS"
-              icon={Cpu}
-              welcomeMessage="Olá! Sou o **Agente de TI OCS**. Posso te ajudar a abrir chamados, diagnosticar problemas e gerenciar ativos. Qual sua demanda técnica?"
-              renderTrigger={(open) => (
-                <ModuleAgentNpc
-                  name="Agente de TI"
-                  moduleKey="ti"
-                  icon={Cpu}
-                  primaryColor="#4f46e5"
-                  secondaryColor="#3730a3"
-                  startX={10}
-                  onClick={() => {
-                    setActiveAgentPanel("ti");
-                    open();
-                  }}
-                />
-              )}
-            />
-
-            <ModuleAgentChat
-              moduleKey="jarbas"
-              agentName="Jarbas OCS"
-              icon={Zap}
-              welcomeMessage="Olá! Sou o **Jarbas OCS**. Estou pronto para orientar suas atividades de campo, ler manuais técnicos e guiar seus procedimentos por voz. O que vamos executar agora?"
-              renderTrigger={(open) => (
-                <ModuleAgentNpc
-                  name="Jarbas OCS"
-                  moduleKey="jarbas"
-                  icon={Zap}
-                  primaryColor="#0ea5e9"
-                  secondaryColor="#0284c7"
-                  startX={90}
-                  onClick={() => {
-                    setActiveAgentPanel("jarbas");
-                    open();
-                  }}
-                />
-              )}
-            />
-
-            <ModuleAgentChat
-              moduleKey="marketplace"
-              agentName="Gestor Marketplace OCS"
-              icon={ShoppingCart}
-              welcomeMessage="Olá! Sou o **Gestor do Marketplace**. Posso te ajudar a gerenciar sua loja, cadastrar produtos e acompanhar suas vendas e logística. Como posso impulsionar seu negócio hoje?"
-              renderTrigger={(open) => (
-                <ModuleAgentNpc
-                  name="Gestor Marketplace"
-                  moduleKey="marketplace"
-                  icon={ShoppingCart}
-                  primaryColor="#16a34a"
-                  secondaryColor="#166534"
-                  startX={42}
-                  onClick={() => {
-                    setActiveAgentPanel("marketplace");
-                    open();
-                  }}
-                />
-              )}
-            />
-
-            <ModuleAgentChat
-              moduleKey="financeiro"
-              agentName="Conselheira Financeira OCS"
-              icon={DollarSign}
-              welcomeMessage="Olá! Sou a **Conselheira Financeira OCS**. Posso te ajudar a gerenciar suas contas, analisar lucros e planejar suas metas, seja você pessoa física ou jurídica. Qual sua dúvida financeira hoje?"
-              renderTrigger={(open) => (
-                <ModuleAgentNpc
-                  name="Conselheira Financeira"
-                  moduleKey="financeiro"
-                  icon={DollarSign}
-                  primaryColor="#3b82f6"
-                  secondaryColor="#1d4ed8"
-                  startX={28}
-                  onClick={() => {
-                    setActiveAgentPanel("financeiro");
-                    open();
-                  }}
-                />
-              )}
-            />
+            {/* Agentes por Módulo Automáticos */}
+            {Object.values(NPCS_CONFIG).map((npc) => (
+              <ModuleAgentChat
+                key={npc.id}
+                moduleKey={npc.moduleKey}
+                agentName={npc.name}
+                agentRole={npc.role}
+                icon={npc.icon}
+                welcomeMessage={npc.welcomeMessage}
+                renderTrigger={(open) => (
+                  <ModuleAgentNpc
+                    name={npc.name}
+                    moduleKey={npc.moduleKey}
+                    icon={npc.icon}
+                    primaryColor={npc.primaryColor}
+                    secondaryColor={npc.secondaryColor}
+                    startX={npc.startX}
+                    onClick={() => {
+                      if (["ocs_guard", "ti", "financeiro", "jarbas", "marketplace"].includes(npc.id)) {
+                        setActiveAgentPanel(npc.id);
+                      }
+                      open();
+                    }}
+                  />
+                )}
+              />
+            ))}
           </div>
 
           {activeAgentPanel === "ocs_guard" && (

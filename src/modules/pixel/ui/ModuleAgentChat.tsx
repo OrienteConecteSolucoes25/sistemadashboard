@@ -13,6 +13,7 @@ type Msg = { id?: string; role: "user" | "assistant" | "tool"; content: string; 
 interface Props {
   moduleKey: string;
   agentName: string;
+  agentRole?: string;
   icon?: LucideIcon;
   welcomeMessage?: string;
   renderTrigger?: (open: () => void) => ReactNode;
@@ -22,6 +23,7 @@ interface Props {
 export function ModuleAgentChat({ 
   moduleKey, 
   agentName, 
+  agentRole,
   icon: Icon = Sparkles,
   welcomeMessage,
   renderTrigger,
@@ -135,18 +137,26 @@ export function ModuleAgentChat({
 
   return (
     <div className="fixed bottom-4 right-4 z-50 w-[min(400px,calc(100vw-2rem))] h-[min(580px,calc(100vh-6rem))] rounded-xl border bg-card shadow-2xl flex flex-col overflow-hidden">
-      <div className="px-3 py-2 border-b flex items-center justify-between bg-gradient-to-r from-primary/10 to-transparent">
-        <div className="flex items-center gap-2">
+      <div className="px-3 py-3 border-b flex items-center justify-between bg-gradient-to-r from-primary/10 to-transparent">
+        <div className="flex items-center gap-3">
           {view === "chat" && (
             <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setView("list")}>
               <ChevronLeft className="h-4 w-4" />
             </Button>
           )}
-          <Icon className="h-4 w-4 text-primary" />
-          <span className="text-sm font-display font-semibold">{agentName}</span>
+          <div className="relative">
+            <div className="p-1.5 rounded-lg bg-primary/10 text-primary border border-primary/20">
+              <Icon className="h-5 w-5" />
+            </div>
+            <div className="absolute -bottom-1 -right-1 w-3 h-3 bg-green-500 rounded-full border-2 border-background" title="Online" />
+          </div>
+          <div className="flex flex-col">
+            <span className="text-sm font-display font-bold leading-none">{agentName}</span>
+            <span className="text-[10px] text-muted-foreground font-mono mt-1 uppercase tracking-tight">{agentRole || "Agente Especialista"}</span>
+          </div>
         </div>
-        <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setOpen(false)}>
-          <X className="h-4 w-4" />
+        <Button variant="ghost" size="icon" className="h-8 w-8 hover:bg-destructive/10 hover:text-destructive transition-colors" onClick={() => setOpen(false)}>
+          <X className="h-5 w-5" />
         </Button>
       </div>
 

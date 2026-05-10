@@ -122,13 +122,14 @@ export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage, isT
             {/* Etiqueta de nome — condicional por proximidade */}
             {!hideName && (
               <div
-                className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold px-2 py-0.5 rounded-full pointer-events-none shadow-sm transition-opacity duration-300"
+                className="absolute -bottom-5 left-1/2 -translate-x-1/2 whitespace-nowrap text-[10px] font-semibold px-2 py-0.5 rounded-full pointer-events-none shadow-sm transition-opacity duration-300 flex items-center gap-1"
                 style={{
                   background: "rgba(15, 12, 25, 0.8)",
                   color: "#fff",
                   border: `1px solid ${palette.badge}`,
                 }}
               >
+                <div className={`w-1.5 h-1.5 rounded-full ${character.is_online ? 'bg-green-500 animate-pulse' : 'bg-slate-500'}`} />
                 {character.display_name ?? "—"}
               </div>
             )}
