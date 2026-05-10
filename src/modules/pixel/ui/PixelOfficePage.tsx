@@ -345,6 +345,20 @@ export default function PixelOfficePage() {
             </div>
           )}
 
+          {activeAgentPanel === "marketplace" && (
+            <Card className="mt-4 animate-in slide-in-from-bottom duration-300 max-w-[1400px] mx-auto">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xl">Portal Marketplace OCS</CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => setActiveAgentPanel(null)}>Fechar</Button>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="max-h-[80vh] overflow-auto">
+                  <MarketplaceHome />
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <PixelMeetingsPanel
             meetings={meetings}
             characters={characters}
