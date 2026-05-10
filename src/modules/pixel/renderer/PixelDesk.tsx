@@ -10,7 +10,7 @@ interface Props {
   onClick?: (d: DeskLite) => void;
 }
 
-export const PixelDesk = ({ desk, onClick }: Props) => {
+export const PixelDesk = memo(({ desk, onClick }: Props) => {
   const kind = deskKindFromKey(
     (desk as any).asset_key ?? null,
     desk.desk_type,
