@@ -161,6 +161,26 @@ export const PixelWorkspaceView = memo(({
     <div className="flex flex-col gap-4">
       {isAdmin && (
         <div className="flex flex-wrap items-center gap-2 bg-slate-900/50 p-2 rounded-lg border border-primary/20">
+          <div className="flex bg-slate-800 rounded-md p-0.5 border border-white/10 mr-2">
+            <Button 
+              variant={currentRenderer === "dom" ? "secondary" : "ghost"} 
+              size="icon" 
+              className="h-8 w-8" 
+              onClick={() => setCurrentRenderer("dom")}
+              title="Renderer DOM (Legado)"
+            >
+              <Monitor className="h-4 w-4" />
+            </Button>
+            <Button 
+              variant={currentRenderer === "pixi" ? "secondary" : "ghost"} 
+              size="icon" 
+              className="h-8 w-8" 
+              onClick={() => setCurrentRenderer("pixi")}
+              title="Renderer PixiJS (Novo)"
+            >
+              <Cpu className="h-4 w-4" />
+            </Button>
+          </div>
           <Button 
             variant={isEditMode ? "default" : "outline"} 
             size="sm" 
