@@ -9378,6 +9378,7 @@ export type Database = {
         }
         Returns: Json
       }
+      ensure_current_profile: { Args: never; Returns: undefined }
       gov_can_edit: {
         Args: { _module: string; _uid: string }
         Returns: boolean

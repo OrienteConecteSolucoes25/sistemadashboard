@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, useEffect, useRef, useState, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import type { Session, User } from "@supabase/supabase-js";
 
@@ -16,28 +16,55 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const intentionalSignOutRef = useRef(false);
+  const lastSessionRef = useRef<Session | null>(null);
+
+  const handleSession = (s: Session | null) => {
+    setSession(s);
+    lastSessionRef.current = s;
+    if (s?.user) {
+      setTimeout(async () => {
+        // Garante profile (idempotente)
+        try {
+          await supabase.rpc("ensure_current_profile" as any);
+        } catch {
+          /* noop */
+        }
+        // Verifica role admin
+        const { data } = await supabase
+          .from("user_roles")
+          .select("role")
+          .eq("user_id", s.user.id)
+          .eq("role", "admin")
+          .maybeSingle();
+        setIsAdmin(!!data);
+      }, 0);
+    } else {
+      setIsAdmin(false);
+    }
+  };
 
   useEffect(() => {
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, s) => {
-      setSession(s);
-      if (s?.user) {
-        setTimeout(async () => {
-          const { data } = await supabase
-            .from("user_roles")
-            .select("role")
-            .eq("user_id", s.user.id)
-            .eq("role", "admin")
-            .maybeSingle();
-          setIsAdmin(!!data);
-        }, 0);
-      } else {
-        setIsAdmin(false);
+    const { data: sub } = supabase.auth.onAuthStateChange((event, s) => {
+      // Se receber SIGNED_OUT espontâneo (sem intenção do user), tenta restaurar
+      if (event === "SIGNED_OUT" && !intentionalSignOutRef.current) {
+        supabase.auth.getSession().then(({ data }) => {
+          if (data.session) {
+            handleSession(data.session);
+          } else {
+            handleSession(null);
+          }
+        });
+        return;
       }
+      handleSession(s);
     });
+
     supabase.auth.getSession().then(({ data }) => {
-      setSession(data.session);
+      handleSession(data.session);
       setLoading(false);
     });
+
     return () => sub.subscription.unsubscribe();
   }, []);
 
@@ -49,7 +76,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         isAdmin,
         loading,
         signOut: async () => {
+          intentionalSignOutRef.current = true;
           await supabase.auth.signOut();
+          window.location.assign("/auth");
         },
       }}
     >
