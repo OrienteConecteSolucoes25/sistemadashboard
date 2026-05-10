@@ -126,7 +126,7 @@ export default function MarketplaceHome() {
             {categories.map((cat, i) => (
               <motion.button 
                 whileHover={{ y: -5 }}
-                key={i} 
+                key={cat.id || i} 
                 className="bg-white p-4 rounded-xl border hover:shadow-md transition-all flex flex-col items-center gap-3 group"
               >
                 <span className="text-3xl grayscale group-hover:grayscale-0 transition-all">{cat.icon || "📦"}</span>
@@ -151,11 +151,24 @@ export default function MarketplaceHome() {
             </div>
 
             <TabsContent value="destaque" className="mt-0">
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-                {products.map((product) => (
-                  <ProductCard key={product.id} product={product} />
-                ))}
-              </div>
+              {loading ? (
+                <div className="flex flex-col items-center justify-center py-20 gap-4">
+                  <Loader2 className="w-10 h-10 animate-spin text-primary" />
+                  <p className="text-muted-foreground animate-pulse font-medium">Sincronizando catálogo...</p>
+                </div>
+              ) : filteredProducts.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                  {filteredProducts.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              ) : (
+                <div className="py-20 text-center border-2 border-dashed rounded-xl bg-slate-50/50">
+                  <Package className="w-12 h-12 text-slate-300 mx-auto mb-3" />
+                  <h3 className="text-lg font-semibold text-slate-900">Nenhum produto encontrado</h3>
+                  <p className="text-muted-foreground">Tente buscar por outro termo ou categoria.</p>
+                </div>
+              )}
             </TabsContent>
             
             <TabsContent value="novidades" className="mt-0">
