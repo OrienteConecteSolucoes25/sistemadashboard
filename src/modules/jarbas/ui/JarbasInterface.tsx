@@ -136,9 +136,13 @@ export function JarbasInterface() {
       <ScrollArea className="flex-1 p-4 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] bg-fixed" ref={scrollAreaRef}>
         <div className="space-y-4 pb-4">
           {chatHistory.length === 0 && (
-            <div className="flex flex-col items-center justify-center h-full py-10 opacity-30">
-              <Cpu className="w-12 h-12 mb-4 animate-pulse" />
-              <p className="text-xs font-mono">AGUARDANDO COMANDO OPERACIONAL...</p>
+            <div className="flex flex-col items-center justify-center h-full py-10 opacity-80">
+              <JarbasHolographicUI 
+                state={isListening ? 'listening' : isSpeaking ? 'speaking' : isProcessing ? 'processing' : 'idle'} 
+              />
+              <p className="text-[10px] font-mono tracking-[0.3em] mt-4 text-primary animate-pulse uppercase">
+                Jarbas Operational Core Active
+              </p>
             </div>
           )}
           {chatHistory.map((item, i) => (
