@@ -36,13 +36,33 @@ const Auth = () => {
   if (loading) return null;
   if (session) return <Navigate to="/app" replace />;
 
+  const translateAuthError = (msg: string): { text: string; hint?: "forgot" } => {
+    const m = (msg || "").toLowerCase();
+    if (m.includes("invalid login credentials") || m.includes("invalid_credentials")) {
+      return { text: "E-mail ou senha incorretos. Verifique e tente novamente.", hint: "forgot" };
+    }
+    if (m.includes("email not confirmed")) return { text: "E-mail ainda não confirmado. Verifique sua caixa de entrada." };
+    if (m.includes("user not found")) return { text: "Usuário não encontrado. Confira o e-mail digitado." };
+    if (m.includes("too many requests") || m.includes("rate limit")) return { text: "Muitas tentativas. Aguarde alguns instantes e tente novamente." };
+    if (m.includes("network")) return { text: "Falha de conexão. Verifique sua internet e tente novamente." };
+    return { text: msg || "Não foi possível entrar. Tente novamente." };
+  };
+
   const signIn = async (e: React.FormEvent) => {
     e.preventDefault();
     setBusy(true);
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.trim().toLowerCase(),
+      password,
+    });
     if (error) {
       setBusy(false);
-      return toast.error(error.message);
+      const t = translateAuthError(error.message);
+      toast.error(t.text, t.hint === "forgot" ? {
+        action: { label: "Esqueci minha senha", onClick: () => { setForgotEmail(email); setForgotOpen(true); } },
+        duration: 8000,
+      } : undefined);
+      return;
     }
     toast.success("Bem-vindo!");
     window.location.assign("/app");
