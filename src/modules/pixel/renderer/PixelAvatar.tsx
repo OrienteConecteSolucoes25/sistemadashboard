@@ -55,7 +55,8 @@ export const PixelAvatar = memo(({ character, posX, posY, onClick, recentMessage
         top,
         zIndex,
         transition: "left 600ms cubic-bezier(0.4, 0, 0.2, 1), top 600ms cubic-bezier(0.4, 0, 0.2, 1)",
-        willChange: "left, top",
+        willChange: "transform, left, top",
+        transform: "translateZ(0)", // GPU acceleration
       }}
     >
     <TooltipProvider delayDuration={100}>
