@@ -44,7 +44,6 @@ class PixiDesksManager {
 
     // Label container
     const label = new PIXI.Text({
-      text: '',
       style: {
         fontFamily: 'Orbitron, Arial',
         fontSize: 9,
@@ -52,6 +51,7 @@ class PixiDesksManager {
         fontWeight: 'medium',
       }
     });
+    label.text = '';
     label.label = 'label';
     label.anchor.set(0.5, 0);
     label.alpha = 0.7;
