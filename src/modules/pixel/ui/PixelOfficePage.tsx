@@ -212,6 +212,7 @@ export default function PixelOfficePage() {
               onSelectDesk={(d) => setSelected({ kind: "desk", data: d })}
               onStageClick={handleStageClick}
               recentMessages={bubbles}
+              meetings={meetings}
             />
             {/* NPC Diretor OCS dentro do mapa — abre o chat ao ser clicado */}
             <DiretorAgentChat renderTrigger={(open) => <DiretorNpc onClick={open} notifications={directorNotifs} />} />
