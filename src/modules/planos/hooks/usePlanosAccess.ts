@@ -1,9 +1,17 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
+import { useAcl } from "@/acl/AclProvider";
 
+/**
+ * @deprecated Será fatiado em hooks específicos lendo da ACL central
+ * (`useCan("planos.acessar")`, `useCan("planos.gerenciar")`, etc.).
+ * Mantido temporariamente porque também expõe `companyId` e flags de papel
+ * usados em vários lugares — a remoção será feita após a Leva 8 (auditoria de uses).
+ */
 export function usePlanosAccess() {
   const { user, isAdmin, loading } = useAuth();
+  const { isInternalOcs, can } = useAcl();
   const [isFinanceiro, setIsFinanceiro] = useState(false);
   const [isCompanyAdmin, setIsCompanyAdmin] = useState(false);
   const [hasRhDpRole, setHasRhDpRole] = useState(false);
