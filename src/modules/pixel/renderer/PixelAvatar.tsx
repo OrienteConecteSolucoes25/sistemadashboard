@@ -1,9 +1,11 @@
+import { useEffect, useState, useRef } from "react";
 import { TILE_SIZE, STATUS_LABEL, type PixelStatus } from "../core/constants";
 import { roleFromSpriteKey, ROLE_PALETTES } from "../core/pixelOfficeTheme";
 import { AvatarLayeredSprite } from "./AvatarLayeredSprite";
 import { PixelStatusBadge } from "./PixelStatusBadge";
 import type { PixelCharacter } from "../data/usePixelWorkspaceData";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface Props {
   character: PixelCharacter;
