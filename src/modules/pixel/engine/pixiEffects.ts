@@ -3,15 +3,50 @@ import { pixiApp, PIXI_LAYERS } from './pixiApp';
 import { TILE_SIZE } from '../core/constants';
 
 class PixiEffectsManager {
+  private particles: PIXI.Graphics[] = [];
+  private initialized = false;
+
   render() {
     const container = pixiApp.getContainer(PIXI_LAYERS.EFFECTS);
-    if (!container) return;
+    const app = pixiApp.getApp();
+    if (!container || !app || this.initialized) return;
     
-    // Holographic flicker effect or ambient light
-    const ambient = new PIXI.Graphics();
-    ambient.rect(0, 0, pixiApp.getApp()?.screen.width || 800, pixiApp.getApp()?.screen.height || 600);
-    ambient.fill({ color: 0x0ea5e9, alpha: 0.03 });
-    container.addChild(ambient);
+    // Holographic scanline effect
+    const scanline = new PIXI.Graphics();
+    scanline.rect(0, 0, app.screen.width, 2);
+    scanline.fill({ color: 0x0ea5e9, alpha: 0.1 });
+    container.addChild(scanline);
+
+    // Ambient floating particles
+    for (let i = 0; i < 20; i++) {
+      const p = new PIXI.Graphics();
+      p.circle(0, 0, Math.random() * 2);
+      p.fill({ color: 0x00f2ff, alpha: Math.random() * 0.5 });
+      p.x = Math.random() * app.screen.width;
+      p.y = Math.random() * app.screen.height;
+      (p as any).vx = (Math.random() - 0.5) * 0.5;
+      (p as any).vy = (Math.random() - 0.5) * 0.5;
+      container.addChild(p);
+      this.particles.push(p);
+    }
+
+    app.ticker.add((ticker) => {
+      // Move scanline
+      scanline.y += 1 * ticker.deltaTime;
+      if (scanline.y > app.screen.height) scanline.y = 0;
+
+      // Move particles
+      this.particles.forEach(p => {
+        p.x += (p as any).vx * ticker.deltaTime;
+        p.y += (p as any).vy * ticker.deltaTime;
+        if (p.x < 0) p.x = app.screen.width;
+        if (p.x > app.screen.width) p.x = 0;
+        if (p.y < 0) p.y = app.screen.height;
+        if (p.y > app.screen.height) p.y = 0;
+      });
+    });
+
+    this.initialized = true;
   }
 }
 

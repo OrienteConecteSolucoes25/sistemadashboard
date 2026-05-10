@@ -16,10 +16,11 @@ export const pixiMap = {
     bg.fill(this.hexToNumber(OFFICE_THEME.floorBase));
     container.addChild(bg);
 
-    // Grid
+    // Grid (Optimized - render to texture or simple graphics)
     const grid = new PIXI.Graphics();
-    grid.setStrokeStyle({ width: 1, color: this.hexToNumber(OFFICE_THEME.floorTileLine), alpha: 0.5 });
+    grid.setStrokeStyle({ width: 1, color: this.hexToNumber(OFFICE_THEME.floorTileLine), alpha: 0.3 });
     
+    // Batch lines for performance
     for (let x = 0; x <= STAGE_WIDTH_PX; x += TILE_SIZE) {
       grid.moveTo(x, 0);
       grid.lineTo(x, STAGE_HEIGHT_PX);
@@ -30,6 +31,7 @@ export const pixiMap = {
     }
     grid.stroke();
     container.addChild(grid);
+    grid.cacheAsBitmap = true; // Optimization for static grid
 
     // Zones (Simplified Rects for now)
     this.drawZone(container, 0, TILE_SIZE, TILE_SIZE * 6, TILE_SIZE * 5, OFFICE_THEME.carpetReception, 0.3);

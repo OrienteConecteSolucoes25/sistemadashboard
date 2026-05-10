@@ -15,6 +15,7 @@ export const PIXI_LAYERS = {
 class PixiAppManager {
   private app: PIXI.Application | null = null;
   private containers: Record<string, PIXI.Container> = {};
+  private tickerRunning = false;
 
   async init(element: HTMLDivElement, width: number, height: number) {
     if (this.app) return this.app;
@@ -26,7 +27,7 @@ class PixiAppManager {
       backgroundColor: 0x1a1626,
       resolution: window.devicePixelRatio || 1,
       autoDensity: true,
-      antialias: false, // Keep it pixelated
+      antialias: false,
     });
 
     element.appendChild(this.app.canvas);
@@ -39,7 +40,19 @@ class PixiAppManager {
       this.app!.stage.addChild(container);
     });
 
+    this.startTicker();
     return this.app;
+  }
+
+  private startTicker() {
+    if (!this.app || this.tickerRunning) return;
+    this.tickerRunning = true;
+    
+    // Global ticker for animations and smooth movements
+    this.app.ticker.add((ticker) => {
+      // Broadcast tick to subscribers if needed
+      // Currently managers handle their own state
+    });
   }
 
   getApp() {
@@ -50,13 +63,13 @@ class PixiAppManager {
     return this.app?.stage;
   }
 
-
   getContainer(name: string) {
     return this.containers[name];
   }
 
   destroy() {
     if (this.app) {
+      this.tickerRunning = false;
       this.app.destroy(true, { children: true, texture: true });
       this.app = null;
       this.containers = {};

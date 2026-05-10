@@ -225,6 +225,7 @@ export default function PixelOfficePage() {
               meetings={meetings}
               isAdmin={isAdmin}
               onRefresh={refresh}
+              renderer="pixi"
             />
             {/* NPC Diretor OCS dentro do mapa — abre o chat ao ser clicado */}
             <DiretorAgentChat renderTrigger={(open) => <DiretorNpc onClick={open} notifications={directorNotifs} />} />

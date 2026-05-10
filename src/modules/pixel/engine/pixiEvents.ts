@@ -18,6 +18,11 @@ export const pixiEvents = {
     stage.hitArea = app.screen;
 
     stage.on('pointertap', (event) => {
+      // Local position inside stage
+      const local = stage.toLocal(event.global);
+      const tileX = Math.floor(local.x / TILE_SIZE);
+      const tileY = Math.floor(local.y / TILE_SIZE);
+
       // Check if we clicked an NPC or character first
       const target = event.target as PIXI.Container;
       if (target && target.label) {
@@ -42,11 +47,6 @@ export const pixiEvents = {
           return;
         }
       }
-
-      // Local position inside stage
-      const local = stage.toLocal(event.global);
-      const tileX = Math.floor(local.x / TILE_SIZE);
-      const tileY = Math.floor(local.y / TILE_SIZE);
       
       onStageClick(tileX, tileY);
     });
