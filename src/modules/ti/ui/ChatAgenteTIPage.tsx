@@ -30,7 +30,39 @@ export default function ChatAgenteTIPage() {
   ]);
   const [input, setInput] = React.useState("");
   const { speak } = useJarbasVoice();
+  const [isOpeningTicket, setIsOpeningTicket] = React.useState(false);
   const scrollRef = React.useRef<HTMLDivElement>(null);
+
+  const handleOpenTicket = async () => {
+    setIsOpeningTicket(true);
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) throw new Error("Usuário não autenticado");
+
+      const { error } = await supabase.from('it_tickets').insert({
+        company_id: (await supabase.from('profiles').select('company_id').eq('id', userData.user.id).single()).data?.company_id,
+        user_id: userData.user.id,
+        title: "Chamado Crítico via Agente IA",
+        description: "Chamado aberto automaticamente após diagnóstico do Agente de TI Inteligente sobre falha de permissão no módulo financeiro.",
+        category: "permissoes",
+        priority: "critica",
+        status: "aberto"
+      });
+
+      if (error) throw error;
+      
+      toast.success("CHAMADO CRÍTICO ABERTO COM SUCESSO!");
+      setMessages(prev => [...prev, {
+        id: Date.now(),
+        role: 'agent',
+        text: "Chamado #00452 aberto com sucesso. Nossa equipe técnica já foi notificada e o SLA de resolução é de 4 horas."
+      }]);
+    } catch (e: any) {
+      toast.error("Erro ao abrir chamado: " + e.message);
+    } finally {
+      setIsOpeningTicket(false);
+    }
+  };
 
   const handleSend = () => {
     if (!input.trim()) return;
