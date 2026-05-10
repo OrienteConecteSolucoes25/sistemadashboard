@@ -317,6 +317,15 @@ export function PostGeneratorPage() {
               {result.prompt_visual && <Button size="sm" variant="outline" disabled={imageLoading} onClick={genImage}><ImageIcon className="w-4 h-4 mr-1" />{imageLoading ? "Gerando..." : "Gerar imagem IA"}</Button>}
               <Button size="sm" variant="outline" onClick={openCanva}><ExternalLink className="w-4 h-4 mr-1" />Abrir no Canva</Button>
               <Button size="sm" variant="ghost" onClick={() => navigator.clipboard.writeText(JSON.stringify(result, null, 2))}><Copy className="w-4 h-4 mr-1" />Copiar JSON</Button>
+              <Button size="sm" variant="outline" className="border-cyan-500 text-cyan-400 hover:bg-cyan-500/10" onClick={() => {
+                const txt = `[IA de Comunicação] Sugestão de Post: ${result.titulo}\n\nLegenda: ${result.legenda}\n\nHashtags: ${result.hashtags?.join(' ')}`;
+                supabase.from('jarbas_automations' as any).insert({
+                  module: 'comunicacao',
+                  action: 'suggest_post',
+                  description: `Sugestão de post gerada via IA: ${result.titulo}`,
+                  metadata: { result, inputs }
+                }).then(() => toast({ title: "Enviado ao Jarbas", description: "O Jarbas analisará o post para insights globais." }));
+              }}><Sparkles className="w-3 h-3 mr-1" />Notificar Jarbas</Button>
             </div>
           </div>
         )}

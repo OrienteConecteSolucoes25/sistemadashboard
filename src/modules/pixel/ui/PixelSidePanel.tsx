@@ -2,7 +2,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Linkedin, MessageSquare, Video, Armchair, ExternalLink, Briefcase, LogOut } from "lucide-react";
+import { Linkedin, MessageSquare, Video, Armchair, ExternalLink, Briefcase, LogOut, Store, Search, ShieldAlert, Cpu } from "lucide-react";
 import { toast } from "sonner";
 import { STATUS_COLOR, STATUS_LABEL, type PixelStatus } from "../core/constants";
 import { PixelSprite } from "../renderer/PixelSprite";
@@ -219,14 +219,14 @@ const CharacterPanel = ({
           className="justify-start"
           onClick={() => onCallToMeeting?.(userId)}
         >
-          <Video className="w-4 h-4" /> Chamar para reunião
+          <Video className="w-4 h-4 mr-2" /> Chamar para reunião
         </Button>
         <Button
           variant="secondary"
           className="justify-start"
           onClick={() => futureFeature("Envio de mensagem")}
         >
-          <MessageSquare className="w-4 h-4" /> Enviar mensagem
+          <MessageSquare className="w-4 h-4 mr-2" /> Enviar mensagem
         </Button>
         <Button
           variant="outline"
@@ -234,9 +234,27 @@ const CharacterPanel = ({
           disabled={!data.desk_id}
           onClick={() => data.desk_id && onFocusDesk?.(data.desk_id)}
         >
-          <Armchair className="w-4 h-4" />
+          <Armchair className="w-4 h-4 mr-2" />
           {data.desk_id ? "Ver mesa" : "Sem mesa para visualizar"}
         </Button>
+
+        <div className="h-px bg-muted my-2" />
+        <div className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1 px-1">Atalhos Operacionais</div>
+        
+        <div className="grid grid-cols-2 gap-2">
+          <Button variant="outline" size="sm" className="h-9 text-[10px] uppercase font-bold" onClick={() => window.location.href='/app/ti/chamados?user=' + userId}>
+            <Search className="w-3 h-3 mr-1" /> Chamados
+          </Button>
+          <Button variant="outline" size="sm" className="h-9 text-[10px] uppercase font-bold" onClick={() => window.location.href='/app/marketplace?customer=' + userId}>
+            <Store className="w-3 h-3 mr-1" /> Pedidos
+          </Button>
+          <Button variant="outline" size="sm" className="h-9 text-[10px] uppercase font-bold" onClick={() => window.location.href='/app/ocs-guard?audit=' + userId}>
+            <ShieldAlert className="w-3 h-3 mr-1" /> Auditoria
+          </Button>
+          <Button variant="outline" size="sm" className="h-9 text-[10px] uppercase font-bold" onClick={() => window.location.href='/app/jarbas?context=' + userId}>
+            <Cpu className="w-3 h-3 mr-1" /> Jarbas
+          </Button>
+        </div>
       </div>
     </>
   );

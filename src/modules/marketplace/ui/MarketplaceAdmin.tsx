@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { jarbasCore } from '../../jarbas/core/jarbasCore';
 import { 
   LayoutDashboard, 
   Package, 
@@ -26,6 +27,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAcl } from "@/acl/AclProvider";
+import { supabase } from "@/integrations/supabase/client";
 import MarketplaceHome from "./MarketplaceHome";
 import { getMarketplaceProducts, MarketplaceProduct } from "../lib/marketplaceApi";
 
@@ -78,7 +80,25 @@ const MarketplaceDashboard = () => (
                 </div>
                 <div className="text-right">
                   <p className="text-sm font-bold">R$ {(Math.random() * 500 + 100).toFixed(2)}</p>
-                  <Badge variant="secondary" className="text-[10px] h-5">Pendente</Badge>
+                  <div className="flex flex-col items-end gap-1">
+                    <Badge variant="secondary" className="text-[10px] h-5">Pendente</Badge>
+                    <Button 
+                      variant="ghost" 
+                      size="sm" 
+                      className="h-6 text-[8px] uppercase text-cyan-500 border border-cyan-500/20"
+                      onClick={() => {
+                        jarbasCore.registerEvent({
+                          module: 'marketplace',
+                          type: 'order_review',
+                          title: 'Revisão de Pedido Pendente',
+                          description: `O Jarbas identificou um pedido de R$ ${(Math.random() * 500 + 100).toFixed(2)} que requer atenção operacional.`,
+                          severity: 'medium'
+                        });
+                      }}
+                    >
+                      Audit Jarbas
+                    </Button>
+                  </div>
                 </div>
               </div>
             ))}
@@ -226,6 +246,147 @@ const ProductsTab = () => {
   );
 };
 
+const OrdersTab = () => {
+  const [orders, setOrders] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const { data, error } = await supabase
+          .from('market_orders' as any)
+          .select('*, market_customers(full_name, email)')
+          .order('created_at', { ascending: false });
+        if (!error) setOrders(data || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  return (
+    <Card className="border-none shadow-sm overflow-hidden">
+      <CardHeader className="border-b bg-slate-50/50">
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">Gestão de Pedidos</CardTitle>
+          <div className="flex gap-2">
+             <Button variant="outline" size="sm" className="h-9">Exportar CSV</Button>
+             <Button variant="outline" size="sm" className="h-9"><Filter className="w-4 h-4 mr-2" /> Filtros</Button>
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          {loading ? (
+             <div className="p-20 flex justify-center"><Loader2 className="animate-spin text-primary" /></div>
+          ) : (
+            <table className="w-full text-sm text-left">
+              <thead className="text-[10px] uppercase font-bold text-muted-foreground bg-slate-50/30">
+                <tr>
+                  <th className="px-6 py-4">ID Pedido</th>
+                  <th className="px-6 py-4">Cliente</th>
+                  <th className="px-6 py-4">Data</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Total</th>
+                  <th className="px-6 py-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {orders.length > 0 ? orders.map((order) => (
+                  <tr key={order.id} className="hover:bg-slate-50/30">
+                    <td className="px-6 py-4 font-bold text-primary">#{order.id.split('-')[0].toUpperCase()}</td>
+                    <td className="px-6 py-4">
+                       <div className="font-medium">{order.market_customers?.full_name}</div>
+                       <div className="text-[10px] text-muted-foreground">{order.market_customers?.email}</div>
+                    </td>
+                    <td className="px-6 py-4 text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</td>
+                    <td className="px-6 py-4">
+                       <Badge className={order.status === 'completed' ? 'bg-green-100 text-green-700' : 'bg-amber-100 text-amber-700'}>
+                         {order.status === 'pending' ? 'Pendente' : order.status === 'completed' ? 'Concluído' : order.status}
+                       </Badge>
+                    </td>
+                    <td className="px-6 py-4 font-bold">{order.total_amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</td>
+                    <td className="px-6 py-4 text-right">
+                       <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
+                    </td>
+                  </tr>
+                )) : (
+                  <tr><td colSpan={6} className="p-20 text-center text-muted-foreground italic">Nenhum pedido encontrado</td></tr>
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
+const CustomersTab = () => {
+  const [customers, setCustomers] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function load() {
+      try {
+        const { data, error } = await supabase.from('market_customers' as any).select('*');
+        if (!error) setCustomers(data || []);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    load();
+  }, []);
+
+  return (
+    <Card className="border-none shadow-sm">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <CardTitle className="text-lg">Clientes do Marketplace</CardTitle>
+          <Button size="sm"><Plus className="w-4 h-4 mr-2" /> Novo Cliente</Button>
+        </div>
+      </CardHeader>
+      <CardContent className="p-0">
+        <div className="overflow-x-auto">
+          {loading ? (
+             <div className="p-20 flex justify-center"><Loader2 className="animate-spin text-primary" /></div>
+          ) : (
+            <table className="w-full text-sm text-left">
+              <thead className="text-[10px] uppercase font-bold text-muted-foreground bg-slate-50/30">
+                <tr>
+                  <th className="px-6 py-4">Nome</th>
+                  <th className="px-6 py-4">E-mail</th>
+                  <th className="px-6 py-4">Data Cadastro</th>
+                  <th className="px-6 py-4 text-right">Ações</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-100">
+                {customers.length > 0 ? customers.map((c) => (
+                  <tr key={c.id}>
+                    <td className="px-6 py-4 font-medium">{c.full_name}</td>
+                    <td className="px-6 py-4 text-muted-foreground">{c.email}</td>
+                    <td className="px-6 py-4 text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</td>
+                    <td className="px-6 py-4 text-right">
+                       <Button variant="ghost" size="icon"><MoreVertical className="w-4 h-4" /></Button>
+                    </td>
+                  </tr>
+                )) : (
+                  <tr><td colSpan={4} className="p-20 text-center text-muted-foreground italic">Nenhum cliente cadastrado</td></tr>
+                )}
+              </tbody>
+            </table>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  );
+};
+
 export default function MarketplaceAdmin() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showVitrine, setShowVitrine] = useState(false);
@@ -333,16 +494,17 @@ export default function MarketplaceAdmin() {
               <Button variant="outline" className="mt-6">Criar primeira categoria</Button>
             </div>
           )}
-          {activeTab === "pedidos" && (
+          {activeTab === "pedidos" && <OrdersTab />}
+          {activeTab === "clientes" && <CustomersTab />}
+          {activeTab === "categorias" && (
             <div className="bg-white rounded-2xl p-12 text-center border border-dashed border-slate-200">
-              <ShoppingCart className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold">Gestão de Pedidos</h3>
-              <p className="text-muted-foreground max-w-xs mx-auto mt-2">Todos os seus pedidos de vendas diretas e do marketplace aparecerão aqui.</p>
-              <Badge className="mt-4 bg-slate-100 text-slate-600 border-none">Aguardando primeira venda</Badge>
+              <Tags className="w-12 h-12 text-slate-200 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold">Categorias & Tags</h3>
+              <p className="text-muted-foreground max-w-xs mx-auto mt-2">Organize seu catálogo por nichos, subcategorias e grupos de produtos.</p>
+              <Button variant="outline" className="mt-6">Criar primeira categoria</Button>
             </div>
           )}
-          {/* Outras abas seguirão o mesmo padrão funcional */}
-          {!["dashboard", "produtos", "categorias", "pedidos"].includes(activeTab) && (
+          {!["dashboard", "produtos", "categorias", "pedidos", "clientes"].includes(activeTab) && (
             <div className="bg-white rounded-2xl p-12 text-center border border-dashed border-slate-200">
               <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
                 <Settings className="w-8 h-8 text-slate-300 animate-pulse" />
