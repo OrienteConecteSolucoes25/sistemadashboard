@@ -90,8 +90,10 @@ export const PixelWorkspaceView = memo(({
     pixiMap.render();
     pixiCharacters.render(characters);
     pixiDesks.render(desks);
+    pixiRooms.render(rooms);
     pixiEvents.setupStage(onStageClick);
-  }, [characters, desks, onStageClick]);
+  }, [characters, desks, rooms, onStageClick]);
+
 
 
   // Sync data to Pixi
@@ -99,8 +101,10 @@ export const PixelWorkspaceView = memo(({
     if (currentRenderer === "pixi") {
       pixiCharacters.render(characters);
       pixiDesks.render(desks);
+      pixiRooms.render(rooms);
     }
-  }, [characters, desks, currentRenderer]);
+  }, [characters, desks, rooms, currentRenderer]);
+
 
 
 
