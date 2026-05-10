@@ -37,7 +37,7 @@ export function JarbasInterface() {
   
   const { 
     context, 
-    history, 
+    chatHistory, 
     isProcessing, 
     isListening, 
     isSpeaking, 
