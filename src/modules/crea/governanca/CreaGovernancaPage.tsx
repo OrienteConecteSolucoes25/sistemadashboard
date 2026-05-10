@@ -3,13 +3,17 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import {
   Gauge, DollarSign, Table2, ShieldCheck, Building2, Users, UserSquare2,
-  Tags, Shapes, Layers, Upload, Link2, Bell, MapPin, FileText, Bot,
+  Tags, Shapes, Layers, Upload, Link2, Bell, MapPin, FileText, Bot, Sparkles,
 } from "lucide-react";
 import { GovArtFilterBar } from "./GovArtFilterBar";
 import { GovFilters } from "./lib/govTypes";
 import { VisaoExecutivaTab } from "./tabs/VisaoExecutivaTab";
 import { TecnicaTab } from "./tabs/TecnicaTab";
 import { ImportacoesTab } from "./tabs/ImportacoesTab";
+import { SetoresTab } from "./tabs/SetoresTab";
+import { TagsTab } from "./tabs/TagsTab";
+import { EscoposTab } from "./tabs/EscoposTab";
+import { ClassificacaoTab } from "./tabs/ClassificacaoTab";
 
 const Placeholder = ({ title, description }: { title: string; description: string }) => (
   <Card className="card-elegant">
@@ -32,6 +36,7 @@ const TABS: { value: string; label: string; icon: any; desc: string }[] = [
   { value: "setores",     label: "Setores",           icon: Shapes,       desc: "CRUD de setores personalizados por empresa." },
   { value: "tags",        label: "Tags",              icon: Tags,         desc: "CRUD de tags operacionais por empresa." },
   { value: "escopos",     label: "Escopos",           icon: Layers,       desc: "CRUD de escopos operacionais por empresa." },
+  { value: "classificacao", label: "Classificação IA", icon: Sparkles,    desc: "Regras de palavra-chave/regex e reprocessamento automático." },
   { value: "importacoes", label: "Importações",       icon: Upload,       desc: "Upload de XLS/XLSX/CSV/PDF do CREA com histórico e reprocessar." },
   { value: "conciliacao", label: "Conciliação",       icon: Link2,        desc: "Boleto × ART (automática + manual), divergências e sem par." },
   { value: "alertas",     label: "Alertas",           icon: Bell,         desc: "Fila de exceções com criticidade, responsável e SLA." },
@@ -73,6 +78,10 @@ export default function CreaGovernancaPage() {
             {t.value === "executiva" ? <VisaoExecutivaTab filters={filters} />
              : t.value === "tecnica" ? <TecnicaTab filters={filters} />
              : t.value === "importacoes" ? <ImportacoesTab />
+             : t.value === "setores" ? <SetoresTab />
+             : t.value === "tags" ? <TagsTab />
+             : t.value === "escopos" ? <EscoposTab />
+             : t.value === "classificacao" ? <ClassificacaoTab />
              : <Placeholder title={t.label} description={t.desc} />}
           </TabsContent>
         ))}
