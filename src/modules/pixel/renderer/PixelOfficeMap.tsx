@@ -1,5 +1,6 @@
 import { TILE_SIZE, STAGE_WIDTH_PX, STAGE_HEIGHT_PX } from "../core/constants";
 import { OFFICE_THEME } from "../core/pixelOfficeTheme";
+import { spriteEngine } from "../engine/spriteEngine";
 
 /**
  * Piso do escritório — gradiente pseudo-iso + grade sutil de tiles.
