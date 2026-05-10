@@ -98,6 +98,47 @@ export default function TiAgentPage() {
     setLoading(false);
   };
 
+  const loadComments = async (ticketId: string) => {
+    const { data, error } = await supabase
+      .from("ti_ticket_comments")
+      .select("*")
+      .eq("ticket_id", ticketId)
+      .order("created_at", { ascending: true });
+    
+    if (!error) setComments(data as ITicketComment[]);
+  };
+
+  const handleAddComment = async () => {
+    if (!selectedTicket || !newComment) return;
+    const { error } = await supabase.from("ti_ticket_comments").insert({
+      ticket_id: selectedTicket.id,
+      user_id: user?.id,
+      content: newComment
+    });
+    if (!error) {
+      setNewComment("");
+      loadComments(selectedTicket.id);
+    }
+  };
+
+  const updateTicketStatus = async (id: string, newStatus: TicketStatus) => {
+    const { error } = await supabase.from("ti_tickets").update({ status: newStatus }).eq("id", id);
+    if (!error) {
+      toast.success("Status atualizado");
+      loadTickets();
+      if (selectedTicket?.id === id) setSelectedTicket({ ...selectedTicket, status: newStatus });
+    }
+  };
+
+  const loadAssets = async () => {
+    const { data, error } = await supabase.from("ti_assets").select("*");
+    if (!error) setAssets(data as IAsset[]);
+  };
+
+  useEffect(() => {
+    if (activeTab === "ativos") loadAssets();
+  }, [activeTab]);
+
   useEffect(() => {
     loadTickets();
   }, []);
