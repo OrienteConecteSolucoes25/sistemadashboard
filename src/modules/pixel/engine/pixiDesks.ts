@@ -50,7 +50,7 @@ class PixiDesksManager {
       fontFamily: 'Orbitron, Arial',
       fontSize: 9,
       fill: 0xffffff,
-      fontWeight: 'medium',
+      fontWeight: '500',
     });
     label.label = 'label';
     label.anchor.set(0.5, 0);
