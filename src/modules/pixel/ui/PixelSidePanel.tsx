@@ -121,18 +121,24 @@ const CharacterPanel = ({
       {/* Avatar grande + status */}
       <div className="mt-6 flex flex-col items-center gap-3">
         <div
-          className="p-6 rounded-xl border shadow-inner"
+          className="p-6 rounded-xl border shadow-inner relative"
           style={{
             background:
               "linear-gradient(135deg, hsl(var(--muted)) 0%, hsl(var(--muted) / 0.5) 100%)",
           }}
         >
-          <AvatarLayeredSprite customization={data.customization} size={144} />
+          <AvatarLayeredSprite customization={data.customization} size={144} grayscale={!data.is_online} />
+          {!data.is_online && (
+             <Badge variant="secondary" className="absolute top-2 right-2 text-[10px] font-mono">OFFLINE</Badge>
+          )}
+          {data.is_online && (
+             <Badge variant="default" className="absolute top-2 right-2 text-[10px] font-mono bg-green-500 hover:bg-green-600 border-none">ONLINE</Badge>
+          )}
         </div>
         <div className="flex items-center gap-2 text-sm">
-          <PixelStatusBadge status={status} />
-          <span className="font-medium">{STATUS_LABEL[status]}</span>
-          {data.current_action && data.current_action !== "idle" && (
+          <PixelStatusBadge status={data.is_online ? status : "offline"} />
+          <span className="font-medium">{STATUS_LABEL[data.is_online ? status : "offline"]}</span>
+          {data.current_action && data.current_action !== "idle" && data.is_online && (
             <span className="text-muted-foreground">· {data.current_action}</span>
           )}
         </div>
