@@ -97,6 +97,7 @@ const AppLayout = () => {
       {(isAdmin || canAparencia) && <NavItem to="/app/aparencia" icon={Palette} label="Aparência & Marca" />}
       {isOcsStaff && <NavItem to="/app/pixel-office/admin" icon={Shield} label="Soluções-Verso Admin" />}
       {(isOcsStaff || canAdmVis) && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
+      {(isOcsStaff || isAdmin) && <NavItem to="/app/ocs-guard" icon={ShieldAlert} label="OCS Guard" />}
       <div className="mt-auto pt-4 border-t">
         {!collapsed && (
           <>
