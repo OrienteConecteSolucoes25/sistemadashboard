@@ -44,6 +44,15 @@ export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage }: P
   const grayscale = !character.is_online || status === "offline";
 
   return (
+    <div 
+      className="absolute" 
+      style={{ 
+        left, 
+        top,
+        transition: "left 600ms cubic-bezier(0.4, 0, 0.2, 1), top 600ms cubic-bezier(0.4, 0, 0.2, 1)",
+        willChange: "left, top",
+      }}
+    >
     <TooltipProvider delayDuration={100}>
       <Tooltip>
         <TooltipTrigger asChild>
