@@ -91,11 +91,17 @@ export function DiretorNpc({ onClick, notifications = [] }: { onClick: () => voi
         {/* Balão */}
         <div
           className={`mb-1 px-2 py-1 rounded-md bg-card border text-[10px] font-display whitespace-nowrap shadow-md transition-all ${
-            hover ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1 pointer-events-none"
+            hover || notifications.length > 0 ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1 pointer-events-none"
           }`}
         >
           <Sparkles className="inline h-3 w-3 text-primary mr-1" />
-          Diretor OCS — clique para conversar
+          {notifications.length > 0 ? (
+            <span className="animate-pulse font-bold text-primary">
+              {notifications[0]}... (clique aqui)
+            </span>
+          ) : (
+            "Diretor OCS — clique para conversar"
+          )}
         </div>
 
         {/* Sprite (espelhado conforme direção) */}
