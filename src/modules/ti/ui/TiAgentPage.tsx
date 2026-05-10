@@ -39,9 +39,6 @@ interface ITicket {
   priority: TicketPriority;
   status: TicketStatus;
   created_at: string;
-  module_key?: string;
-  sla_deadline?: string;
-  assigned_to?: string;
 }
 
 interface ITicketComment {
@@ -50,7 +47,6 @@ interface ITicketComment {
   user_id: string;
   content: string;
   created_at: string;
-  user_email?: string;
 }
 
 interface IAsset {
@@ -108,40 +104,18 @@ export default function TiAgentPage() {
     if (!error) setComments(data as ITicketComment[]);
   };
 
-  const handleAddComment = async () => {
-    if (!selectedTicket || !newComment) return;
-    const { error } = await supabase.from("ti_ticket_comments").insert({
-      ticket_id: selectedTicket.id,
-      user_id: user?.id,
-      content: newComment
-    });
-    if (!error) {
-      setNewComment("");
-      loadComments(selectedTicket.id);
-    }
-  };
-
-  const updateTicketStatus = async (id: string, newStatus: TicketStatus) => {
-    const { error } = await supabase.from("ti_tickets").update({ status: newStatus }).eq("id", id);
-    if (!error) {
-      toast.success("Status atualizado");
-      loadTickets();
-      if (selectedTicket?.id === id) setSelectedTicket({ ...selectedTicket, status: newStatus });
-    }
-  };
-
   const loadAssets = async () => {
     const { data, error } = await supabase.from("ti_assets").select("*");
     if (!error) setAssets(data as IAsset[]);
   };
 
   useEffect(() => {
-    if (activeTab === "ativos") loadAssets();
-  }, [activeTab]);
-
-  useEffect(() => {
     loadTickets();
   }, []);
+
+  useEffect(() => {
+    if (activeTab === "ativos") loadAssets();
+  }, [activeTab]);
 
   const handleCreateTicket = async () => {
     if (!newTitle || !newDesc) {
@@ -169,6 +143,28 @@ export default function TiAgentPage() {
       setDiagnosticStep(0);
       setDiagnosticInfo({});
       loadTickets();
+    }
+  };
+
+  const handleAddComment = async () => {
+    if (!selectedTicket || !newComment) return;
+    const { error } = await supabase.from("ti_ticket_comments").insert({
+      ticket_id: selectedTicket.id,
+      user_id: user?.id,
+      content: newComment
+    });
+    if (!error) {
+      setNewComment("");
+      loadComments(selectedTicket.id);
+    }
+  };
+
+  const updateTicketStatus = async (id: string, newStatus: TicketStatus) => {
+    const { error } = await supabase.from("ti_tickets").update({ status: newStatus }).eq("id", id);
+    if (!error) {
+      toast.success("Status atualizado");
+      loadTickets();
+      if (selectedTicket?.id === id) setSelectedTicket({ ...selectedTicket, status: newStatus });
     }
   };
 
@@ -205,7 +201,7 @@ export default function TiAgentPage() {
           </h1>
           <p className="text-sm text-muted-foreground">Central de suporte técnico e governança digital.</p>
         </div>
-        {!isCreating && (
+        {!isCreating && !selectedTicket && (
           <Button onClick={() => setIsCreating(true)}>
             <Plus className="w-4 h-4 mr-2" /> Novo Chamado
           </Button>
@@ -333,173 +329,10 @@ export default function TiAgentPage() {
                         <p className="font-bold text-sm">Diagnóstico Concluído!</p>
                         <p className="text-xs text-muted-foreground">As informações coletadas foram anexadas ao seu chamado.</p>
                       </div>
-                      <div className="text-left bg-background p-3 rounded border text-xs space-y-2">
-                         <p className="font-semibold border-b pb-1 mb-1">Dica do Agente:</p>
-                         <p>Como você informou que consegue trabalhar com limitações, sua prioridade foi mantida como {newPri}. O time técnico analisará os logs de sistema em breve.</p>
-                      </div>
                     </div>
                   )}
                 </CardContent>
               </Card>
-            </div>
-          ) : (
-            <div className="grid gap-4">
-              {loading ? (
-                <div className="text-center py-20 text-muted-foreground">Carregando chamados...</div>
-              ) : tickets.length === 0 ? (
-                <Card>
-                  <CardContent className="py-20 text-center space-y-4">
-                    <Bot className="w-12 h-12 text-muted-foreground mx-auto opacity-20" />
-                    <p className="text-muted-foreground">Você não possui chamados abertos no momento.</p>
-                    <Button variant="outline" onClick={() => setIsCreating(true)}>Abrir primeiro chamado</Button>
-                  </CardContent>
-                </Card>
-              ) : (
-                (
-                  <>
-              {selectedTicket ? (
-                <div className="space-y-4 animate-in fade-in zoom-in-95">
-                  <Button variant="ghost" size="sm" onClick={() => setSelectedTicket(null)}>
-                    ← Voltar para lista
-                  </Button>
-                  <div className="grid md:grid-cols-3 gap-6">
-                    <div className="md:col-span-2 space-y-4">
-                      <Card>
-                        <CardHeader className="pb-2">
-                          <div className="flex justify-between items-start">
-                            <div>
-                              <Badge variant="outline" className="mb-2 uppercase text-[10px]">{selectedTicket.category.replace('_', ' ')}</Badge>
-                              <CardTitle>{selectedTicket.title}</CardTitle>
-                              <CardDescription>Aberto em {new Date(selectedTicket.created_at).toLocaleString()}</CardDescription>
-                            </div>
-                            <Badge className={selectedTicket.priority === 'critica' ? 'bg-destructive' : 'bg-primary'}>
-                              {selectedTicket.priority.toUpperCase()}
-                            </Badge>
-                          </div>
-                        </CardHeader>
-                        <CardContent className="space-y-6">
-                          <div className="p-4 bg-muted/50 rounded-lg text-sm whitespace-pre-wrap">
-                            {selectedTicket.description}
-                          </div>
-                          
-                          <div className="space-y-4">
-                            <h3 className="text-sm font-bold flex items-center gap-2">
-                              <MessageSquare className="w-4 h-4" /> Comentários e Histórico
-                            </h3>
-                            <ScrollArea className="h-[300px] border rounded-md p-4 bg-background">
-                              <div className="space-y-4">
-                                {comments.map(comment => (
-                                  <div key={comment.id} className={`p-3 rounded-lg text-sm ${comment.user_id === user?.id ? 'bg-primary/5 ml-8 border border-primary/10' : 'bg-muted mr-8'}`}>
-                                    <div className="flex justify-between items-center mb-1 text-[10px] text-muted-foreground">
-                                      <span className="font-bold">{comment.user_id === user?.id ? 'Você' : 'Técnico'}</span>
-                                      <span>{new Date(comment.created_at).toLocaleString()}</span>
-                                    </div>
-                                    {comment.content}
-                                  </div>
-                                ))}
-                                {comments.length === 0 && <p className="text-center text-muted-foreground text-xs py-10">Nenhum comentário ainda.</p>}
-                              </div>
-                            </ScrollArea>
-                            <div className="flex gap-2">
-                              <Textarea 
-                                value={newComment} 
-                                onChange={e => setNewComment(e.target.value)} 
-                                placeholder="Adicionar comentário..." 
-                                className="min-h-[80px]"
-                              />
-                            </div>
-                            <Button className="w-full" onClick={handleAddComment}>Enviar Comentário</Button>
-                          </div>
-                        </CardContent>
-                      </Card>
-                    </div>
-
-                    <div className="space-y-4">
-                      <Card>
-                        <CardHeader className="p-4"><CardTitle className="text-sm">Controle Técnico</CardTitle></CardHeader>
-                        <CardContent className="p-4 pt-0 space-y-4">
-                          <div className="space-y-2">
-                            <Label className="text-xs uppercase text-muted-foreground">Status do Chamado</Label>
-                            <Select 
-                              value={selectedTicket.status} 
-                              onValueChange={(v: TicketStatus) => updateTicketStatus(selectedTicket.id, v)}
-                              disabled={!isAdmin}
-                            >
-                              <SelectTrigger><SelectValue /></SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="aberto">Aberto</SelectItem>
-                                <SelectItem value="em_analise">Em Análise</SelectItem>
-                                <SelectItem value="em_execucao">Em Execução</SelectItem>
-                                <SelectItem value="aguardando_usuario">Aguardando Usuário</SelectItem>
-                                <SelectItem value="resolvido">Resolvido</SelectItem>
-                                <SelectItem value="cancelado">Cancelado</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          {isAdmin && (
-                            <div className="p-3 bg-primary/5 border border-primary/10 rounded-lg space-y-2">
-                               <p className="text-[10px] font-bold text-primary uppercase">Painel de Administração</p>
-                               <Button variant="outline" size="sm" className="w-full text-xs">Atribuir a mim</Button>
-                               <Button variant="outline" size="sm" className="w-full text-xs">Definir SLA</Button>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                tickets.map(ticket => (
-                  <Card 
-                    key={ticket.id} 
-                    className="hover:bg-muted/30 transition-colors cursor-pointer group"
-                    onClick={() => {
-                      setSelectedTicket(ticket);
-                      loadComments(ticket.id);
-                    }}
-                  >
-                    <CardContent className="p-4 flex items-center justify-between gap-4">
-                      <div className="flex items-center gap-4 flex-1">
-                        <div className={`p-2 rounded-full ${
-                          ticket.status === 'resolvido' ? 'bg-green-500/10 text-green-600' :
-                          ticket.status === 'em_analise' ? 'bg-blue-500/10 text-blue-600' :
-                          'bg-amber-500/10 text-amber-600'
-                        }`}>
-                          {ticket.status === 'resolvido' ? <CheckCircle2 className="w-5 h-5" /> : 
-                           ticket.status === 'aberto' ? <AlertCircle className="w-5 h-5" /> : 
-                           <Clock className="w-5 h-5" />}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <span className="font-bold text-sm truncate">{ticket.title}</span>
-                            <Badge variant="outline" className="text-[10px] uppercase h-4">{ticket.category.replace('_', ' ')}</Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground line-clamp-1">{ticket.description}</p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-6 shrink-0">
-                         <div className="text-right hidden sm:block">
-                            <div className="text-[10px] text-muted-foreground uppercase font-bold">Status</div>
-                            <Badge variant="secondary" className="text-[10px]">{ticket.status.replace('_', ' ')}</Badge>
-                         </div>
-                         <div className="text-right hidden sm:block">
-                            <div className="text-[10px] text-muted-foreground uppercase font-bold">Prioridade</div>
-                            <Badge className={`text-[10px] ${
-                              ticket.priority === 'critica' ? 'bg-destructive' :
-                              ticket.priority === 'alta' ? 'bg-orange-500' :
-                              'bg-primary'
-                            }`}>{ticket.priority}</Badge>
-                         </div>
-                         <div className="text-right text-[10px] text-muted-foreground">
-                            {new Date(ticket.created_at).toLocaleDateString()}
-                         </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-                )}
-                </>
-              )}
             </div>
           ) : (
             <div className="grid gap-4">
@@ -679,8 +512,39 @@ export default function TiAgentPage() {
            </Card>
         </TabsContent>
         
-        {/* Outras abas (Placeholder para desenvolvimento futuro) */}
-        {["ativos", "acessos", "seguranca", "dashboard"].map(tab => (
+        <TabsContent value="ativos" className="mt-6">
+          <Card>
+            <CardHeader>
+              <CardTitle>Gestão de Ativos</CardTitle>
+              <CardDescription>Inventário de hardware e software.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {assets.map(asset => (
+                  <Card key={asset.id}>
+                    <CardHeader className="p-4">
+                      <div className="flex justify-between items-start">
+                        <Badge variant="outline" className="text-[10px]">{asset.type}</Badge>
+                        <Badge variant={asset.status === 'disponivel' ? 'secondary' : 'default'} className="text-[10px]">
+                          {asset.status}
+                        </Badge>
+                      </div>
+                      <CardTitle className="text-sm mt-2">{asset.name}</CardTitle>
+                      <CardDescription className="text-xs">S/N: {asset.serial_number || 'N/A'}</CardDescription>
+                    </CardHeader>
+                  </Card>
+                ))}
+                {assets.length === 0 && (
+                  <div className="col-span-full py-10 text-center text-muted-foreground">
+                    Nenhum ativo cadastrado.
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {["acessos", "seguranca", "dashboard"].map(tab => (
           <TabsContent key={tab} value={tab} className="mt-6">
             <Card>
                <CardContent className="py-20 text-center space-y-4">
