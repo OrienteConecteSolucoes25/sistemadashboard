@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { 
   Mic, 
   MicOff, 
@@ -12,10 +12,17 @@ import {
   Cpu,
   Layers,
   Activity,
-  History,
-  Info
+  History as HistoryIcon,
+  Info,
+  Maximize2,
+  Minimize2,
+  AlertTriangle,
+  CheckCircle2,
+  Settings,
+  BrainCircuit,
+  Database
 } from "lucide-react";
-import { useJarbasVoice } from "../hooks/useJarbasVoice";
+import { useJarbasCore } from "../hooks/useJarbasCore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -23,73 +30,51 @@ import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
-interface Interaction {
-  role: 'jarbas' | 'user';
-  text: string;
-  type?: 'info' | 'alert' | 'success';
-  timestamp: Date;
-}
-
 export function JarbasInterface() {
   const [isOpen, setIsOpen] = useState(false);
-  const [history, setHistory] = useState<Interaction[]>([]);
-  const { speak, listen, isListening, isSpeaking, stopSpeaking, isSupported } = useJarbasVoice();
-  const scrollRef = useCallback((node: HTMLDivElement | null) => {
-    if (node) node.scrollTop = node.scrollHeight;
-  }, []);
+  const [isFieldMode, setIsFieldMode] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  
+  const { 
+    context, 
+    history, 
+    isProcessing, 
+    isListening, 
+    isSpeaking, 
+    isSupported, 
+    handleMicClick,
+    processInput 
+  } = useJarbasCore();
 
-  const addInteraction = (role: 'jarbas' | 'user', text: string, type?: 'info' | 'alert' | 'success') => {
-    setHistory(prev => [...prev, { role, text, type, timestamp: new Date() }]);
-  };
-
-  const processCommand = async (command: string) => {
-    addInteraction('user', command);
-    const cmd = command.toLowerCase();
-
-    // Mock operacional para demonstração
-    if (cmd.includes('instalação') || cmd.includes('eletrica') || cmd.includes('obras')) {
-      const response = "Entendido. Verificando Ordem de Serviço na Torre Salvador Norte. Identifiquei 5 etapas. Antes de começar: Você está utilizando capacete, luvas isolantes e cinturão de segurança?";
-      addInteraction('jarbas', response, 'alert');
-      speak(response);
-    } else if (cmd.includes('sim') || cmd.includes('confirmo') || cmd.includes('estou')) {
-      const response = "Equipamentos validados. Registrei sua confirmação. Próximo passo: Valide o desligamento da rede elétrica no disjuntor principal e reporte quando concluído.";
-      addInteraction('jarbas', response, 'success');
-      speak(response);
-    } else if (cmd.includes('concluido') || cmd.includes('feito') || cmd.includes('próximo')) {
-      const response = "Rede elétrica desligada. Próximo passo: Registre uma foto do ponto de entrada antes da conexão física dos cabos.";
-      addInteraction('jarbas', response, 'info');
-      speak(response);
-    } else {
-      const response = "Comando recebido. Estou analisando os documentos operacionais do módulo para te orientar. Pode repetir a atividade?";
-      addInteraction('jarbas', response);
-      speak(response);
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
     }
-  };
-
-  const handleMicClick = async () => {
-    if (isSpeaking) {
-      stopSpeaking();
-      return;
-    }
-
-    try {
-      const transcript = await listen();
-      if (transcript) processCommand(transcript);
-    } catch (error) {
-      toast.error("Falha ao ouvir: " + error);
-    }
-  };
+  }, [history]);
 
   const toggleJarbas = () => {
-    if (!isOpen) {
-      const welcome = "Jarbas OCS ativo. Sistema operacional inteligente online. Como posso orientar sua atividade de campo hoje?";
-      addInteraction('jarbas', welcome);
-      speak(welcome);
-    } else {
-      stopSpeaking();
-    }
     setIsOpen(!isOpen);
+    if (!isOpen) {
+      // Opcional: boas vindas ao abrir
+    }
   };
+
+  const toggleFieldMode = () => setIsFieldMode(!isFieldMode);
+
+  if (!isOpen) {
+    return (
+      <button 
+        onClick={toggleJarbas}
+        className="fixed bottom-6 right-6 z-50 w-16 h-16 rounded-full bg-slate-950 border-2 border-primary/40 flex items-center justify-center shadow-[0_0_20px_rgba(37,99,235,0.4)] hover:scale-110 transition-all group overflow-hidden"
+      >
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent animate-pulse" />
+        <BrainCircuit className="w-8 h-8 text-primary group-hover:scale-110 transition-transform duration-500" />
+      </button>
+    );
+  }
 
   if (!isOpen) {
     return (
