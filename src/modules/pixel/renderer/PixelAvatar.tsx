@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import { TILE_SIZE, STATUS_LABEL, STATUS_COLOR, type PixelStatus } from "../core/constants";
+import { TILE_SIZE, STATUS_LABEL, type PixelStatus } from "../core/constants";
+import { spriteEngine } from "../engine/spriteEngine";
 import { roleFromSpriteKey, ROLE_PALETTES } from "../core/pixelOfficeTheme";
 import { AvatarLayeredSprite } from "./AvatarLayeredSprite";
 import { PixelStatusBadge } from "./PixelStatusBadge";
