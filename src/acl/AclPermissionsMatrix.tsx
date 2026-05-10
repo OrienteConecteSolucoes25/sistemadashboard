@@ -169,7 +169,7 @@ export default function AclPermissionsMatrix({ companyId, moduleFilter }: Props)
         </table>
       </div>
       <p className="text-[11px] text-muted-foreground">
-        Modelo central de permissões (ADM > Visibilidade). Apenas funcionários internos OCS podem liberar/revogar.
+        Modelo central de permissões (ADM &gt; Visibilidade). Apenas funcionários internos OCS podem liberar/revogar.
         Toda alteração fica registrada na auditoria (<code>acl_audit_logs</code>).
       </p>
     </div>
