@@ -26,6 +26,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAcl } from "@/acl/AclProvider";
+import { supabase } from "@/integrations/supabase/client";
 import MarketplaceHome from "./MarketplaceHome";
 import { getMarketplaceProducts, MarketplaceProduct } from "../lib/marketplaceApi";
 
