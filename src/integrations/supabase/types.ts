@@ -9847,6 +9847,7 @@ export type Database = {
           is_blocked: boolean
           is_visible: boolean
           job_title: string | null
+          last_heartbeat: string | null
           linkedin_url: string | null
           sector_description: string | null
           show_age: boolean
@@ -9880,6 +9881,7 @@ export type Database = {
           is_blocked?: boolean
           is_visible?: boolean
           job_title?: string | null
+          last_heartbeat?: string | null
           linkedin_url?: string | null
           sector_description?: string | null
           show_age?: boolean
@@ -9913,6 +9915,7 @@ export type Database = {
           is_blocked?: boolean
           is_visible?: boolean
           job_title?: string | null
+          last_heartbeat?: string | null
           linkedin_url?: string | null
           sector_description?: string | null
           show_age?: boolean
@@ -10854,6 +10857,7 @@ export type Database = {
         Returns: Json
       }
       theme_save: { Args: { _company: string; _payload: Json }; Returns: Json }
+      update_pixel_heartbeat: { Args: { _uid: string }; Returns: undefined }
       user_company: { Args: { _uid: string }; Returns: string }
       user_group_ids: { Args: { _user_id: string }; Returns: string[] }
       user_in_group: {
