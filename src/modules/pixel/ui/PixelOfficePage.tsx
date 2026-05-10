@@ -56,7 +56,7 @@ export default function PixelOfficePage() {
   const [preselectInvitee, setPreselectInvitee] = useState<string | null>(null);
   const [activeAgentPanel, setActiveAgentPanel] = useState<string | null>(null);
 
-  const { moveTo, getPosition } = useCharacterMovement({
+  const { moveTo, getPosition, setTyping } = useCharacterMovement({
     workspaceId: activeWorkspace?.id ?? null,
     isAdmin,
   });
@@ -201,10 +201,16 @@ export default function PixelOfficePage() {
             <span>🪑 {desks.length} mesas</span>
             <span>🚪 {rooms.length} salas</span>
             <span>🎥 {meetings.meetings.length} reuniões</span>
+            <div className="h-4 w-px bg-muted mx-1" />
+            <div className="flex gap-2 items-center">
+              <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
+              <span>Ambiente Social Vivo</span>
+            </div>
           </div>
           <div className="relative">
             <PixelWorkspaceView
               workspace={activeWorkspace}
+              currentUser={user}
               characters={characters}
               desks={desks}
               rooms={rooms}
@@ -214,6 +220,7 @@ export default function PixelOfficePage() {
               onSelectDesk={(d) => setSelected({ kind: "desk", data: d })}
               onStageClick={handleStageClick}
               recentMessages={bubbles}
+              setTyping={setTyping}
               meetings={meetings}
               isAdmin={isAdmin}
               onRefresh={refresh}
@@ -473,7 +480,7 @@ export default function PixelOfficePage() {
               setMeetingModalOpen(true);
             }}
           />
-          <PixelCommunityPanel activeWorkspace={activeWorkspace} workspaces={workspaces} />
+          <PixelCommunityPanel activeWorkspace={activeWorkspace} workspaces={workspaces} setTyping={setTyping} />
 
           {/* Mobile Navigation Fixa */}
           <div className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-2 flex justify-around items-center z-[100] safe-area-bottom shadow-lg">

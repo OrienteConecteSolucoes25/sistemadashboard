@@ -91,12 +91,16 @@ export function useCharacterMovement(opts: {
     [canMove, persist],
   );
 
-  const getPosition = useCallback(
-    (userId: string, fallback: LocalPosition): LocalPosition => {
-      return overrides[userId] ?? fallback;
+  const setTyping = useCallback(
+    async (isTyping: boolean) => {
+      if (!user?.id || !workspaceId) return;
+      await supabase
+        .from("pixel_positions")
+        .update({ is_typing: isTyping } as any)
+        .eq("user_id", user.id);
     },
-    [overrides],
+    [user?.id, workspaceId]
   );
 
-  return { moveTo, getPosition, canMove };
+  return { moveTo, getPosition, canMove, setTyping };
 }

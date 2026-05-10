@@ -1,11 +1,12 @@
 import { useEffect, useState, useRef } from "react";
-import { TILE_SIZE, STATUS_LABEL, type PixelStatus } from "../core/constants";
+import { TILE_SIZE, STATUS_LABEL, STATUS_COLOR, type PixelStatus } from "../core/constants";
 import { roleFromSpriteKey, ROLE_PALETTES } from "../core/pixelOfficeTheme";
 import { AvatarLayeredSprite } from "./AvatarLayeredSprite";
 import { PixelStatusBadge } from "./PixelStatusBadge";
 import type { PixelCharacter } from "../data/usePixelWorkspaceData";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { motion, AnimatePresence } from "framer-motion";
+import { Smile } from "lucide-react";
 
 interface Props {
   character: PixelCharacter;
@@ -13,11 +14,12 @@ interface Props {
   posY?: number;
   onClick?: (c: PixelCharacter) => void;
   recentMessage?: string | null;
+  isTyping?: boolean;
 }
 
 const AVATAR_SIZE = 56;
 
-export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage }: Props) => {
+export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage, isTyping, hideName }: Props & { hideName?: boolean }) => {
   const status = (character.status as PixelStatus) ?? "offline";
   const x = posX ?? character.position_x;
   const y = posY ?? character.position_y;
@@ -86,6 +88,30 @@ export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage }: P
                   </motion.div>
                 )}
               </AnimatePresence>
+              
+              {isTyping && (
+                <div className="absolute -top-4 left-1/2 -translate-x-1/2 flex gap-0.5 bg-black/50 px-1.5 py-1 rounded-full border border-white/20">
+                  <div className="w-1 h-1 bg-white rounded-full animate-bounce" />
+                  <div className="w-1 h-1 bg-white rounded-full animate-bounce [animation-delay:0.2s]" />
+                  <div className="w-1 h-1 bg-white rounded-full animate-bounce [animation-delay:0.4s]" />
+                </div>
+              )}
+
+              {/* Quick Emojis - Mocked for now */}
+              <div className="absolute -right-8 top-0 flex flex-col gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {['👍', '🔥', '☕'].map(emoji => (
+                  <button 
+                    key={emoji}
+                    className="w-6 h-6 bg-white/90 rounded-full flex items-center justify-center text-xs shadow hover:scale-110 transition-transform"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      // Logic for sending quick emoji
+                    }}
+                  >
+                    {emoji}
+                  </button>
+                ))}
+              </div>
 
               {/* Indicador de status discreto */}
               <span className="absolute -top-1 -right-1">

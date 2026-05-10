@@ -26,6 +26,7 @@ export interface PixelCharacter {
   position_x: number;
   position_y: number;
   current_action: string;
+  is_typing?: boolean;
   is_sitting: boolean;
   last_heartbeat?: string | null;
   is_online?: boolean;
@@ -171,7 +172,7 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
 
       const positionsP = supabase
         .from("pixel_positions")
-        .select("user_id, position_x, position_y, current_action, is_sitting")
+        .select("user_id, position_x, position_y, current_action, is_sitting, is_typing")
         .eq("workspace_id", activeId);
 
       const desksP = supabase
@@ -222,6 +223,7 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
           position_x: pos?.position_x ?? 4,
           position_y: pos?.position_y ?? 4,
           current_action: pos?.current_action ?? "idle",
+          is_typing: pos?.is_typing ?? false,
           is_sitting: pos?.is_sitting ?? false,
           last_heartbeat: p.last_heartbeat,
           is_online: isOnline,
