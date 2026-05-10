@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { ShieldCheck, Save } from "lucide-react";
 import { toast } from "sonner";
 import { useHrdpCompany } from "../hooks/useHrdpCompany";
+import LegacyDeprecationBanner from "@/acl/LegacyDeprecationBanner";
 
 const sb: any = supabase;
 
