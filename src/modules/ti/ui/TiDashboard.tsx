@@ -90,10 +90,10 @@ export default function TiDashboard() {
       {/* Top Indicators */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
         {[
-          { label: 'Chamados Ativos', value: '42', color: 'text-blue-600', trend: '+12%' },
-          { label: 'SLA de Resolução', value: '98.4%', color: 'text-green-600', trend: 'STABLE' },
-          { label: 'Ativos em Uso', value: '1,204', color: 'text-slate-800', trend: '+5' },
-          { label: 'Incidentes Hoje', value: '03', color: 'text-red-600', trend: '-20%' },
+          { label: 'Chamados Ativos', value: stats.activeTickets, color: 'text-blue-600', trend: '+12%' },
+          { label: 'SLA de Resolução', value: stats.slaRate, color: 'text-green-600', trend: 'STABLE' },
+          { label: 'Ativos em Uso', value: stats.assetsInUse, color: 'text-slate-800', trend: '+5' },
+          { label: 'Incidentes Hoje', value: stats.incidentsToday, color: 'text-red-600', trend: '0%' },
         ].map((stat, i) => (
           <Card key={i} className="border-none shadow-sm overflow-hidden relative group hover:shadow-xl transition-all duration-300">
             <CardContent className="p-6">
