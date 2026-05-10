@@ -18,10 +18,42 @@ const SCALE = AVATAR_SIZE / 24; // Original is 16x24
 class PixiCharactersManager {
   private charactersMap: Map<string, PIXI.Container> = new Map();
   private prevPositions: Map<string, { x: number, y: number }> = new Map();
+  private initialized = false;
+
+  private setupTicker() {
+    if (this.initialized) return;
+    const app = pixiApp.getApp();
+    if (!app) return;
+
+    app.ticker.add((ticker) => {
+      this.charactersMap.forEach((container, userId) => {
+        const targetX = (container as any).targetX;
+        const targetY = (container as any).targetY;
+        
+        if (targetX !== undefined && targetY !== undefined) {
+          // Smooth interpolation
+          const dx = targetX - container.x;
+          const dy = targetY - container.y;
+          
+          if (Math.abs(dx) > 0.1 || Math.abs(dy) > 0.1) {
+            container.x += dx * 0.1 * ticker.deltaTime;
+            container.y += dy * 0.1 * ticker.deltaTime;
+            container.zIndex = container.y * 10 + 100;
+          } else {
+            container.x = targetX;
+            container.y = targetY;
+          }
+        }
+      });
+    });
+    this.initialized = true;
+  }
 
   render(characters: PixelCharacter[]) {
     const container = pixiApp.getContainer(PIXI_LAYERS.CHARACTERS);
     if (!container) return;
+    
+    this.setupTicker();
 
     // Track which characters we still have
     const activeIds = new Set(characters.map(c => c.user_id));
@@ -85,17 +117,24 @@ class PixiCharactersManager {
     const targetX = char.position_x * TILE_SIZE + TILE_SIZE / 2;
     const targetY = char.position_y * TILE_SIZE + TILE_SIZE;
 
+    // Store target positions for ticker interpolation
+    (container as any).targetX = targetX;
+    (container as any).targetY = targetY;
+
     // Determine direction
     if (prevPos) {
-      if (targetX > prevPos.x) container.scale.x = 1;
-      else if (targetX < prevPos.x) container.scale.x = -1;
+      if (targetX > prevPos.x + 1) container.scale.x = 1;
+      else if (targetX < prevPos.x - 1) container.scale.x = -1;
     }
     this.prevPositions.set(char.user_id, { x: targetX, y: targetY });
     
-    // Set position directly for now
-    container.x = targetX;
-    container.y = targetY;
-    container.zIndex = char.position_y * 10 + 100;
+    // Initial position if first time
+    if (container.x === 0 && container.y === 0) {
+      container.x = targetX;
+      container.y = targetY;
+    }
+    
+    container.zIndex = container.y * 10 + 100;
 
     // Redraw graphics
     graphics.clear();
