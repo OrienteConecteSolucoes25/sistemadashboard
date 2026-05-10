@@ -495,9 +495,8 @@ export default function TiAgentPage() {
                       </div>
                     </CardContent>
                   </Card>
-                </>
+                ))
               )}
-            </div>
             </div>
           )}
         </TabsContent>
