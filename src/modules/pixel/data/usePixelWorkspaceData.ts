@@ -186,6 +186,8 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
         .eq("workspace_id", activeId)
         .eq("is_active", true);
 
+      // Usando query direta via supabase.from("pixel_furniture") para evitar erros de tipagem
+      // até que o types.ts seja atualizado
       const furnitureP = supabase
         .from("pixel_furniture" as any)
         .select("id, workspace_id, furniture_key, name, position_x, position_y, rotation, z_index, is_locked")
@@ -232,7 +234,7 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
       // Enriquecer mesas com dados do dono
       const profileMap = new Map<string, any>();
       (profilesR.data ?? []).forEach((p) => profileMap.set(p.user_id, p));
-      const enrichedDesks: DeskLite[] = (desksR.data ?? []).map((d) => {
+      const enrichedDesks: DeskLite[] = (desksR.data ?? []).map((d: any) => {
         const owner = d.user_id ? profileMap.get(d.user_id) : null;
         const ownerPos = d.user_id ? posMap.get(d.user_id) : null;
         return {
@@ -241,11 +243,11 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
           owner_status: owner?.status ?? null,
           owner_is_sitting: ownerPos?.is_sitting ?? null,
           owner_current_action: ownerPos?.current_action ?? null,
-        } as DeskLite;
+        } as unknown as DeskLite;
       });
       setDesks(enrichedDesks);
-      setRooms((roomsR.data ?? []) as RoomLite[]);
-      setFurniture((furnitureR.data ?? []) as FurnitureLite[]);
+      setRooms((roomsR.data ?? []) as unknown as RoomLite[]);
+      setFurniture((furnitureR.data ?? []) as unknown as FurnitureLite[]);
     })();
     return () => {
       cancelled = true;
