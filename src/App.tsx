@@ -207,7 +207,8 @@ const App = () => (
               <Route path="minha-empresa" element={<MinhaEmpresaPage />} />
               <Route path="visao-geral" element={<VisaoGeralPage />} />
               <Route path="adm" element={<Adm />} />
-              <Route path="aparencia" element={<ThemeStudioPage />} />
+               <Route path="ocs-guard" element={<OcsGuardPage />} />
+               <Route path="aparencia" element={<ThemeStudioPage />} />
               <Route path="design-system" element={<ThemeStudioPage />} />
             </Route>
             <Route path="*" element={<NotFound />} />
