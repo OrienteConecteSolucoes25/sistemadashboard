@@ -9189,6 +9189,269 @@ export type Database = {
           },
         ]
       }
+      it_access_requests: {
+        Row: {
+          access_level: string
+          approval_notes: string | null
+          approved_by: string | null
+          company_id: string
+          created_at: string | null
+          id: string
+          module_name: string
+          reason: string | null
+          requester_id: string
+          status: string | null
+          target_user_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          access_level: string
+          approval_notes?: string | null
+          approved_by?: string | null
+          company_id: string
+          created_at?: string | null
+          id?: string
+          module_name: string
+          reason?: string | null
+          requester_id: string
+          status?: string | null
+          target_user_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          access_level?: string
+          approval_notes?: string | null
+          approved_by?: string | null
+          company_id?: string
+          created_at?: string | null
+          id?: string
+          module_name?: string
+          reason?: string | null
+          requester_id?: string
+          status?: string | null
+          target_user_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      it_assets: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          id: string
+          metadata: Json | null
+          name: string
+          patrimony_tag: string | null
+          responsible_user_id: string | null
+          serial_number: string | null
+          status: string | null
+          type: string
+          updated_at: string | null
+          warranty_until: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          name: string
+          patrimony_tag?: string | null
+          responsible_user_id?: string | null
+          serial_number?: string | null
+          status?: string | null
+          type: string
+          updated_at?: string | null
+          warranty_until?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          id?: string
+          metadata?: Json | null
+          name?: string
+          patrimony_tag?: string | null
+          responsible_user_id?: string | null
+          serial_number?: string | null
+          status?: string | null
+          type?: string
+          updated_at?: string | null
+          warranty_until?: string | null
+        }
+        Relationships: []
+      }
+      it_knowledge_base: {
+        Row: {
+          author_id: string
+          category: string | null
+          company_id: string | null
+          content: string
+          created_at: string | null
+          id: string
+          is_published: boolean | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          views_count: number | null
+        }
+        Insert: {
+          author_id: string
+          category?: string | null
+          company_id?: string | null
+          content: string
+          created_at?: string | null
+          id?: string
+          is_published?: boolean | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          views_count?: number | null
+        }
+        Update: {
+          author_id?: string
+          category?: string | null
+          company_id?: string | null
+          content?: string
+          created_at?: string | null
+          id?: string
+          is_published?: boolean | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          views_count?: number | null
+        }
+        Relationships: []
+      }
+      it_sla_config: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          id: string
+          priority: string | null
+          resolution_time_hours: number | null
+          response_time_hours: number | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          priority?: string | null
+          resolution_time_hours?: number | null
+          response_time_hours?: number | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          priority?: string | null
+          resolution_time_hours?: number | null
+          response_time_hours?: number | null
+        }
+        Relationships: []
+      }
+      it_ticket_updates: {
+        Row: {
+          attachment_urls: string[] | null
+          comment_text: string | null
+          created_at: string | null
+          id: string
+          is_internal: boolean | null
+          new_status: string | null
+          old_status: string | null
+          ticket_id: string | null
+          user_id: string
+        }
+        Insert: {
+          attachment_urls?: string[] | null
+          comment_text?: string | null
+          created_at?: string | null
+          id?: string
+          is_internal?: boolean | null
+          new_status?: string | null
+          old_status?: string | null
+          ticket_id?: string | null
+          user_id: string
+        }
+        Update: {
+          attachment_urls?: string[] | null
+          comment_text?: string | null
+          created_at?: string | null
+          id?: string
+          is_internal?: boolean | null
+          new_status?: string | null
+          old_status?: string | null
+          ticket_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "it_ticket_updates_ticket_id_fkey"
+            columns: ["ticket_id"]
+            isOneToOne: false
+            referencedRelation: "it_tickets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      it_tickets: {
+        Row: {
+          category: string
+          company_id: string
+          created_at: string | null
+          description: string | null
+          id: string
+          module_affected: string | null
+          priority: string
+          rating: number | null
+          rating_comment: string | null
+          resolved_at: string | null
+          sla_deadline: string | null
+          status: string
+          technician_id: string | null
+          ticket_number: number
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category: string
+          company_id: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          module_affected?: string | null
+          priority?: string
+          rating?: number | null
+          rating_comment?: string | null
+          resolved_at?: string | null
+          sla_deadline?: string | null
+          status?: string
+          technician_id?: string | null
+          ticket_number?: number
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          company_id?: string
+          created_at?: string | null
+          description?: string | null
+          id?: string
+          module_affected?: string | null
+          priority?: string
+          rating?: number | null
+          rating_comment?: string | null
+          resolved_at?: string | null
+          sla_deadline?: string | null
+          status?: string
+          technician_id?: string | null
+          ticket_number?: number
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       jarbas_checklists: {
         Row: {
           created_at: string
