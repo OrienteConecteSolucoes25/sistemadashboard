@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from "react";
-import { TILE_SIZE, STATUS_LABEL, STATUS_COLOR, type PixelStatus } from "../core/constants";
+import { TILE_SIZE, STATUS_LABEL, type PixelStatus } from "../core/constants";
+import { spriteEngine } from "../engine/spriteEngine";
 import { roleFromSpriteKey, ROLE_PALETTES } from "../core/pixelOfficeTheme";
 import { AvatarLayeredSprite } from "./AvatarLayeredSprite";
 import { PixelStatusBadge } from "./PixelStatusBadge";
@@ -36,9 +37,10 @@ export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage, isT
 
   const isWalking = character.current_action === "walking";
 
-  // Centraliza o sprite no tile clicado
-  const left = x * TILE_SIZE + TILE_SIZE / 2 - AVATAR_SIZE / 2;
-  const top = y * TILE_SIZE + TILE_SIZE - AVATAR_SIZE; // pés no chão do tile
+  // Centraliza o sprite no tile clicado usando spriteEngine
+  const left = spriteEngine.tileToPixel(x) + TILE_SIZE / 2 - AVATAR_SIZE / 2;
+  const top = spriteEngine.tileToPixel(y) + TILE_SIZE - AVATAR_SIZE; // pés no chão do tile
+  const zIndex = spriteEngine.calculateZIndex(y, 100);
   const role = roleFromSpriteKey(character.avatar_sprite_key);
   const palette = ROLE_PALETTES[role];
 
@@ -51,6 +53,7 @@ export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage, isT
       style={{ 
         left, 
         top,
+        zIndex,
         transition: "left 600ms cubic-bezier(0.4, 0, 0.2, 1), top 600ms cubic-bezier(0.4, 0, 0.2, 1)",
         willChange: "left, top",
       }}

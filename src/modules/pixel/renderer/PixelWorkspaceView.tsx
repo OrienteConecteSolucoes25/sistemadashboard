@@ -22,6 +22,8 @@ import type {
 import { Button } from "@/components/ui/button";
 import { Plus, Move, Trash2, RotateCw, Lock, Unlock, Layers } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { mapEngine } from "../engine/mapEngine";
+import { spriteEngine, type RendererType } from "../engine/spriteEngine";
 
 interface Props {
   workspace: WorkspaceLite;
@@ -39,6 +41,7 @@ interface Props {
   meetings?: any;
   isAdmin?: boolean;
   onRefresh?: () => void;
+  renderer?: RendererType;
 }
 
 export const PixelWorkspaceView = ({
@@ -57,10 +60,21 @@ export const PixelWorkspaceView = ({
   meetings,
   isAdmin,
   onRefresh,
+  renderer = "dom",
 }: Props) => {
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedItem, setSelectedItem] = useState<{ type: "desk" | "room" | "furniture"; id: string } | null>(null);
   const [isDragging, setIsDragging] = useState(false);
+
+  // Sincroniza colisões quando dados mudam
+  useEffect(() => {
+    mapEngine.updateCollisions(desks, rooms, furniture);
+  }, [desks, rooms, furniture]);
+
+  // Define o renderer global da engine
+  useEffect(() => {
+    spriteEngine.setRenderer(renderer);
+  }, [renderer]);
 
   const handleStageClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -252,9 +266,9 @@ export const PixelWorkspaceView = ({
             
             const commonStyle: React.CSSProperties = {
               position: 'absolute',
-              left: layer.data.position_x * TILE_SIZE,
-              top: layer.data.position_y * TILE_SIZE,
-              zIndex: layer.z,
+              left: spriteEngine.tileToPixel(layer.data.position_x),
+              top: spriteEngine.tileToPixel(layer.data.position_y),
+              zIndex: spriteEngine.calculateZIndex(layer.data.position_y, layer.z),
               transform: (layer.data as any).rotation ? `rotate(${(layer.data as any).rotation}deg)` : undefined,
               transition: isDragging && isSelected ? 'none' : 'all 300ms cubic-bezier(0.4, 0, 0.2, 1)',
               outline: isSelected ? '2px solid #0ea5e9' : 'none',

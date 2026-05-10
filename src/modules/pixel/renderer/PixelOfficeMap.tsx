@@ -1,11 +1,19 @@
 import { TILE_SIZE, STAGE_WIDTH_PX, STAGE_HEIGHT_PX } from "../core/constants";
 import { OFFICE_THEME } from "../core/pixelOfficeTheme";
+import { spriteEngine } from "../engine/spriteEngine";
 
 /**
  * Piso do escritório — gradiente pseudo-iso + grade sutil de tiles.
  * Renderiza embaixo de tudo. Sem interação.
  */
 export const PixelOfficeMap = () => {
+  const isPixi = spriteEngine.getRenderer() === "pixi";
+
+  if (isPixi) {
+    // Retorna placeholder ou container para o futuro PixiJS Stage
+    return <div id="pixi-container" className="absolute inset-0" />;
+  }
+
   return (
     <div
       className="absolute inset-0"
