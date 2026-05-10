@@ -31,6 +31,7 @@ import { pixiDesks } from "../engine/pixiDesks";
 import { pixiRooms } from "../engine/pixiRooms";
 import { pixiEvents } from "../engine/pixiEvents";
 import { pixiFurniture } from "../engine/pixiFurniture";
+import { pixiNpcs } from "../engine/pixiNpcs";
 
 
 
@@ -93,6 +94,7 @@ export const PixelWorkspaceView = memo(({
     pixiDesks.render(desks);
     pixiRooms.render(rooms);
     pixiFurniture.render(furniture);
+    pixiNpcs.render();
     pixiEvents.setupStage(onStageClick);
   }, [characters, desks, rooms, onStageClick]);
 
