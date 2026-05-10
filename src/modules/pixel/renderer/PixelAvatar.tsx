@@ -53,6 +53,7 @@ export const PixelAvatar = ({ character, posX, posY, onClick, recentMessage, isT
       style={{ 
         left, 
         top,
+        zIndex,
         transition: "left 600ms cubic-bezier(0.4, 0, 0.2, 1), top 600ms cubic-bezier(0.4, 0, 0.2, 1)",
         willChange: "left, top",
       }}
