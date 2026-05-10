@@ -9492,6 +9492,7 @@ export type Database = {
         Returns: boolean
       }
       is_financeiro_ocs: { Args: { _uid: string }; Returns: boolean }
+      is_platform_owner: { Args: { _uid: string }; Returns: boolean }
       set_company_master_password: {
         Args: {
           _company_id: string
