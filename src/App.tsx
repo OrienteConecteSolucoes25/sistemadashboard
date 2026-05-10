@@ -82,6 +82,7 @@ import { GovernanceUniversalPage } from "./modules/governance/ui/GovernanceUnive
 import OcsGuardPage from "./modules/ocs-guard/ui/OcsGuardPage";
 import TiAgentPage from "./modules/ti/ui/TiAgentPage";
 import FinanceiroDashboard from "./modules/financeiro/ui/FinanceiroDashboard";
+import MarketplaceAdmin from "./modules/marketplace/ui/MarketplaceAdmin";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -209,6 +210,7 @@ const App = () => (
               <Route path="planos" element={<PlanosPage />} />
               <Route path="minha-empresa" element={<MinhaEmpresaPage />} />
               <Route path="visao-geral" element={<VisaoGeralPage />} />
+              <Route path="marketplace" element={<MarketplaceAdmin />} />
               <Route path="adm" element={<Adm />} />
                <Route path="aparencia" element={<ThemeStudioPage />} />
               <Route path="design-system" element={<ThemeStudioPage />} />
