@@ -116,13 +116,14 @@ export function ModuleAgentNpc({
             <div className="absolute top-11 right-1.5 w-3 h-3 bg-[#1a1f26]" />
           </>
         )}
-        {/* Badge flutuante */}
+        {/* Badge flutuante avançada */}
         <div 
-          className="absolute -top-1 -right-1 w-3 h-3 rounded-full animate-pulse ring-2 ring-background flex items-center justify-center"
+          className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full animate-pulse ring-2 ring-background flex items-center justify-center shadow-lg"
           style={{ backgroundColor: primaryColor }}
         >
-          <Icon className="w-2 h-2 text-white" />
+          <Bot className="w-2.5 h-2.5 text-white" />
         </div>
+        <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-1 bg-primary/20 rounded-full blur-[2px] animate-pulse" />
       </div>
     </button>
   );
