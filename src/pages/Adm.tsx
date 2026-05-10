@@ -14,7 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import { toast } from "sonner";
 import { Plus, Trash2, Copy } from "lucide-react";
-import AclPermissionsMatrix from "@/acl/AclPermissionsMatrix";
+import AclPermissionsForm from "@/acl/AclPermissionsForm";
 import { usePlanosAccess } from "@/modules/planos/hooks/usePlanosAccess";
 import { useCan } from "@/acl/AclProvider";
 
