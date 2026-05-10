@@ -54,7 +54,10 @@ export function BrandKitsPage() {
   }
 
   async function save() {
-    const e = { ...edit };
+    if (!companyId) {
+      return toast({ title: "Selecione uma empresa", description: "Você precisa estar vinculado a uma empresa para salvar a marca.", variant: "destructive" });
+    }
+    const e = { ...edit, company_id: edit.company_id ?? companyId };
     if (typeof e.palavras_permitidas === "string") e.palavras_permitidas = e.palavras_permitidas.split(",").map((s: string) => s.trim()).filter(Boolean);
     if (typeof e.palavras_proibidas === "string") e.palavras_proibidas = e.palavras_proibidas.split(",").map((s: string) => s.trim()).filter(Boolean);
     if (typeof e.cores_principais === "string") e.cores_principais = e.cores_principais.split(",").map((s: string) => s.trim()).filter(Boolean);
