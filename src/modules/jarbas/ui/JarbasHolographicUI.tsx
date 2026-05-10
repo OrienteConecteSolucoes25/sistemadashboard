@@ -77,11 +77,11 @@ export const JarbasHolographicUI = ({ state }: Props) => {
                   animate={{ 
                     opacity: [0, 1, 0], 
                     scale: [0.5, 1.5, 0.5],
-                    x: (Math.random() - 0.5) * 100,
-                    y: (Math.random() - 0.5) * 100
+                    x: [(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 120, (Math.random() - 0.5) * 40],
+                    y: [(Math.random() - 0.5) * 40, (Math.random() - 0.5) * 120, (Math.random() - 0.5) * 40]
                   }}
                   transition={{ duration: 2, repeat: Infinity, delay: i * 0.5 }}
-                  className="absolute w-1 h-1 bg-white rounded-full"
+                  className="absolute w-1 h-1 bg-white rounded-full left-1/2 top-1/2"
                 />
               ))}
             </div>
