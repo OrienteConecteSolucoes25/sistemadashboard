@@ -45,7 +45,8 @@ export function JarbasInterface() {
     isSpeaking, 
     isSupported, 
     handleMicClick,
-    processInput 
+    processInput,
+    confirmAutomation
   } = useJarbasCore();
 
   useEffect(() => {
