@@ -148,6 +148,66 @@ export type Database = {
           },
         ]
       }
+      ai_governance_logs: {
+        Row: {
+          action_executed: string | null
+          agent_name: string
+          approval_status: string | null
+          approved_by: string | null
+          classification:
+            | Database["public"]["Enums"]["ai_action_classification"]
+            | null
+          company_id: string | null
+          created_at: string | null
+          id: string
+          impact_description: string | null
+          is_automated: boolean | null
+          module: string
+          prompt_text: string | null
+          requires_approval: boolean | null
+          response_text: string | null
+          user_id: string
+        }
+        Insert: {
+          action_executed?: string | null
+          agent_name: string
+          approval_status?: string | null
+          approved_by?: string | null
+          classification?:
+            | Database["public"]["Enums"]["ai_action_classification"]
+            | null
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          impact_description?: string | null
+          is_automated?: boolean | null
+          module: string
+          prompt_text?: string | null
+          requires_approval?: boolean | null
+          response_text?: string | null
+          user_id: string
+        }
+        Update: {
+          action_executed?: string | null
+          agent_name?: string
+          approval_status?: string | null
+          approved_by?: string | null
+          classification?:
+            | Database["public"]["Enums"]["ai_action_classification"]
+            | null
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          impact_description?: string | null
+          is_automated?: boolean | null
+          module?: string
+          prompt_text?: string | null
+          requires_approval?: boolean | null
+          response_text?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       comm_admin_config: {
         Row: {
           key: string
@@ -11611,6 +11671,11 @@ export type Database = {
       }
     }
     Enums: {
+      ai_action_classification:
+        | "informativa"
+        | "operacional"
+        | "administrativa"
+        | "critica"
       app_role:
         | "admin"
         | "user"
@@ -11765,6 +11830,12 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      ai_action_classification: [
+        "informativa",
+        "operacional",
+        "administrativa",
+        "critica",
+      ],
       app_role: [
         "admin",
         "user",
