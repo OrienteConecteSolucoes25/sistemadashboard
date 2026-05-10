@@ -27,7 +27,7 @@ const Projetos = () => {
     const [{ data: ps }, { data: gs }, { data: ms }] = await Promise.all([
       supabase.from("projetos").select("*").order("created_at", { ascending: false }),
       supabase.from("visibility_groups").select("id,name,color"),
-      supabase.from("module_visibility_settings").select("restricted").eq("module_key", "projetos").maybeSingle(),
+      // module_visibility_settings check removido
     ]);
     setItems(ps || []);
     setGroups(gs || []);
