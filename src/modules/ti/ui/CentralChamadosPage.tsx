@@ -183,10 +183,63 @@ export default function CentralChamadosPage() {
     }
   };
 
+  const fetchHistory = async (ticketId: string) => {
+    const { data, error } = await supabase
+      .from('ti_ticket_history')
+      .select(`
+        *,
+        profiles:user_id(full_name)
+      `)
+      .eq('ticket_id', ticketId)
+      .order('created_at', { ascending: false });
+    
+    if (!error) setHistory(data || []);
+  };
+
+  const handleUpdateStatus = async (newStatus: string) => {
+    if (!selectedTicket) return;
+    
+    try {
+      setIsUpdatingStatus(true);
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
+
+      const { error: updateError } = await supabase
+        .from('it_tickets')
+        .update({ status: newStatus })
+        .eq('id', selectedTicket.id);
+
+      if (updateError) throw updateError;
+
+      // Log history
+      await supabase.from('ti_ticket_history').insert([{
+        ticket_id: selectedTicket.id,
+        user_id: userData.user.id,
+        action: 'status_change',
+        old_value: selectedTicket.status,
+        new_value: newStatus
+      }]);
+
+      toast.success(`Status alterado para ${getStatusLabel(newStatus)}`);
+      
+      // Update local state
+      const updatedTicket = { ...selectedTicket, status: newStatus };
+      setSelectedTicket(updatedTicket);
+      setTickets(tickets.map(t => t.id === selectedTicket.id ? updatedTicket : t));
+      
+      fetchHistory(selectedTicket.id);
+    } catch (e: any) {
+      toast.error("Erro ao atualizar status: " + e.message);
+    } finally {
+      setIsUpdatingStatus(false);
+    }
+  };
+
   const openDetails = (ticket: any) => {
     setSelectedTicket(ticket);
     setIsDetailOpen(true);
     fetchComments(ticket.id);
+    fetchHistory(ticket.id);
   };
 
   const getPriorityColor = (priority: string) => {
