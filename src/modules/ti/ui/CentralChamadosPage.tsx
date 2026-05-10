@@ -71,8 +71,10 @@ export default function CentralChamadosPage() {
     category: "software"
   });
   const [comments, setComments] = React.useState<any[]>([]);
+  const [history, setHistory] = React.useState<any[]>([]);
   const [newComment, setNewComment] = React.useState("");
   const [isSendingComment, setIsSendingComment] = React.useState(false);
+  const [isUpdatingStatus, setIsUpdatingStatus] = React.useState(false);
 
   React.useEffect(() => {
     fetchTickets();
