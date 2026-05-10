@@ -14,6 +14,140 @@ export type Database = {
   }
   public: {
     Tables: {
+      acl_audit_logs: {
+        Row: {
+          action: string
+          actor_user_id: string | null
+          after: Json | null
+          before: Json | null
+          company_id: string | null
+          created_at: string
+          id: string
+          permission_key: string | null
+          reason: string | null
+          target_user_id: string | null
+        }
+        Insert: {
+          action: string
+          actor_user_id?: string | null
+          after?: Json | null
+          before?: Json | null
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          permission_key?: string | null
+          reason?: string | null
+          target_user_id?: string | null
+        }
+        Update: {
+          action?: string
+          actor_user_id?: string | null
+          after?: Json | null
+          before?: Json | null
+          company_id?: string | null
+          created_at?: string
+          id?: string
+          permission_key?: string | null
+          reason?: string | null
+          target_user_id?: string | null
+        }
+        Relationships: []
+      }
+      acl_internal_staff: {
+        Row: {
+          added_at: string
+          added_by: string | null
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          added_by?: string | null
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          added_by?: string | null
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      acl_permissions_catalog: {
+        Row: {
+          action: string
+          ativo: boolean
+          created_at: string
+          description: string | null
+          key: string
+          label: string
+          module: string
+          ordem: number
+          resource: string
+        }
+        Insert: {
+          action: string
+          ativo?: boolean
+          created_at?: string
+          description?: string | null
+          key: string
+          label: string
+          module: string
+          ordem?: number
+          resource: string
+        }
+        Update: {
+          action?: string
+          ativo?: boolean
+          created_at?: string
+          description?: string | null
+          key?: string
+          label?: string
+          module?: string
+          ordem?: number
+          resource?: string
+        }
+        Relationships: []
+      }
+      acl_user_permissions: {
+        Row: {
+          company_id: string | null
+          granted_at: string
+          granted_by: string | null
+          id: string
+          permission_key: string
+          reason: string | null
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          permission_key: string
+          reason?: string | null
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          granted_at?: string
+          granted_by?: string | null
+          id?: string
+          permission_key?: string
+          reason?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "acl_user_permissions_permission_key_fkey"
+            columns: ["permission_key"]
+            isOneToOne: false
+            referencedRelation: "acl_permissions_catalog"
+            referencedColumns: ["key"]
+          },
+        ]
+      }
       comm_admin_config: {
         Row: {
           key: string
@@ -9318,10 +9452,32 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      acl_grant: {
+        Args: {
+          _company: string
+          _key: string
+          _reason: string
+          _target: string
+        }
+        Returns: Json
+      }
+      acl_revoke: {
+        Args: {
+          _company: string
+          _key: string
+          _reason: string
+          _target: string
+        }
+        Returns: Json
+      }
       apply_calculated_value: { Args: { _company_id: string }; Returns: number }
       calc_company_plan_value: {
         Args: { _company_id: string }
         Returns: number
+      }
+      can: {
+        Args: { _company?: string; _key: string; _uid: string }
+        Returns: boolean
       }
       comm_can: {
         Args: { _action: string; _company: string; _uid: string }
@@ -9492,6 +9648,7 @@ export type Database = {
         Returns: boolean
       }
       is_financeiro_ocs: { Args: { _uid: string }; Returns: boolean }
+      is_internal_ocs: { Args: { _uid: string }; Returns: boolean }
       is_platform_owner: { Args: { _uid: string }; Returns: boolean }
       set_company_master_password: {
         Args: {
