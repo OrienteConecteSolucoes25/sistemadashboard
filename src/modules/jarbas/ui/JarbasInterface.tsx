@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { JarbasHolographicUI } from "./JarbasHolographicUI";
 import { JarbasVoiceVisualizer } from "./JarbasVoiceVisualizer";
+import { jarbasKnowledge } from "../core/jarbasKnowledge";
 import { useJarbasCore } from "../hooks/useJarbasCore";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
