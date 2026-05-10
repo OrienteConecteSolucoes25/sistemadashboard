@@ -193,6 +193,7 @@ export function useJarbasCore() {
     isSpeaking,
     isSupported,
     processInput,
+    confirmAutomation,
     handleMicClick: async () => {
       if (isSpeaking) {
         stopSpeaking();
