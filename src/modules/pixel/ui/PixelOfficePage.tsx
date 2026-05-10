@@ -47,6 +47,7 @@ export default function PixelOfficePage() {
     characters,
     desks,
     rooms,
+    furniture,
     refresh,
   } = usePixelWorkspaceData();
 
