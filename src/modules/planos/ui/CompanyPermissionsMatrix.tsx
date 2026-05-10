@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useCan, useIsInternalOcs } from "@/acl/AclProvider";
 import { Lock } from "lucide-react";
+import LegacyDeprecationBanner from "@/acl/LegacyDeprecationBanner";
 
 const sb: any = supabase;
 
