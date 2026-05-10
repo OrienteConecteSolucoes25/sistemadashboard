@@ -55,7 +55,7 @@ export default function EngAdminPage() {
         </TabsList>
         <TabsContent value="visao" className="mt-4"><VisaoGeralTab /></TabsContent>
         <TabsContent value="usuarios" className="mt-4"><UsuariosTab /></TabsContent>
-        <TabsContent value="permissoes" className="mt-4"><PermissoesTab /></TabsContent>
+        {/* TabsContent value="permissoes" removido */}
         <TabsContent value="seguranca" className="mt-4"><SegurancaTab /></TabsContent>
         <TabsContent value="sync" className="mt-4"><SyncTab /></TabsContent>
         <TabsContent value="auditoria" className="mt-4"><AuditoriaTab /></TabsContent>
