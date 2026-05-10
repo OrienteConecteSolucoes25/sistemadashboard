@@ -140,7 +140,6 @@ export default function TiAgentPage() {
       description: newDesc,
       category: newCat,
       priority: newPri,
-      diagnostic_info: diagnosticAnswers,
       status: 'aberto'
     }]);
 
