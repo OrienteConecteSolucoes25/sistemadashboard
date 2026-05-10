@@ -2,23 +2,13 @@ import { useEffect, useState } from "react";
 import { Navigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
-import { Badge } from "@/components/ui/badge";
-import { Switch } from "@/components/ui/switch";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Checkbox } from "@/components/ui/checkbox";
-import { toast } from "sonner";
-import { Plus, Trash2, Copy } from "lucide-react";
 import AclPermissionsForm from "@/acl/AclPermissionsForm";
 import { usePlanosAccess } from "@/modules/planos/hooks/usePlanosAccess";
 import { useCan } from "@/acl/AclProvider";
 
-type Group = { id: string; name: string; color: string; description: string | null };
 type Profile = { id: string; email: string | null; full_name: string | null };
 
 
