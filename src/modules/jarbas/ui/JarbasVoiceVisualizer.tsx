@@ -29,7 +29,7 @@ export const JarbasVoiceVisualizer = ({ isListening, isSpeaking, isProcessing, i
             duration: 0.5 + Math.random() * 0.5,
             ease: "easeInOut"
           }}
-          className={`w-1 rounded-full ${color} shadow-[0_0_10px_rgba(0,242,255,0.3)]`}
+          className={`w-1 rounded-full ${color} shadow-[0_0_15px_rgba(0,242,255,0.5)] transition-colors duration-300`}
         />
       ))}
     </div>

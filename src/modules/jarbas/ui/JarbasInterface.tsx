@@ -143,7 +143,7 @@ export function JarbasInterface() {
           {chatHistory.length === 0 && (
             <div className="flex flex-col items-center justify-center h-full py-10 opacity-80">
               <JarbasHolographicUI 
-                state={isListening ? 'listening' : isSpeaking ? 'speaking' : isProcessing ? 'processing' : 'idle'} 
+                state={isListening ? 'listening' : isSpeaking ? 'speaking' : isProcessing ? 'processing' : isSupported ? 'idle' : 'error'} 
               />
               <p className="text-[10px] font-mono tracking-[0.3em] mt-4 text-primary animate-pulse uppercase">
                 Jarbas Operational Core Active

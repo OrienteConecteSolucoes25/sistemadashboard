@@ -21,7 +21,13 @@ export const JarbasCentralDashboard = () => {
   const { events, insights, status, alerts, executiveInsights } = useJarbasDashboard();
 
   return (
-    <div className="min-h-screen bg-[#050510] text-[#00f2ff] p-6 font-mono selection:bg-cyan-500/30">
+    <div className="min-h-screen bg-[#02020a] text-[#00f2ff] p-6 font-mono selection:bg-cyan-500/30 relative overflow-hidden">
+      {/* Background Grid and Glows */}
+      <div className="absolute inset-0 bg-[linear-gradient(rgba(0,242,255,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(0,242,255,0.03)_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_100%)]" />
+      <div className="absolute top-0 left-1/4 w-96 h-96 bg-cyan-500/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 right-1/4 w-96 h-96 bg-blue-600/10 blur-[120px] rounded-full pointer-events-none" />
+      
+      <div className="relative z-10">
       {/* Header Estilo HUD */}
       <div className="flex justify-between items-center mb-8 border-b border-cyan-500/30 pb-4">
         <div className="flex items-center gap-3">
@@ -151,6 +157,7 @@ export const JarbasCentralDashboard = () => {
           <span>THREADS: 24</span>
           <span>AI_LOAD: 12.4%</span>
         </div>
+      </div>
       </div>
     </div>
   );
