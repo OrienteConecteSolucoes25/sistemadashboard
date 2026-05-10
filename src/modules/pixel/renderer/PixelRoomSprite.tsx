@@ -3,7 +3,7 @@ import { OFFICE_THEME } from "../core/pixelOfficeTheme";
 interface Props {
   width: number;
   height: number;
-  variant?: "meeting" | "engineering" | "legal" | "common";
+  variant?: "meeting" | "engineering" | "legal" | "common" | "hr" | "finance" | "ti";
   label?: string;
 }
 
