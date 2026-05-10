@@ -13,6 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { toast } from "sonner";
 import { Shield, Users, KeyRound, Activity, RefreshCw, ShieldAlert, Database, ListChecks, FolderKanban } from "lucide-react";
 import { CadastrosGeraisTab } from "./admin/CadastrosGeraisTab";
+import LegacyDeprecationBanner from "@/acl/LegacyDeprecationBanner";
 
 type Profile = { id: string; email: string | null; full_name: string | null };
 type RoleRow = { user_id: string; role: string };
@@ -266,7 +267,12 @@ function PermissoesTab() {
   };
 
   return (
-    <Card>
+    <div className="space-y-3">
+      <LegacyDeprecationBanner
+        title="Permissões granulares de Engenharia — modelo legado"
+        message="Use a matriz central em ADM › Visibilidade. Esta tela permanece para compatibilidade."
+      />
+      <Card>
       <CardHeader>
         <CardTitle className="text-base">Permissões granulares por módulo (sobrescreve papéis)</CardTitle>
         <Select value={selected} onValueChange={setSelected}>
@@ -304,6 +310,7 @@ function PermissoesTab() {
         </table>
       </CardContent>
     </Card>
+    </div>
   );
 }
 

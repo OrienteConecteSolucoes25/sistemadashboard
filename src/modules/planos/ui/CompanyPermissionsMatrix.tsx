@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { useCan, useIsInternalOcs } from "@/acl/AclProvider";
 import { Lock } from "lucide-react";
+import LegacyDeprecationBanner from "@/acl/LegacyDeprecationBanner";
 
 const sb: any = supabase;
 
@@ -127,6 +128,10 @@ export default function CompanyPermissionsMatrix({ companyId, allModulesOverride
 
   return (
     <div className="space-y-3">
+      <LegacyDeprecationBanner
+        title="Matriz V/E/D legada"
+        message="Permissões agora são gerenciadas centralmente."
+      />
       <div className="flex items-end gap-3 flex-wrap">
         <div className="min-w-[260px]">
           <Label className="text-xs">Filtrar por setor (módulo contratado)</Label>
