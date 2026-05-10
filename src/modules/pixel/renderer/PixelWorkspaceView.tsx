@@ -216,9 +216,9 @@ export const PixelWorkspaceView = memo(({
             <Button 
               variant={currentRenderer === "dom" ? "secondary" : "ghost"} 
               size="icon" 
-              className="h-8 w-8" 
+              className="h-8 w-8 opacity-20 hover:opacity-100" 
               onClick={() => setCurrentRenderer("dom")}
-              title="Renderer DOM (Legado)"
+              title="Renderer DOM (Legado - Descontinuado)"
             >
               <Monitor className="h-4 w-4" />
             </Button>
