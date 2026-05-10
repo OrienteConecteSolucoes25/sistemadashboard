@@ -103,6 +103,7 @@ const App = () => (
               <Route path="pixel-office" element={<SolucoesVersoPage />} />
               <Route path="pixel-office/meu-personagem" element={<SolucoesVersoPage />} />
               <Route path="pixel-office/admin" element={<PixelAdminPage />} />
+              <Route path="marketplace" element={<MarketplaceHome />} />
               <Route path="engenharia" element={<EngenhariaGuard />}>
                 <Route index element={<EngenhariaDashboard />} />
                 <Route path="governanca" element={<GovernancaPage />} />
