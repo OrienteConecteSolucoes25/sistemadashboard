@@ -25,6 +25,7 @@ import { supabase } from "@/integrations/supabase/client";
 
 interface Props {
   workspace: WorkspaceLite;
+  currentUser?: { id: string } | null;
   characters: PixelCharacter[];
   desks: DeskLite[];
   rooms: RoomLite[];
@@ -34,6 +35,7 @@ interface Props {
   onSelectDesk: (d: DeskLite) => void;
   onStageClick: (tileX: number, tileY: number) => void;
   recentMessages?: Record<string, string | null>;
+  setTyping?: (isTyping: boolean) => void;
   meetings?: any;
   isAdmin?: boolean;
   onRefresh?: () => void;
@@ -41,6 +43,7 @@ interface Props {
 
 export const PixelWorkspaceView = ({
   workspace,
+  currentUser,
   characters,
   desks,
   rooms,
@@ -50,6 +53,7 @@ export const PixelWorkspaceView = ({
   onSelectDesk,
   onStageClick,
   recentMessages = {},
+  setTyping,
   meetings,
   isAdmin,
   onRefresh,
@@ -322,6 +326,7 @@ export const PixelWorkspaceView = ({
                     posY={pos.y}
                     onClick={onSelectCharacter}
                     recentMessage={recentMessages[c.user_id]}
+                    isTyping={c.is_typing}
                   />
                 </div>
               );

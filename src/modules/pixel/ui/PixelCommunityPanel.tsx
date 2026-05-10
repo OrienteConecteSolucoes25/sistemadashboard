@@ -21,6 +21,7 @@ interface Props {
   activeWorkspace: WorkspaceLite | null;
   /** Lista de workspaces visíveis (admin tem todos; comum só os seus). */
   workspaces: WorkspaceLite[];
+  setTyping?: (isTyping: boolean) => void;
 }
 
 const formatTime = (iso: string) => {
@@ -33,7 +34,7 @@ const formatTime = (iso: string) => {
  * Admin pode trocar o canal entre todos os grupos (Engenharia/Jurídico/Admin/Geral).
  * Usuário comum vê apenas os canais dos seus grupos (RLS).
  */
-export const PixelCommunityPanel = ({ activeWorkspace, workspaces }: Props) => {
+export const PixelCommunityPanel = ({ activeWorkspace, workspaces, setTyping }: Props) => {
   const { user, isAdmin } = useAuth();
   const [channelId, setChannelId] = useState<string | null>(activeWorkspace?.id ?? null);
   const [draft, setDraft] = useState("");
@@ -166,7 +167,11 @@ export const PixelCommunityPanel = ({ activeWorkspace, workspaces }: Props) => {
               <Input
                 placeholder="Escreva uma mensagem (máx. 1000)"
                 value={draft}
-                onChange={(e) => setDraft(e.target.value)}
+                onChange={(e) => {
+                  setDraft(e.target.value);
+                  if (setTyping) setTyping(e.target.value.length > 0);
+                }}
+                onBlur={() => setTyping?.(false)}
                 maxLength={1000}
                 disabled={chat.sending}
               />
