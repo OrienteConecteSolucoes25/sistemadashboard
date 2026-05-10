@@ -55,8 +55,11 @@ export function useCharacterMovement(opts: {
             position_y: y,
             last_moved_at: new Date().toISOString(),
           },
-          { onConflict: "user_id" },
+          { onConflict: "user_id" }
         );
+      
+      // Update heartbeat on move
+      await supabase.rpc("update_pixel_heartbeat", { _uid: userId });
       if (error) console.error("[pixel] persist position error", error);
     },
     [workspaceId],
