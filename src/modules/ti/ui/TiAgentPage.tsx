@@ -55,7 +55,7 @@ interface IAsset {
   type: string;
   serial_number: string | null;
   status: string;
-  user_id: string | null;
+  responsible_user_id: string | null;
 }
 
 export default function TiAgentPage() {
@@ -82,12 +82,12 @@ export default function TiAgentPage() {
   const loadTickets = async () => {
     setLoading(true);
     const { data, error } = await supabase
-      .from("ti_tickets")
+      .from("it_tickets")
       .select("*")
       .order("created_at", { ascending: false });
     
     if (error) {
-      toast.error("Erro ao carregar chamados");
+      toast.error("Erro ao carregar chamados: " + error.message);
     } else {
       setTickets(data as ITicket[]);
     }
@@ -105,7 +105,7 @@ export default function TiAgentPage() {
   };
 
   const loadAssets = async () => {
-    const { data, error } = await supabase.from("ti_assets").select("*");
+    const { data, error } = await supabase.from("it_assets").select("*");
     if (!error) setAssets(data as IAsset[]);
   };
 
@@ -123,18 +123,28 @@ export default function TiAgentPage() {
       return;
     }
 
-    const { error } = await supabase.from("ti_tickets").insert({
-      user_id: user?.id,
+    const { data: userData } = await supabase.auth.getUser();
+    if (!userData.user) return;
+
+    // Buscar company_id do perfil
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('company_id')
+      .eq('id', userData.user.id)
+      .single();
+
+    const { error } = await supabase.from("it_tickets").insert([{
+      user_id: userData.user.id,
+      company_id: profile?.company_id,
       title: newTitle,
       description: newDesc,
       category: newCat,
       priority: newPri,
-      diagnostic_info: diagnosticAnswers,
       status: 'aberto'
-    });
+    }]);
 
     if (error) {
-      toast.error("Erro ao criar chamado");
+      toast.error("Erro ao criar chamado: " + error.message);
     } else {
       toast.success("Chamado aberto com sucesso");
       setIsCreating(false);
@@ -160,7 +170,7 @@ export default function TiAgentPage() {
   };
 
   const updateTicketStatus = async (id: string, newStatus: TicketStatus) => {
-    const { error } = await supabase.from("ti_tickets").update({ status: newStatus }).eq("id", id);
+    const { error } = await supabase.from("it_tickets").update({ status: newStatus }).eq("id", id);
     if (!error) {
       toast.success("Status atualizado");
       loadTickets();
