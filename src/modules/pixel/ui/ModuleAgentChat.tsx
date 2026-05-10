@@ -13,6 +13,7 @@ type Msg = { id?: string; role: "user" | "assistant" | "tool"; content: string; 
 interface Props {
   moduleKey: string;
   agentName: string;
+  agentRole?: string;
   icon?: LucideIcon;
   welcomeMessage?: string;
   renderTrigger?: (open: () => void) => ReactNode;
@@ -22,6 +23,7 @@ interface Props {
 export function ModuleAgentChat({ 
   moduleKey, 
   agentName, 
+  agentRole,
   icon: Icon = Sparkles,
   welcomeMessage,
   renderTrigger,
