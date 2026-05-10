@@ -23,6 +23,8 @@ export interface CharacterFullDetails {
   desk_id: string | null;
   last_moved_at: string | null;
   current_action: string | null;
+  last_heartbeat?: string | null;
+  is_online?: boolean;
   customization: AvatarCustomization;
 }
 
