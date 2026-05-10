@@ -156,12 +156,12 @@ function GroupPanel({ filters, groupKey, lookupTable, lookupSelect = "id,nome", 
 }
 
 export const EmpresasPanel = ({ filters }: { filters: GovFilters }) => (
-  <GroupPanel filters={filters} groupKey="empresa_id" lookupTable="crea_empresas"
-    title="Painel por empresa" description="Visão consolidada por empresa do grupo."
+  <GroupPanel filters={filters} groupKey="empresa_id"
+    title="Painel por empresa" description="Visão consolidada por empresa."
     entityLabel="empresa" />
 );
 export const RtsPanel = ({ filters }: { filters: GovFilters }) => (
-  <GroupPanel filters={filters} groupKey="rt_id" lookupTable="crea_rts"
+  <GroupPanel filters={filters} groupKey="rt_id"
     title="Painel por responsável técnico" description="Carga de ARTs por RT."
     entityLabel="RT" />
 );
