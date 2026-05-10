@@ -123,4 +123,4 @@ export const PixelFurnitureSprite = memo(({ kind, width, height }: Props) => {
         </div>
       );
   }
-};
+});
