@@ -28,7 +28,9 @@ import { PixiOfficeCanvas } from "../engine/PixiOfficeCanvas";
 import { pixiMap } from "../engine/pixiMap";
 import { pixiCharacters } from "../engine/pixiCharacters";
 import { pixiDesks } from "../engine/pixiDesks";
+import { pixiRooms } from "../engine/pixiRooms";
 import { pixiEvents } from "../engine/pixiEvents";
+
 
 
 interface Props {
