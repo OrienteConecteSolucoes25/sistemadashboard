@@ -84,6 +84,7 @@ import TiAgentPage from "./modules/ti/ui/TiAgentPage";
 import FinanceiroDashboard from "./modules/financeiro/ui/FinanceiroDashboard";
 import MarketplaceAdmin from "./modules/marketplace/ui/MarketplaceAdmin";
 import { JarbasCentralDashboard } from "./modules/jarbas/ui/JarbasCentralDashboard";
+import { JarbasKnowledgePage } from "./modules/jarbas/ui/JarbasKnowledgePage";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
