@@ -16,7 +16,7 @@ import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { useUserLayoutPreference } from "@/modules/aparencia/hooks/useUserLayoutPreference";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useCan } from "@/acl/AclProvider";
-import { JarbasInterface } from "@/modules/jarbas/ui/JarbasInterface";
+// Import Jarbas removido daqui para ser usado apenas dentro do Soluções-Verso
 
 const AppLayout = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
@@ -98,8 +98,6 @@ const AppLayout = () => {
       {(isAdmin || canAparencia) && <NavItem to="/app/aparencia" icon={Palette} label="Aparência & Marca" />}
       {isOcsStaff && <NavItem to="/app/pixel-office/admin" icon={Shield} label="Soluções-Verso Admin" />}
       {(isOcsStaff || canAdmVis) && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
-      {(isOcsStaff || isAdmin) && <NavItem to="/app/ocs-guard" icon={ShieldAlert} label="OCS Guard" />}
-      <NavItem to="/app/ti" icon={Cpu} label="Agente de TI" />
       <div className="mt-auto pt-4 border-t">
         {!collapsed && (
           <>
@@ -164,7 +162,6 @@ const AppLayout = () => {
         </div>
       </main>
       <AssistenteFloating />
-      <JarbasInterface />
     </div>
     </ImpersonationProvider>
   );

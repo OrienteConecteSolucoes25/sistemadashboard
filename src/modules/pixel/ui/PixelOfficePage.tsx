@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -14,13 +15,16 @@ import { PixelWorkspaceSelector } from "./PixelWorkspaceSelector";
 import { PixelSidePanel } from "./PixelSidePanel";
 import { PixelMeetingModal } from "./PixelMeetingModal";
 import { PixelMeetingInvite } from "./PixelMeetingInvite";
+import OcsGuardPage from "@/modules/ocs-guard/ui/OcsGuardPage";
+import TiAgentPage from "@/modules/ti/ui/TiAgentPage";
+import { JarbasInterface } from "@/modules/jarbas/ui/JarbasInterface";
 import { PixelMeetingsPanel } from "./PixelMeetingsPanel";
 import { PixelCommunityPanel } from "./PixelCommunityPanel";
 import { DiretorAgentChat } from "@/modules/comunicacao/ui/DiretorAgentChat";
 import { DiretorNpc } from "./DiretorNpc";
 import { ModuleAgentNpc } from "./ModuleAgentNpc";
 import { ModuleAgentChat } from "./ModuleAgentChat";
-import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare } from "lucide-react";
+import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare, ShieldAlert, Cpu, Zap } from "lucide-react";
 import { ActiveBrandKitProvider } from "@/modules/comunicacao/hooks/useActiveBrandKit";
 
 type Selected =
@@ -44,6 +48,7 @@ export default function PixelOfficePage() {
   const [selected, setSelected] = useState<Selected>(null);
   const [meetingModalOpen, setMeetingModalOpen] = useState(false);
   const [preselectInvitee, setPreselectInvitee] = useState<string | null>(null);
+  const [activeAgentPanel, setActiveAgentPanel] = useState<string | null>(null);
 
   const { moveTo, getPosition } = useCharacterMovement({
     workspaceId: activeWorkspace?.id ?? null,
@@ -214,7 +219,109 @@ export default function PixelOfficePage() {
                 />
               )}
             />
+
+            <ModuleAgentChat
+              moduleKey="ocs_guard"
+              agentName="OCS Guard — Segurança"
+              icon={ShieldAlert}
+              welcomeMessage="Olá! Sou o **OCS Guard**. Sou seu agente de cibersegurança e governança digital. Como posso proteger sua empresa hoje?"
+              renderTrigger={(open) => (
+                <ModuleAgentNpc
+                  name="OCS Guard"
+                  moduleKey="ocs_guard"
+                  icon={ShieldAlert}
+                  primaryColor="#ef4444"
+                  secondaryColor="#b91c1c"
+                  startX={80}
+                  onClick={() => {
+                    setActiveAgentPanel("ocs_guard");
+                    open();
+                  }}
+                />
+              )}
+            />
+
+            <ModuleAgentChat
+              moduleKey="ti"
+              agentName="Agente de TI OCS"
+              icon={Cpu}
+              welcomeMessage="Olá! Sou o **Agente de TI OCS**. Posso te ajudar a abrir chamados, diagnosticar problemas e gerenciar ativos. Qual sua demanda técnica?"
+              renderTrigger={(open) => (
+                <ModuleAgentNpc
+                  name="Agente de TI"
+                  moduleKey="ti"
+                  icon={Cpu}
+                  primaryColor="#4f46e5"
+                  secondaryColor="#3730a3"
+                  startX={10}
+                  onClick={() => {
+                    setActiveAgentPanel("ti");
+                    open();
+                  }}
+                />
+              )}
+            />
+
+            <ModuleAgentChat
+              moduleKey="jarbas"
+              agentName="Jarbas OCS"
+              icon={Zap}
+              welcomeMessage="Olá! Sou o **Jarbas OCS**. Estou pronto para orientar suas atividades de campo, ler manuais técnicos e guiar seus procedimentos por voz. O que vamos executar agora?"
+              renderTrigger={(open) => (
+                <ModuleAgentNpc
+                  name="Jarbas OCS"
+                  moduleKey="jarbas"
+                  icon={Zap}
+                  primaryColor="#0ea5e9"
+                  secondaryColor="#0284c7"
+                  startX={90}
+                  onClick={() => {
+                    setActiveAgentPanel("jarbas");
+                    open();
+                  }}
+                />
+              )}
+            />
           </div>
+
+          {activeAgentPanel === "ocs_guard" && (
+            <Card className="mt-4 animate-in slide-in-from-bottom duration-300">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xl">Painel OCS Guard</CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => setActiveAgentPanel(null)}>Fechar</Button>
+              </CardHeader>
+              <CardContent>
+                <OcsGuardPage />
+              </CardContent>
+            </Card>
+          )}
+
+          {activeAgentPanel === "ti" && (
+            <Card className="mt-4 animate-in slide-in-from-bottom duration-300">
+              <CardHeader className="flex flex-row items-center justify-between pb-2">
+                <CardTitle className="text-xl">Painel de TI</CardTitle>
+                <Button variant="ghost" size="sm" onClick={() => setActiveAgentPanel(null)}>Fechar</Button>
+              </CardHeader>
+              <CardContent>
+                <TiAgentPage />
+              </CardContent>
+            </Card>
+          )}
+
+          {activeAgentPanel === "jarbas" && (
+            <div className="mt-4">
+              <JarbasInterface />
+              <Card className="bg-slate-950 text-white border-primary/20">
+                <CardHeader className="flex flex-row items-center justify-between pb-2">
+                  <CardTitle className="text-xl text-primary font-bold">Console Operacional Jarbas</CardTitle>
+                  <Button variant="ghost" size="sm" className="text-white hover:bg-white/10" onClick={() => setActiveAgentPanel(null)}>Minimizar</Button>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-sm text-slate-400">O Jarbas está ativo via comando de voz. Utilize o console flutuante no canto inferior para interagir.</p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
 
           <PixelMeetingsPanel
             meetings={meetings}
@@ -224,7 +331,6 @@ export default function PixelOfficePage() {
               setMeetingModalOpen(true);
             }}
           />
-
           <PixelCommunityPanel activeWorkspace={activeWorkspace} workspaces={workspaces} />
         </>
       )}
