@@ -1,7 +1,7 @@
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, FolderKanban, LogOut, Settings, Gamepad2, HardHat, Scale, Menu, X, CreditCard, Building2, LayoutDashboard, HeartHandshake, Palette, FileSignature, MessageSquare, ChevronLeft, ChevronRight, ShieldAlert, Cpu, ShoppingBag, DollarSign } from "lucide-react";
+import { Shield, FolderKanban, LogOut, Settings, Gamepad2, HardHat, Scale, Menu, X, CreditCard, Building2, LayoutDashboard, HeartHandshake, Palette, FileSignature, MessageSquare, ChevronLeft, ChevronRight, ShieldAlert, Cpu, ShoppingBag, DollarSign, Store } from "lucide-react";
 import { useComunicacaoAccess } from "@/modules/comunicacao/hooks/useComunicacaoAccess";
 import { useRhdpAccess } from "@/modules/rhdp/hooks/useRhdpAccess";
 import { useCreaAccess } from "@/modules/crea/hooks/useCreaAccess";
@@ -30,6 +30,7 @@ const AppLayout = () => {
   const canAparencia = useCan("aparencia.acessar");
   const canPlanos = useCan("planos.acessar");
   const canAdmVis = useCan("adm.visibilidade.visualizar");
+  const canMarketplace = useCan("marketplace.dashboard.visualizar");
   const loc = useLocation();
   const [open, setOpen] = useState(false);
   const { collapsed, setCollapsed } = useUserLayoutPreference("__root__");
@@ -98,6 +99,7 @@ const AppLayout = () => {
       {(isAdmin || canAparencia) && <NavItem to="/app/aparencia" icon={Palette} label="Aparência & Marca" />}
       {isOcsStaff && <NavItem to="/app/pixel-office/admin" icon={Shield} label="Soluções-Verso Admin" />}
       {(isOcsStaff || canAdmVis) && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
+      {canMarketplace && <NavItem to="/app/marketplace" icon={Store} label="Marketplace" />}
       <div className="mt-auto pt-4 border-t">
         {!collapsed && (
           <>
