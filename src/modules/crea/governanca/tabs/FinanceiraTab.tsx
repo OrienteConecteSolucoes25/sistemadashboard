@@ -33,7 +33,7 @@ function KpiCard({ icon: Icon, label, value, hint, tone }: { icon: any; label: s
 }
 
 export function FinanceiraTab({ filters }: { filters: GovFilters }) {
-  const company = useGovCompany();
+  const { companyId: company } = useGovCompany();
   const [arts, setArts] = useState<GovArt[]>([]);
   const [pags, setPags] = useState<GovPagamento[]>([]);
   const [loading, setLoading] = useState(false);
