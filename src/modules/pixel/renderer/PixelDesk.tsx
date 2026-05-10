@@ -32,13 +32,10 @@ export const PixelDesk = ({ desk, onClick }: Props) => {
         e.stopPropagation();
         onClick?.(desk);
       }}
-      className="absolute group focus:outline-none"
+      className="group focus:outline-none w-full h-full"
       style={{
-        left,
-        top,
         width: w,
         height: h,
-        transform: desk.rotation ? `rotate(${desk.rotation}deg)` : undefined,
       }}
       aria-label={`Mesa ${desk.desk_name ?? ""}`}
       title={desk.desk_name ?? "Mesa"}
