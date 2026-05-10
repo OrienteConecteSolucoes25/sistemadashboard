@@ -210,6 +210,7 @@ const App = () => (
               <Route path="minha-empresa" element={<MinhaEmpresaPage />} />
               <Route path="visao-geral" element={<VisaoGeralPage />} />
               <Route path="adm" element={<Adm />} />
+               <Route path="financeiro" element={<FinanceiroDashboard />} />
                <Route path="aparencia" element={<ThemeStudioPage />} />
               <Route path="design-system" element={<ThemeStudioPage />} />
             </Route>
