@@ -129,8 +129,9 @@ export const PixelWorkspaceView = memo(({
       pixiDesks.render(desks);
       pixiRooms.render(rooms);
       pixiFurniture.render(furniture);
+      pixiNpcs.render(); // Ensure NPCs are rendered even on data updates
     }
-  }, [characters, desks, rooms, currentRenderer]);
+  }, [characters, desks, rooms, furniture, currentRenderer]);
 
 
 
