@@ -3,6 +3,7 @@ import { roleFromSpriteKey, ROLE_PALETTES } from "../core/pixelOfficeTheme";
 import { AvatarLayeredSprite } from "./AvatarLayeredSprite";
 import { PixelStatusBadge } from "./PixelStatusBadge";
 import type { PixelCharacter } from "../data/usePixelWorkspaceData";
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 
 interface Props {
   character: PixelCharacter;
