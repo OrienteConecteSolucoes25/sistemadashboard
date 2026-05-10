@@ -11058,6 +11058,54 @@ export type Database = {
         }
         Relationships: []
       }
+      security_trust_scores: {
+        Row: {
+          behavior_points: number | null
+          company_id: string
+          entity_id: string
+          entity_type: Database["public"]["Enums"]["trust_entity_type"]
+          failed_attempts: number | null
+          id: string
+          incident_count: number | null
+          last_activity_at: string | null
+          metadata: Json | null
+          risk_factors: Json | null
+          risk_level: string | null
+          trust_score: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          behavior_points?: number | null
+          company_id: string
+          entity_id: string
+          entity_type: Database["public"]["Enums"]["trust_entity_type"]
+          failed_attempts?: number | null
+          id?: string
+          incident_count?: number | null
+          last_activity_at?: string | null
+          metadata?: Json | null
+          risk_factors?: Json | null
+          risk_level?: string | null
+          trust_score?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          behavior_points?: number | null
+          company_id?: string
+          entity_id?: string
+          entity_type?: Database["public"]["Enums"]["trust_entity_type"]
+          failed_attempts?: number | null
+          id?: string
+          incident_count?: number | null
+          last_activity_at?: string | null
+          metadata?: Json | null
+          risk_factors?: Json | null
+          risk_level?: string | null
+          trust_score?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       security_vault: {
         Row: {
           company_id: string
@@ -11871,6 +11919,15 @@ export type Database = {
         }
         Returns: string
       }
+      update_entity_trust_score: {
+        Args: {
+          p_entity_id: string
+          p_entity_type: Database["public"]["Enums"]["trust_entity_type"]
+          p_point_change: number
+          p_risk_factor: string
+        }
+        Returns: undefined
+      }
       update_pixel_heartbeat: { Args: { _uid: string }; Returns: undefined }
       user_company: { Args: { _uid: string }; Returns: string }
       user_group_ids: { Args: { _user_id: string }; Returns: string[] }
@@ -11916,6 +11973,12 @@ export type Database = {
         | "aprovador"
         | "gestor_produto"
       financial_profile_type: "personal" | "business_small" | "corporate"
+      trust_entity_type:
+        | "user"
+        | "company"
+        | "integration"
+        | "device"
+        | "module"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -12077,6 +12140,7 @@ export const Constants = {
         "gestor_produto",
       ],
       financial_profile_type: ["personal", "business_small", "corporate"],
+      trust_entity_type: ["user", "company", "integration", "device", "module"],
     },
   },
 } as const
