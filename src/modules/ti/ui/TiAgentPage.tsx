@@ -355,6 +355,7 @@ export default function TiAgentPage() {
                   </CardContent>
                 </Card>
               ) : (
+                <>
               {selectedTicket ? (
                 <div className="space-y-4 animate-in fade-in zoom-in-95">
                   <Button variant="ghost" size="sm" onClick={() => setSelectedTicket(null)}>
