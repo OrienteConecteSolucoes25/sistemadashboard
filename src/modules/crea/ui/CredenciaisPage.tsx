@@ -12,11 +12,13 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { KeyRound, Plus, Eye, EyeOff, Copy, ShieldAlert, Lock, Upload } from "lucide-react";
 import { parseImportFile } from "@/lib/dataIO";
+import { Can, useCan } from "@/acl/AclProvider";
 
 const sb: any = supabase;
 
 export default function CredenciaisPage() {
   const { isAdmin } = useAuth();
+  const canManage = useCan("crea.credenciais.gerenciar");
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [hasMaster, setHasMaster] = useState<boolean | null>(null);
@@ -140,7 +142,7 @@ export default function CredenciaisPage() {
             }} />
           </label>
         </Button>
-        <Button onClick={startNew} disabled={hasMaster === false}><Plus className="w-4 h-4 mr-1" /> Nova credencial</Button>
+        <Button onClick={startNew} disabled={hasMaster === false || (!isAdmin && !canManage)}><Plus className="w-4 h-4 mr-1" /> Nova credencial</Button>
       </div>
 
       <Card>
@@ -166,9 +168,11 @@ export default function CredenciaisPage() {
                   <td className="px-3 py-2 font-mono text-xs">{r.login}</td>
                   <td className="px-3 py-2"><Badge variant="secondary">{r.status}</Badge></td>
                   <td className="px-3 py-2 text-right">
-                    <Button size="sm" variant="ghost" onClick={() => { setRevealId(r.id); setRevealed(null); setRevealReason(""); }}>
-                      <Eye className="w-4 h-4 mr-1" /> Revelar
-                    </Button>
+                    <Can perm="crea.credenciais.gerenciar" fallback={<span className="text-xs text-muted-foreground">—</span>}>
+                      <Button size="sm" variant="ghost" onClick={() => { setRevealId(r.id); setRevealed(null); setRevealReason(""); }}>
+                        <Eye className="w-4 h-4 mr-1" /> Revelar
+                      </Button>
+                    </Can>
                   </td>
                 </tr>
               ))}
