@@ -85,7 +85,6 @@ import FinanceiroDashboard from "./modules/financeiro/ui/FinanceiroDashboard";
 import MarketplaceAdmin from "./modules/marketplace/ui/MarketplaceAdmin";
 import { JarbasCentralDashboard } from "./modules/jarbas/ui/JarbasCentralDashboard";
 import { JarbasKnowledgePage } from "./modules/jarbas/ui/JarbasKnowledgePage";
-import OcsGuardPage from "./modules/ocs-guard/ui/OcsGuardPage";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
