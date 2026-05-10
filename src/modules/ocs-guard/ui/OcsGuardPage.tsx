@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
+import { jarbasCore } from "../../jarbas/core/jarbasCore";
 import { 
   ShieldAlert, 
   ShieldCheck, 
@@ -33,8 +34,19 @@ import { toast } from "sonner";
 import { useJarbasVoice } from "../../jarbas/hooks/useJarbasVoice";
 
 export default function OcsGuardPage() {
-  const [isEmergency, setIsEmergency] = React.useState(false);
+  const [isEmergency, setIsEmergency] = useState(false);
   const { speak } = useJarbasVoice();
+
+  // Registrar login Jarbas Audit
+  useEffect(() => {
+    jarbasCore.registerEvent({
+      module: "ocs_guard",
+      type: "admin_access",
+      title: "Acesso ao OCS GUARD",
+      description: "Um administrador acessou o centro de cibersegurança.",
+      severity: "low"
+    });
+  }, []);
 
   const handleEmergencyMode = async () => {
     try {
@@ -42,12 +54,30 @@ export default function OcsGuardPage() {
         await ocsGuard.activateEmergencyMode("Ativação manual via Painel de Controle.");
         setIsEmergency(true);
         speak("Atenção. Modo de emergência ativado. Protocolos de segurança nível seis iniciados.");
+        
+        jarbasCore.registerEvent({
+          module: "ocs_guard",
+          type: "emergency_activated",
+          title: "ESTADO DE EMERGÊNCIA ATIVADO",
+          description: "O modo de contenção total foi disparado via console OCS Guard.",
+          severity: "critical"
+        });
+
         toast.error("MODO DE EMERGÊNCIA ATIVADO. Acessos restritos e logs intensificados.", {
           duration: 10000,
         });
       } else {
         setIsEmergency(false);
         speak("Modo de emergência desativado. Retornando aos parâmetros normais de operação.");
+        
+        jarbasCore.registerEvent({
+          module: "ocs_guard",
+          type: "emergency_deactivated",
+          title: "MODO DE EMERGÊNCIA FINALIZADO",
+          description: "Sistema retornando aos níveis normais de segurança.",
+          severity: "medium"
+        });
+
         toast.success("Modo de emergência desativado.");
       }
     } catch (e: any) {
