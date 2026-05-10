@@ -1,32 +1,23 @@
 import React, { useState, useEffect } from 'react';
-import { supabase } from "@/integrations/supabase/client";
 import { 
   ShoppingBag, 
   Search, 
-  Menu, 
-  User, 
   ShoppingCart, 
+  User, 
   Heart, 
   ChevronRight, 
   Star, 
   ArrowRight,
   Filter,
-  Package,
   TrendingUp,
-  Award
+  Package,
+  Award,
+  Loader2
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  Carousel, 
-  CarouselContent, 
-  CarouselItem, 
-  CarouselNext, 
-  CarouselPrevious 
-} from "@/components/ui/carousel";
 import { 
   Tabs, 
   TabsContent, 
@@ -34,56 +25,29 @@ import {
   TabsTrigger 
 } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
-
-// Categorias estáticas para fallback visual rápido
-const staticCategories = [
-  { name: "Eletrônicos", icon: "📱", slug: "eletronicos" },
-  { name: "Moda", icon: "👕", slug: "moda" },
-  { name: "Casa", icon: "🏠", slug: "casa" },
-  { name: "Esporte", icon: "⚽", slug: "esporte" },
-  { name: "Beleza", icon: "💄", slug: "beleza" },
-  { name: "Livros", icon: "📚", slug: "livros" },
-];
+import { 
+  getMarketplaceProducts, 
+  getMarketplaceCategories, 
+  MarketplaceProduct, 
+  MarketplaceCategory 
+} from "../lib/marketplaceApi";
 
 export default function MarketplaceHome() {
-  const [products, setProducts] = useState<any[]>([]);
-  const [categories, setCategories] = useState<any[]>([]);
+  const [products, setProducts] = useState<MarketplaceProduct[]>([]);
+  const [categories, setCategories] = useState<MarketplaceCategory[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     async function loadData() {
       try {
-        const [prodRes, catRes] = await Promise.all([
-          supabase.from('market_products').select('*, market_stores(name)').eq('is_active', true).limit(12),
-          supabase.from('market_categories').select('*').eq('is_active', true)
+        setLoading(true);
+        const [prodData, catData] = await Promise.all([
+          getMarketplaceProducts(12),
+          getMarketplaceCategories()
         ]);
-
-        if (prodRes.data && prodRes.data.length > 0) {
-          setProducts(prodRes.data.map(p => ({
-            id: p.id,
-            name: p.name,
-            price: p.price,
-            rating: 5.0, // Mocked rating as it's not in DB yet
-            reviews: 0,
-            image: p.images?.[0] || "https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&q=80",
-            category: "Geral",
-            store: p.market_stores?.name || "Loja OCS"
-          })));
-        } else {
-          // Fallback para mock se o banco estiver vazio
-          setProducts([
-            { id: 1, name: "Smartphone Galaxy S24 Ultra", price: 6999.00, rating: 4.8, reviews: 124, image: "https://images.unsplash.com/photo-1610945265064-0e34e5519bbf?w=400&q=80", category: "Eletrônicos", store: "Tech OCS" },
-            { id: 2, name: "MacBook Air M3", price: 10499.00, rating: 4.9, reviews: 85, image: "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?w=400&q=80", category: "Informática", store: "Apple Official" },
-            { id: 3, name: "Cadeira Gamer Premium", price: 1499.00, rating: 4.6, reviews: 342, image: "https://images.unsplash.com/photo-1598550476439-6847785fce6c?w=400&q=80", category: "Móveis", store: "Móveis & Cia" },
-            { id: 4, name: "Fone Sony WH-1000XM5", price: 2199.00, rating: 4.7, reviews: 210, image: "https://images.unsplash.com/photo-1546435770-a3e426bf472b?w=400&q=80", category: "Acessórios", store: "Audio Store" },
-          ]);
-        }
-
-        if (catRes.data && catRes.data.length > 0) {
-          setCategories(catRes.data);
-        } else {
-          setCategories(staticCategories);
-        }
+        setProducts(prodData);
+        setCategories(catData);
       } catch (error) {
         console.error("Erro ao carregar marketplace:", error);
       } finally {
@@ -92,6 +56,11 @@ export default function MarketplaceHome() {
     }
     loadData();
   }, []);
+
+  const filteredProducts = products.filter(p => 
+    p.name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col">
       {/* Header do Marketplace */}
