@@ -79,13 +79,11 @@ export const AvatarLayeredSprite = ({ customization, size = 56, faded, grayscale
 
       {/* pernas / saia */}
       {isSkirt ? (
-        <>
-          <polygon points="4,16 12,16 13,21 3,21" fill={bottomColor} />
-        </>
+        <polygon points="4,16 12,16 13,21 3,21" fill={bottomColor} />
       ) : (
         <>
-          <rect x="5" y="16" width="3" height="5" fill={bottomColor} />
-          <rect x="8" y="16" width="3" height="5" fill={bottomColor} />
+          <rect x={isWalking ? "4" : "5"} y="16" width="3" height="5" fill={bottomColor} />
+          <rect x={isWalking ? "9" : "8"} y="16" width="3" height="5" fill={bottomColor} />
         </>
       )}
       {/* sapatos */}
