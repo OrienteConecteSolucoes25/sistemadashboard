@@ -36,6 +36,8 @@ class PixiDesksManager {
   private createDeskSprite(desk: DeskLite): PIXI.Container {
     const container = new PIXI.Container();
     container.label = `desk-${desk.id}`;
+    container.eventMode = 'static';
+    container.cursor = 'pointer';
     
     const graphics = new PIXI.Graphics();
     container.addChild(graphics);
