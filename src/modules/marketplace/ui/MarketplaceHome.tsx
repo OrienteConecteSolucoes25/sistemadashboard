@@ -221,13 +221,17 @@ export default function MarketplaceHome() {
   );
 }
 
-function ProductCard({ product }: { product: any }) {
+function ProductCard({ product }: { product: MarketplaceProduct }) {
+  const price = product.promo_price || product.price;
+  const originalPrice = product.promo_price ? product.price : null;
+  const image = product.images?.[0] || "https://images.unsplash.com/photo-1560393464-5c69a73c5770?w=400&q=80";
+
   return (
     <Card className="overflow-hidden group border-none shadow-sm hover:shadow-xl transition-all duration-300 flex flex-col h-full bg-white">
       <div className="relative aspect-square overflow-hidden bg-slate-100">
         <motion.img 
           whileHover={{ scale: 1.05 }}
-          src={product.image} 
+          src={image} 
           alt={product.name} 
           className="w-full h-full object-cover transition-transform duration-500" 
         />
@@ -238,27 +242,34 @@ function ProductCard({ product }: { product: any }) {
         >
           <Heart className="w-4 h-4 text-rose-500" />
         </Button>
-        <Badge className="absolute bottom-2 left-2 bg-primary/90 text-white text-[10px] uppercase font-bold tracking-wider">
-          {product.category}
-        </Badge>
+        {originalPrice && (
+          <Badge className="absolute top-2 left-2 bg-red-500 text-white text-[10px] uppercase font-bold tracking-wider">
+            Oferta
+          </Badge>
+        )}
       </div>
       <CardHeader className="p-4 pb-0 flex-1">
         <div className="flex items-center gap-1 mb-2">
            <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
-           <span className="text-xs font-bold">{product.rating}</span>
-           <span className="text-xs text-muted-foreground">({product.reviews})</span>
+           <span className="text-xs font-bold">5.0</span>
+           <span className="text-xs text-muted-foreground">(0)</span>
         </div>
         <CardTitle className="text-sm font-semibold line-clamp-2 leading-snug group-hover:text-primary transition-colors">
           {product.name}
         </CardTitle>
         <div className="text-[10px] text-muted-foreground mt-1 flex items-center gap-1">
-          <Package className="w-3 h-3" /> Vendido por <span className="font-medium text-slate-900 underline decoration-slate-300">{product.store}</span>
+          <Package className="w-3 h-3" /> Vendido por <span className="font-medium text-slate-900 underline decoration-slate-300">{product.market_stores?.name || "Loja OCS"}</span>
         </div>
       </CardHeader>
       <CardFooter className="p-4 pt-4 flex flex-col items-stretch gap-3">
-        <div className="flex items-baseline gap-2">
+        <div className="flex flex-col gap-0.5">
+          {originalPrice && (
+            <span className="text-xs text-muted-foreground line-through">
+              {originalPrice.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            </span>
+          )}
           <span className="text-lg font-bold text-slate-900">
-            {product.price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
+            {price.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
           </span>
         </div>
         <Button className="w-full rounded-lg shadow-none group-hover:bg-primary/90">
