@@ -128,6 +128,35 @@ class OcsGuardCore {
       requires_approval: params.requiresApproval || params.classification === 'critica'
     });
   }
+
+  public async triggerFinancialAlert(params: {
+    type: 'mass_export' | 'suspicious_change' | 'unusual_access' | 'high_value_transaction';
+    description: string;
+    details: any;
+    severity?: 'medium' | 'high' | 'critical';
+  }) {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('company_id')
+      .eq('id', user.id)
+      .single();
+
+    if (!profile?.company_id) return;
+
+    const { data, error } = await supabase.rpc('trigger_financial_alert', {
+      p_company_id: profile.company_id,
+      p_alert_type: params.type,
+      p_description: params.description,
+      p_details: params.details,
+      p_severity: params.severity || 'high'
+    });
+
+    if (error) console.error("Error triggering financial alert:", error);
+    return data;
+  }
 }
 
 export const ocsGuard = OcsGuardCore.getInstance();
