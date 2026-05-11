@@ -379,7 +379,8 @@ export default function MarketplaceHome() {
               <motion.button 
                 whileHover={{ y: -5 }}
                 key={cat.id || i} 
-                className="bg-white p-4 rounded-xl border hover:shadow-md transition-all flex flex-col items-center gap-3 group"
+                onClick={() => setSelectedCategory(cat.id === selectedCategory ? null : cat.id)}
+                className={`p-4 rounded-xl border hover:shadow-md transition-all flex flex-col items-center gap-3 group ${selectedCategory === cat.id ? 'border-primary bg-primary/5 ring-2 ring-primary/20' : 'bg-white'}`}
               >
                 <span className="text-3xl grayscale group-hover:grayscale-0 transition-all">{cat.icon || "📦"}</span>
                 <span className="text-sm font-medium">{cat.name}</span>
