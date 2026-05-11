@@ -15,20 +15,20 @@ export type GovUnifiedRow = {
   contratante: string | null;
   empresa: string | null;
   status: string | null;
-  valor: number | null;
+  /** Valores separados — NÃO somar entre si. */
+  valor_art: number | null;
+  valor_pago: number | null;
+  valor_contrato: number | null;
+  atividade_servico: string | null;
   data: string | null; // ISO yyyy-mm-dd
   raw: any;
 };
 
-const ilike = (s: string) => `%${s.trim()}%`;
-
 function toDate(v: any): string | null {
   if (!v) return null;
   const s = String(v);
-  // tenta ISO primeiro
   const m = s.match(/(\d{4})-(\d{2})-(\d{2})/);
   if (m) return `${m[1]}-${m[2]}-${m[3]}`;
-  // dd/mm/yyyy
   const b = s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
   if (b) {
     let [, dd, mm, yy] = b;
@@ -93,6 +93,24 @@ async function fetchAll(table: string, companyId: string): Promise<any[]> {
   return out;
 }
 
+function pickUF(...vals: any[]): string | null {
+  for (const v of vals) {
+    const s = String(v ?? "").trim();
+    if (!s) continue;
+    const m = s.match(/\b([A-Z]{2})\b/);
+    if (m) return m[1];
+    if (/^[A-Za-z]{2}$/.test(s)) return s.toUpperCase();
+  }
+  return null;
+}
+function pickCidade(...vals: any[]): string | null {
+  for (const v of vals) {
+    const s = String(v ?? "").trim();
+    if (s) return s;
+  }
+  return null;
+}
+
 export async function fetchGovUnified(companyId: string, f: GovFilters): Promise<GovUnifiedRow[]> {
   const [serv, bloco, rel] = await Promise.all([
     fetchAll("crea_gov_servicos", companyId).catch(() => []),
@@ -105,33 +123,37 @@ export async function fetchGovUnified(companyId: string, f: GovFilters): Promise
   serv.forEach((r: any) => rows.push({
     id: r.id, source: "servicos",
     numero: r.numero ?? null,
-    uf: null,
-    cidade: null,
+    uf: pickUF(r.uf_obra, r.uf_contrato),
+    cidade: pickCidade(r.cidade_obra, r.cidade_contrato),
     nome_obra: r.endereco ?? null,
-    rt_nome: null,
+    rt_nome: r.responsavel_tecnico ?? null,
     contratante: r.contratante ?? null,
     empresa: r.empresa ?? null,
     status: r.analise ?? r.baixa ?? null,
-    valor: null,
+    valor_art: toNumber(r.valor_art),
+    valor_pago: toNumber(r.valor_pago),
+    valor_contrato: toNumber(r.valor_contrato),
+    atividade_servico: r.atividade_servico ?? r.ativ_tec_descricao ?? null,
     data: toDate(r.cadastro) ?? toDate(r.pagamento),
     raw: r,
   }));
 
   bloco.forEach((r: any) => {
     const end = r.endereco_obra ?? r.endereco_contrato ?? null;
-    const cidade = end ? (String(end).match(/-\s*([A-Za-zÀ-ú\s]+)\s*\/\s*[A-Z]{2}/)?.[1]?.trim() ?? null) : null;
-    const uf = end ? (String(end).match(/\/\s*([A-Z]{2})\b/)?.[1] ?? null) : null;
     rows.push({
       id: r.id, source: "art_bloco",
       numero: r.numero_art ?? null,
-      uf,
-      cidade,
+      uf: pickUF(r.uf_obra, r.uf_contrato, end),
+      cidade: pickCidade(r.cidade_obra, r.cidade_contrato),
       nome_obra: end,
       rt_nome: r.responsavel_tecnico ?? null,
       contratante: r.contratante ?? null,
       empresa: null,
       status: r.situacao ?? r.atendido ?? null,
-      valor: toNumber(r.valor_art ?? r.valor_pago ?? r.valor_contrato),
+      valor_art: toNumber(r.valor_art),
+      valor_pago: toNumber(r.valor_pago),
+      valor_contrato: toNumber(r.valor_contrato),
+      atividade_servico: r.ativ_tec_descricao ?? null,
       data: toDate(r.data_inicio) ?? toDate(r.celebrado_em) ?? toDate(r.data_solicitacao),
       raw: r,
     });
@@ -139,8 +161,8 @@ export async function fetchGovUnified(companyId: string, f: GovFilters): Promise
 
   rel.forEach((r: any) => {
     const end = r.enderecos ?? null;
-    const cidade = end ? (String(end).match(/-\s*([A-Za-zÀ-ú\s]+)\s*\/\s*[A-Z]{2}/)?.[1]?.trim() ?? null) : null;
     const uf = end ? (String(end).match(/\/\s*([A-Z]{2})\b/)?.[1] ?? null) : null;
+    const cidade = end ? (String(end).match(/-\s*([A-Za-zÀ-ú\s]+)\s*\/\s*[A-Z]{2}/)?.[1]?.trim() ?? null) : null;
     rows.push({
       id: r.id, source: "relatorio_crea",
       numero: r.art ?? r.numero ?? null,
@@ -151,7 +173,10 @@ export async function fetchGovUnified(companyId: string, f: GovFilters): Promise
       contratante: r.contratante ?? null,
       empresa: r.proprietario ?? null,
       status: r.tipo ?? r.pagamento ?? null,
-      valor: toNumber(r.valor_contrato),
+      valor_art: null,
+      valor_pago: toNumber(r.taxa_paga),
+      valor_contrato: toNumber(r.valor_contrato),
+      atividade_servico: r.atividade_servico ?? r.atividades ?? null,
       data: toDate(r.data_inicio) ?? toDate(r.cadastro),
       raw: r,
     });
@@ -166,26 +191,31 @@ export async function fetchGovUnified(companyId: string, f: GovFilters): Promise
 
 export function unifiedKpis(rows: GovUnifiedRow[]) {
   const total = rows.length;
-  const valor = rows.reduce((s, r) => s + (r.valor ?? 0), 0);
+  const valor_art = rows.reduce((s, r) => s + (r.valor_art ?? 0), 0);
+  const valor_contrato = rows.reduce((s, r) => s + (r.valor_contrato ?? 0), 0);
+  const valor_pago = rows.reduce((s, r) => s + (r.valor_pago ?? 0), 0);
   const ufs = new Set(rows.map((r) => r.uf).filter(Boolean)).size;
   const rts = new Set(rows.map((r) => r.rt_nome).filter(Boolean)).size;
   const contratantes = new Set(rows.map((r) => r.contratante).filter(Boolean)).size;
-  return { total, valor, ufs, rts, contratantes };
+  const cidades = new Set(rows.map((r) => r.cidade).filter(Boolean)).size;
+  return { total, valor_art, valor_contrato, valor_pago, ufs, rts, contratantes, cidades };
 }
 
-export function groupCount<T>(arr: T[], key: (x: T) => string): { name: string; value: number }[] {
+export function groupCount<T>(arr: T[], key: (x: T) => string | null | undefined): { name: string; value: number }[] {
   const m = new Map<string, number>();
   arr.forEach((x) => {
-    const k = key(x) || "—";
+    const k = (key(x) ?? "").toString().trim();
+    if (!k) return; // ignora vazios para não inflar "—"
     m.set(k, (m.get(k) ?? 0) + 1);
   });
   return Array.from(m, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
 }
 
-export function groupSum<T>(arr: T[], key: (x: T) => string, val: (x: T) => number): { name: string; value: number }[] {
+export function groupSum<T>(arr: T[], key: (x: T) => string | null | undefined, val: (x: T) => number): { name: string; value: number }[] {
   const m = new Map<string, number>();
   arr.forEach((x) => {
-    const k = key(x) || "—";
+    const k = (key(x) ?? "").toString().trim();
+    if (!k) return;
     m.set(k, (m.get(k) ?? 0) + (val(x) || 0));
   });
   return Array.from(m, ([name, value]) => ({ name, value })).sort((a, b) => a.name.localeCompare(b.name));
