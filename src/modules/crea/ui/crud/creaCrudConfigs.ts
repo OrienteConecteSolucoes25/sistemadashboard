@@ -192,6 +192,21 @@ export const NORMAS_CFG: CrudConfig = {
   searchKeys: ["tipo","numero","tema","resumo"],
 };
 
+export const ANUIDADES_CFG: CrudConfig = {
+  table: "crea_anuidades", title: "Anuidades", description: "Controle de anuidades CREA por PJ/PF.",
+  fields: [
+    { key: "tipo", label: "CREA (PJ/PF)", type: "select", options: ["PJ","PF"], required: true },
+    { key: "nome", label: "Nome (Empresa ou RT)", type: "text", required: true },
+    { key: "ano", label: "Ano", type: "number" },
+    { key: "valor", label: "Valor (R$)", type: "number" },
+    { key: "status", label: "Status", type: "select", options: ["pago","nao_pago","isento","desconto"], required: true },
+    { key: "desconto_pct", label: "Desconto (%)", type: "number" },
+    { key: "data_pagamento", label: "Data pagamento", type: "date" },
+    { key: "observacao", label: "Observação", type: "textarea", inList: false, full: true },
+  ],
+  searchKeys: ["nome","tipo","status"],
+};
+
 export const LINKS_CFG: CrudConfig = {
   table: "crea_links_oficiais", title: "Links Oficiais", description: "Portais e links oficiais por UF.",
   fields: [
