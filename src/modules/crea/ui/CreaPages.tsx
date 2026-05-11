@@ -24,7 +24,8 @@ export const BaixasPage = () => <CreaCrudPage config={BAIXAS_CFG} />;
 export const TratativasPage = () => <CreaCrudPage config={TRATATIVAS_CFG} />;
 export const PrazosPage = () => <CreaCrudPage config={PRAZOS_CFG} />;
 export const RtsPage = () => <CreaCrudPage config={RTS_CFG} />;
-export const EmpresasPage = () => <CreaCrudPage config={EMPRESAS_CFG} />;
+import EmpresasPageNew from "../empresas/EmpresasPage";
+export const EmpresasPage = () => <EmpresasPageNew />;
 export const DocumentosPage = () => (
   <Tabs defaultValue="documentos" className="space-y-4">
     <TabsList className="flex-wrap h-auto">
