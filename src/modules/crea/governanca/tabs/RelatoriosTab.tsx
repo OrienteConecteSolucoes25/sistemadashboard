@@ -77,7 +77,32 @@ function aggregateFinanceiro(arts: GovArt[]) {
     cur.pago += Number(a.valor_pago ?? 0);
     cur.qtd += 1;
     m.set(key, cur);
-  }
+}
+
+async function fetchNameMap(table: string, ids: string[], cols = "id,nome"): Promise<Record<string, string>> {
+  const out: Record<string, string> = {};
+  if (!ids.length) return out;
+  const { data } = await supabase.from(table as any).select(cols).in("id", ids);
+  (data ?? []).forEach((r: any) => { out[r.id] = r.nome ?? r.razao_social ?? r.full_name ?? ""; });
+  return out;
+}
+
+async function enrichArts(companyId: string, arts: GovArt[]): Promise<any[]> {
+  const empresaIds = Array.from(new Set(arts.map(a => a.empresa_id).filter(Boolean))) as string[];
+  const contIds = Array.from(new Set(arts.map(a => a.contratante_id).filter(Boolean))) as string[];
+  const rtIds = Array.from(new Set(arts.map(a => a.rt_id).filter(Boolean))) as string[];
+  const [empresas, contratantes, rts] = await Promise.all([
+    fetchNameMap("crea_empresas", empresaIds),
+    fetchNameMap("crea_gov_contratantes", contIds),
+    fetchNameMap("crea_rts", rtIds),
+  ]);
+  return arts.map(a => ({
+    ...a,
+    empresa_nome: a.empresa_id ? (empresas[a.empresa_id] || "") : "",
+    contratante_nome: a.contratante_id ? (contratantes[a.contratante_id] || "") : "",
+    rt_nome: a.rt_id ? (rts[a.rt_id] || "") : "",
+  }));
+}
   return [...m.values()].map(r => ({ ...r, pendente: Math.max(0, r.emitido - r.pago) }))
     .sort((a, b) => b.ano - a.ano || b.mes - a.mes);
 }
