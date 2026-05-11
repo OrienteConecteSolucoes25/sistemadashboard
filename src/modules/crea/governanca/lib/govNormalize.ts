@@ -385,3 +385,13 @@ export function normalizeArtRow(raw: Record<string, any>): CanonicalArt {
   delete out.endereco_bairro;
   return out as CanonicalArt;
 }
+
+/**
+ * UF do CREA com fallback para "BA" (primeiro modelo de referência).
+ * Usar em leitura/exibição para nunca exibir UF vazia.
+ */
+export const DEFAULT_UF_CREA = "BA";
+export function ufCreaOrDefault(uf: unknown): string {
+  const n = normalizeUf(uf);
+  return n || DEFAULT_UF_CREA;
+}

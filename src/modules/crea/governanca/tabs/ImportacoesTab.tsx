@@ -84,10 +84,11 @@ export function ImportacoesTab() {
           if (contratanteCache.has(k)) contratante_id = contratanteCache.get(k)!;
           else { contratante_id = await ensureContratante(r.contratante_nome); if (contratante_id) contratanteCache.set(k, contratante_id); }
         }
-        const hash = await hashArt(r.uf ?? uf, r.numero, r.data_cadastro, r.empresa_nome);
+        const ufCrea = (r.uf ?? uf ?? "BA").toString().trim().toUpperCase() || "BA";
+        const hash = await hashArt(ufCrea, r.numero, r.data_cadastro, r.empresa_nome);
         payloads.push({
           company_id: companyId,
-          numero: r.numero, uf: r.uf ?? uf,
+          numero: r.numero, uf: ufCrea,
           tipo: r.tipo, natureza: r.natureza, participacao_tecnica: r.participacao_tecnica, forma_registro: r.forma_registro,
           contratante_id, proprietario: r.proprietario,
           endereco: r.endereco, cidade: r.cidade, uf_obra: r.uf_obra, cep: r.cep,
