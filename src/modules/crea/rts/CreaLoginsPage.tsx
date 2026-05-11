@@ -14,7 +14,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel,
 import { Plus, Search, Pencil, Trash2, Eye, EyeOff, Download, Upload, FileSpreadsheet, FileText, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { useGovCompany } from "../governanca/lib/useGovCompany";
-import { exportXLSX, exportCSV, parseImportFile } from "@/lib/dataIO";
+import { exportData, downloadTemplate as dlTemplate, parseImportFile } from "@/lib/dataIO";
+
+const FIELDS = [
+  { key: "regiao", label: "Região" },
+  { key: "rt_nome", label: "Responsável Técnico" },
+  { key: "senha", label: "Senha" },
+  { key: "observacoes", label: "Observações" },
+];
 
 const sb: any = supabase;
 
