@@ -97,11 +97,89 @@ export function GovGenericTab({ table, title, description, fields, labelKey = "n
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [companyId, table]);
 
+  // Achata todos os valores legíveis de uma linha (colunas + jsonb `data`) em uma string única
+  // para busca cruzada — assim os filtros globais funcionam em qualquer sub-aba/schema.
+  const flattenValues = (r: any): string => {
+    const parts: string[] = [];
+    for (const k of Object.keys(r)) {
+      if (k === "data" || k === "id" || k === "company_id") continue;
+      const v = r[k];
+      if (v === null || v === undefined) continue;
+      parts.push(String(v));
+    }
+    if (r.data && typeof r.data === "object") {
+      for (const v of Object.values(r.data)) {
+        if (v === null || v === undefined) continue;
+        parts.push(String(v));
+      }
+    }
+    return parts.join(" \u0001 ").toLowerCase();
+  };
+
+  // Extrai todas as datas (ISO YYYY-MM-DD ou DD/MM/YYYY) presentes na linha — para os filtros "Data de/até".
+  const extractDates = (r: any): string[] => {
+    const out: string[] = [];
+    const push = (v: any) => {
+      if (v === null || v === undefined) return;
+      const s = String(v);
+      const iso = s.match(/\d{4}-\d{2}-\d{2}/g);
+      if (iso) out.push(...iso);
+      const br = s.match(/(\d{2})\/(\d{2})\/(\d{4})/g);
+      if (br) for (const d of br) {
+        const [dd, mm, yy] = d.split("/");
+        out.push(`${yy}-${mm}-${dd}`);
+      }
+    };
+    for (const k of Object.keys(r)) {
+      if (k === "data" || k === "id" || k === "company_id") continue;
+      push(r[k]);
+    }
+    if (r.data && typeof r.data === "object") for (const v of Object.values(r.data)) push(v);
+    return out;
+  };
+
   const filtered = useMemo(() => {
-    if (!search.trim()) return rows;
-    const q = search.toLowerCase();
-    return rows.filter(r => searchKeys.some(k => String(r[k] ?? "").toLowerCase().includes(q)));
-  }, [rows, search, searchKeys]);
+    const q = search.trim().toLowerCase();
+    const f = filters ?? {};
+    // Lista de termos textuais exigidos (todos devem casar — AND lógico).
+    const terms: string[] = [];
+    if (f.uf) terms.push(String(f.uf).toLowerCase());
+    if (f.uf_obra) terms.push(String(f.uf_obra).toLowerCase());
+    if (f.cidade) terms.push(String(f.cidade).toLowerCase());
+    if (f.nome_obra) terms.push(String(f.nome_obra).toLowerCase());
+    if (f.rt_nome) terms.push(String(f.rt_nome).toLowerCase());
+    if (f.numero) terms.push(String(f.numero).toLowerCase());
+    if (f.boleto) terms.push(String(f.boleto).toLowerCase());
+    if (f.tipo) terms.push(String(f.tipo).toLowerCase());
+    if (f.natureza) terms.push(String(f.natureza).toLowerCase());
+    if (f.status_analise) terms.push(String(f.status_analise).toLowerCase());
+    if (f.status_financeiro) terms.push(String(f.status_financeiro).toLowerCase());
+    if (f.centro_custo) terms.push(String(f.centro_custo).toLowerCase());
+    if (q) terms.push(q);
+
+    const ano = f.ano ? String(f.ano) : "";
+    const mes = f.mes ? String(f.mes).padStart(2, "0") : "";
+    const dDe = f.data_de || f.cadastro_de || f.pagamento_de || f.vencimento_de || "";
+    const dAte = f.data_ate || f.cadastro_ate || f.pagamento_ate || f.vencimento_ate || "";
+
+    return rows.filter((r) => {
+      const flat = flattenValues(r);
+      for (const t of terms) if (!flat.includes(t)) return false;
+      if (ano || mes) {
+        const dates = extractDates(r);
+        const okAno = !ano || dates.some((d) => d.startsWith(ano));
+        const okMes = !mes || dates.some((d) => d.slice(5, 7) === mes);
+        if (!okAno || !okMes) return false;
+      }
+      if (dDe || dAte) {
+        const dates = extractDates(r);
+        if (dates.length === 0) return false;
+        const inRange = dates.some((d) => (!dDe || d >= dDe) && (!dAte || d <= dAte));
+        if (!inRange) return false;
+      }
+      return true;
+    });
+  }, [rows, search, filters]);
 
   const sel = useBulkSelection(filtered);
 
