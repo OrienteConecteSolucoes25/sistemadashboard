@@ -16,6 +16,7 @@ export interface Entity {
 
 export class PixelMapEngine {
   private collisions: boolean[][];
+  private entities: Map<string, any>[][];
   private width: number;
   private height: number;
 
