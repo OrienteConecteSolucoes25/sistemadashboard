@@ -30,6 +30,8 @@ export function useCharacterMovement(opts: {
   const { user } = useAuth();
   const [overrides, setOverrides] = useState<Record<string, LocalPosition>>({});
   const persistTimers = useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+  const movementIntervals = useRef<Record<string, ReturnType<typeof setInterval>>>({});
+  const currentPosRef = useRef<Record<string, LocalPosition>>({});
 
   // Limpa overrides ao trocar workspace
   useEffect(() => {
