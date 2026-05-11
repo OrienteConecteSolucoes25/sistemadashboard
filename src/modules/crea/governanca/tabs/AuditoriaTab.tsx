@@ -47,6 +47,12 @@ export function AuditoriaTab({ filters }: { filters: GovFilters }) {
     return m;
   }, [hits]);
 
+  const sevCounts = useMemo(() => {
+    const c = { critical: 0, high: 0, medium: 0, low: 0 } as Record<string, number>;
+    for (const h of hits) c[h.severity] = (c[h.severity] ?? 0) + 1;
+    return c;
+  }, [hits]);
+
   async function createAllAlerts() {
     if (!companyId || hits.length === 0) return;
     setCreating(true);
@@ -73,6 +79,20 @@ export function AuditoriaTab({ filters }: { filters: GovFilters }) {
 
   return (
     <div className="space-y-4">
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+        {(["critical","high","medium","low"] as const).map(sev => (
+          <Card key={sev} className="card-elegant">
+            <CardContent className="p-3 flex items-center justify-between">
+              <div>
+                <p className="text-[11px] text-muted-foreground uppercase tracking-wide">{SEVERITY_LABEL[sev]}</p>
+                <p className="text-2xl font-semibold">{sevCounts[sev] ?? 0}</p>
+              </div>
+              <Badge className={`${SEVERITY_COLOR[sev]}`}>{SEVERITY_LABEL[sev]}</Badge>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
       <Card className="card-elegant">
         <CardHeader className="flex flex-row items-center justify-between gap-2">
           <div className="flex items-center gap-2">

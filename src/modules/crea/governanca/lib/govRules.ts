@@ -10,7 +10,10 @@ export type RuleId =
   | "apta_baixa"
   | "sem_setor"
   | "sem_escopo"
-  | "pagamento_sem_par";
+  | "pagamento_sem_par"
+  | "sem_uf"
+  | "sem_endereco"
+  | "paga_sem_baixa";
 
 export type Severity = "critical" | "high" | "medium" | "low";
 
@@ -167,6 +170,36 @@ export const GOV_RULES: RuleDefinition[] = [
       rule: "pagamento_sem_par", severity: "high", pagamento_id: p.id,
       numero: p.numero_boleto,
       motivo: `Boleto ${p.numero_boleto ?? "?"} pago em ${p.data_pagamento ?? "?"} sem ART.`,
+    })),
+  },
+  {
+    id: "sem_uf",
+    label: "ART sem UF do CREA",
+    description: "ART importada sem UF do CREA emissor.",
+    severity: "high",
+    run: ({ arts }) => arts.filter(a => !a.uf || !String(a.uf).trim()).map(a => ({
+      rule: "sem_uf", severity: "high", art_id: a.id, numero: a.numero,
+      motivo: "UF do CREA não informada — impede conciliação por jurisdição.",
+    })),
+  },
+  {
+    id: "sem_endereco",
+    label: "ART sem cidade ou endereço",
+    description: "ART sem cidade e sem endereço da obra.",
+    severity: "medium",
+    run: ({ arts }) => arts.filter(a => !((a.cidade && String(a.cidade).trim()) || (a.endereco && String(a.endereco).trim()))).map(a => ({
+      rule: "sem_endereco", severity: "medium", art_id: a.id, numero: a.numero,
+      motivo: "Sem cidade nem endereço da obra.",
+    })),
+  },
+  {
+    id: "paga_sem_baixa",
+    label: "ART paga sem baixa",
+    description: "ART com data de pagamento mas sem data de baixa registrada.",
+    severity: "medium",
+    run: ({ arts }) => arts.filter(a => a.data_pagamento && !a.data_baixa).map(a => ({
+      rule: "paga_sem_baixa", severity: "medium", art_id: a.id, numero: a.numero,
+      motivo: `Paga em ${a.data_pagamento} sem baixa registrada.`,
     })),
   },
 ];
