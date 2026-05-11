@@ -148,10 +148,41 @@ export type Database = {
           },
         ]
       }
+      adm_visibility_configs: {
+        Row: {
+          active_modules: string[] | null
+          company_id: string
+          created_at: string
+          hidden_features: string[] | null
+          id: string
+          is_client_environment: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          active_modules?: string[] | null
+          company_id: string
+          created_at?: string
+          hidden_features?: string[] | null
+          id?: string
+          is_client_environment?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          active_modules?: string[] | null
+          company_id?: string
+          created_at?: string
+          hidden_features?: string[] | null
+          id?: string
+          is_client_environment?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       ai_governance_logs: {
         Row: {
           action_executed: string | null
           agent_name: string
+          ai_classification: string | null
           approval_status: string | null
           approved_by: string | null
           classification:
@@ -161,6 +192,7 @@ export type Database = {
           created_at: string | null
           id: string
           impact_description: string | null
+          is_approved: boolean | null
           is_automated: boolean | null
           module: string
           prompt_text: string | null
@@ -171,6 +203,7 @@ export type Database = {
         Insert: {
           action_executed?: string | null
           agent_name: string
+          ai_classification?: string | null
           approval_status?: string | null
           approved_by?: string | null
           classification?:
@@ -180,6 +213,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           impact_description?: string | null
+          is_approved?: boolean | null
           is_automated?: boolean | null
           module: string
           prompt_text?: string | null
@@ -190,6 +224,7 @@ export type Database = {
         Update: {
           action_executed?: string | null
           agent_name?: string
+          ai_classification?: string | null
           approval_status?: string | null
           approved_by?: string | null
           classification?:
@@ -199,6 +234,7 @@ export type Database = {
           created_at?: string | null
           id?: string
           impact_description?: string | null
+          is_approved?: boolean | null
           is_automated?: boolean | null
           module?: string
           prompt_text?: string | null
@@ -2913,6 +2949,33 @@ export type Database = {
           severity?: string | null
           status?: string | null
           title?: string
+        }
+        Relationships: []
+      }
+      compliance_records: {
+        Row: {
+          company_id: string
+          evidence_url: string | null
+          id: string
+          last_audit_at: string | null
+          standard: string
+          status: string | null
+        }
+        Insert: {
+          company_id: string
+          evidence_url?: string | null
+          id?: string
+          last_audit_at?: string | null
+          standard: string
+          status?: string | null
+        }
+        Update: {
+          company_id?: string
+          evidence_url?: string | null
+          id?: string
+          last_audit_at?: string | null
+          standard?: string
+          status?: string | null
         }
         Relationships: []
       }
@@ -7392,6 +7455,39 @@ export type Database = {
           },
         ]
       }
+      financial_protection_alerts: {
+        Row: {
+          alert_type: string
+          company_id: string
+          created_at: string
+          details: string | null
+          id: string
+          is_resolved: boolean | null
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          alert_type: string
+          company_id: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          severity: string
+          user_id: string
+        }
+        Update: {
+          alert_type?: string
+          company_id?: string
+          created_at?: string
+          details?: string | null
+          id?: string
+          is_resolved?: boolean | null
+          severity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       financial_security_alerts: {
         Row: {
           alert_type: string
@@ -10467,6 +10563,36 @@ export type Database = {
           severity?: string
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      ocs_guard_trust_scores: {
+        Row: {
+          factors: Json | null
+          id: string
+          last_assessment_at: string | null
+          risk_level: string | null
+          target_id: string
+          target_type: string
+          trust_score: number | null
+        }
+        Insert: {
+          factors?: Json | null
+          id?: string
+          last_assessment_at?: string | null
+          risk_level?: string | null
+          target_id: string
+          target_type: string
+          trust_score?: number | null
+        }
+        Update: {
+          factors?: Json | null
+          id?: string
+          last_assessment_at?: string | null
+          risk_level?: string | null
+          target_id?: string
+          target_type?: string
+          trust_score?: number | null
         }
         Relationships: []
       }
