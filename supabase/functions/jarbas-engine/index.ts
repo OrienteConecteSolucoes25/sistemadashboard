@@ -5,6 +5,26 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+const SYSTEM_PROMPT = `Você é o JARBAS — assistente operacional inteligente do ERP OCS (Oriente Conecte Soluções).
+
+PERSONALIDADE:
+- Tom profissional, calmo, objetivo e experiente — como um supervisor técnico sênior.
+- Linguagem humana, direta e clara. Sem floreio, sem respostas genéricas, sem infantilidade.
+- Confiável, técnico, focado em resolver. Nunca fala demais.
+
+CAPACIDADES:
+- Conhece os módulos do ERP OCS: Engenharia, Jurídico, RH/DP, CREA & ART, Financeiro, Marketplace, TI, Pixel Office, Planos, Aparência, Jarbas (você mesmo).
+- Orienta o usuário em processos operacionais, normas, segurança (EPIs), ordens de serviço e workflows.
+- Responde com base no contexto fornecido (módulo atual, OS ativa, etapa).
+- Pode sugerir ações: navegação, abrir módulos, retomar workflows, validações.
+
+REGRAS:
+- Responda em PT-BR.
+- Seja conciso (1-4 frases na maioria dos casos).
+- Quando o contexto indicar módulo ou OS ativa, use essa informação na resposta.
+- Se faltar informação, pergunte de forma objetiva.
+- Nunca invente dados. Nunca repita a mesma frase de forma robótica.`;
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -12,62 +32,97 @@ serve(async (req) => {
 
   try {
     const { transcript, context, history } = await req.json();
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
-    // Aqui integraríamos com OpenAI/Anthropic
-    // Por enquanto, usaremos uma lógica de resposta avançada simulada 
-    // que será substituída por chamadas reais de LLM se as chaves estiverem disponíveis.
+    if (!LOVABLE_API_KEY) {
+      return new Response(JSON.stringify({
+        text: "Motor Jarbas indisponível: chave de IA não configurada.",
+        type: "alert",
+      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
 
-    let responseText = "";
-    let action = null;
-    let type = "info";
+    const ctxLines: string[] = [];
+    if (context?.current_module) ctxLines.push(`Módulo atual: ${context.current_module}`);
+    if (context?.active_os_id) ctxLines.push(`OS ativa: ${context.active_os_id} (etapa ${(context.current_step_index ?? 0) + 1})`);
+    if (context?.user_name) ctxLines.push(`Usuário: ${context.user_name}`);
+    const contextBlock = ctxLines.length ? `\n\nCONTEXTO ATUAL:\n${ctxLines.join('\n')}` : '';
 
-    const cmd = transcript.toLowerCase();
+    const messages: Array<{ role: string; content: string }> = [
+      { role: 'system', content: SYSTEM_PROMPT + contextBlock },
+    ];
 
-    // Motor de Contexto & Orquestração
-    if (cmd.includes("status") || cmd.includes("onde estou")) {
-      responseText = `Você está no módulo ${context.current_module || 'Principal'}. `;
-      if (context.active_os_id) {
-        responseText += `Com a Ordem de Serviço ${context.active_os_id} ativa na etapa ${context.current_step_index + 1}.`;
-      } else {
-        responseText += "Não há ordens de serviço ativas no momento.";
+    if (Array.isArray(history)) {
+      for (const h of history.slice(-10)) {
+        if (h?.role && h?.content) messages.push({ role: h.role, content: String(h.content) });
       }
-    } 
-    
-    // Motor de Segurança
-    else if (cmd.includes("iniciar") || cmd.includes("começar")) {
-      responseText = "Entendido. Antes de prosseguirmos, o Motor de Segurança OCS exige a validação dos EPIs. Você está utilizando capacete e luvas adequadas para esta operação?";
-      type = "alert";
-      action = { type: "require_confirmation", field: "epi_validation" };
     }
 
-    // Memória Operacional
-    else if (cmd.includes("continuar")) {
-      responseText = "Recuperando memória operacional... Você parou na etapa de testes de continuidade ontem às 17h. Deseja retomar exatamente de onde parou?";
-      action = { type: "resume_workflow" };
+    messages.push({ role: 'user', content: String(transcript || '') });
+
+    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-3-flash-preview",
+        messages,
+      }),
+    });
+
+    if (!aiRes.ok) {
+      const errTxt = await aiRes.text();
+      console.error("Jarbas AI gateway error:", aiRes.status, errTxt);
+      if (aiRes.status === 429) {
+        return new Response(JSON.stringify({ text: "Limite de requisições atingido. Tente novamente em instantes.", type: "alert" }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      if (aiRes.status === 402) {
+        return new Response(JSON.stringify({ text: "Créditos de IA esgotados. Adicione saldo nas configurações da workspace.", type: "alert" }),
+          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      return new Response(JSON.stringify({ text: "Falha temporária no motor Jarbas.", type: "alert" }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
-    // Ações do ERP
-    else if (cmd.includes("abrir") && cmd.includes("financeiro")) {
-      responseText = "Abrindo módulo Financeiro OCS. Deseja que eu resuma as pendências de hoje?";
-      action = { type: "navigate", path: "/financeiro" };
-    }
+    const data = await aiRes.json();
+    const responseText = data?.choices?.[0]?.message?.content?.trim()
+      || "Não consegui processar agora. Pode reformular?";
 
-    else {
-      responseText = "Comando processado pelo Motor Jarbas. Como posso auxiliar na sua operação técnica?";
+    // Heurística simples para sugerir navegação
+    let action: any = null;
+    const lower = String(transcript || '').toLowerCase();
+    const navMap: Record<string, string> = {
+      financeiro: '/app/financeiro',
+      engenharia: '/app/engenharia',
+      jurídico: '/app/juridico',
+      juridico: '/app/juridico',
+      'rh': '/app/rh-dp',
+      crea: '/app/crea',
+      marketplace: '/app/marketplace',
+      ti: '/app/ti',
+      planos: '/app/planos',
+    };
+    if (lower.includes('abrir') || lower.includes('ir para') || lower.includes('navegar')) {
+      for (const [k, path] of Object.entries(navMap)) {
+        if (lower.includes(k)) { action = { type: 'navigate', path }; break; }
+      }
     }
 
     return new Response(
-      JSON.stringify({ 
-        text: responseText, 
-        action, 
-        type,
-        context_update: { last_interaction: new Date().toISOString() }
+      JSON.stringify({
+        text: responseText,
+        action,
+        type: 'info',
+        context_update: { last_interaction: new Date().toISOString() },
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
 
-  } catch (error) {
-    return new Response(JSON.stringify({ error: error.message }), {
+  } catch (error: any) {
+    console.error("Jarbas error:", error);
+    return new Response(JSON.stringify({ text: "Erro interno no motor Jarbas.", error: error?.message, type: "alert" }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
