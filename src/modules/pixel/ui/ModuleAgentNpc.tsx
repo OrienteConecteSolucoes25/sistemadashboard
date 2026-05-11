@@ -8,49 +8,71 @@ export interface AgentNpcProps {
   primaryColor?: string;
   secondaryColor?: string;
   startX?: number;
+  startY?: number;
   onClick: () => void;
-  sequence?: Array<{ pose: "walk-l" | "walk-r" | "sit"; x: number; dur: number }>;
+  sequence?: Array<{ pose: "walk-l" | "walk-r" | "sit"; x: number; y?: number; dur: number }>;
 }
 
 /**
- * Componente genérico para NPCs de Agentes por Módulo.
+ * NPC de agente — agora caminha por toda a área visível (X e Y),
+ * trocando de pose e direção dinamicamente. A posição inicial deriva
+ * de `startX` (0–100) e um Y aleatório no intervalo permitido.
  */
 export function ModuleAgentNpc({
   name,
   moduleKey,
   icon: Icon = Sparkles,
-  primaryColor = "#6366f1", // default primary
+  primaryColor = "#6366f1",
   secondaryColor = "#4f46e5",
   startX = 50,
+  startY,
   onClick,
   sequence,
 }: AgentNpcProps) {
   const [hover, setHover] = useState(false);
+  const initialY = startY ?? 15 + Math.random() * 70; // 15% .. 85%
   const [x, setX] = useState(startX);
+  const [y, setY] = useState(initialY);
   const [pose, setPose] = useState<"walk-l" | "walk-r" | "sit">("walk-r");
   const [bob, setBob] = useState(0);
   const timer = useRef<number | null>(null);
 
-  const defaultSequence: Array<{ pose: "walk-l" | "walk-r" | "sit"; x: number; dur: number }> = [
-    { pose: "walk-r", x: startX + 15, dur: 6000 },
-    { pose: "walk-l", x: startX - 15, dur: 6000 },
-    { pose: "sit",    x: startX,      dur: 8000 },
-  ];
+  // Gera uma rota aleatória cobrindo todo o stage caso nenhuma seja fornecida.
+  const randomSeq = useRef<Array<{ pose: "walk-l" | "walk-r" | "sit"; x: number; y: number; dur: number }>>(
+    Array.from({ length: 6 }).map(() => {
+      const nx = 5 + Math.random() * 90;
+      const ny = 10 + Math.random() * 80;
+      const r = Math.random();
+      const pose: "walk-l" | "walk-r" | "sit" = r < 0.15 ? "sit" : nx < x ? "walk-l" : "walk-r";
+      return { pose, x: nx, y: ny, dur: 5500 + Math.random() * 4000 };
+    })
+  );
 
-  const seq = sequence || defaultSequence;
+  const seq = sequence || randomSeq.current;
 
   useEffect(() => {
     let i = 0;
     const tick = () => {
-      const s = seq[i % seq.length];
+      const s: any = seq[i % seq.length];
       setPose(s.pose);
       setX(s.x);
+      if (typeof s.y === "number") setY(s.y);
       i++;
+      // Renova a rota aleatória depois de completar um ciclo
+      if (!sequence && i % seq.length === 0) {
+        randomSeq.current = Array.from({ length: 6 }).map(() => {
+          const nx = 5 + Math.random() * 90;
+          const ny = 10 + Math.random() * 80;
+          const r = Math.random();
+          const pose: "walk-l" | "walk-r" | "sit" = r < 0.12 ? "sit" : Math.random() < 0.5 ? "walk-l" : "walk-r";
+          return { pose, x: nx, y: ny, dur: 5500 + Math.random() * 4000 };
+        });
+      }
       timer.current = window.setTimeout(tick, s.dur);
     };
     tick();
     return () => { if (timer.current) clearTimeout(timer.current); };
-  }, [seq]);
+  }, [seq, sequence]);
 
   useEffect(() => {
     if (pose === "sit") { setBob(0); return; }
@@ -70,9 +92,9 @@ export function ModuleAgentNpc({
       className="absolute z-30 flex flex-col items-center group cursor-pointer"
       style={{
         left: `${x}%`,
-        bottom: sitting ? "1.25rem" : "0.5rem",
-        transform: `translateX(-50%) translateY(${bob}px)`,
-        transition: "left 5s linear, bottom 0.4s ease, transform 0.2s ease",
+        top: `${y}%`,
+        transform: `translate(-50%, -50%) translateY(${bob}px)`,
+        transition: "left 5s linear, top 5s linear, transform 0.2s ease",
         imageRendering: "pixelated",
       }}
     >
@@ -97,17 +119,12 @@ export function ModuleAgentNpc({
         style={{ transform: flip }}
       >
         <div className="absolute -bottom-1 left-1/2 -translate-x-1/2 w-8 h-1 bg-black/30 rounded-full blur-[1px]" />
-        {/* Cabelo/Topo */}
         <div className="absolute top-0 left-1 w-8 h-3 bg-[#1a1f26] rounded-t-sm" />
-        {/* Rosto */}
         <div className="absolute top-2 left-1.5 w-7 h-5 bg-[#f5d2a8]" />
-        {/* Olhos */}
         <div className="absolute top-3.5 left-3 w-1 h-1 bg-black" />
         <div className="absolute top-3.5 left-5 w-1 h-1 bg-black" />
-        {/* Roupa */}
         <div className="absolute top-7 left-0.5 w-9 h-4" style={{ backgroundColor: primaryColor }} />
         <div className="absolute top-7 left-1/2 -translate-x-1/2 w-1.5 h-3" style={{ backgroundColor: secondaryColor }} />
-        
         {sitting ? (
           <div className="absolute top-11 left-1.5 w-7 h-2 bg-[#1a1f26]" />
         ) : (
@@ -116,8 +133,7 @@ export function ModuleAgentNpc({
             <div className="absolute top-11 right-1.5 w-3 h-3 bg-[#1a1f26]" />
           </>
         )}
-        {/* Badge flutuante avançada */}
-        <div 
+        <div
           className="absolute -top-1.5 -right-1.5 w-4 h-4 rounded-full animate-pulse ring-2 ring-background flex items-center justify-center shadow-lg"
           style={{ backgroundColor: primaryColor }}
         >
@@ -128,3 +144,4 @@ export function ModuleAgentNpc({
     </button>
   );
 }
+
