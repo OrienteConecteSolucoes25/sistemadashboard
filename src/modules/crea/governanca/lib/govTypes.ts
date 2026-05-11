@@ -25,6 +25,11 @@ export type GovFilters = {
   valor_min?: number;
   valor_max?: number;
   centro_custo?: string;
+  // Filtros simplificados (Leva 3)
+  nome_obra?: string;
+  rt_nome?: string;
+  data_de?: string;
+  data_ate?: string;
 };
 
 export const GOV_STATUS_ANALISE = [
