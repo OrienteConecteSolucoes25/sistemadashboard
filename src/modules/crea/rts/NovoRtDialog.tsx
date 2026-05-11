@@ -10,7 +10,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   RtPessoa, STATUS_RT, STATUS_RT_LABEL, MODELOS_CONTRATO, MODELO_LABEL,
-  ANUIDADE, ANUIDADE_LABEL, maskCpf,
+  ANUIDADE, ANUIDADE_LABEL, maskCpf, UFS_BR,
 } from "./lib/rtsTypes";
 import { createRt, updateRt } from "./lib/rtsApi";
 
