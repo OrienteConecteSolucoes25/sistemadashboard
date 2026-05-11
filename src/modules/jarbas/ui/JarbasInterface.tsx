@@ -31,6 +31,7 @@ import { JarbasHolographicUI } from "./JarbasHolographicUI";
 import { JarbasVoiceVisualizer } from "./JarbasVoiceVisualizer";
 import { jarbasKnowledge } from "../core/jarbasKnowledge";
 import { useJarbasCore } from "../hooks/useJarbasCore";
+import { jarbasPersonality } from "../core/jarbasPersonality";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ScrollArea } from "@/components/ui/scroll-area";
