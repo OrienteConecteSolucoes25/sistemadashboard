@@ -52,8 +52,13 @@ class PixiEffectsManager {
 
       // Move particles
       this.particles.forEach(p => {
-        p.x += (p as any).vx * ticker.deltaTime;
-        p.y += (p as any).vy * ticker.deltaTime;
+        const pvt = p as any;
+        pvt.x += pvt.vx * ticker.deltaTime;
+        pvt.y += pvt.vy * ticker.deltaTime;
+        
+        // Flicker effect
+        p.alpha = 0.3 + Math.sin(time * 3 + pvt.pulseOffset) * 0.3;
+        
         if (p.x < 0) p.x = app.screen.width;
         if (p.x > app.screen.width) p.x = 0;
         if (p.y < 0) p.y = app.screen.height;
