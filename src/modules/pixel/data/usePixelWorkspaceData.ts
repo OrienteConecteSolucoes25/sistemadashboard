@@ -263,6 +263,86 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
     };
   }, [activeId, workspaces, reloadTick]);
 
+  // 3) Real-time Subscriptions (Optimized)
+  useEffect(() => {
+    if (!activeId) return;
+
+    const channel = supabase
+      .channel(`workspace-${activeId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "pixel_positions",
+          filter: `workspace_id=eq.${activeId}`,
+        },
+        (payload) => {
+          const row: any = payload.new || payload.old;
+          if (!row) return;
+
+          setCharacters((prev) => {
+            const index = prev.findIndex((c) => c.user_id === row.user_id);
+            if (index === -1) {
+              // Se não existe, talvez devesse carregar o perfil completo
+              // Mas por simplicidade, aguarda o próximo refresh ou ignora
+              return prev;
+            }
+            const next = [...prev];
+            next[index] = {
+              ...next[index],
+              position_x: row.position_x,
+              position_y: row.position_y,
+              current_action: row.current_action,
+              is_sitting: row.is_sitting,
+              is_typing: row.is_typing,
+            };
+            return next;
+          });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "pixel_desks",
+          filter: `workspace_id=eq.${activeId}`,
+        },
+        () => refresh() // Mesas mudam menos, refresh ok
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "pixel_furniture",
+          filter: `workspace_id=eq.${activeId}`,
+        },
+        () => refresh()
+      )
+      // Broadcast para movimentos "fluidos" (opcional se quiser usar send() no useCharacterMovement)
+      .on("broadcast", { event: "player-move" }, ({ payload }) => {
+        if (payload.userId === user?.id) return;
+        setCharacters((prev) => {
+          const index = prev.findIndex((c) => c.user_id === payload.userId);
+          if (index === -1) return prev;
+          const next = [...prev];
+          next[index] = {
+            ...next[index],
+            position_x: payload.x,
+            position_y: payload.y,
+          };
+          return next;
+        });
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [activeId, user?.id, refresh]);
+
   const activeWorkspace = workspaces.find((w) => w.id === activeId) ?? null;
 
   return {
