@@ -174,11 +174,7 @@ export default function CreaLoginsPage() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
-              <Upload className="w-4 h-4 mr-1" /> Importar
-            </Button>
-            <input ref={fileRef} type="file" className="hidden" accept=".xlsx,.xls,.csv"
-              onChange={e => onPickFile(e.target.files?.[0] ?? null)} />
+            <span className="text-xs text-muted-foreground hidden md:inline">Use o botão Importar na aba "Responsáveis Técnicos" para criar RTs e logins juntos.</span>
 
             <Button size="sm" onClick={openNew}><Plus className="w-4 h-4 mr-1" /> Novo login</Button>
           </div>
