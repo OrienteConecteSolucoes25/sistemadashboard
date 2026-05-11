@@ -65,6 +65,7 @@ export default function NovoRtDialog({ open, onOpenChange, companyId, initial, o
       const payload: any = {
         nome: form.nome.trim(),
         cpf: form.cpf ?? "",
+        uf: (form.uf ?? "").toUpperCase().slice(0, 2),
         status: form.status ?? "ativo",
         data_inicio: form.data_inicio || null,
         data_termino: form.termino_indefinido ? null : (form.data_termino || null),
@@ -75,6 +76,10 @@ export default function NovoRtDialog({ open, onOpenChange, companyId, initial, o
         registro: form.registro ?? "",
         observacao: form.observacao ?? "",
         anuidade: form.anuidade ?? "nao_paga",
+        anuidade_ano: form.anuidade === "paga"
+          ? (form.anuidade_ano ? parseInt(String(form.anuidade_ano), 10) : null)
+          : null,
+        inclusao_ativa: !!form.inclusao_ativa,
         company_id: companyId,
       };
       const saved = initial ? await updateRt(initial.id, payload) : await createRt(payload);
