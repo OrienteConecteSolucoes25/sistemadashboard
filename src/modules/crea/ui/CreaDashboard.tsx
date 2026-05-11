@@ -71,7 +71,7 @@ export default function CreaDashboard() {
     (async () => {
       setLoading(true);
       const [a, p, c, b, ct, pr, r, e, d, an, gs, gb, gr] = await Promise.all([
-        sb.from("crea_arts").select("id,uf,status,data_emissao,valor,responsavel_tecnico,contratante,created_at").eq("is_deleted", false).limit(2000),
+        sb.from("crea_arts").select("id,uf,status,data_emissao,valor,contratante,created_at").eq("is_deleted", false).limit(2000),
         sb.from("crea_protocols").select("id,uf,status,data_abertura,prazo_esperado").eq("is_deleted", false).limit(2000),
         sb.from("crea_certificates").select("id,uf,status,validade,data_emissao").eq("is_deleted", false).limit(2000),
         sb.from("crea_deregistrations").select("id,uf,status,tipo,created_at").eq("is_deleted", false).limit(2000),
