@@ -51,14 +51,14 @@ serve(async (req) => {
     }
 
     // 3. Chamar a API da Lovable (AI Gateway)
-    const response = await fetch("https://api.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${LOVABLE_API_KEY}`,
       },
       body: JSON.stringify({
-        model: "gpt-4o",
+        model: "google/gemini-2.5-flash",
         messages: [
           { role: "system", content: systemPrompt },
           ...messages,
@@ -69,12 +69,22 @@ serve(async (req) => {
 
     if (!response.ok) {
       const err = await response.text();
-      console.error("Lovable API error:", err);
+      console.error("Lovable AI Gateway error:", response.status, err);
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Limite de requisições atingido. Tente novamente em instantes." }), {
+          status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "Créditos de IA esgotados. Adicione saldo nas configurações da workspace." }), {
+          status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
       throw new Error("Erro ao chamar a inteligência artificial.");
     }
 
     const aiData = await response.json();
-    const reply = aiData.choices[0].message.content;
+    const reply = aiData.choices?.[0]?.message?.content ?? "Sem resposta no momento.";
 
     return new Response(JSON.stringify({ reply }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
