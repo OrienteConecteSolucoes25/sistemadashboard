@@ -9509,6 +9509,47 @@ export type Database = {
         }
         Relationships: []
       }
+      jarbas_external_logs: {
+        Row: {
+          action_type: string
+          company_id: string
+          created_at: string
+          id: string
+          integration_id: string | null
+          payload: Json | null
+          response: Json | null
+          status: string | null
+        }
+        Insert: {
+          action_type: string
+          company_id: string
+          created_at?: string
+          id?: string
+          integration_id?: string | null
+          payload?: Json | null
+          response?: Json | null
+          status?: string | null
+        }
+        Update: {
+          action_type?: string
+          company_id?: string
+          created_at?: string
+          id?: string
+          integration_id?: string | null
+          payload?: Json | null
+          response?: Json | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jarbas_external_logs_integration_id_fkey"
+            columns: ["integration_id"]
+            isOneToOne: false
+            referencedRelation: "jarbas_integrations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       jarbas_instruction_documents: {
         Row: {
           content: string
@@ -9539,6 +9580,39 @@ export type Database = {
           module_key?: string
           tags?: string[] | null
           title?: string
+        }
+        Relationships: []
+      }
+      jarbas_integrations: {
+        Row: {
+          company_id: string
+          config: Json
+          created_at: string
+          id: string
+          last_sync_at: string | null
+          name: string
+          provider: string
+          status: string | null
+        }
+        Insert: {
+          company_id: string
+          config?: Json
+          created_at?: string
+          id?: string
+          last_sync_at?: string | null
+          name: string
+          provider: string
+          status?: string | null
+        }
+        Update: {
+          company_id?: string
+          config?: Json
+          created_at?: string
+          id?: string
+          last_sync_at?: string | null
+          name?: string
+          provider?: string
+          status?: string | null
         }
         Relationships: []
       }
@@ -9857,6 +9931,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      jarbas_webhooks: {
+        Row: {
+          company_id: string
+          created_at: string
+          event_type: string
+          id: string
+          is_active: boolean | null
+          name: string
+          secret_key: string | null
+          url: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          event_type: string
+          id?: string
+          is_active?: boolean | null
+          name: string
+          secret_key?: string | null
+          url: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          event_type?: string
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          secret_key?: string | null
+          url?: string
+        }
+        Relationships: []
       }
       market_categories: {
         Row: {
