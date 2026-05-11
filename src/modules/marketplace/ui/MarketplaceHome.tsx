@@ -223,9 +223,11 @@ export default function MarketplaceHome() {
     loadData();
   }, []);
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory ? p.category_id === selectedCategory : true;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
     <div 
