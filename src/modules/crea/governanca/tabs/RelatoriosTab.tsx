@@ -28,6 +28,7 @@ const F = (key: string, label: string, type: FieldSchema["type"] = "text"): Fiel
 const SCHEMAS: Record<Template, FieldSchema[]> = {
   arts_completo: [
     F("numero", "Número"), F("uf", "UF"), F("tipo", "Tipo"), F("natureza", "Natureza"),
+    F("empresa_nome", "Empresa"), F("contratante_nome", "Contratante"), F("rt_nome", "RT"),
     F("cidade", "Cidade"), F("uf_obra", "UF Obra"), F("endereco", "Endereço"),
     F("proprietario", "Proprietário"), F("valor_taxa", "Valor Taxa", "number"),
     F("valor_pago", "Valor Pago", "number"), F("valor_contrato", "Valor Contrato", "number"),
@@ -39,6 +40,7 @@ const SCHEMAS: Record<Template, FieldSchema[]> = {
   ],
   arts_resumo: [
     F("numero", "Número"), F("uf", "UF"), F("tipo", "Tipo"),
+    F("empresa_nome", "Empresa"), F("contratante_nome", "Contratante"), F("rt_nome", "RT"),
     F("valor_taxa", "Valor Taxa", "number"), F("valor_pago", "Valor Pago", "number"),
     F("data_cadastro", "Cadastro", "date"), F("data_pagamento", "Pagamento", "date"),
     F("status_analise", "Status"),
