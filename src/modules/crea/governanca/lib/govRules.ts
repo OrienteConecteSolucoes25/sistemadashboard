@@ -10,7 +10,10 @@ export type RuleId =
   | "apta_baixa"
   | "sem_setor"
   | "sem_escopo"
-  | "pagamento_sem_par";
+  | "pagamento_sem_par"
+  | "sem_uf"
+  | "sem_endereco"
+  | "paga_sem_baixa";
 
 export type Severity = "critical" | "high" | "medium" | "low";
 
