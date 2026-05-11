@@ -104,7 +104,8 @@ export const MODULES: ModuleDef[] = [
         { key: "pessoas", label: "Pessoas" },
         { key: "logins", label: "Login" },
       ]},
-      { key: "empresas", label: "Empresas" },
+      { key: "empresas", label: "Clientes" },
+      { key: "anuidades", label: "Anuidades" },
       { key: "documentos", label: "Documentações" },
       { key: "normas", label: "Normas e Regras" },
       { key: "assistente", label: "Assistente IA", subTabs: [

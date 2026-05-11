@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import {
   LayoutDashboard, FileSignature, FileStack, Users, Building2, KeyRound, ScrollText,
-  Award, FileMinus, FolderOpen, MessageSquare, BookOpen, CalendarClock, Bot, Link as LinkIcon, ShieldCheck, HardHat, Settings, Gauge
+  Award, FileMinus, FolderOpen, MessageSquare, BookOpen, CalendarClock, Bot, Link as LinkIcon, ShieldCheck, HardHat, Settings, Gauge, Receipt
 } from "lucide-react";
 import { useMemo } from "react";
 import { CollapsibleModuleSidebar } from "@/modules/aparencia/ui/CollapsibleModuleSidebar";
@@ -14,7 +14,8 @@ const allTabs = [
   { to: "/app/crea/certidoes", label: "Certidões", icon: ScrollText, group: "Operação", moduleKey: "crea.certidoes" },
   { to: "/app/crea/baixas", label: "Baixas", icon: FileMinus, group: "Operação", moduleKey: "crea.baixas" },
   { to: "/app/crea/rts", label: "Responsáveis Técnicos", icon: Users, group: "Cadastros", moduleKey: "crea.rts" },
-  { to: "/app/crea/empresas", label: "Empresas", icon: Building2, group: "Cadastros", moduleKey: "crea.empresas" },
+  { to: "/app/crea/empresas", label: "Clientes", icon: Building2, group: "Cadastros", moduleKey: "crea.empresas" },
+  { to: "/app/crea/anuidades", label: "Anuidades", icon: Receipt, group: "Cadastros", moduleKey: "crea.empresas" },
   { to: "/app/crea/documentos", label: "Documentações", icon: FolderOpen, group: "Cadastros", moduleKey: "crea.documentos" },
   
   { to: "/app/crea/normas", label: "Normas e Regras", icon: BookOpen, group: "Conhecimento", moduleKey: "crea.normas" },

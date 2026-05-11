@@ -1,7 +1,7 @@
 import CreaCrudPage from "./crud/CreaCrudPage";
 import {
   ARTS_CFG, PROTOCOLOS_CFG, CATS_CFG, CERTIDOES_CFG, BAIXAS_CFG, TRATATIVAS_CFG,
-  PRAZOS_CFG, RTS_CFG, EMPRESAS_CFG, DOCUMENTOS_CFG, NORMAS_CFG, LINKS_CFG,
+  PRAZOS_CFG, RTS_CFG, EMPRESAS_CFG, DOCUMENTOS_CFG, NORMAS_CFG, LINKS_CFG, ANUIDADES_CFG,
 } from "./crud/creaCrudConfigs";
 import CredenciaisPage from "./CredenciaisPage";
 import AssistentePage from "./AssistentePage";
@@ -26,6 +26,7 @@ export const PrazosPage = () => <CreaCrudPage config={PRAZOS_CFG} />;
 export const RtsPage = () => <CreaCrudPage config={RTS_CFG} />;
 import EmpresasPageNew from "../empresas/EmpresasPage";
 export const EmpresasPage = () => <EmpresasPageNew />;
+export const AnuidadesPage = () => <CreaCrudPage config={ANUIDADES_CFG} />;
 export const DocumentosPage = () => (
   <Tabs defaultValue="documentos" className="space-y-4">
     <TabsList className="flex-wrap h-auto">

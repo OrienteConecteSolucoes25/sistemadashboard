@@ -62,7 +62,7 @@ import CreaGovernancaPage from "./modules/crea/governanca/CreaGovernancaPage";
 import {
   ProtocolosPage as CreaProtocolosPage, CatsPage as CreaCatsPage,
   CertidoesPage as CreaCertidoesPage, BaixasPage as CreaBaixasPage, TratativasPage as CreaTratativasPage,
-  PrazosPage as CreaPrazosPage, EmpresasPage as CreaEmpresasPage,
+  PrazosPage as CreaPrazosPage, EmpresasPage as CreaEmpresasPage, AnuidadesPage as CreaAnuidadesPage,
   DocumentosPage as CreaDocumentosPage, NormasPage as CreaNormasPage, LinksPage as CreaLinksPage,
   CredenciaisPage as CreaCredenciaisPage, AssistentePage as CreaAssistentePage, AuditoriaPage as CreaAuditoriaPage,
 } from "./modules/crea/ui/CreaPages";
@@ -180,6 +180,7 @@ const App = () => (
                 <Route path="prazos" element={<CreaPrazosPage />} />
                 <Route path="rts" element={<CreaRtsPage />} />
                 <Route path="empresas" element={<CreaEmpresasPage />} />
+                <Route path="anuidades" element={<CreaAnuidadesPage />} />
                 <Route path="documentos" element={<CreaDocumentosPage />} />
                 <Route path="credenciais" element={<CreaCredenciaisPage />} />
                 <Route path="normas" element={<CreaNormasPage />} />
