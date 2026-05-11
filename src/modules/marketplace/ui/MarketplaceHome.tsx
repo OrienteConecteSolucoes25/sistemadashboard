@@ -353,18 +353,26 @@ export default function MarketplaceHome() {
       <main className="flex-1 pb-12">
         {/* Banner Principal */}
         <section className="container mx-auto px-4 py-6">
-          <div className="relative h-[200px] md:h-[400px] rounded-2xl overflow-hidden bg-gradient-to-r from-primary to-blue-600 flex items-center px-8 md:px-16">
+          <div 
+            className="relative h-[200px] md:h-[400px] rounded-2xl overflow-hidden bg-gradient-to-r from-primary to-blue-600 flex items-center px-8 md:px-16"
+            style={activeStore?.banner_url ? { backgroundImage: `url(${activeStore.banner_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+          >
+            {/* Overlay if there is a banner image to ensure text readability */}
+            {activeStore?.banner_url && <div className="absolute inset-0 bg-black/40" />}
+            
             <div className="relative z-10 text-white max-w-md space-y-4">
-              <Badge className="bg-white/20 text-white border-none backdrop-blur-md">Oferta da Semana</Badge>
-              <h1 className="text-3xl md:text-5xl font-bold leading-tight">Tecnologia com 30% OFF</h1>
-              <p className="text-blue-100 hidden md:block text-lg">Os melhores gadgets e eletrônicos com entrega rápida para todo o Brasil.</p>
+              <Badge className="bg-white/20 text-white border-none backdrop-blur-md">
+                {activeStore ? "Destaques da Loja" : "Oferta da Semana"}
+              </Badge>
+              <h1 className="text-3xl md:text-5xl font-bold leading-tight">
+                {activeStore ? activeStore.name : "Tecnologia com 30% OFF"}
+              </h1>
+              <p className="text-blue-100 hidden md:block text-lg">
+                {activeStore?.description || "Os melhores gadgets e eletrônicos com entrega rápida para todo o Brasil."}
+              </p>
               <Button size="lg" variant="secondary" className="font-bold">
                 Ver Ofertas <ChevronRight className="ml-2 w-4 h-4" />
               </Button>
-            </div>
-            <div className="absolute right-0 bottom-0 top-0 w-1/2 hidden lg:block opacity-20">
-               {/* Decoração ou Imagem de fundo */}
-               <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80')] bg-cover bg-center" />
             </div>
           </div>
         </section>
