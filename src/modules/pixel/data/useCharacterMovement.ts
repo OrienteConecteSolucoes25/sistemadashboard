@@ -37,7 +37,10 @@ export function useCharacterMovement(opts: {
   useEffect(() => {
     setOverrides({});
     Object.values(persistTimers.current).forEach(clearTimeout);
+    Object.values(movementIntervals.current).forEach(clearInterval);
     persistTimers.current = {};
+    movementIntervals.current = {};
+    currentPosRef.current = {};
   }, [workspaceId]);
 
   const canMove = useCallback(
