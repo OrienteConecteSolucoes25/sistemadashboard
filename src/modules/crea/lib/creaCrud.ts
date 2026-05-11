@@ -26,9 +26,19 @@ export async function creaSoftDelete(table: CreaTable, id: string, reason: strin
 /** Mapeia headers livres da planilha para os campos conhecidos.
  *  Tudo que não casar vai para o jsonb `data` (modo adaptativo). */
 export function mapAdaptive(parsedRows: any[][], headers: string[], fields: FieldSchema[]) {
-  const norm = (s: string) => s.toLowerCase().trim().replace(/\s+/g, "_");
+  const norm = (s: string) =>
+    String(s ?? "")
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // remove acentos
+      .trim()
+      .replace(/[\s\-/]+/g, "_") // espaços, hífens e barras → _
+      .replace(/[^a-z0-9_]/g, ""); // remove resto
   const known = new Map<string, FieldSchema>();
-  fields.forEach((f) => { known.set(f.key, f); known.set(norm(f.label), f); });
+  fields.forEach((f) => {
+    known.set(norm(f.key), f);
+    known.set(norm(f.label), f);
+  });
 
   return parsedRows.map((row) => {
     const rec: Record<string, any> = {};
