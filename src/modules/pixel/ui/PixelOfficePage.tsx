@@ -64,30 +64,8 @@ export default function PixelOfficePage() {
 
   const meetings = usePixelMeetings({ workspaceId: activeWorkspace?.id ?? null });
 
-  // Realtime: posições de outros usuários
-  useEffect(() => {
-    if (!activeWorkspace?.id) return;
-    const channel = supabase
-      .channel(`pixel-positions-${activeWorkspace.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "pixel_positions",
-          filter: `workspace_id=eq.${activeWorkspace.id}`,
-        },
-        (payload) => {
-          const row: any = payload.new ?? payload.old;
-          if (row?.user_id === user?.id) return;
-          refresh();
-        },
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [activeWorkspace?.id, user?.id, refresh]);
+  // Real-time synchronization is now handled inside usePixelWorkspaceData
+  // which manages character positions more efficiently via broadcasts and state updates.
 
   // Realtime: Bubbles de chat
   useEffect(() => {
