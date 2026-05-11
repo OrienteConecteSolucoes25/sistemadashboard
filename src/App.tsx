@@ -66,7 +66,7 @@ import {
   CredenciaisPage as CreaCredenciaisPage, AssistentePage as CreaAssistentePage, AuditoriaPage as CreaAuditoriaPage,
 } from "./modules/crea/ui/CreaPages";
 import CreaArtsPage from "./modules/crea/art/ArtObrasPage";
-import CreaRtsPage from "./modules/crea/rts/RtsPessoasPage";
+import CreaRtsPage from "./modules/crea/rts/RtsWithLoginsPage";
 import ComunicacaoLayout from "./modules/comunicacao/ui/ComunicacaoLayout";
 import ComunicacaoDashboard from "./modules/comunicacao/ui/ComunicacaoDashboard";
 import {

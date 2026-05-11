@@ -5128,6 +5128,57 @@ export type Database = {
         }
         Relationships: []
       }
+      crea_logins: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          observacoes: string | null
+          regiao: string
+          rt_nome: string
+          senha: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          regiao: string
+          rt_nome: string
+          senha?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          observacoes?: string | null
+          regiao?: string
+          rt_nome?: string
+          senha?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       crea_module_permissions: {
         Row: {
           can_approve_publication: boolean

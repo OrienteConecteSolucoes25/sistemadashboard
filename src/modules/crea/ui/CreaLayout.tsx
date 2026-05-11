@@ -17,7 +17,7 @@ const allTabs = [
   { to: "/app/crea/rts", label: "Responsáveis Técnicos", icon: Users, group: "Cadastros", moduleKey: "crea.rts" },
   { to: "/app/crea/empresas", label: "Empresas", icon: Building2, group: "Cadastros", moduleKey: "crea.empresas" },
   { to: "/app/crea/documentos", label: "Documentações", icon: FolderOpen, group: "Cadastros", moduleKey: "crea.documentos" },
-  { to: "/app/crea/credenciais", label: "Credenciais", icon: KeyRound, group: "Segurança", moduleKey: "crea.credenciais" },
+  
   { to: "/app/crea/normas", label: "Normas e Regras", icon: BookOpen, group: "Conhecimento", moduleKey: "crea.normas" },
   { to: "/app/crea/assistente", label: "Assistente IA", icon: Bot, group: "Conhecimento", moduleKey: "crea.assistente" },
   { to: "/app/crea/governanca", label: "Governança ART", icon: Gauge, group: "Governança", moduleKey: "crea.base" },
