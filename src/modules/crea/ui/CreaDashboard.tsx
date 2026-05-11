@@ -41,21 +41,28 @@ export default function CreaDashboard() {
   const [baixas, setBaixas] = useState<any[]>([]);
   const [cats, setCats] = useState<any[]>([]);
   const [prazos, setPrazos] = useState<any[]>([]);
+  const [govServ, setGovServ] = useState<any[]>([]);
+  const [govBloco, setGovBloco] = useState<any[]>([]);
+  const [govRel, setGovRel] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     (async () => {
       setLoading(true);
-      const [a, p, c, b, ct, pr] = await Promise.all([
+      const [a, p, c, b, ct, pr, gs, gb, gr] = await Promise.all([
         sb.from("crea_arts").select("id,uf,status,data_emissao,valor,created_at").eq("is_deleted", false).limit(2000),
         sb.from("crea_protocols").select("id,uf,status,data_abertura,prazo_esperado").eq("is_deleted", false).limit(2000),
         sb.from("crea_certificates").select("id,uf,status,validade,data_emissao").eq("is_deleted", false).limit(2000),
         sb.from("crea_deregistrations").select("id,uf,status,created_at").eq("is_deleted", false).limit(2000),
         sb.from("crea_cats").select("id,uf,status,data_emissao").eq("is_deleted", false).limit(2000),
         sb.from("crea_deadlines").select("id,uf,status,prazo").eq("is_deleted", false).limit(2000),
+        sb.from("crea_gov_servicos").select("id,analise,baixa,pagamento,cadastro").eq("is_deleted", false).limit(5000),
+        sb.from("crea_gov_art_bloco").select("id,valor_art,valor_pago,situacao,data_inicio").eq("is_deleted", false).limit(5000),
+        sb.from("crea_gov_relatorio_crea").select("id,valor_contrato,data_inicio,pagamento").eq("is_deleted", false).limit(5000),
       ]);
       setArts(a.data ?? []); setProts(p.data ?? []); setCerts(c.data ?? []);
       setBaixas(b.data ?? []); setCats(ct.data ?? []); setPrazos(pr.data ?? []);
+      setGovServ(gs.data ?? []); setGovBloco(gb.data ?? []); setGovRel(gr.data ?? []);
       setLoading(false);
     })();
   }, []);
