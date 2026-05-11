@@ -314,7 +314,8 @@ const CharacterPanel = ({
           </Button>
         </div>
       </div>
-    </>
+    </div>
+
   );
 };
 
