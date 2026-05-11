@@ -176,7 +176,7 @@ export default function PixelOfficePage() {
       {activeWorkspace && (
         <>
           <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-            <span>👤 {characters.length} personagens</span>
+            <span>👤 {characters.filter(c => c.is_online).length}/{characters.length} online</span>
             <span>🪑 {desks.length} mesas</span>
             <span>🚪 {rooms.length} salas</span>
             <span>🎥 {meetings.meetings.length} reuniões</span>
