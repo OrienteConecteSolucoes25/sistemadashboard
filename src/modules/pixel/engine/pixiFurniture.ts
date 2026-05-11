@@ -16,7 +16,7 @@ class PixiFurnitureManager {
     // Remove old
     for (const [id, sprite] of this.furnitureMap.entries()) {
       if (!activeIds.has(id)) {
-        container.removeChild(sprite);
+        if (sprite.parent) sprite.parent.removeChild(sprite);
         this.furnitureMap.delete(id);
       }
     }
@@ -27,7 +27,10 @@ class PixiFurnitureManager {
       if (!itemContainer) {
         itemContainer = this.createFurnitureSprite(item);
         this.furnitureMap.set(item.id, itemContainer);
-        container.addChild(itemContainer);
+        
+        // Decide layer
+        const layer = this.isTall(item.furniture_key) ? containerAbove : containerBelow;
+        layer.addChild(itemContainer);
       }
       this.updateFurnitureSprite(itemContainer, item);
     });
