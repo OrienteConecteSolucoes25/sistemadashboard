@@ -390,15 +390,29 @@ const CustomersTab = () => {
 export default function MarketplaceAdmin() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showVitrine, setShowVitrine] = useState(false);
-  const { can } = useAcl();
+  const { can, user: profile } = useAcl();
+  const [storeId, setStoreId] = useState<string | null>(null);
   
-  // Efeito para checar se a URL pede a vitrine
   useEffect(() => {
+    async function fetchStore() {
+      if (!profile?.company_id && profile?.role !== 'admin_ocs') return;
+      
+      let query = supabase.from('market_stores').select('id');
+      
+      if (profile.role !== 'admin_ocs') {
+        query = query.eq('organization_id', profile.company_id);
+      }
+      
+      const { data } = await query.maybeSingle();
+      if (data) setStoreId(data.id);
+    }
+    fetchStore();
+
     const params = new URLSearchParams(window.location.search);
     if (params.get('view') === 'vitrine') {
       setShowVitrine(true);
     }
-  }, []);
+  }, [profile]);
 
   if (showVitrine) {
     return (
