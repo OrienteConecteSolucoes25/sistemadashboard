@@ -23,24 +23,34 @@ import { toast } from "sonner";
 
 export const JarbasTrainingDashboard = () => {
   const [paths, setPaths] = useState<any[]>([]);
+  const [certs, setCerts] = useState<any[]>([]);
+  const [activity, setActivity] = useState<any[]>([]);
+  const [globalLevel, setGlobalLevel] = useState<string>("—");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchPaths();
+    void load();
   }, []);
 
-  const fetchPaths = async () => {
+  const load = async () => {
     try {
-      const { data, error } = await supabase
-        .from('training_paths')
-        .select(`
-          *,
-          training_modules(*)
-        `);
-      if (error) throw error;
-      setPaths(data || []);
+      const { data: u } = await supabase.auth.getUser();
+      const uid = u.user?.id;
+
+      const [pathsRes, certsRes, sessionsRes] = await Promise.all([
+        supabase.from("training_paths").select("*, training_modules(*)"),
+        uid ? supabase.from("operational_certifications").select("*, training_paths(title, category)").eq("user_id", uid).eq("status", "active") : Promise.resolve({ data: [] as any[] }),
+        uid ? supabase.from("training_sessions").select("id, status, score, started_at, completed_at, training_modules(title, path_id)").eq("user_id", uid).order("started_at", { ascending: false }).limit(10) : Promise.resolve({ data: [] as any[] }),
+      ]);
+
+      setPaths(pathsRes.data ?? []);
+      setCerts((certsRes as any).data ?? []);
+      setActivity((sessionsRes as any).data ?? []);
+
+      const cnt = ((certsRes as any).data ?? []).length;
+      setGlobalLevel(cnt >= 10 ? "Master" : cnt >= 5 ? "Senior" : cnt >= 1 ? "Pleno" : "Iniciante");
     } catch (error) {
-      console.error("Error fetching paths:", error);
+      console.error("Error fetching training data:", error);
       toast.error("Erro ao carregar trilhas de treinamento");
     } finally {
       setLoading(false);
@@ -67,11 +77,11 @@ export const JarbasTrainingDashboard = () => {
           <div className="flex gap-4">
             <div className="text-right px-4 border-r border-cyan-500/20">
               <p className="text-[10px] opacity-50 uppercase">Certificações</p>
-              <p className="text-2xl font-bold">12</p>
+              <p className="text-2xl font-bold">{certs.length}</p>
             </div>
             <div className="text-right px-4">
               <p className="text-[10px] opacity-50 uppercase">Nível Global</p>
-              <p className="text-2xl font-bold text-yellow-500">Master</p>
+              <p className="text-2xl font-bold text-yellow-500">{globalLevel}</p>
             </div>
           </div>
         </header>
@@ -113,16 +123,16 @@ export const JarbasTrainingDashboard = () => {
                       <CardContent>
                         <div className="space-y-4">
                           <div className="flex justify-between text-[10px] font-bold uppercase">
-                            <span>Progresso</span>
-                            <span>35%</span>
+                            <span>Módulos</span>
+                            <span>{path.training_modules?.length ?? 0}</span>
                           </div>
-                          <Progress value={35} className="h-1 bg-cyan-950" />
+                          <Progress value={path.training_modules?.length ? 0 : 0} className="h-1 bg-cyan-950" />
                           <div className="flex items-center justify-between pt-2">
                             <span className="text-[10px] opacity-60 flex items-center gap-1">
-                              <Timer className="w-3 h-3" /> 2h 30min
+                              <Timer className="w-3 h-3" /> {path.training_modules?.length ?? 0} módulo(s)
                             </span>
                             <Button size="sm" variant="outline" className="h-7 text-[10px] border-cyan-500/50 hover:bg-cyan-500/10 text-cyan-400 uppercase font-bold">
-                              Continuar <ChevronRight className="ml-1 w-3 h-3" />
+                              Abrir <ChevronRight className="ml-1 w-3 h-3" />
                             </Button>
                           </div>
                         </div>
@@ -163,14 +173,19 @@ export const JarbasTrainingDashboard = () => {
                 <Award className="w-4 h-4 text-yellow-500" /> Certificações Ativas
               </h2>
               <div className="space-y-3">
-                {[1, 2].map((i) => (
-                  <div key={i} className="p-3 bg-yellow-500/5 border border-yellow-500/20 rounded flex items-center gap-3">
+                {certs.length === 0 && (
+                  <p className="text-[10px] opacity-50 italic">{loading ? "Carregando…" : "Você ainda não possui certificações ativas."}</p>
+                )}
+                {certs.map((c: any) => (
+                  <div key={c.id} className="p-3 bg-yellow-500/5 border border-yellow-500/20 rounded flex items-center gap-3">
                     <Trophy className="w-8 h-8 text-yellow-500 shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-bold text-yellow-500 uppercase truncate">Eletricista de Redes Nível 1</p>
-                      <p className="text-[9px] opacity-50 uppercase">Validade: Mai 2027</p>
+                      <p className="text-[11px] font-bold text-yellow-500 uppercase truncate">{c.training_paths?.title ?? "Trilha"}</p>
+                      <p className="text-[9px] opacity-50 uppercase">
+                        {c.expiry_date ? `Validade: ${new Date(c.expiry_date).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })}` : "Sem expiração"}
+                      </p>
                     </div>
-                    <Badge variant="outline" className="text-[8px] border-yellow-500/30 text-yellow-500">VER</Badge>
+                    <Badge variant="outline" className="text-[8px] border-yellow-500/30 text-yellow-500">{c.certificate_code ?? "ATIVA"}</Badge>
                   </div>
                 ))}
               </div>
@@ -182,14 +197,22 @@ export const JarbasTrainingDashboard = () => {
               </h2>
               <ScrollArea className="h-[400px] pr-4">
                 <div className="space-y-4">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="relative pl-6 pb-4 border-l border-cyan-500/20">
-                      <div className="absolute left-[-5px] top-0 w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(0,242,255,0.8)]" />
-                      <div className="text-[10px] opacity-40 uppercase mb-1">Hoje às 14:30</div>
-                      <p className="text-[11px] font-bold uppercase mb-1">Concluiu Módulo: Segurança em Altura</p>
-                      <p className="text-[10px] text-cyan-400/60">Pontuação Final: 9.5/10</p>
-                    </div>
-                  ))}
+                  {activity.length === 0 && (
+                    <p className="text-[10px] opacity-50 italic">{loading ? "Carregando…" : "Nenhuma sessão de treinamento registrada."}</p>
+                  )}
+                  {activity.map((s: any) => {
+                    const dt = new Date(s.completed_at ?? s.started_at);
+                    return (
+                      <div key={s.id} className="relative pl-6 pb-4 border-l border-cyan-500/20">
+                        <div className="absolute left-[-5px] top-0 w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(0,242,255,0.8)]" />
+                        <div className="text-[10px] opacity-40 uppercase mb-1">{dt.toLocaleString("pt-BR")}</div>
+                        <p className="text-[11px] font-bold uppercase mb-1">
+                          {s.status === "completed" ? "Concluiu" : "Iniciou"} módulo: {s.training_modules?.title ?? "—"}
+                        </p>
+                        {s.score != null && <p className="text-[10px] text-cyan-400/60">Pontuação: {Number(s.score).toFixed(1)}/10</p>}
+                      </div>
+                    );
+                  })}
                 </div>
               </ScrollArea>
             </section>

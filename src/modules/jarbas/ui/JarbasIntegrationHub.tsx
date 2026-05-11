@@ -26,6 +26,7 @@ import { toast } from "sonner";
 
 export const JarbasIntegrationHub = () => {
   const [integrations, setIntegrations] = useState<any[]>([]);
+  const [activity, setActivity] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const integrationOptions = [
@@ -38,17 +39,17 @@ export const JarbasIntegrationHub = () => {
   ];
 
   useEffect(() => {
-    fetchIntegrations();
+    void load();
   }, []);
 
-  const fetchIntegrations = async () => {
+  const load = async () => {
     try {
-      const { data, error } = await supabase
-        .from('jarbas_integrations')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      setIntegrations(data || []);
+      const [intRes, logRes] = await Promise.all([
+        supabase.from('jarbas_integrations').select('*').order('created_at', { ascending: false }),
+        supabase.from('jarbas_external_logs').select('id, action_type, status, created_at, payload, integration_id').order('created_at', { ascending: false }).limit(20),
+      ]);
+      setIntegrations(intRes.data ?? []);
+      setActivity(logRes.data ?? []);
     } catch (error) {
       console.error("Error fetching integrations:", error);
     } finally {
@@ -144,17 +145,20 @@ export const JarbasIntegrationHub = () => {
               <CardContent>
                 <ScrollArea className="h-[300px] pr-4">
                   <div className="space-y-3">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <div key={i} className="p-3 border border-white/5 bg-white/5 rounded flex items-center justify-between group hover:bg-white/10 transition-colors">
+                    {activity.length === 0 && (
+                      <p className="text-[10px] opacity-50 italic">{loading ? "Carregando…" : "Nenhuma atividade externa em jarbas_external_logs."}</p>
+                    )}
+                    {activity.map((a: any) => (
+                      <div key={a.id} className="p-3 border border-white/5 bg-white/5 rounded flex items-center justify-between group hover:bg-white/10 transition-colors">
                         <div className="flex items-center gap-3">
-                          <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />
+                          <div className={`w-1.5 h-1.5 rounded-full ${a.status === 'success' ? 'bg-green-500' : a.status === 'error' ? 'bg-red-500' : 'bg-yellow-500'} animate-pulse`} />
                           <div>
-                            <p className="text-[10px] font-bold uppercase">Envio de Alerta via WhatsApp</p>
-                            <p className="text-[8px] opacity-40">Destinatário: Equipe Engenharia (+55 11...)</p>
+                            <p className="text-[10px] font-bold uppercase">{a.action_type}</p>
+                            <p className="text-[8px] opacity-40">Status: {a.status ?? '—'}</p>
                           </div>
                         </div>
                         <div className="flex items-center gap-4">
-                          <span className="text-[8px] opacity-40">Há 5 min</span>
+                          <span className="text-[8px] opacity-40">{new Date(a.created_at).toLocaleString("pt-BR")}</span>
                           <ExternalLink className="w-3 h-3 opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" />
                         </div>
                       </div>

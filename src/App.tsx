@@ -88,13 +88,9 @@ import ChatAgenteTIPage from "./modules/ti/ui/ChatAgenteTIPage";
 import FinanceiroDashboard from "./modules/financeiro/ui/FinanceiroDashboard";
 import FinancialAuditPage from "./modules/financeiro/ui/FinancialAuditPage";
 import MarketplaceAdmin from "./modules/marketplace/ui/MarketplaceAdmin";
-import { JarbasCentralDashboard } from "./modules/jarbas/ui/JarbasCentralDashboard";
+import { JarbasHubPage } from "./modules/jarbas/ui/JarbasHubPage";
 import { JarbasKnowledgePage } from "./modules/jarbas/ui/JarbasKnowledgePage";
-import { JarbasTrainingDashboard } from "./modules/jarbas/ui/JarbasTrainingDashboard";
-import { JarbasAnalyticsDashboard } from "./modules/jarbas/ui/JarbasAnalyticsDashboard";
 import { JarbasVisionDashboard } from "./modules/jarbas/ui/JarbasVisionDashboard";
-import { JarbasCommandCenter } from "./modules/jarbas/ui/JarbasCommandCenter";
-import { JarbasIntegrationHub } from "./modules/jarbas/ui/JarbasIntegrationHub";
 import { ComplianceGovernanceDashboard } from "./modules/governance/ui/ComplianceGovernanceDashboard";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -232,13 +228,13 @@ const App = () => (
               </Route>
               <Route path="marketplace" element={<MarketplaceAdmin />} />
               <Route path="adm" element={<Adm />} />
-              <Route path="jarbas" element={<JarbasCentralDashboard />} />
+              <Route path="jarbas" element={<JarbasHubPage />} />
               <Route path="jarbas/knowledge" element={<JarbasKnowledgePage />} />
-              <Route path="jarbas/training" element={<JarbasTrainingDashboard />} />
-              <Route path="jarbas/analytics" element={<JarbasAnalyticsDashboard />} />
               <Route path="jarbas/vision" element={<JarbasVisionDashboard />} />
-              <Route path="jarbas/command" element={<JarbasCommandCenter />} />
-              <Route path="jarbas/integrations" element={<JarbasIntegrationHub />} />
+              <Route path="jarbas/training" element={<Navigate to="/app/jarbas?tab=training" replace />} />
+              <Route path="jarbas/analytics" element={<Navigate to="/app/jarbas?tab=analytics" replace />} />
+              <Route path="jarbas/command" element={<Navigate to="/app/jarbas?tab=command" replace />} />
+              <Route path="jarbas/integrations" element={<Navigate to="/app/jarbas?tab=api" replace />} />
               <Route path="compliance" element={<ComplianceGovernanceDashboard />} />
               <Route path="ocs-guard" element={<OcsGuardPage />} />
               <Route path="ti">

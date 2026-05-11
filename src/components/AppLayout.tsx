@@ -89,13 +89,8 @@ const AppLayout = () => {
       {/* Módulo Projetos removido por não ter ligação funcional com o Soluções-Verso */}
       <NavItem to="/app/visao-geral" icon={LayoutDashboard} label="Visão Geral" />
       <NavItem to="/app/pixel-office" icon={Gamepad2} label="Soluções-Verso" />
-      <NavItem to="/app/jarbas" icon={Cpu} label="Jarbas AI Core" />
+      <NavItem to="/app/jarbas" icon={Cpu} label="Jarbas" />
       <NavItem to="/app/ti" icon={Monitor} label="TI & Suporte" />
-      <NavItem to="/app/jarbas/training" icon={GraduationCap} label="Jarbas Training" />
-      <NavItem to="/app/jarbas/analytics" icon={BarChart3} label="Jarbas Analytics" />
-      <NavItem to="/app/jarbas/vision" icon={Eye} label="Jarbas Vision" />
-      <NavItem to="/app/jarbas/command" icon={Terminal} label="Jarbas Command" />
-      <NavItem to="/app/jarbas/integrations" icon={Share2} label="Jarbas API Brain" />
       <NavItem to="/app/compliance" icon={ShieldCheck} label="Compliance" />
       {engAccess && <NavItem to="/app/engenharia" icon={HardHat} label="Engenharia" />}
       {jurAccess && <NavItem to="/app/juridico" icon={Scale} label="Jurídico" />}

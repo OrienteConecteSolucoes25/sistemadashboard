@@ -26,17 +26,50 @@ import { supabase } from "@/integrations/supabase/client";
 export const JarbasCommandCenter = () => {
   const { setAmbientState, triggerReaction } = useJarbasAmbient();
   const [activeSite, setActiveSite] = useState<any>(null);
-  
-  const sites = [
-    { id: 1, name: "Torre Norte - Residencial", progress: 68, status: "critical", lat: "23.5505° S", lng: "46.6333° W", teams: 12, risk: "High" },
-    { id: 2, name: "Condomínio Horizonte", progress: 92, status: "stable", lat: "23.5515° S", lng: "46.6343° W", teams: 8, risk: "Low" },
-    { id: 3, name: "Complexo Empresarial OCS", progress: 45, status: "warning", lat: "23.5525° S", lng: "46.6353° W", teams: 25, risk: "Medium" },
-  ];
+  const [sites, setSites] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
+  const [kpis, setKpis] = useState<{ label: string; value: number }[]>([
+    { label: "Produtividade Equipes", value: 0 },
+    { label: "Conformidade Segurança", value: 0 },
+    { label: "Utilização Recursos", value: 0 },
+  ]);
 
   useEffect(() => {
-    // Initial Narration
+    void (async () => {
+      const [sitesRes, logsRes, prodRes, safetyRes] = await Promise.all([
+        supabase.from("eng_sites").select("id, codigo, nome, cidade, uf, status, latitude, longitude").eq("is_deleted", false).limit(20),
+        supabase.from("jarbas_logs").select("id, command, response, created_at").order("created_at", { ascending: false }).limit(10),
+        supabase.from("jarbas_productivity_logs").select("on_time_completion_rate").order("recorded_at", { ascending: false }).limit(50),
+        supabase.from("jarbas_safety_logs").select("severity").order("created_at", { ascending: false }).limit(50),
+      ]);
+      const mapped = (sitesRes.data ?? []).map((s: any, i: number) => ({
+        id: s.id,
+        name: s.nome,
+        progress: 0,
+        status: (s.status ?? "stable").toLowerCase().includes("crit") ? "critical" : (s.status ?? "stable").toLowerCase().includes("aten") ? "warning" : "stable",
+        lat: s.latitude ? `${Number(s.latitude).toFixed(4)}` : "—",
+        lng: s.longitude ? `${Number(s.longitude).toFixed(4)}` : "—",
+        teams: 0,
+        risk: (s.status ?? "Stable"),
+        codigo: s.codigo,
+        cidade: s.cidade,
+        uf: s.uf,
+        idx: i,
+      }));
+      setSites(mapped);
+      setEvents(logsRes.data ?? []);
+      const avg = (arr: number[]) => (arr.length ? Math.round((arr.reduce((a, b) => a + b, 0) / arr.length) * 100) : 0);
+      const prod = avg(((prodRes.data ?? []) as any[]).map((r) => Number(r.on_time_completion_rate ?? 0)));
+      const safe = (safetyRes.data ?? []).length === 0 ? 100 : Math.max(0, 100 - ((safetyRes.data as any[]).filter((r) => r.severity === "critical").length * 10));
+      setKpis([
+        { label: "Produtividade Equipes", value: prod },
+        { label: "Conformidade Segurança", value: safe },
+        { label: "Utilização Recursos", value: Math.min(100, Math.round(((sitesRes.data?.length ?? 0) / 20) * 100)) },
+      ]);
+    })();
+
     const timer = setTimeout(() => {
-      triggerReaction('voice', { text: "Command Center Online. Monitorando 3 sites ativos." });
+      triggerReaction('voice', { text: "Command Center Online." });
     }, 1500);
     return () => clearTimeout(timer);
   }, []);
@@ -96,11 +129,7 @@ export const JarbasCommandCenter = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[
-                  { label: "Produtividade Equipes", value: 84, trend: "up" },
-                  { label: "Conformidade Segurança", value: 98, trend: "stable" },
-                  { label: "Utilização Recursos", value: 72, trend: "down" },
-                ].map((item, i) => (
+                {kpis.map((item, i) => (
                   <div key={i} className="space-y-1">
                     <div className="flex justify-between text-[9px] uppercase">
                       <span>{item.label}</span>
@@ -121,9 +150,13 @@ export const JarbasCommandCenter = () => {
               <CardContent>
                 <ScrollArea className="h-[320px] pr-4">
                   <div className="space-y-3">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <div key={i} className="text-[9px] p-2 border border-white/5 bg-white/5 rounded">
-                        <span className="text-cyan-500 font-bold">[14:2{i}]</span> SISTEMA: Execução validada no Site {i} via Vision AI.
+                    {events.length === 0 && (
+                      <p className="text-[9px] opacity-50 italic">Sem eventos registrados em jarbas_logs.</p>
+                    )}
+                    {events.map((ev: any) => (
+                      <div key={ev.id} className="text-[9px] p-2 border border-white/5 bg-white/5 rounded">
+                        <span className="text-cyan-500 font-bold">[{new Date(ev.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}]</span>{" "}
+                        {ev.command ?? ev.response ?? "—"}
                       </div>
                     ))}
                   </div>
@@ -141,11 +174,12 @@ export const JarbasCommandCenter = () => {
               </div>
               
               <div className="absolute inset-0 bg-[#0a0a0f] flex items-center justify-center">
-                {/* Mock Map UI */}
                 <div className="relative w-full h-full p-8">
-                  <div className="absolute inset-0 bg-[url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/-46.6333,-23.5505,12,0/800x600?access_token=mock')] bg-cover opacity-20" />
-                  
-                  {sites.map((site) => (
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,242,255,0.05),transparent_70%)]" />
+                  {sites.length === 0 && (
+                    <p className="absolute inset-0 flex items-center justify-center text-[10px] opacity-50 italic">Sem sites cadastrados em eng_sites.</p>
+                  )}
+                  {sites.map((site: any) => (
                     <motion.div
                       key={site.id}
                       whileHover={{ scale: 1.2 }}
@@ -154,9 +188,9 @@ export const JarbasCommandCenter = () => {
                         site.status === 'critical' ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' :
                         site.status === 'warning' ? 'border-yellow-500' : 'border-green-500'
                       }`}
-                      style={{ 
-                        left: `${20 + (site.id * 20)}%`, 
-                        top: `${30 + (site.id * 15)}%` 
+                      style={{
+                        left: `${15 + ((site.idx * 17) % 70)}%`,
+                        top: `${20 + ((site.idx * 23) % 60)}%`
                       }}
                     >
                       <Construction className={`w-4 h-4 ${site.status === 'critical' ? 'text-red-500' : 'text-cyan-400'}`} />
