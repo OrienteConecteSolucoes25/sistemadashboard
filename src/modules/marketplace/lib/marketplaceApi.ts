@@ -94,13 +94,13 @@ export async function getMarketplaceCustomers() {
     .order('created_at', { ascending: false });
   
   if (error) throw error;
-  return data as MarketplaceCustomer[];
+  return data as unknown as MarketplaceCustomer[];
 }
 
 export async function createMarketplaceProduct(product: Partial<MarketplaceProduct>) {
   const { data, error } = await supabase
     .from('market_products')
-    .insert([product])
+    .insert([product as any])
     .select()
     .single();
   
@@ -111,7 +111,7 @@ export async function createMarketplaceProduct(product: Partial<MarketplaceProdu
 export async function updateMarketplaceProduct(id: string, updates: Partial<MarketplaceProduct>) {
   const { data, error } = await supabase
     .from('market_products')
-    .update(updates)
+    .update(updates as any)
     .eq('id', id)
     .select()
     .single();
