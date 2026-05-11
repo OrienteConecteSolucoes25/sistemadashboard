@@ -81,21 +81,57 @@ export function useCharacterMovement(opts: {
   const moveTo = useCallback(
     (userId: string, rawX: number, rawY: number) => {
       if (!canMove(userId)) return false;
-      const x = clampX(rawX);
-      const y = clampY(rawY);
+      const targetX = clampX(rawX);
+      const targetY = clampY(rawY);
 
-      setOverrides((prev) => ({ ...prev, [userId]: { x, y } }));
+      // Limpa movimento anterior se houver
+      if (movementIntervals.current[userId]) {
+        clearInterval(movementIntervals.current[userId]);
+      }
 
-      // debounce de 350ms para agrupar cliques rápidos
-      const existing = persistTimers.current[userId];
-      if (existing) clearTimeout(existing);
-      persistTimers.current[userId] = setTimeout(() => {
-        persist(userId, x, y);
-        delete persistTimers.current[userId];
-      }, 350);
+      // Posição atual (do override ou do fallback se for a primeira vez)
+      // Nota: o fallback real deve vir dos characters carregados, mas aqui o hook é agnóstico.
+      // Assumimos que o chamador sabe a posição inicial ou que ela está no overrides.
+      const current = overrides[userId] || { x: 4, y: 4 }; // Fallback seguro
+      
+      const path = movementEngine.calculatePath(current, { x: targetX, y: targetY });
+      if (path.length === 0) return false;
+
+      let step = 0;
+      movementIntervals.current[userId] = setInterval(() => {
+        if (step >= path.length) {
+          clearInterval(movementIntervals.current[userId]);
+          delete movementIntervals.current[userId];
+          
+          // Persiste posição final no banco (com debounce para não floodar)
+          const lastPoint = path[path.length - 1];
+          const existing = persistTimers.current[userId];
+          if (existing) clearTimeout(existing);
+          persistTimers.current[userId] = setTimeout(() => {
+            persist(userId, lastPoint.x, lastPoint.y);
+            delete persistTimers.current[userId];
+          }, 500);
+          return;
+        }
+
+        const nextPoint = path[step];
+        setOverrides((prev) => ({ ...prev, [userId]: nextPoint }));
+        
+        // Broadcast para outros usuários
+        if (workspaceId) {
+          supabase.channel(`workspace-${workspaceId}`).send({
+            type: "broadcast",
+            event: "player-move",
+            payload: { userId, x: nextPoint.x, y: nextPoint.y },
+          });
+        }
+
+        step++;
+      }, 200); // 200ms por tile (velocidade do personagem)
+
       return true;
     },
-    [canMove, persist],
+    [canMove, persist, overrides, workspaceId],
   );
 
   const getPosition = useCallback(
