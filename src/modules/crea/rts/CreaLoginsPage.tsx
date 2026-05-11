@@ -11,7 +11,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import { Plus, Search, Pencil, Trash2, Eye, EyeOff, Download, Upload, FileSpreadsheet, FileText, KeyRound } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Eye, EyeOff, Download, FileSpreadsheet, FileText, KeyRound } from "lucide-react";
 import { toast } from "sonner";
 import { useGovCompany } from "../governanca/lib/useGovCompany";
 import { exportData, downloadTemplate as dlTemplate, parseImportFile } from "@/lib/dataIO";
@@ -174,11 +174,7 @@ export default function CreaLoginsPage() {
               </DropdownMenuContent>
             </DropdownMenu>
 
-            <Button variant="outline" size="sm" onClick={() => fileRef.current?.click()}>
-              <Upload className="w-4 h-4 mr-1" /> Importar
-            </Button>
-            <input ref={fileRef} type="file" className="hidden" accept=".xlsx,.xls,.csv"
-              onChange={e => onPickFile(e.target.files?.[0] ?? null)} />
+            <span className="text-xs text-muted-foreground hidden md:inline">Use o botão Importar na aba "Responsáveis Técnicos" para criar RTs e logins juntos.</span>
 
             <Button size="sm" onClick={openNew}><Plus className="w-4 h-4 mr-1" /> Novo login</Button>
           </div>

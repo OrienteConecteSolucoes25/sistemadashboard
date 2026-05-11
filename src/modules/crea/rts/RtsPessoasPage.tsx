@@ -78,7 +78,10 @@ export default function RtsPessoasPage() {
     try {
       const { records, unmatched } = await parseRtsFile(f);
       if (records.length === 0) { toast.warning("Nenhuma linha válida na planilha"); return; }
-      const payload = records.map((r) => ({
+
+      // RTs (somente linhas com nome)
+      const rtRecords = records.filter((r) => (r.nome ?? "").length > 0);
+      const payload = rtRecords.map((r) => ({
         nome: r.nome ?? "",
         cpf: r.cpf ?? "",
         uf: r.uf ?? "",
@@ -96,8 +99,27 @@ export default function RtsPessoasPage() {
         inclusao_ativa: r.inclusao_ativa !== false,
         company_id: companyId,
       }));
-      const n = await bulkInsertRts(payload);
-      toast.success(`${n} RT(s) importado(s)${unmatched.length ? ` · ${unmatched.length} colunas ignoradas` : ""}. Edite para completar dados faltantes.`);
+      const nRt = payload.length ? await bulkInsertRts(payload) : 0;
+
+      // Logins (linhas que tenham região + (senha ou obs))
+      const loginPayload = records
+        .filter((r) => r._login_regiao && (r._login_senha || r._login_obs || r.nome))
+        .map((r) => ({
+          company_id: companyId,
+          regiao: r._login_regiao!.trim(),
+          rt_nome: (r.nome ?? "").trim() || "—",
+          senha: r._login_senha ?? null,
+          observacoes: r._login_obs ?? null,
+        }));
+      let nLogin = 0;
+      if (loginPayload.length) {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { error, data } = await (supabase as any).from("crea_logins").insert(loginPayload).select("id");
+        if (error) toast.error("Logins: " + error.message);
+        else nLogin = data?.length ?? loginPayload.length;
+      }
+
+      toast.success(`${nRt} RT(s) e ${nLogin} login(s) importado(s)${unmatched.length ? ` · ${unmatched.length} colunas ignoradas` : ""}. Edite para completar dados faltantes.`);
       reload();
     } catch (e: any) {
       toast.error("Falha ao importar: " + (e?.message ?? e));
