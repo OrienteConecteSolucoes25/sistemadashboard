@@ -26,17 +26,50 @@ import { supabase } from "@/integrations/supabase/client";
 export const JarbasCommandCenter = () => {
   const { setAmbientState, triggerReaction } = useJarbasAmbient();
   const [activeSite, setActiveSite] = useState<any>(null);
-  
-  const sites = [
-    { id: 1, name: "Torre Norte - Residencial", progress: 68, status: "critical", lat: "23.5505° S", lng: "46.6333° W", teams: 12, risk: "High" },
-    { id: 2, name: "Condomínio Horizonte", progress: 92, status: "stable", lat: "23.5515° S", lng: "46.6343° W", teams: 8, risk: "Low" },
-    { id: 3, name: "Complexo Empresarial OCS", progress: 45, status: "warning", lat: "23.5525° S", lng: "46.6353° W", teams: 25, risk: "Medium" },
-  ];
+  const [sites, setSites] = useState<any[]>([]);
+  const [events, setEvents] = useState<any[]>([]);
+  const [kpis, setKpis] = useState<{ label: string; value: number }[]>([
+    { label: "Produtividade Equipes", value: 0 },
+    { label: "Conformidade Segurança", value: 0 },
+    { label: "Utilização Recursos", value: 0 },
+  ]);
 
   useEffect(() => {
-    // Initial Narration
+    void (async () => {
+      const [sitesRes, logsRes, prodRes, safetyRes] = await Promise.all([
+        supabase.from("eng_sites").select("id, codigo, nome, cidade, uf, status, latitude, longitude").eq("is_deleted", false).limit(20),
+        supabase.from("jarbas_logs").select("id, command, response, created_at").order("created_at", { ascending: false }).limit(10),
+        supabase.from("jarbas_productivity_logs").select("on_time_completion_rate").order("recorded_at", { ascending: false }).limit(50),
+        supabase.from("jarbas_safety_logs").select("severity").order("created_at", { ascending: false }).limit(50),
+      ]);
+      const mapped = (sitesRes.data ?? []).map((s: any, i: number) => ({
+        id: s.id,
+        name: s.nome,
+        progress: 0,
+        status: (s.status ?? "stable").toLowerCase().includes("crit") ? "critical" : (s.status ?? "stable").toLowerCase().includes("aten") ? "warning" : "stable",
+        lat: s.latitude ? `${Number(s.latitude).toFixed(4)}` : "—",
+        lng: s.longitude ? `${Number(s.longitude).toFixed(4)}` : "—",
+        teams: 0,
+        risk: (s.status ?? "Stable"),
+        codigo: s.codigo,
+        cidade: s.cidade,
+        uf: s.uf,
+        idx: i,
+      }));
+      setSites(mapped);
+      setEvents(logsRes.data ?? []);
+      const avg = (arr: number[]) => (arr.length ? Math.round((arr.reduce((a, b) => a + b, 0) / arr.length) * 100) : 0);
+      const prod = avg(((prodRes.data ?? []) as any[]).map((r) => Number(r.on_time_completion_rate ?? 0)));
+      const safe = (safetyRes.data ?? []).length === 0 ? 100 : Math.max(0, 100 - ((safetyRes.data as any[]).filter((r) => r.severity === "critical").length * 10));
+      setKpis([
+        { label: "Produtividade Equipes", value: prod },
+        { label: "Conformidade Segurança", value: safe },
+        { label: "Utilização Recursos", value: Math.min(100, Math.round(((sitesRes.data?.length ?? 0) / 20) * 100)) },
+      ]);
+    })();
+
     const timer = setTimeout(() => {
-      triggerReaction('voice', { text: "Command Center Online. Monitorando 3 sites ativos." });
+      triggerReaction('voice', { text: "Command Center Online." });
     }, 1500);
     return () => clearTimeout(timer);
   }, []);
