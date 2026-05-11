@@ -73,6 +73,12 @@ export function GovGenericTab({ table, title, description, fields, labelKey = "n
 
   const sel = useBulkSelection(filtered);
 
+  useEffect(() => { setPage(1); }, [search, pageSize, companyId, table]);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * pageSize;
+  const paged = useMemo(() => filtered.slice(pageStart, pageStart + pageSize), [filtered, pageStart, pageSize]);
+
   const startNew = () => {
     const empty: any = {};
     fields.forEach(f => { empty[f.key] = null; });
