@@ -153,11 +153,12 @@ const CharacterPanel = ({
     });
 
   return (
-    <>
-      <SheetHeader className="text-left">
-        <SheetTitle>{data.display_name ?? "Sem nome"}</SheetTitle>
-        <SheetDescription>{data.job_title || "—"}</SheetDescription>
-      </SheetHeader>
+    <div className="space-y-6">
+      <div className="text-left">
+        <h2 className="text-lg font-bold">{data.display_name ?? "Sem nome"}</h2>
+        <p className="text-sm text-muted-foreground">{data.job_title || "—"}</p>
+      </div>
+
 
       {/* Avatar grande + status */}
       <div className="mt-6 flex flex-col items-center gap-3">
