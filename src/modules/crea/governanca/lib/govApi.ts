@@ -30,6 +30,12 @@ export type GovArt = {
   status_financeiro: string | null;
   boleto_numero: string | null;
   centro_custo: string | null;
+  participacao_tecnica?: string | null;
+  forma_registro?: string | null;
+  atividades_texto?: string | null;
+  codigo_tos?: string | null;
+  quantidade?: number | null;
+  unidade_medida?: string | null;
 };
 
 function applyFilters<T extends ReturnType<typeof supabase.from>>(q: any, f: GovFilters) {
