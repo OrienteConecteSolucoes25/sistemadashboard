@@ -197,7 +197,9 @@ export default function RtsPessoasPage() {
                   </TableHead>
                   <TableHead>Nome</TableHead>
                   <TableHead>CPF</TableHead>
+                  <TableHead>UF</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Inclusão</TableHead>
                   <TableHead>Início</TableHead>
                   <TableHead>Término</TableHead>
                   <TableHead>Contrato</TableHead>
@@ -205,6 +207,7 @@ export default function RtsPessoasPage() {
                   <TableHead>RNP</TableHead>
                   <TableHead>Registro</TableHead>
                   <TableHead>Anuidade</TableHead>
+                  <TableHead>Ano</TableHead>
                   <TableHead>Observação</TableHead>
                   <TableHead className="w-16 text-right">Ações</TableHead>
                 </TableRow>
