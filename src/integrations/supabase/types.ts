@@ -480,6 +480,7 @@ export type Database = {
       }
       comm_brand_kits: {
         Row: {
+          anexos: Json | null
           company_id: string
           cores_principais: Json | null
           cores_secundarias: Json | null
@@ -518,6 +519,7 @@ export type Database = {
           website: string | null
         }
         Insert: {
+          anexos?: Json | null
           company_id: string
           cores_principais?: Json | null
           cores_secundarias?: Json | null
@@ -556,6 +558,7 @@ export type Database = {
           website?: string | null
         }
         Update: {
+          anexos?: Json | null
           company_id?: string
           cores_principais?: Json | null
           cores_secundarias?: Json | null
