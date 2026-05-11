@@ -1,97 +1,107 @@
+# Refactor Governança ART · Dashboard CREA · Assistente IA
 
-# Recriação da aba ART — Módulo CREA & ART
+Mudança grande, dividida em **5 levas** para não atrapalhar quem está usando o sistema agora. Só a aba Governança ART antiga será apagada mas antes transferi as sub-abas solicitadas para a aba Assistente IA — o resto preserva dados existentes.
 
-## Objetivo
-Apagar o modelo atual da aba ART e recriá-la espelhando a planilha enviada (`ART.xlsx`, aba "ART"), com formulário simples, lista em colunas e painel lateral só para datas do ciclo da ART.
+## Leva 1 — Correções rápidas + nova estrutura de tabs
 
-## Modelo de dados (nova tabela `crea_art_obras`)
+- Corrigir aba **ARTs** e aba **Empresas** (não estão renderizando) — investigar `CreaPages.tsx` / `CreaCrudPage` / `EmpresasPage` sem apagar dados colocados pelos usuarios.
+- **Mover** "Classificação IA" e "Relatórios Gerenciais" da aba Governança ART para dentro da aba **Assistente IA** como sub-abas.
+- **Apagar** as sub-abas que sobraram antigas de Governança ART **exceto Visão Executiva**.
+- Nada destrutivo no banco — só remoção de UI.
 
-Campos da OBRA (linha da lista):
+## Leva 2 — 3 novas tabelas + sub-abas com importação
 
-| Campo | Origem planilha | Obrigatório | Tipo |
-|---|---|---|---|
-| `obra` | SITE | sim | text |
-| `tipo_obra` | CIVIL/ELETRICA | sim | enum (`civil`, `eletrica`) |
-| `cidade` | Cidade | sim | text |
-| `uf` | UF | sim | text(2) |
-| `escopo` | Escopo | sim | text |
-| `cliente` | Cliente | sim | text |
-| `coordenador` | Coordenador | sim | text |
-| `status` | STATUS | sim | enum (`pendente`, `em_andamento`, `concluida`, `cancelada`) |
-| `observacao` | Observações | sim | text |
-| `responsavel` | Responsável | **não** | text |
+Criar 3 tabelas novas no banco (sem mexer nas antigas):
 
-Campos do PAINEL LATERAL (datas — todos opcionais e editáveis):
+`**crea_gov_servicos**` (modelo Relatório Gerencial de Serviços)
 
-| Campo | Origem planilha |
-|---|---|
-| `data_criacao_art` | Data de criação de ART |
-| `data_validacao` | VALIDADA |
-| `data_envio_pagamento` | ENVIADA P/PAGAMENTO |
-| `data_pasta` | PASTA |
+- colunas de `relatorio_servicos_crea.xlsx`: Numero, Detalhe, analise, baixa, boleto, pagamento, cadastro, empresa, contratante, endereço, observação
 
-Padrões: `id`, `company_id`, `created_at`, `updated_at`, `is_deleted`, `deleted_at`, `deleted_by`, `deleted_reason` (mantém padrão soft-delete do módulo).
+`**crea_gov_art_bloco**` (modelo ART por Bloco)
 
-RLS: mesmas regras de `crea_arts` (escrita via `crea_can_edit(auth.uid())`, leitura por empresa).
+- ~50 colunas de `arts_extraidas.xlsx`: Número da ART, Valor, Pago, Responsável técnico, Contratante, CPF/CNPJ, endereços de contrato e obra, datas, atividades, níveis, quantidades, etc.
 
-## UI
+`**crea_gov_relatorio_crea**` (modelo Relatórios CREA)
 
-### 1. Lista (substitui a aba ART atual)
-- Colunas: Obra · Tipo · Cidade · UF · Escopo · Cliente · Coordenador · Status · Responsável · Observação.
-- Cabeçalho: `DataActionsToolbar` (Exportar xlsx/csv/docx + Modelo + Importar) — colunas do modelo = exatamente os 10 campos acima.
-- Seleção múltipla + `BulkActionsBar` + `DeleteWithPasswordModal` (padrão do projeto).
-- Clicar na célula "Obra" abre o painel lateral.
+-  colunas de `relatorio_crea_ba_art.xlsx:`ART, Tipo, Participação Técnica, Forma de Registro, Pagamento, Taxa Paga, Cadastro, Observação, Contratante, CNPJ contratante, proprietário, CNPJ proprietário, numero, valor do contrato, data início, data fim, endereços, atividades, nível, atividade subordinada, atividade/serviço, quantidade, unidade de medida
 
-### 2. Formulário "Nova obra" (Dialog)
-- Campos na ordem pedida: Obra, Cidade, UF (select 27 UFs), Tipo (Civil/Elétrica), Escopo, Cliente, Coordenador, Status (select), Observação, Responsável (opcional).
-- Validação: todos obrigatórios exceto Responsável.
+Cada uma com `company_id`, RLS por `eng_can_edit`/multitenant, soft-delete via padrão padrão `eng_soft_delete`, auditoria.
 
-### 3. Painel lateral (Sheet) ao clicar numa obra
-- Cabeçalho com nome da obra + cidade/UF.
-- Seção "Datas do ciclo" com 4 date-pickers (criação, validação, envio p/ pagamento, pasta) — cada um com botão "Limpar".
-- Botões: Salvar / Excluir obra (com `DeleteWithPasswordModal`).
+Sub-abas novas em Governança ART (em ordem):
 
-### 4. Importação / Exportação
-- Importação aceita exatamente os cabeçalhos da planilha (`SITE, CIVIL/ELETRICA, Cidade, UF, Escopo, Cliente, Responsável, STATUS, Data de criação de ART, VALIDADA, ENVIADA P/PAGAMENTO, PASTA, Coordenador, Observações`) — mapeia para os campos novos.
-- Datas vão direto para os campos do painel lateral.
-- Exportação reproduz o mesmo layout (mesma ordem de colunas) para reimportar sem fricção.
+1. **Visão Executiva** (existente — recalcula com base nas 3 novas)
+2. **Relatório Gerencial de Serviços** — tabela + DataActionsToolbar (importar/exportar/modelo) + bulk select
+3. **ART por Bloco** — idem
+4. **Relatórios CREA** — idem
 
-## Limpeza do modelo antigo
-- Remover/desativar componentes específicos da aba ART antiga: `ArtDetailSheet.tsx` (será substituído por novo `ObraArtSheet.tsx`), entrada de ARTs em `creaCrudConfigs.ts`/`CreaPages.tsx`, e qualquer rota/aba que apontava para `crea_arts` lista bruta.
-- A tabela `crea_arts` **permanece no banco** (intocada) — apenas a UI é trocada. A aba Governança ART continua independente.
+## Leva 3 — Novos filtros + Visão Executiva cruzada
 
-## Arquivos a criar / mudar
+Substituir `GovArtFilterBar` pelos novos filtros (busca instantânea conforme digita):
 
-```text
-NOVOS
-  src/modules/crea/art/
-    ArtObrasPage.tsx              # lista + toolbar + dialog novo + abre sheet
-    ObraArtSheet.tsx              # painel lateral com as 4 datas
-    NovaObraDialog.tsx            # form de criação/edição
-    lib/artObrasApi.ts            # CRUD + import/export mapper
-    lib/artObrasTypes.ts          # tipos + enums + headers da planilha
+- UF · ANO · MÊS · CIDADE · NOME DA OBRA · NOME DO RESPONSÁVEL TÉCNICO · Nº ART · DATA DE · DATA ATÉ
 
-ALTERAR
-  src/modules/crea/ui/CreaPages.tsx        # rota da aba ART aponta p/ ArtObrasPage
-  src/modules/crea/ui/CreaLayout.tsx       # rótulo "ART" (mantém)
-  src/modules/crea/ui/crud/creaCrudConfigs.ts  # remove config da ART antiga
-  mem://features/crea-module.md            # registrar nova tabela e fluxo
+Refazer `VisaoExecutivaTab` cruzando dados das 3 tabelas, sub-abas novas para mostrar:
 
-REMOVER (ou marcar deprecated)
-  src/modules/crea/ui/ArtDetailSheet.tsx   # substituído
-```
+- Quantidade de ARTs por UF
+- Quantidade de clientes (contratantes únicos)
+- Quantidade de ARTs por RT
+- Valor total gasto em ARTs
+- Valor total por atividade técnica
+- Valor total por ano
+- Valor total por UF
+- RTs por UF
+- Total de contratantes
+- Total de cidades
+- Custo por contratante (top N)
+- ARTs por RT (top N)  
+  
+Lembrando que o id ou numero da ART se for o mesmo as mesmas informações dele n deve ser repetido para Visão executiva mesmo que vindo de/em tabelas diferentes
 
-## Migração SQL (resumo)
-- `create type crea_art_tipo_obra as enum ('civil','eletrica');`
-- `create type crea_art_status as enum ('pendente','em_andamento','concluida','cancelada');`
-- `create table public.crea_art_obras (...)` com colunas acima + auditoria.
-- RLS: SELECT por empresa do usuário; INSERT/UPDATE/DELETE com `crea_can_edit(auth.uid())`.
-- Índices: `(company_id, is_deleted)`, `(company_id, status)`, `(uf)`.
-- Trigger `update_updated_at_column`.
+## Leva 4 — Criar uma nova aba chamada Anuidades + mudança aba empresa  
+  
+Nessa aba chamada Anuidade terá coluna de CREA para eu colocar se é PJ ou PF, nome para eu colocar o nome de alguma empresa ou responsavel técnico com selelcionar ou clicar em outro para escrever e ai vira selecionador, status pago, nao pago, isento, desconto, se selecionar deconto tera que colocar a porcentagem do desconto. tem que ter a opção de selecionar varios ou editar.  
+  
+Mude o nome da aba empresa para Clientes  
+  
+Leva 5 - Dashboard CREA + Conversor PDF/Word→CSV no Assistente IA
 
-## Fora do escopo desta etapa
-- Não mexe em Governança ART (`crea_gov_*`) — segue como está.
-- Não mexe em `crea_arts` legado nem na auditoria existente.
-- Sem IA, sem dashboards novos, sem cruzamento automático.
+**Dashboard CREA** (`CreaDashboard.tsx`) ganha cards consolidados puxando das seguintes abas do modulo CREA & ART:
 
-Pronto para implementar ao aprovar.
+- ARTs: total, gráfico de barras: status × quantidade, valor total, top escopos × valor
+- CATs/Acervo: total, gráfico por status
+- Certidões: gráfico de certidões emitidas × ano
+- Baixas: quantas ART  baixados no total, quantos responsaveis tecnicos baixados por UF no total, quantos responsaveis tecnicos baixados.
+- Responsaveis Tecnicos: quantidade de status ativos e nao ativos;quantidade de inclusão ativas, nao ativas, em andamento; anuidades pagas, nao paga, insenta e com desconto.
+- Empresas que agora a aba se chamará clientes: quantidade total de clientes
+- Documentos: quantidade de documentos criados. quantidade de documentos criados por uf
+  &nbsp;
+  Deve ter  filtro em Dashboard CREA:  
+   por ano,   
+  por mes,  
+   por RT,   
+  por cliente  
+  por visão geral onde ao selecionarmos a opção visão geral mostra todos esses cards consolidados  puxando das abas do modulo CREA & ART   
+  e tbm uma opção visão executiva onde mostra o mesmo que mostra em visão executiva da aba governança ART  
+    
+    
+
+
+**Assistente IA** ganha sub-aba **"Conversor de Documentos"** com 3 modelos:
+
+- **Modelo 1 — Relatório CREA**: gera CSV/XLSX com colunas do modelo `relatorio_crea_ba`
+- **Modelo 2 — ART por Bloco**: gera CSV/XLSX com seções (Resp. técnico, Contrato, Obra, Atividades, Observações, Declarações, Entidade de classe, Assinaturas, Informações, Valor)
+- **Modelo 3 — Relatório Gerencial de Serviços**: colunas Numero, Detalhe, analise, baixa, boleto, pagamento, cadastro, empresa, contratante, endereço, observação
+
+Fluxo: usuário escolhe modelo → faz upload do PDF/Word → clica **Gerar** → edge function `crea-doc-to-csv` extrai com Lovable AI (Gemini 2.5 Flash) → download em CSV ou XLSX.
+
+## Notas técnicas
+
+- Tudo usa `DataActionsToolbar` + `ImportDataModal` + `useBulkSelection` + `DeleteWithPasswordModal` (padrão global).
+- Catálogo ACL (`src/acl/catalog.ts`) atualizado com as novas sub-abas para aparecerem em ADM-Visibilidade.
+- Filtros aplicam direto nas queries Supabase com `ilike` para busca por digitação.
+- Edge function nova `crea-doc-to-csv` usa `LOVABLE_API_KEY` (já presente) — sem novo segredo.
+- Migrations criam tabelas com `IF NOT EXISTS` — sem risco de derrubar dados em uso.
+
+## Confirmação
+
+ OK, começo pela **Leva 1** (correções + reorganização de abas) já nesta resposta de aprovação e vou seguindo até a Leva 5. Posso pausar entre levas se preferir revisar cada etapa.
