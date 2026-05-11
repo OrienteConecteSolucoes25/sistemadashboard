@@ -77,11 +77,11 @@ export const JarbasTrainingDashboard = () => {
           <div className="flex gap-4">
             <div className="text-right px-4 border-r border-cyan-500/20">
               <p className="text-[10px] opacity-50 uppercase">Certificações</p>
-              <p className="text-2xl font-bold">12</p>
+              <p className="text-2xl font-bold">{certs.length}</p>
             </div>
             <div className="text-right px-4">
               <p className="text-[10px] opacity-50 uppercase">Nível Global</p>
-              <p className="text-2xl font-bold text-yellow-500">Master</p>
+              <p className="text-2xl font-bold text-yellow-500">{globalLevel}</p>
             </div>
           </div>
         </header>
