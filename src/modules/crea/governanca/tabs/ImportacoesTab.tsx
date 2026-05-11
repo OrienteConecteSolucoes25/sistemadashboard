@@ -124,6 +124,7 @@ export function ImportacoesTab() {
           unmappedHeaders: parsed.unmappedHeaders,
           origem_importacao: kind,
           validacao: valStats,
+          errosLog,
         },
       }).select("id").single();
       if (impErr || !imp) throw new Error(impErr?.message ?? "Falha ao registrar importação");
