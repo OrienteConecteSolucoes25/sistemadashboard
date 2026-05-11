@@ -65,113 +65,147 @@ export const AvatarLayeredSprite = ({ customization, size = 56, faded, grayscale
 
   const flip = direction === "left" ? "scaleX(-1)" : "scaleX(1)";
 
+  // Detecção de NPCs especiais para renderização diferenciada
+  const isSpecialNPC = c.avatar_sprite_key && ["jarbas", "ocs_guard", "ti", "engenharia", "juridico", "rhdp", "crea", "marketplace", "financeiro", "gamificacao"].includes(c.avatar_sprite_key);
+
   return (
-    <svg
-      viewBox="0 0 16 24"
-      width={size}
-      height={size}
-      shapeRendering="crispEdges"
-      style={{ imageRendering: "pixelated", display: "block", filter, transform: flip }}
-      aria-hidden="true"
+    <div 
+      className="relative flex items-center justify-center"
+      style={{ width: size, height: size }}
     >
-      {/* sombra no chão */}
-      <ellipse cx="8" cy="23" rx="4" ry="0.8" fill="rgba(0,0,0,0.35)" />
-
-      {/* pernas / saia */}
-      {isSkirt ? (
-        <polygon points="4,16 12,16 13,21 3,21" fill={bottomColor} />
-      ) : (
-        <>
-          <rect x={isWalking ? "4" : "5"} y="16" width="3" height="5" fill={bottomColor} />
-          <rect x={isWalking ? "9" : "8"} y="16" width="3" height="5" fill={bottomColor} />
-        </>
-      )}
-      {/* sapatos */}
-      <rect x="4" y="21" width="4" height="1" fill={shoesColor} />
-      <rect x="8" y="21" width="4" height="1" fill={shoesColor} />
-
-      {/* torso */}
-      <rect x="4" y="10" width="8" height="6" fill={outfitColor} />
-      <rect x="11" y="10" width="1" height="6" fill={outfitShadow} />
-      <rect x="4" y="15" width="8" height="1" fill={outfitShadow} />
-
-      {/* braços */}
-      <rect x="3" y="10" width="1" height="5" fill={outfitColor} />
-      <rect x="12" y="10" width="1" height="5" fill={outfitColor} />
-      {/* mãos */}
-      <rect x="3" y="15" width="1" height="1" fill={skin} />
-      <rect x="12" y="15" width="1" height="1" fill={skin} />
-
-      {/* detalhes do outfit */}
-      {outfitKey === "outfit_juridico" && (
-        <>
-          <rect x="7" y="10" width="2" height="4" fill="#c9a96a" />
-          <rect x="7" y="14" width="2" height="1" fill={outfitShadow} />
-        </>
-      )}
-      {outfitKey === "outfit_engenharia" && (
-        <>
-          <rect x="4" y="10" width="1" height="6" fill="#ffe066" />
-          <rect x="11" y="10" width="1" height="6" fill="#ffe066" />
-          <rect x="4" y="13" width="8" height="1" fill="#ffe066" />
-        </>
-      )}
-      {outfitKey === "outfit_admin" && (
-        <rect x="10" y="11" width="2" height="2" fill="#ffd166" />
-      )}
-      {outfitKey === "outfit_social" && (
-        <>
-          <rect x="7" y="10" width="2" height="3" fill="#1a1a1a" />
-        </>
-      )}
-      {outfitKey === "outfit_operacional" && (
-        <rect x="5" y="11" width="6" height="1" fill={outfitShadow} />
-      )}
-      {outfitKey === "outfit_casual" && (
-        <rect x="7" y="12" width="1" height="1" fill={outfitShadow} />
+      {/* Glow para NPCs Especiais */}
+      {isSpecialNPC && !grayscale && (
+        <div 
+          className="absolute inset-0 rounded-full animate-pulse blur-md opacity-20"
+          style={{ backgroundColor: outfitColor }}
+        />
       )}
 
-      {/* pescoço */}
-      <rect x="7" y="9" width="2" height="1" fill={skinShadow} />
+      <svg
+        viewBox="0 0 16 24"
+        width={size}
+        height={size}
+        shapeRendering="crispEdges"
+        className={`transition-transform duration-300 ${isWalking ? "animate-bounce" : ""}`}
+        style={{ imageRendering: "pixelated", display: "block", filter, transform: flip }}
+        aria-hidden="true"
+      >
+        <defs>
+          <linearGradient id={`grad-${c.avatar_sprite_key || "avatar"}`} x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" style={{ stopColor: outfitColor, stopOpacity: 1 }} />
+            <stop offset="100%" style={{ stopColor: outfitShadow, stopOpacity: 1 }} />
+          </linearGradient>
+          <filter id="shadow">
+            <feDropShadow dx="0" dy="0.5" stdDeviation="0.2" floodOpacity="0.3" />
+          </filter>
+        </defs>
 
-      {/* cabeça */}
-      <rect x="5" y="4" width="6" height="6" fill={skin} />
-      <rect x="10" y="4" width="1" height="6" fill={skinShadow} />
+        {/* sombra no chão */}
+        <ellipse cx="8" cy="23" rx="4" ry="0.8" fill="rgba(0,0,0,0.35)" />
 
-      {/* olhos */}
-      <rect x="6" y="6" width="1" height="1" fill="#1a1a1a" />
-      <rect x="9" y="6" width="1" height="1" fill="#1a1a1a" />
-      {/* boca / batom */}
-      {lipstickColor ? (
-        <rect x="7" y="8" width="2" height="1" fill={lipstickColor} />
-      ) : (
-        <rect x="7" y="8" width="2" height="1" fill={skinShadow} />
-      )}
+        <g filter="url(#shadow)">
+          {/* pernas / saia */}
+          {isSkirt ? (
+            <polygon points="4,16 12,16 13,21 3,21" fill={bottomColor} />
+          ) : (
+            <>
+              <rect x={isWalking ? "4" : "5"} y="16" width="3" height="5" fill={bottomColor} />
+              <rect x={isWalking ? "9" : "8"} y="16" width="3" height="5" fill={bottomColor} />
+            </>
+          )}
+          {/* sapatos */}
+          <rect x="4" y="21" width="4" height="1" fill={shoesColor} />
+          <rect x="8" y="21" width="4" height="1" fill={shoesColor} />
 
-      {/* brinco */}
-      {earringColor && (
-        <>
-          <rect x="4" y="7" width="1" height="1" fill={earringColor} />
-          <rect x="11" y="7" width="1" height="1" fill={earringColor} />
-        </>
-      )}
+          {/* torso */}
+          <rect x="4" y="10" width="8" height="6" fill={`url(#grad-${c.avatar_sprite_key || "avatar"})`} />
+          <rect x="11" y="10" width="1" height="6" fill={outfitShadow} opacity="0.5" />
+          <rect x="4" y="15" width="8" height="1" fill={outfitShadow} opacity="0.3" />
 
-      {/* cabelo */}
-      {!hatHidesHair && hairKey !== "hair_none" && (
-        <HairLayer hairKey={hairKey} color={hairColor} />
-      )}
+          {/* braços */}
+          <rect x="3" y="10" width="1" height="5" fill={outfitColor} />
+          <rect x="12" y="10" width="1" height="5" fill={outfitColor} />
+          {/* mãos */}
+          <rect x="3" y="15" width="1" height="1" fill={skin} />
+          <rect x="12" y="15" width="1" height="1" fill={skin} />
 
-      {/* chapéu / capacete */}
-      <HatLayer hatKey={hatKey} />
+          {/* detalhes do outfit */}
+          {outfitKey === "outfit_juridico" && (
+            <>
+              <rect x="7" y="10" width="2" height="4" fill="#c9a96a" />
+              <rect x="7" y="14" width="2" height="1" fill={outfitShadow} />
+            </>
+          )}
+          {outfitKey === "outfit_engenharia" && (
+            <>
+              <rect x="4" y="10" width="1" height="6" fill="#ffe066" />
+              <rect x="11" y="10" width="1" height="6" fill="#ffe066" />
+              <rect x="4" y="13" width="8" height="1" fill="#ffe066" />
+            </>
+          )}
+          {outfitKey === "outfit_admin" && (
+            <rect x="10" y="11" width="2" height="2" fill="#ffd166" />
+          )}
+          {outfitKey === "outfit_social" && (
+            <rect x="7" y="10" width="2" height="3" fill="#1a1a1a" />
+          )}
+          {outfitKey === "outfit_operacional" && (
+            <rect x="5" y="11" width="6" height="1" fill={outfitShadow} />
+          )}
+          {outfitKey === "outfit_casual" && (
+            <rect x="7" y="12" width="1" height="1" fill={outfitShadow} />
+          )}
 
-      {/* óculos */}
-      <GlassesLayer glassesKey={glassesKey} />
+          {/* pescoço */}
+          <rect x="7" y="9" width="2" height="1" fill={skinShadow} />
 
-      {/* ferramenta na mão */}
-      <ToolLayer toolKey={toolKey} />
-    </svg>
+          {/* cabeça */}
+          <rect x="5" y="4" width="6" height="6" fill={skin} />
+          <rect x="10" y="4" width="1" height="6" fill={skinShadow} />
+
+          {/* olhos */}
+          <rect x="6" y="6" width="1" height="1" fill="#1a1a1a" />
+          <rect x="9" y="6" width="1" height="1" fill="#1a1a1a" />
+          
+          {/* Brilho nos olhos para NPCs de IA */}
+          {isSpecialNPC && !grayscale && (
+             <rect x="6" y="6" width="1" height="1" fill="#fff" opacity="0.4" />
+          )}
+
+          {/* boca / batom */}
+          {lipstickColor ? (
+            <rect x="7" y="8" width="2" height="1" fill={lipstickColor} />
+          ) : (
+            <rect x="7" y="8" width="2" height="1" fill={skinShadow} />
+          )}
+
+          {/* brinco */}
+          {earringColor && (
+            <>
+              <rect x="4" y="7" width="1" height="1" fill={earringColor} />
+              <rect x="11" y="7" width="1" height="1" fill={earringColor} />
+            </>
+          )}
+
+          {/* cabelo */}
+          {!hatHidesHair && hairKey !== "hair_none" && (
+            <HairLayer hairKey={hairKey} color={hairColor} />
+          )}
+
+          {/* chapéu / capacete */}
+          <HatLayer hatKey={hatKey} />
+
+          {/* óculos */}
+          <GlassesLayer glassesKey={glassesKey} />
+
+          {/* ferramenta na mão */}
+          <ToolLayer toolKey={toolKey} />
+        </g>
+      </svg>
+    </div>
   );
 };
+
 
 // ----------------------------- Layers -----------------------------
 const HairLayer = ({ hairKey, color }: { hairKey: string; color: string }) => {
