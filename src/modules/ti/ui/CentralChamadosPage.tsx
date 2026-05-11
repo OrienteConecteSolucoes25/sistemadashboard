@@ -127,7 +127,7 @@ export default function CentralChamadosPage() {
         .from('ti_tickets')
         .insert([{
           ...newTicket,
-          requester_id: userData.user.id,
+          user_id: userData.user.id,
           company_id: profile.company_id,
           status: 'aberto',
           sla_deadline: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString()
