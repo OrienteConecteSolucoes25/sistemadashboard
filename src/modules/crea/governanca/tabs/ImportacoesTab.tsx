@@ -210,6 +210,47 @@ export function ImportacoesTab() {
         </CardContent>
       </Card>
 
+      {lastSummary && (
+        <Card className="card-elegant border-primary/40">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              Resumo técnico — {lastSummary.arquivo}
+            </CardTitle>
+            <Badge variant="outline" className="text-[10px]">
+              {IMPORT_KINDS.find(k => k.value === lastSummary.kind)?.label ?? lastSummary.kind}
+            </Badge>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+              <SummaryStat label="Linhas no arquivo" value={lastSummary.total} />
+              <SummaryStat label="Importadas (OK)" value={lastSummary.ok} tone="ok" />
+              <SummaryStat label="Falhas" value={lastSummary.fail} tone={lastSummary.fail > 0 ? "fail" : undefined} />
+              <SummaryStat label="Duplicadas no arquivo" value={lastSummary.duplicadosNoArquivo} tone={lastSummary.duplicadosNoArquivo > 0 ? "warn" : undefined} />
+              <SummaryStat label="Sem nº ART" value={lastSummary.semNumero} tone={lastSummary.semNumero > 0 ? "warn" : undefined} />
+              <SummaryStat label="Sem UF" value={lastSummary.semUf} tone={lastSummary.semUf > 0 ? "warn" : undefined} />
+              <SummaryStat label="Sem data cadastro" value={lastSummary.semDataCadastro} tone={lastSummary.semDataCadastro > 0 ? "warn" : undefined} />
+              <SummaryStat label="Valores inválidos" value={lastSummary.valorInvalido} tone={lastSummary.valorInvalido > 0 ? "warn" : undefined} />
+            </div>
+            {lastSummary.unmappedHeaders.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-border/40">
+                <p className="text-[11px] font-semibold text-muted-foreground mb-1">
+                  {lastSummary.unmappedHeaders.length} cabeçalho(s) não mapeado(s) — preservados em RAW:
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  {lastSummary.unmappedHeaders.slice(0, 30).map((h, i) => (
+                    <Badge key={i} variant="secondary" className="text-[10px] font-mono">{h}</Badge>
+                  ))}
+                  {lastSummary.unmappedHeaders.length > 30 && (
+                    <span className="text-[10px] text-muted-foreground self-center">+{lastSummary.unmappedHeaders.length - 30}</span>
+                  )}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="card-elegant">
         <CardHeader className="pb-2"><CardTitle className="text-sm">Histórico de importações</CardTitle></CardHeader>
         <CardContent className="p-0">
