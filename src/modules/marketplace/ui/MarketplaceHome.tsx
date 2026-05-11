@@ -201,13 +201,20 @@ export default function MarketplaceHome() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div 
+      className="min-h-screen bg-slate-50 flex flex-col"
+      style={{ '--primary': activeStore?.primary_color || '#3b82f6' } as React.CSSProperties}
+    >
       {/* Header do Marketplace */}
       <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 font-bold text-xl text-primary">
-            <ShoppingBag className="w-6 h-6" />
-            <span className="hidden sm:inline">OCS Marketplace</span>
+          <div className="flex items-center gap-2 font-bold text-xl text-primary cursor-pointer" onClick={() => window.location.search = ''}>
+            {activeStore?.logo_url ? (
+              <img src={activeStore.logo_url} alt={activeStore.name} className="h-8 w-auto" />
+            ) : (
+              <ShoppingBag className="w-6 h-6" />
+            )}
+            <span className="hidden sm:inline">{activeStore?.name || "OCS Marketplace"}</span>
           </div>
 
           <div className="flex-1 max-w-2xl relative">
