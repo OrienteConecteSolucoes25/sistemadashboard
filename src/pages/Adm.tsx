@@ -6,6 +6,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AclPermissionsForm from "@/acl/AclPermissionsForm";
+import EmpresasMarcaToggle from "@/components/admin/EmpresasMarcaToggle";
 import { usePlanosAccess } from "@/modules/planos/hooks/usePlanosAccess";
 import { useCan } from "@/acl/AclProvider";
 
@@ -29,6 +30,7 @@ const Adm = () => {
         </p>
       </div>
       <PermissoesTab />
+      <EmpresasMarcaToggle />
     </div>
   );
 };
