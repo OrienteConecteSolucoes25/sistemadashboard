@@ -71,6 +71,15 @@ export default function CreaGovernancaPage() {
             labelKey="art"
           />
         </TabsContent>
+        <TabsContent value="arts_todas" className="mt-4">
+          <GovGenericTab
+            table="crea_gov_arts_todas"
+            title="ARTs (Todas)"
+            description="Listagem completa de ARTs exportada do SITAC/CREA (NÚMERO, DETALHE, ANÁLISE, BAIXA, BOLETO, PAGAMENTO, CADASTRO, EMPRESA, CONTRATANTE, ENDEREÇO, OBSERVAÇÃO)."
+            fields={ARTS_TODAS_FIELDS}
+            labelKey="numero"
+          />
+        </TabsContent>
       </Tabs>
     </div>
   );
