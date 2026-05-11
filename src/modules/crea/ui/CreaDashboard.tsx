@@ -186,14 +186,9 @@ export default function CreaDashboard() {
   // Filtros para passar à VisaoExecutivaTab quando view=executiva
   const govFilters = useMemo(() => ({
     uf: fUf !== ALL ? fUf : undefined,
-    ano: fAno || undefined,
-    mes: fMes || undefined,
-    rt: fRT || undefined,
-    obra: undefined,
-    cidade: undefined,
-    art: undefined,
-    dataDe: undefined,
-    dataAte: undefined,
+    ano: fAno ? Number(fAno) : undefined,
+    mes: fMes ? Number(fMes) : undefined,
+    rt_nome: fRT || undefined,
   }) as any, [fUf, fAno, fMes, fRT]);
 
   return (
