@@ -41,6 +41,11 @@ export function ImportacoesTab() {
   const [progress, setProgress] = useState<string>("");
   const [history, setHistory] = useState<ImportRow[]>([]);
   const [reload, setReload] = useState(0);
+  const [lastSummary, setLastSummary] = useState<null | {
+    arquivo: string; kind: string; total: number; ok: number; fail: number;
+    semNumero: number; semUf: number; semDataCadastro: number; valorInvalido: number;
+    duplicadosNoArquivo: number; unmappedHeaders: string[];
+  }>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -71,12 +76,33 @@ export function ImportacoesTab() {
         toast.warning("Nenhuma linha válida detectada no arquivo.");
         setBusy(false); return;
       }
-      setProgress(`${parsed.rows.length} linhas detectadas. Registrando importação…`);
+      setProgress(`${parsed.rows.length} linhas detectadas. Validando…`);
+
+      // ── Validação técnica (não-destrutiva) ────────────────────────
+      const valStats = {
+        semNumero: 0, semUf: 0, semDataCadastro: 0, valorInvalido: 0,
+        duplicadosNoArquivo: 0,
+      };
+      const seenHash = new Set<string>();
+      for (const r of parsed.rows) {
+        if (!r.numero) valStats.semNumero++;
+        if (!r.uf && !uf) valStats.semUf++;
+        if (!r.data_cadastro) valStats.semDataCadastro++;
+        const vt = Number(r.valor_taxa); const vp = Number(r.valor_pago);
+        if ((r.valor_taxa != null && Number.isNaN(vt)) || (r.valor_pago != null && Number.isNaN(vp))) valStats.valorInvalido++;
+        const key = `${(r.uf ?? uf ?? "BA").toString().trim().toUpperCase()}::${(r.numero ?? "").toString().trim()}::${r.data_cadastro ?? ""}`;
+        if (seenHash.has(key)) valStats.duplicadosNoArquivo++;
+        else seenHash.add(key);
+      }
 
       const { data: imp, error: impErr } = await supabase.from("crea_gov_importacoes").insert({
         company_id: companyId, uf, kind, arquivo_nome: file.name,
         total_linhas: parsed.rows.length, status: "processando",
-        mapeamento: { unmappedHeaders: parsed.unmappedHeaders, origem_importacao: kind },
+        mapeamento: {
+          unmappedHeaders: parsed.unmappedHeaders,
+          origem_importacao: kind,
+          validacao: valStats,
+        },
       }).select("id").single();
       if (impErr || !imp) throw new Error(impErr?.message ?? "Falha ao registrar importação");
 
@@ -132,6 +158,11 @@ export function ImportacoesTab() {
         .update({ ok, falhas: fail, status: fail === 0 ? "concluido" : "concluido_com_erros" })
         .eq("id", imp.id);
 
+      setLastSummary({
+        arquivo: file.name, kind, total: parsed.rows.length, ok, fail,
+        ...valStats, unmappedHeaders: parsed.unmappedHeaders,
+      });
+
       toast.success(`Importação concluída: ${ok} OK, ${fail} falhas. ${parsed.unmappedHeaders.length ? `Cabeçalhos não mapeados: ${parsed.unmappedHeaders.length}.` : ""}`);
       setProgress(""); setFile(null); if (fileRef.current) fileRef.current.value = "";
       setReload((r) => r + 1);
@@ -179,6 +210,47 @@ export function ImportacoesTab() {
         </CardContent>
       </Card>
 
+      {lastSummary && (
+        <Card className="card-elegant border-primary/40">
+          <CardHeader className="pb-2 flex flex-row items-center justify-between">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+              Resumo técnico — {lastSummary.arquivo}
+            </CardTitle>
+            <Badge variant="outline" className="text-[10px]">
+              {IMPORT_KINDS.find(k => k.value === lastSummary.kind)?.label ?? lastSummary.kind}
+            </Badge>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
+              <SummaryStat label="Linhas no arquivo" value={lastSummary.total} />
+              <SummaryStat label="Importadas (OK)" value={lastSummary.ok} tone="ok" />
+              <SummaryStat label="Falhas" value={lastSummary.fail} tone={lastSummary.fail > 0 ? "fail" : undefined} />
+              <SummaryStat label="Duplicadas no arquivo" value={lastSummary.duplicadosNoArquivo} tone={lastSummary.duplicadosNoArquivo > 0 ? "warn" : undefined} />
+              <SummaryStat label="Sem nº ART" value={lastSummary.semNumero} tone={lastSummary.semNumero > 0 ? "warn" : undefined} />
+              <SummaryStat label="Sem UF" value={lastSummary.semUf} tone={lastSummary.semUf > 0 ? "warn" : undefined} />
+              <SummaryStat label="Sem data cadastro" value={lastSummary.semDataCadastro} tone={lastSummary.semDataCadastro > 0 ? "warn" : undefined} />
+              <SummaryStat label="Valores inválidos" value={lastSummary.valorInvalido} tone={lastSummary.valorInvalido > 0 ? "warn" : undefined} />
+            </div>
+            {lastSummary.unmappedHeaders.length > 0 && (
+              <div className="mt-3 pt-3 border-t border-border/40">
+                <p className="text-[11px] font-semibold text-muted-foreground mb-1">
+                  {lastSummary.unmappedHeaders.length} cabeçalho(s) não mapeado(s) — preservados em RAW:
+                </p>
+                <div className="flex flex-wrap gap-1">
+                  {lastSummary.unmappedHeaders.slice(0, 30).map((h, i) => (
+                    <Badge key={i} variant="secondary" className="text-[10px] font-mono">{h}</Badge>
+                  ))}
+                  {lastSummary.unmappedHeaders.length > 30 && (
+                    <span className="text-[10px] text-muted-foreground self-center">+{lastSummary.unmappedHeaders.length - 30}</span>
+                  )}
+                </div>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       <Card className="card-elegant">
         <CardHeader className="pb-2"><CardTitle className="text-sm">Histórico de importações</CardTitle></CardHeader>
         <CardContent className="p-0">
@@ -207,6 +279,20 @@ export function ImportacoesTab() {
           </Table>
         </CardContent>
       </Card>
+    </div>
+  );
+}
+
+function SummaryStat({ label, value, tone }: { label: string; value: number; tone?: "ok" | "warn" | "fail" }) {
+  const cls =
+    tone === "ok"   ? "text-emerald-600"
+  : tone === "fail" ? "text-rose-600"
+  : tone === "warn" ? "text-amber-600"
+  : "text-foreground";
+  return (
+    <div className="rounded-md border border-border/40 p-2">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className={`text-lg font-semibold ${cls}`}>{value}</p>
     </div>
   );
 }
