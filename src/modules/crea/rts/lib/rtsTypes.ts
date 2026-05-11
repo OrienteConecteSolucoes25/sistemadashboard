@@ -47,6 +47,7 @@ const norm = (s: string) =>
 const HEADER_TO_FIELD: Record<string, keyof RtPessoa | "termino_indefinido" | null> = {
   nome: "nome",
   cpf: "cpf",
+  uf: "uf", estado: "uf",
   status: "status",
   data_inicio: "data_inicio", inicio: "data_inicio", "data_de_inicio": "data_inicio",
   data_termino: "data_termino", termino: "data_termino", "data_de_termino": "data_termino", fim: "data_termino",
@@ -55,6 +56,8 @@ const HEADER_TO_FIELD: Record<string, keyof RtPessoa | "termino_indefinido" | nu
   rnp: "rnp",
   registro: "registro",
   anuidade: "anuidade",
+  ano_anuidade: "anuidade_ano", anuidade_ano: "anuidade_ano", ano: "anuidade_ano",
+  inclusao_ativa: "inclusao_ativa", inclusao: "inclusao_ativa", ativa: "inclusao_ativa",
   observacao: "observacao", observacoes: "observacao",
 };
 
