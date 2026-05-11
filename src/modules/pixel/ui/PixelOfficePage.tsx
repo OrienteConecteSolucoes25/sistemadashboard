@@ -29,6 +29,7 @@ import { ModuleAgentChat } from "./ModuleAgentChat";
 import { NPCS_CONFIG } from "../data/npcsConfig";
 import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare, ShieldAlert, Cpu, Zap, ShoppingCart, DollarSign, Users, Video } from "lucide-react";
 import { ActiveBrandKitProvider } from "@/modules/comunicacao/hooks/useActiveBrandKit";
+import { toast } from "sonner";
 
 type Selected =
   | { kind: "character"; data: PixelCharacter }
