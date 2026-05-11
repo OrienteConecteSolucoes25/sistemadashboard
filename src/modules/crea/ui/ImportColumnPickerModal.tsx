@@ -75,46 +75,59 @@ export default function ImportColumnPickerModal({ open, onOpenChange, table, tit
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!importing) onOpenChange(o); }}>
-      <DialogContent className="max-w-3xl">
-        <DialogHeader>
+      <DialogContent className="max-w-3xl max-h-[90vh] flex flex-col p-0 gap-0">
+        <DialogHeader className="px-6 pt-6 pb-3 border-b">
           <DialogTitle>Importar · {title}</DialogTitle>
           <DialogDescription>Selecione quais colunas da planilha você quer importar.</DialogDescription>
         </DialogHeader>
-        <Input type="file" accept=".csv,.xlsx,.xls" onChange={(e) => handleFile(e.target.files?.[0] ?? null)} />
-        {parsed && (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary">{parsed.rows.length} linhas</Badge>
-              <Badge variant="outline">{parsed.headers.length} colunas</Badge>
-              <Badge>{Object.values(selected).filter(Boolean).length} selecionadas</Badge>
-              <Button size="sm" variant="ghost" onClick={() => { const all: any = {}; parsed.headers.forEach(h => all[h] = true); setSelected(all); }}>Marcar todas</Button>
-              <Button size="sm" variant="ghost" onClick={() => setSelected({})}>Limpar</Button>
-            </div>
-            <div className="max-h-48 overflow-auto border rounded p-2 grid grid-cols-2 md:grid-cols-3 gap-1">
-              {parsed.headers.map(h => (
-                <label key={h} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 px-1 py-0.5 rounded">
-                  <Checkbox checked={!!selected[h]} onCheckedChange={(v) => setSelected(s => ({ ...s, [h]: !!v }))} />
-                  <span className="truncate" title={h}>{h}</span>
-                </label>
-              ))}
-            </div>
-            {preview && preview.rows.length > 0 && (
-              <div className="border rounded max-h-60 overflow-auto">
-                <table className="w-full text-xs">
-                  <thead className="bg-muted/50 sticky top-0">
-                    <tr>{preview.headers.map(h => <th key={h} className="text-left px-2 py-1 whitespace-nowrap">{h}</th>)}</tr>
-                  </thead>
-                  <tbody>
-                    {preview.rows.slice(0, 10).map((r, i) => (
-                      <tr key={i} className="border-t">{r.map((c, j) => <td key={j} className="px-2 py-1 whitespace-nowrap">{String(c ?? "")}</td>)}</tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            )}
+
+        <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3 min-h-0">
+          <div>
+            <label className="text-xs font-medium text-muted-foreground mb-1 block">Arquivo (.csv, .xlsx, .xls)</label>
+            <Input
+              type="file"
+              accept=".csv,.xlsx,.xls"
+              onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
+              className="h-9 text-sm file:mr-2 file:px-3 file:py-1 file:rounded file:border-0 file:bg-primary file:text-primary-foreground file:text-xs"
+            />
           </div>
-        )}
-        <DialogFooter>
+
+          {parsed && (
+            <div className="space-y-3">
+              <div className="flex items-center gap-2 flex-wrap">
+                <Badge variant="secondary">{parsed.rows.length} linhas</Badge>
+                <Badge variant="outline">{parsed.headers.length} colunas</Badge>
+                <Badge>{Object.values(selected).filter(Boolean).length} selecionadas</Badge>
+                <Button size="sm" variant="ghost" onClick={() => { const all: any = {}; parsed.headers.forEach(h => all[h] = true); setSelected(all); }}>Marcar todas</Button>
+                <Button size="sm" variant="ghost" onClick={() => setSelected({})}>Limpar</Button>
+              </div>
+              <div className="border rounded p-2 grid grid-cols-2 md:grid-cols-3 gap-1 max-h-48 overflow-auto">
+                {parsed.headers.map(h => (
+                  <label key={h} className="flex items-center gap-2 text-sm cursor-pointer hover:bg-muted/50 px-1 py-0.5 rounded">
+                    <Checkbox checked={!!selected[h]} onCheckedChange={(v) => setSelected(s => ({ ...s, [h]: !!v }))} />
+                    <span className="truncate" title={h}>{h}</span>
+                  </label>
+                ))}
+              </div>
+              {preview && preview.rows.length > 0 && (
+                <div className="border rounded max-h-60 overflow-auto">
+                  <table className="w-full text-xs">
+                    <thead className="bg-muted/50 sticky top-0">
+                      <tr>{preview.headers.map(h => <th key={h} className="text-left px-2 py-1 whitespace-nowrap">{h}</th>)}</tr>
+                    </thead>
+                    <tbody>
+                      {preview.rows.slice(0, 10).map((r, i) => (
+                        <tr key={i} className="border-t">{r.map((c, j) => <td key={j} className="px-2 py-1 whitespace-nowrap">{String(c ?? "")}</td>)}</tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        <DialogFooter className="px-6 py-3 border-t bg-background">
           <Button variant="ghost" onClick={() => onOpenChange(false)} disabled={importing}>Cancelar</Button>
           <Button onClick={commit} disabled={!preview || preview.rows.length === 0 || importing}>
             <Upload className="w-4 h-4 mr-1" />{importing ? "Importando…" : "Importar"}
