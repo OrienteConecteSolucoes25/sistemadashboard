@@ -90,8 +90,6 @@ export const PixelSprite = ({ spriteKey, size = 64, className, fallback, glow }:
         </div>
       )}
 
-      {/* Border Highlight */}
-      <div className="absolute inset-0 border border-white/20 pointer-events-none rounded-sm" />
     </div>
   );
 };
