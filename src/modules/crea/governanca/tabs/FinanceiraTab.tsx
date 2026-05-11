@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { GovFilters } from "../lib/govTypes";
 import { useGovCompany } from "../lib/useGovCompany";
 import { fetchArts, fetchPagamentos, computeKpis, sumBy, GovArt, GovPagamento } from "../lib/govApi";
+import { deriveStatusFinanceiroArt } from "../lib/govNormalize";
 
 const fmtBRL = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 2 });
