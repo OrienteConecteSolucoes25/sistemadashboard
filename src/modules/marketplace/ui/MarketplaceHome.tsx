@@ -161,6 +161,31 @@ export default function MarketplaceHome() {
     }
   };
 
+  const loadAddresses = async () => {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
+
+      const { data: customer } = await supabase
+        .from('market_customers' as any)
+        .select('id')
+        .eq('user_id', userData.user.id)
+        .maybeSingle();
+
+      if (customer) {
+        const { data } = await supabase
+          .from('market_addresses')
+          .select('*')
+          .eq('customer_id', (customer as any).id);
+        
+        setAddresses(data || []);
+        if (data?.length) setSelectedAddressId(data[0].id);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     async function loadData() {
       try {
