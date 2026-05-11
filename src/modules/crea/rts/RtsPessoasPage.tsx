@@ -222,9 +222,15 @@ export default function RtsPessoasPage() {
                       </button>
                     </TableCell>
                     <TableCell className="text-xs">{r.cpf || "—"}</TableCell>
+                    <TableCell className="text-xs">{r.uf || "—"}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={`text-xs ${statusColor(r.status)}`}>
                         {STATUS_RT_LABEL[r.status] ?? r.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={`text-xs ${r.inclusao_ativa === false ? "bg-muted text-muted-foreground border-border" : "bg-emerald-500/15 text-emerald-700 border-emerald-500/30"}`}>
+                        {r.inclusao_ativa === false ? "Não" : "Sim"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-xs whitespace-nowrap">{fmtDateBr(r.data_inicio)}</TableCell>
@@ -240,6 +246,7 @@ export default function RtsPessoasPage() {
                         {ANUIDADE_LABEL[r.anuidade] ?? r.anuidade}
                       </Badge>
                     </TableCell>
+                    <TableCell className="text-xs">{r.anuidade_ano ?? "—"}</TableCell>
                     <TableCell className="text-xs max-w-[220px] truncate" title={r.observacao}>{r.observacao || "—"}</TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(r)} title="Editar">
@@ -249,7 +256,7 @@ export default function RtsPessoasPage() {
                   </TableRow>
                 ))}
                 {filtered.length === 0 && (
-                  <TableRow><TableCell colSpan={13} className="text-center text-sm text-muted-foreground py-8">
+                  <TableRow><TableCell colSpan={16} className="text-center text-sm text-muted-foreground py-8">
                     Nenhum RT cadastrado. Clique em "Novo RT" ou importe pela planilha.
                   </TableCell></TableRow>
                 )}
