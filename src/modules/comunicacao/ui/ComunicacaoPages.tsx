@@ -16,6 +16,7 @@ import { Link } from "react-router-dom";
 import { ApprovalPanel } from "./ApprovalPanel";
 import { ScheduleDialog } from "./ScheduleDialog";
 import { useActiveBrandKit } from "../hooks/useActiveBrandKit";
+import BrandKitVisualTab from "./BrandKitVisualTab";
 
 // ========== HELPERS ==========
 async function loadBrands(companyId: string | null) {
