@@ -37,7 +37,7 @@ const fmt = (v: any) => {
   return String(v);
 };
 
-export function GovGenericTab({ table, title, description, fields, labelKey = "numero" }: Props) {
+export function GovGenericTab({ table, title, description, fields, labelKey = "numero", filters }: Props) {
   const { companyId, loading: loadingCompany } = useGovCompany();
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
