@@ -30,16 +30,19 @@ export default function CreaAdminPage() {
         <h1 className="text-2xl font-bold flex items-center gap-2"><Shield className="w-6 h-6 text-primary" /> Admin · CREA & ART</h1>
         <p className="text-sm text-muted-foreground">Papéis, chave-mestra, fontes da IA e auditoria.</p>
       </div>
-      <Tabs defaultValue="papeis">
+      <div className="rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
+        ⚙️ As permissões deste módulo (e de todos os outros) ficam centralizadas em
+        <strong> ADM — Visibilidade</strong>. Esta tela cuida apenas de chave-mestra,
+        fontes da IA, configurações, integrações e auditoria.
+      </div>
+      <Tabs defaultValue="masterkey">
         <TabsList className="flex-wrap h-auto">
-          <TabsTrigger value="papeis"><Users className="w-4 h-4 mr-1" /> Papéis</TabsTrigger>
           <TabsTrigger value="masterkey"><KeyRound className="w-4 h-4 mr-1" /> Chave-mestra</TabsTrigger>
           <TabsTrigger value="fontes"><BookOpen className="w-4 h-4 mr-1" /> Fontes IA</TabsTrigger>
           <TabsTrigger value="settings"><Settings className="w-4 h-4 mr-1" /> Configurações</TabsTrigger>
           <TabsTrigger value="integracoes"><LinkIcon className="w-4 h-4 mr-1" /> Integrações</TabsTrigger>
           <TabsTrigger value="auditoria"><ShieldAlert className="w-4 h-4 mr-1" /> Auditoria</TabsTrigger>
         </TabsList>
-        <TabsContent value="papeis" className="mt-4"><PapeisTab /></TabsContent>
         <TabsContent value="masterkey" className="mt-4"><MasterKeyTab /></TabsContent>
         <TabsContent value="fontes" className="mt-4"><FontesTab /></TabsContent>
         <TabsContent value="settings" className="mt-4"><SettingsTab /></TabsContent>
