@@ -32,7 +32,7 @@ export type ModuleDef = {
   tabs: TabDef[];
 };
 
-export const DEFAULT_TAB_ACTIONS = ["visualizar"];
+export const DEFAULT_TAB_ACTIONS = ["visualizar", "editar", "excluir"];
 
 export const MODULES: ModuleDef[] = [
   { module: "visao_geral", label: "Visão Geral", ordem: 10, tabs: [] },
