@@ -178,6 +178,10 @@ export function useJarbasCore() {
       }]);
       if (isVoice) speak(localResponse);
       
+      if (personalityResponse.action) {
+        await executeAction(personalityResponse.action);
+      }
+      
       if (personalityResponse.tone === 'urgent') {
         setIsProcessing(false);
         return; // Interrompe para lidar com a urgência localmente
