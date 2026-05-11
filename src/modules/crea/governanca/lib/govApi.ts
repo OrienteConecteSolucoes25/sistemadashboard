@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { GovFilters } from "./govTypes";
+import { deriveStatusFinanceiroArt, pendenteArt, divergenciaArt } from "./govNormalize";
 
 export type GovArt = {
   id: string;
