@@ -16,6 +16,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useGovCompany } from "../lib/useGovCompany";
 import type { FieldSchema } from "@/modules/engenharia/ui/crud/types";
+import type { GovFilters } from "../lib/govTypes";
 
 interface Props {
   table: string;
@@ -24,6 +25,8 @@ interface Props {
   fields: FieldSchema[];
   /** chave usada como rótulo do registro (default: "numero") */
   labelKey?: string;
+  /** filtros globais da barra de Governança ART (aplicados client-side em todas as sub-abas) */
+  filters?: GovFilters;
 }
 
 const sb: any = supabase;
