@@ -127,7 +127,7 @@ class PixiDesksManager {
     g.rect(26, 4, 4, 8);
     g.fill({ color: woodDark, alpha: 0.3 });
 
-    // Objects
+    // Objects conforme o tipo (match DOM)
     if (kind === "admin") {
       // Dual Monitor
       g.rect(8, 2, 8, 6);
@@ -142,19 +142,26 @@ class PixiDesksManager {
       g.rect(10, 10, 10, 1);
       g.fill(0x444444);
     } else if (kind === "engenharia") {
-      // Notebook + Plant
+      // Planta Técnica / Rolo
+      g.roundRect(18, 6, 10, 3, 1);
+      g.fill(0xf5e9c8);
+      // Notebook Robusto
       g.rect(7, 4, 9, 7);
       g.fill(0x2a2a2a);
       g.rect(8, 5, 7, 5);
-      g.fill(0xe87a1a);
-      g.rect(18, 6, 10, 3);
-      g.fill(0xf5e9c8);
-    } else if (isOccupied) {
+      g.fill(0xf59e0b);
+    } else if (kind === "juridico") {
+      // Arquivos empilhados
+      g.rect(8, 4, 8, 6);
+      g.fill(0xffffff);
+      g.rect(9, 2, 8, 6);
+      g.fill(0xf5f5f5);
+    } else if (isOccupied || kind === "default") {
       // Laptop slim
       g.rect(11, 5, 10, 6);
       g.fill(0x333333);
       g.rect(12, 6, 8, 4);
-      g.fill(0x5a8acb);
+      g.fill(0x60a5fa);
     }
   }
 

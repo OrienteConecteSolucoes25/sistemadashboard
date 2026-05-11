@@ -108,7 +108,7 @@ class PixiNpcManager {
   }
 
   private drawNpc(graphics: PIXI.Graphics, npc: any) {
-    const s = 2.5; 
+    const s = 1.6; // NPCs consistent scale
     const offX = -8 * s;
     const offY = -24 * s;
 
@@ -124,22 +124,23 @@ class PixiNpcManager {
     graphics.ellipse(0, 0, 4 * s, 0.8 * s);
     graphics.fill({ color: 0x000000, alpha: 0.4 });
 
+    // Legs
+    graphics.rect(offX + 5 * s, offY + 16 * s, 3 * s, 5 * s);
+    graphics.rect(offX + 8 * s, offY + 16 * s, 3 * s, 5 * s);
+    graphics.fill(secondary);
+
     // Body
     graphics.rect(offX + 4 * s, offY + 10 * s, 8 * s, 6 * s);
     graphics.fill({ color: primary, alpha: 0.8 });
     graphics.stroke({ width: 1, color: 0xffffff, alpha: 0.3 });
-
-    // Detail
-    graphics.rect(offX + 7 * s, offY + 10 * s, 2 * s, 4 * s);
-    graphics.fill({ color: secondary, alpha: 0.9 });
 
     // Head
     graphics.rect(offX + 5 * s, offY + 4 * s, 6 * s, 6 * s);
     graphics.fill({ color: skin, alpha: 0.9 });
 
     // Tech Eyes
-    graphics.rect(offX + 6 * s, offY + 6 * s, 1.5 * s, 1 * s);
-    graphics.rect(offX + 8.5 * s, offY + 6 * s, 1.5 * s, 1 * s);
+    graphics.rect(offX + 6 * s, offY + 6 * s, 1 * s, 1 * s);
+    graphics.rect(offX + 9 * s, offY + 6 * s, 1 * s, 1 * s);
     graphics.fill(0x00f2ff);
     
     // Scanline on NPC

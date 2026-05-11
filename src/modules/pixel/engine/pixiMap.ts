@@ -18,7 +18,7 @@ export const pixiMap = {
 
     // Grid (Optimized - render to texture or simple graphics)
     const grid = new PIXI.Graphics();
-    grid.setStrokeStyle({ width: 1, color: this.hexToNumber(OFFICE_THEME.floorTileLine), alpha: 0.2 });
+    grid.setStrokeStyle({ width: 1, color: this.hexToNumber(OFFICE_THEME.floorTileLine), alpha: 0.1 });
     
     // Batch lines for performance
     for (let x = 0; x <= STAGE_WIDTH_PX; x += TILE_SIZE) {
@@ -31,15 +31,21 @@ export const pixiMap = {
     }
     grid.stroke();
     container.addChild(grid);
-    grid.cacheAsBitmap = true; // Optimization for static grid
 
-    // Zones (Simplified Rects for now)
+    // Zones - Replicating SVG layout precisely
     this.drawZone(container, 0, TILE_SIZE, TILE_SIZE * 6, TILE_SIZE * 5, OFFICE_THEME.carpetReception, 0.3);
     this.drawZone(container, 0, STAGE_HEIGHT_PX - TILE_SIZE * 5, TILE_SIZE * 5, TILE_SIZE * 5, OFFICE_THEME.carpetCommon, 0.2);
     this.drawZone(container, TILE_SIZE * 7, TILE_SIZE, TILE_SIZE * 8, TILE_SIZE * 4, OFFICE_THEME.carpetEngineer, 0.15);
     this.drawZone(container, TILE_SIZE * 6, STAGE_HEIGHT_PX - TILE_SIZE * 6, TILE_SIZE * 7, TILE_SIZE * 5, OFFICE_THEME.carpetLegal, 0.15);
     this.drawZone(container, STAGE_WIDTH_PX - TILE_SIZE * 7, TILE_SIZE, TILE_SIZE * 7, TILE_SIZE * 5, OFFICE_THEME.carpetIT, 0.15);
     this.drawZone(container, STAGE_WIDTH_PX - TILE_SIZE * 9, STAGE_HEIGHT_PX - TILE_SIZE * 8, TILE_SIZE * 9, TILE_SIZE * 8, OFFICE_THEME.carpetMeeting, 0.1);
+
+    // Depth Vignette
+    const vignette = new PIXI.Graphics();
+    vignette.rect(0, 0, STAGE_WIDTH_PX, STAGE_HEIGHT_PX);
+    // Simulation of radial gradient
+    vignette.fill({ color: 0x000000, alpha: 0.15 });
+    container.addChild(vignette);
   },
 
   drawZone(container: PIXI.Container, x: number, y: number, w: number, h: number, color: string, alpha: number) {
@@ -50,6 +56,7 @@ export const pixiMap = {
   },
 
   hexToNumber(hex: string): number {
-    return parseInt(hex.replace('#', ''), 16);
+    if (!hex) return 0x000000;
+    return parseInt(hex.replace('#', '').substring(0, 6), 16);
   }
 };

@@ -60,30 +60,41 @@ class PixiFurnitureManager {
 
     graphics.clear();
     
-    // Simple representation based on key
-    let color = 0xcccccc;
-    let w = TILE_SIZE;
-    let h = TILE_SIZE;
+    // Improved visual representation matching DOM renderer
+    const w = item.furniture_key === 'sofa' ? TILE_SIZE * 2 : (item.furniture_key === 'board' ? TILE_SIZE * 2.5 : TILE_SIZE);
+    const h = item.furniture_key === 'plant' ? TILE_SIZE * 1.5 : TILE_SIZE;
 
     switch (item.furniture_key) {
       case 'plant':
-        color = 0x228b22;
-        graphics.ellipse(TILE_SIZE/2, TILE_SIZE/2, TILE_SIZE/3, TILE_SIZE/2);
+        // Pot
+        graphics.poly([{x: 6, y: 28}, {x: 22, y: 28}, {x: 20, y: 36}, {x: 8, y: 36}]);
+        graphics.fill(0x8b4513);
+        // Leaves
+        graphics.ellipse(14, 16, 10, 12);
+        graphics.fill(0x2e8b57);
         break;
       case 'sofa':
-        color = 0x4682b4;
-        w = TILE_SIZE * 2;
-        graphics.roundRect(0, 0, w, h, 4);
+        graphics.roundRect(2, 6, 28, 10, 2);
+        graphics.fill(0x4a5568);
+        graphics.roundRect(2, 2, 28, 6, 2);
+        graphics.fill(0x2d3748);
+        break;
+      case 'coffee':
+        graphics.rect(2, 10, 8, 6);
+        graphics.fill(0x3a3a45);
+        graphics.rect(3, 2, 6, 8);
+        graphics.fill(0x5a8acb);
         break;
       case 'pc':
-        color = 0x333333;
-        graphics.rect(4, 4, TILE_SIZE - 8, TILE_SIZE - 8);
+        graphics.rect(2, 2, 12, 10);
+        graphics.fill(0x1a202c);
+        graphics.rect(3, 3, 10, 8);
+        graphics.fill(0x3182ce);
         break;
       default:
         graphics.rect(0, 0, TILE_SIZE, TILE_SIZE);
+        graphics.fill(0xcccccc);
     }
-    
-    graphics.fill(color);
   }
 }
 
