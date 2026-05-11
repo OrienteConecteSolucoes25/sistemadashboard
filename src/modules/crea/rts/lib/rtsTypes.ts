@@ -39,6 +39,7 @@ export const UFS_BR = [
 export const PLANILHA_HEADERS_RT = [
   "Nome", "CPF", "UF", "Status", "Data início", "Data término", "Modelo contrato",
   "Visto", "RNP", "Registro", "Anuidade", "Ano anuidade", "Inclusão ativa", "Observação",
+  "Região (login)", "Senha (login)", "Observação (login)",
 ] as const;
 
 const norm = (s: string) =>
