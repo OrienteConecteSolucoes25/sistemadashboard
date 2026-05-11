@@ -40,14 +40,39 @@ export function mapAdaptive(parsedRows: any[][], headers: string[], fields: Fiel
       if (f) {
         if (cell === "" || cell === null || cell === undefined) { rec[f.key] = null; return; }
         if (f.type === "number") {
-          const n = Number(String(cell).replace(",", "."));
-          rec[f.key] = Number.isFinite(n) ? n : null;
+          // Aceita "R$ 1.234,56", "1,234.56", "1234.56", "1.234,56" etc.
+          const raw = String(cell).trim();
+          // Remove tudo exceto dígitos, vírgula, ponto e sinal de menos
+          let s = raw.replace(/[^\d,.-]/g, "");
+          // Se tem vírgula e ponto: assume formato BR (ponto = milhar, vírgula = decimal)
+          if (s.includes(",") && s.includes(".")) {
+            s = s.replace(/\./g, "").replace(",", ".");
+          } else if (s.includes(",")) {
+            // Só vírgula → decimal BR
+            s = s.replace(",", ".");
+          }
+          const n = Number(s);
+          if (Number.isFinite(n)) {
+            rec[f.key] = n;
+          } else {
+            // Não conseguiu parsear → preserva valor original em `data` para não perder informação
+            rec[f.key] = null;
+            extra[`${f.label} (texto)`] = raw;
+          }
         } else if (f.type === "date") {
           const s = String(cell).trim();
           const m = s.match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
           if (m) rec[f.key] = `${m[3]}-${m[2]}-${m[1]}`;
           else if (/^\d{4}-\d{2}-\d{2}/.test(s)) rec[f.key] = s.slice(0, 10);
-          else { const d = new Date(s); rec[f.key] = isNaN(d.getTime()) ? null : d.toISOString().slice(0, 10); }
+          else {
+            const d = new Date(s);
+            if (isNaN(d.getTime())) {
+              rec[f.key] = null;
+              extra[`${f.label} (texto)`] = s;
+            } else {
+              rec[f.key] = d.toISOString().slice(0, 10);
+            }
+          }
         } else if (f.type === "boolean") {
           rec[f.key] = ["sim","true","1","yes","y","x"].includes(String(cell).toLowerCase().trim());
         } else {
