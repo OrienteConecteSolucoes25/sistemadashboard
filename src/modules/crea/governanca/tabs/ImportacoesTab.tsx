@@ -83,17 +83,37 @@ export function ImportacoesTab() {
       // ── Validação técnica (não-destrutiva) ────────────────────────
       const valStats = {
         semNumero: 0, semUf: 0, semDataCadastro: 0, valorInvalido: 0,
-        duplicadosNoArquivo: 0,
+        duplicadosNoArquivo: 0, encodingSuspeito: 0, dataInvalida: 0,
+        artsReconhecidas: 0, registrosIncompletos: 0,
       };
+      const errosLog: { linha: number; tipo: string; detalhe: string }[] = [];
       const seenHash = new Set<string>();
+      const ENC_RX = /[ÃÂ�]\w|Ã[©£§ª¡]|â€/; // mojibake típico de UTF-8↔Latin1
+      const isISODate = (s: any) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s);
+      let linhaIdx = 0;
       for (const r of parsed.rows) {
-        if (!r.numero) valStats.semNumero++;
-        if (!r.uf && !uf) valStats.semUf++;
-        if (!r.data_cadastro) valStats.semDataCadastro++;
+        linhaIdx++;
+        const push = (tipo: string, detalhe: string) => {
+          if (errosLog.length < 50) errosLog.push({ linha: linhaIdx, tipo, detalhe });
+        };
+        if (!r.numero) { valStats.semNumero++; push("sem_numero", "ART sem número identificado"); }
+        else valStats.artsReconhecidas++;
+        if (!r.uf && !uf) { valStats.semUf++; push("sem_uf", "UF do CREA ausente e sem default"); }
+        if (!r.data_cadastro) { valStats.semDataCadastro++; push("sem_data_cadastro", "Data de cadastro ausente"); }
+        else if (!isISODate(r.data_cadastro)) { valStats.dataInvalida++; push("data_invalida", `data_cadastro=${r.data_cadastro}`); }
+        if (r.data_pagamento && !isISODate(r.data_pagamento)) { valStats.dataInvalida++; push("data_invalida", `data_pagamento=${r.data_pagamento}`); }
         const vt = Number(r.valor_taxa); const vp = Number(r.valor_pago);
-        if ((r.valor_taxa != null && Number.isNaN(vt)) || (r.valor_pago != null && Number.isNaN(vp))) valStats.valorInvalido++;
+        if ((r.valor_taxa != null && Number.isNaN(vt)) || (r.valor_pago != null && Number.isNaN(vp))) {
+          valStats.valorInvalido++; push("valor_invalido", `taxa=${r.valor_taxa} pago=${r.valor_pago}`);
+        }
+        // encoding suspeito em strings textuais
+        const txt = `${r.contratante_nome ?? ""}|${r.rt_nome ?? ""}|${r.atividades_texto ?? ""}|${r.proprietario ?? ""}|${r.endereco ?? ""}`;
+        if (ENC_RX.test(txt)) { valStats.encodingSuspeito++; push("encoding", "Caracteres suspeitos (mojibake) em campos textuais"); }
+        // registro incompleto: faltam pelo menos 2 dos campos chave
+        const faltantes = [r.numero, r.contratante_nome, r.rt_nome, r.data_cadastro].filter((x) => !x).length;
+        if (faltantes >= 2) { valStats.registrosIncompletos++; push("incompleto", `${faltantes} campos-chave ausentes`); }
         const key = `${(r.uf ?? uf ?? "BA").toString().trim().toUpperCase()}::${(r.numero ?? "").toString().trim()}::${r.data_cadastro ?? ""}`;
-        if (seenHash.has(key)) valStats.duplicadosNoArquivo++;
+        if (seenHash.has(key)) { valStats.duplicadosNoArquivo++; push("duplicado_arquivo", `chave=${key}`); }
         else seenHash.add(key);
       }
 
