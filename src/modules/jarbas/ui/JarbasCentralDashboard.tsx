@@ -21,6 +21,16 @@ import { useJarbasDashboard } from "../hooks/useJarbasDashboard";
 
 export const JarbasCentralDashboard = () => {
   const { events, insights, status, alerts, executiveInsights } = useJarbasDashboard();
+  const { setAmbientState, triggerReaction } = useJarbasAmbient();
+
+  const simulateAlert = () => {
+    setAmbientState('critical');
+    triggerReaction('visual', { 
+      message: "Anomalia Detectada: Tentativa de Acesso Não Autorizado", 
+      severity: 'critical' 
+    });
+    triggerReaction('sound');
+  };
 
   return (
     <div className="min-h-screen bg-[#02020a] text-[#00f2ff] p-6 font-mono selection:bg-cyan-500/30 relative overflow-hidden">
