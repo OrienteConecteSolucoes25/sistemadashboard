@@ -49,7 +49,7 @@ export function VisaoExecutivaTab({ filters }: { filters: GovFilters }) {
   const porFonte = useMemo(() => rows ? groupCount(rows, (r) => ({ servicos: "Serviços", art_bloco: "ART por Bloco", relatorio_crea: "Relatórios CREA" }[r.source])) : [], [rows]);
 
   const porContratante = useMemo(() => rows ? groupCount(rows, (r) => r.contratante).slice(0, 10) : [], [rows]);
-  const valorPorAtividade = useMemo(() => rows ? groupSum(rows, (r) => r.atividade_servico, (r) => r.valor_art ?? 0).filter(x => x.value > 0).sort((a,b) => b.value - a.value).slice(0, 10) : [], [rows]);
+  const valorPorAtividade = useMemo(() => rows ? groupSum(rows, (r) => r.atividade_servico, (r) => r.valor_art ?? 0).filter(x => x.value > 0).sort((a,b) => b.value - a.value) : [], [rows]);
   const porCidade = useMemo(() => rows ? groupCount(rows, (r) => r.cidade).slice(0, 10) : [], [rows]);
 
   if (cl) return <Skeleton className="h-40 w-full" />;
