@@ -24,7 +24,8 @@ import {
   Database,
   GraduationCap,
   BarChart3,
-  Eye
+  Eye,
+  Share2
 } from "lucide-react";
 import { JarbasHolographicUI } from "./JarbasHolographicUI";
 import { JarbasVoiceVisualizer } from "./JarbasVoiceVisualizer";
