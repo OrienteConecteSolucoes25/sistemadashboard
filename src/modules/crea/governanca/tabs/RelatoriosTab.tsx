@@ -6,6 +6,7 @@ import { FileSpreadsheet, FileText, FileType2, Loader2 } from "lucide-react";
 import { useGovCompany } from "../lib/useGovCompany";
 import { fetchArts, fetchPagamentos, fetchConciliacoes, fetchAlertas, GovArt } from "../lib/govApi";
 import { GovFilters } from "../lib/govTypes";
+import { supabase } from "@/integrations/supabase/client";
 import { exportData } from "@/lib/dataIO";
 import type { FieldSchema } from "@/modules/engenharia/ui/crud/types";
 import { toast } from "sonner";
@@ -27,6 +28,7 @@ const F = (key: string, label: string, type: FieldSchema["type"] = "text"): Fiel
 const SCHEMAS: Record<Template, FieldSchema[]> = {
   arts_completo: [
     F("numero", "Número"), F("uf", "UF"), F("tipo", "Tipo"), F("natureza", "Natureza"),
+    F("empresa_nome", "Empresa"), F("contratante_nome", "Contratante"), F("rt_nome", "RT"),
     F("cidade", "Cidade"), F("uf_obra", "UF Obra"), F("endereco", "Endereço"),
     F("proprietario", "Proprietário"), F("valor_taxa", "Valor Taxa", "number"),
     F("valor_pago", "Valor Pago", "number"), F("valor_contrato", "Valor Contrato", "number"),
@@ -38,6 +40,7 @@ const SCHEMAS: Record<Template, FieldSchema[]> = {
   ],
   arts_resumo: [
     F("numero", "Número"), F("uf", "UF"), F("tipo", "Tipo"),
+    F("empresa_nome", "Empresa"), F("contratante_nome", "Contratante"), F("rt_nome", "RT"),
     F("valor_taxa", "Valor Taxa", "number"), F("valor_pago", "Valor Pago", "number"),
     F("data_cadastro", "Cadastro", "date"), F("data_pagamento", "Pagamento", "date"),
     F("status_analise", "Status"),
@@ -48,7 +51,9 @@ const SCHEMAS: Record<Template, FieldSchema[]> = {
     F("qtd", "Qtd ARTs", "number"),
   ],
   vencidas: [
-    F("numero", "Número"), F("uf", "UF"), F("valor_taxa", "Valor", "number"),
+    F("numero", "Número"), F("uf", "UF"),
+    F("empresa_nome", "Empresa"), F("contratante_nome", "Contratante"), F("rt_nome", "RT"),
+    F("valor_taxa", "Valor", "number"),
     F("data_vencimento", "Vencimento", "date"), F("dias_atraso", "Dias atraso", "number"),
   ],
   conciliacao_divergencias: [
@@ -77,6 +82,31 @@ function aggregateFinanceiro(arts: GovArt[]) {
     .sort((a, b) => b.ano - a.ano || b.mes - a.mes);
 }
 
+async function fetchNameMap(table: string, ids: string[], cols = "id,nome"): Promise<Record<string, string>> {
+  const out: Record<string, string> = {};
+  if (!ids.length) return out;
+  const { data } = await supabase.from(table as any).select(cols).in("id", ids);
+  (data ?? []).forEach((r: any) => { out[r.id] = r.nome ?? r.razao_social ?? r.full_name ?? ""; });
+  return out;
+}
+
+async function enrichArts(arts: GovArt[]): Promise<any[]> {
+  const empresaIds = Array.from(new Set(arts.map(a => a.empresa_id).filter(Boolean))) as string[];
+  const contIds = Array.from(new Set(arts.map(a => a.contratante_id).filter(Boolean))) as string[];
+  const rtIds = Array.from(new Set(arts.map(a => a.rt_id).filter(Boolean))) as string[];
+  const [empresas, contratantes, rts] = await Promise.all([
+    fetchNameMap("crea_empresas", empresaIds),
+    fetchNameMap("crea_gov_contratantes", contIds),
+    fetchNameMap("crea_rts", rtIds),
+  ]);
+  return arts.map(a => ({
+    ...a,
+    empresa_nome: a.empresa_id ? (empresas[a.empresa_id] || "") : "",
+    contratante_nome: a.contratante_id ? (contratantes[a.contratante_id] || "") : "",
+    rt_nome: a.rt_id ? (rts[a.rt_id] || "") : "",
+  }));
+}
+
 export function RelatoriosTab({ filters }: { filters: GovFilters }) {
   const { companyId } = useGovCompany();
   const [template, setTemplate] = useState<Template>("arts_completo");
@@ -93,18 +123,20 @@ export function RelatoriosTab({ filters }: { filters: GovFilters }) {
       const fields = SCHEMAS[template];
 
       if (template === "arts_completo" || template === "arts_resumo") {
-        rows = await fetchArts(companyId, filters, 5000);
+        const arts = await fetchArts(companyId, filters, 5000);
+        rows = await enrichArts(arts);
       } else if (template === "financeiro") {
         const arts = await fetchArts(companyId, filters, 5000);
         rows = aggregateFinanceiro(arts);
       } else if (template === "vencidas") {
         const arts = await fetchArts(companyId, filters, 5000);
         const today = new Date();
-        rows = arts.filter(a => a.data_vencimento && a.data_vencimento < today.toISOString().slice(0, 10) && !a.data_pagamento)
-          .map(a => ({
-            ...a,
-            dias_atraso: Math.floor((today.getTime() - new Date(a.data_vencimento!).getTime()) / 86400000),
-          }));
+        const venc = arts.filter(a => a.data_vencimento && a.data_vencimento < today.toISOString().slice(0, 10) && !a.data_pagamento);
+        const enriched = await enrichArts(venc);
+        rows = enriched.map(a => ({
+          ...a,
+          dias_atraso: Math.floor((today.getTime() - new Date(a.data_vencimento!).getTime()) / 86400000),
+        }));
       } else if (template === "conciliacao_divergencias") {
         const cs = await fetchConciliacoes(companyId, "divergente");
         rows = cs.map((c: any) => ({
