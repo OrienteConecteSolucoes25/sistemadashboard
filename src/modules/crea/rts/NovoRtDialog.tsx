@@ -23,10 +23,11 @@ type Props = {
 };
 
 const empty = {
-  nome: "", cpf: "", status: "ativo",
+  nome: "", cpf: "", uf: "", status: "ativo",
   data_inicio: "", data_termino: "", termino_indefinido: false,
   modelo_contrato: "clt", visto: "", rnp: "", registro: "",
-  observacao: "", anuidade: "nao_paga",
+  observacao: "", anuidade: "nao_paga", anuidade_ano: "" as string | number,
+  inclusao_ativa: true,
 };
 
 export default function NovoRtDialog({ open, onOpenChange, companyId, initial, onSaved }: Props) {
