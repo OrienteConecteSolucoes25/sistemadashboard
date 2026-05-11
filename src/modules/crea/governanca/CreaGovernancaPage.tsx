@@ -1,17 +1,18 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Gauge, FileSpreadsheet, Boxes, FileText } from "lucide-react";
+import { Gauge, FileSpreadsheet, Boxes, FileText, ListChecks } from "lucide-react";
 import { GovArtFilterBar } from "./GovArtFilterBar";
 import { GovFilters } from "./lib/govTypes";
 import { VisaoExecutivaTab } from "./tabs/VisaoExecutivaTab";
 import { GovGenericTab } from "./tabs/GovGenericTab";
-import { SERVICOS_FIELDS, ART_BLOCO_FIELDS, RELATORIO_CREA_FIELDS } from "./tabs/govFields";
+import { SERVICOS_FIELDS, ART_BLOCO_FIELDS, RELATORIO_CREA_FIELDS, ARTS_TODAS_FIELDS } from "./tabs/govFields";
 
 const TABS = [
   { value: "executiva",      label: "Visão Executiva",        icon: Gauge },
   { value: "servicos",       label: "Relatório Gerencial",    icon: FileSpreadsheet },
   { value: "art_bloco",      label: "ART por Bloco",          icon: Boxes },
   { value: "relatorio_crea", label: "Relatórios CREA",        icon: FileText },
+  { value: "arts_todas",     label: "ARTs (Todas)",           icon: ListChecks },
 ];
 
 export default function CreaGovernancaPage() {
@@ -68,6 +69,15 @@ export default function CreaGovernancaPage() {
             description="Relatório consolidado por ART (tipo, participação, contratante, proprietário, atividades)."
             fields={RELATORIO_CREA_FIELDS}
             labelKey="art"
+          />
+        </TabsContent>
+        <TabsContent value="arts_todas" className="mt-4">
+          <GovGenericTab
+            table="crea_gov_arts_todas"
+            title="ARTs (Todas)"
+            description="Listagem completa de ARTs exportada do SITAC/CREA (NÚMERO, DETALHE, ANÁLISE, BAIXA, BOLETO, PAGAMENTO, CADASTRO, EMPRESA, CONTRATANTE, ENDEREÇO, OBSERVAÇÃO)."
+            fields={ARTS_TODAS_FIELDS}
+            labelKey="numero"
           />
         </TabsContent>
       </Tabs>

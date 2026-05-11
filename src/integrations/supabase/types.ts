@@ -4732,6 +4732,81 @@ export type Database = {
           },
         ]
       }
+      crea_gov_arts_todas: {
+        Row: {
+          analise: string | null
+          baixa: string | null
+          boleto: string | null
+          cadastro: string | null
+          company_id: string
+          contratante: string | null
+          created_at: string
+          created_by: string | null
+          data: Json | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          detalhe: string | null
+          empresa: string | null
+          endereco: string | null
+          id: string
+          is_deleted: boolean
+          numero: string | null
+          observacao: string | null
+          pagamento: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          analise?: string | null
+          baixa?: string | null
+          boleto?: string | null
+          cadastro?: string | null
+          company_id: string
+          contratante?: string | null
+          created_at?: string
+          created_by?: string | null
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          detalhe?: string | null
+          empresa?: string | null
+          endereco?: string | null
+          id?: string
+          is_deleted?: boolean
+          numero?: string | null
+          observacao?: string | null
+          pagamento?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          analise?: string | null
+          baixa?: string | null
+          boleto?: string | null
+          cadastro?: string | null
+          company_id?: string
+          contratante?: string | null
+          created_at?: string
+          created_by?: string | null
+          data?: Json | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          detalhe?: string | null
+          empresa?: string | null
+          endereco?: string | null
+          id?: string
+          is_deleted?: boolean
+          numero?: string | null
+          observacao?: string | null
+          pagamento?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       crea_gov_classificacao_regras: {
         Row: {
           ativa: boolean
