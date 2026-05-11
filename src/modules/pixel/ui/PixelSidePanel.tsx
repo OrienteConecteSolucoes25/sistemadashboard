@@ -4,6 +4,8 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Linkedin, MessageSquare, Video, Armchair, ExternalLink, Briefcase, LogOut, Store, Search, ShieldAlert, Cpu } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { STATUS_COLOR, STATUS_LABEL, type PixelStatus } from "../core/constants";
 import { PixelSprite } from "../renderer/PixelSprite";
 import { AvatarLayeredSprite } from "../renderer/AvatarLayeredSprite";
