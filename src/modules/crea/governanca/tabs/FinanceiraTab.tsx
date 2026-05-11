@@ -71,7 +71,7 @@ export function FinanceiraTab({ filters }: { filters: GovFilters }) {
   const statusFinanceiro = useMemo(() => {
     const m = new Map<string, number>();
     for (const a of arts) {
-      const s = a.status_financeiro || (a.data_pagamento ? "Pago" : "Pendente");
+      const s = deriveStatusFinanceiroArt(a);
       m.set(s, (m.get(s) ?? 0) + 1);
     }
     return Array.from(m, ([name, value]) => ({ name, value }));
