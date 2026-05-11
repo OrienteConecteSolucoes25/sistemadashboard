@@ -2,6 +2,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { STAGE_HEIGHT_TILES, STAGE_WIDTH_TILES } from "../core/constants";
+import { movementEngine } from "../engine/movementEngine";
+import { mapEngine } from "../engine/mapEngine";
 
 /**
  * Lógica de movimento desacoplada da camada visual.
