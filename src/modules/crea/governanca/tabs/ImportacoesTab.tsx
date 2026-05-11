@@ -41,6 +41,11 @@ export function ImportacoesTab() {
   const [progress, setProgress] = useState<string>("");
   const [history, setHistory] = useState<ImportRow[]>([]);
   const [reload, setReload] = useState(0);
+  const [lastSummary, setLastSummary] = useState<null | {
+    arquivo: string; kind: string; total: number; ok: number; fail: number;
+    semNumero: number; semUf: number; semDataCadastro: number; valorInvalido: number;
+    duplicadosNoArquivo: number; unmappedHeaders: string[];
+  }>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
