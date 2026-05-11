@@ -45,7 +45,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           .maybeSingle();
         setIsAdmin(!!data);
       }, 0);
-    } else {
+    } else if (!s?.user) {
       setIsAdmin(false);
     }
   };
