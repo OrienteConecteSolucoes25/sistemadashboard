@@ -23,24 +23,34 @@ import { toast } from "sonner";
 
 export const JarbasTrainingDashboard = () => {
   const [paths, setPaths] = useState<any[]>([]);
+  const [certs, setCerts] = useState<any[]>([]);
+  const [activity, setActivity] = useState<any[]>([]);
+  const [globalLevel, setGlobalLevel] = useState<string>("—");
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchPaths();
+    void load();
   }, []);
 
-  const fetchPaths = async () => {
+  const load = async () => {
     try {
-      const { data, error } = await supabase
-        .from('training_paths')
-        .select(`
-          *,
-          training_modules(*)
-        `);
-      if (error) throw error;
-      setPaths(data || []);
+      const { data: u } = await supabase.auth.getUser();
+      const uid = u.user?.id;
+
+      const [pathsRes, certsRes, sessionsRes] = await Promise.all([
+        supabase.from("training_paths").select("*, training_modules(*)"),
+        uid ? supabase.from("operational_certifications").select("*, training_paths(title, category)").eq("user_id", uid).eq("status", "active") : Promise.resolve({ data: [] as any[] }),
+        uid ? supabase.from("training_sessions").select("id, status, score, started_at, completed_at, training_modules(title, path_id)").eq("user_id", uid).order("started_at", { ascending: false }).limit(10) : Promise.resolve({ data: [] as any[] }),
+      ]);
+
+      setPaths(pathsRes.data ?? []);
+      setCerts((certsRes as any).data ?? []);
+      setActivity((sessionsRes as any).data ?? []);
+
+      const cnt = ((certsRes as any).data ?? []).length;
+      setGlobalLevel(cnt >= 10 ? "Master" : cnt >= 5 ? "Senior" : cnt >= 1 ? "Pleno" : "Iniciante");
     } catch (error) {
-      console.error("Error fetching paths:", error);
+      console.error("Error fetching training data:", error);
       toast.error("Erro ao carregar trilhas de treinamento");
     } finally {
       setLoading(false);
