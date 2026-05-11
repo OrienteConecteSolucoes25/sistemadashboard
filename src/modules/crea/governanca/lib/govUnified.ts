@@ -180,7 +180,27 @@ export async function fetchGovUnified(companyId: string, f: GovFilters): Promise
       atividade_servico: r.atividade_servico ?? r.atividades ?? null,
       data: toDate(r.data_inicio) ?? toDate(r.cadastro),
       raw: r,
+  });
+
+  todas.forEach((r: any) => {
+    const end = r.endereco ?? null;
+    const uf = end ? (String(end).match(/\/\s*([A-Z]{2})\b/)?.[1] ?? null) : null;
+    const cidade = end ? (String(end).match(/-\s*([A-Za-zÀ-ú\s]+)\s*\/\s*[A-Z]{2}/)?.[1]?.trim() ?? null) : null;
+    rows.push({
+      id: r.id, source: "arts_todas",
+      numero: r.numero ?? null,
+      uf, cidade,
+      nome_obra: end,
+      rt_nome: null,
+      contratante: r.contratante ?? null,
+      empresa: r.empresa ?? null,
+      status: r.analise ?? r.baixa ?? null,
+      valor_art: null, valor_pago: null, valor_contrato: null,
+      atividade_servico: r.detalhe ?? null,
+      data: toDate(r.cadastro) ?? toDate(r.pagamento),
+      raw: r,
     });
+  });
   });
 
   return rows.filter((r) =>
