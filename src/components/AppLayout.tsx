@@ -2,11 +2,6 @@ import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Shield, FolderKanban, LogOut, Settings, Gamepad2, HardHat, Scale, Menu, X, CreditCard, Building2, LayoutDashboard, HeartHandshake, Palette, FileSignature, MessageSquare, ChevronLeft, ChevronRight, ShieldAlert, Cpu, ShoppingBag, DollarSign, Store, Monitor, GraduationCap, BarChart3, Eye, Terminal, Share2, ShieldCheck } from "lucide-react";
-import { useComunicacaoAccess } from "@/modules/comunicacao/hooks/useComunicacaoAccess";
-import { useRhdpAccess } from "@/modules/rhdp/hooks/useRhdpAccess";
-import { useCreaAccess } from "@/modules/crea/hooks/useCreaAccess";
-import { useEngenhariaAccess } from "@/modules/engenharia/hooks/useEngenhariaAccess";
-import { useJuridicoAccess } from "@/modules/juridico/hooks/useJuridicoAccess";
 import { usePlanosAccess } from "@/modules/planos/hooks/usePlanosAccess";
 import { useEffect, useState } from "react";
 import { NotificationsBell } from "@/components/NotificationsBell";
@@ -15,22 +10,22 @@ import { ImpersonationProvider } from "@/modules/planos/hooks/useImpersonation";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { useUserLayoutPreference } from "@/modules/aparencia/hooks/useUserLayoutPreference";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { useCan } from "@/acl/AclProvider";
+import { useAcl, useCan } from "@/acl/AclProvider";
 // Import Jarbas removido daqui para ser usado apenas dentro do Soluções-Verso
 
 const AppLayout = () => {
   const { session, isAdmin, loading, signOut } = useAuth();
-  // Leva 3: ACL central como autoridade primária; legado fica como OR para retrocompatibilidade.
-  const { hasAccess: engAccess } = useEngenhariaAccess();
-  const { hasAccess: jurAccess } = useJuridicoAccess();
+  const { loading: aclLoading } = useAcl();
   const { isFinanceiro, isCompanyAdmin, companyId, isOcsStaff, canSeeMinhaEmpresa } = usePlanosAccess();
-  const { hasAccess: rhdpAccess } = useRhdpAccess();
-  const { hasAccess: creaAccess } = useCreaAccess();
-  const { hasAccess: commAccess } = useComunicacaoAccess();
   const canAparencia = useCan("aparencia.acessar");
   const canPlanos = useCan("planos.acessar");
   const canAdmVis = useCan("adm.visibilidade.visualizar");
   const canMarketplace = useCan("marketplace.dashboard.visualizar");
+  const canEngenharia = useCan("engenharia.acessar");
+  const canJuridico = useCan("juridico.acessar");
+  const canRhdp = useCan("rhdp.acessar");
+  const canCrea = useCan("crea.acessar");
+  const canComunicacao = useCan("comunicacao.acessar");
   const canVisaoGeral = useCan("visao_geral.acessar");
   const canPixel = useCan("pixel_office.acessar");
   const canJarbas = useCan("jarbas.acessar");
@@ -42,7 +37,7 @@ const AppLayout = () => {
 
   useEffect(() => { setOpen(false); }, [loc.pathname]);
 
-  if (loading) return null;
+  if (loading || aclLoading) return null;
   if (!session) return <Navigate to="/auth" replace />;
 
   const NavItem = ({ to, icon: Icon, label }: any) => {
@@ -97,11 +92,11 @@ const AppLayout = () => {
       {canJarbas && <NavItem to="/app/jarbas" icon={Cpu} label="Jarbas" />}
       {canTI && <NavItem to="/app/ti" icon={Monitor} label="TI & Suporte" />}
       {canCompliance && <NavItem to="/app/compliance" icon={ShieldCheck} label="Compliance" />}
-      {engAccess && <NavItem to="/app/engenharia" icon={HardHat} label="Engenharia" />}
-      {jurAccess && <NavItem to="/app/juridico" icon={Scale} label="Jurídico" />}
-      {rhdpAccess && <NavItem to="/app/rh-dp" icon={HeartHandshake} label="RH/DP" />}
-      {creaAccess && <NavItem to="/app/crea" icon={FileSignature} label="CREA & ART" />}
-      {commAccess && <NavItem to="/app/comunicacao" icon={MessageSquare} label="Comunicação OCS" />}
+      {canEngenharia && <NavItem to="/app/engenharia" icon={HardHat} label="Engenharia" />}
+      {canJuridico && <NavItem to="/app/juridico" icon={Scale} label="Jurídico" />}
+      {canRhdp && <NavItem to="/app/rh-dp" icon={HeartHandshake} label="RH/DP" />}
+      {canCrea && <NavItem to="/app/crea" icon={FileSignature} label="CREA & ART" />}
+      {canComunicacao && <NavItem to="/app/comunicacao" icon={MessageSquare} label="Comunicação OCS" />}
       {(isFinanceiro || canPlanos) && <NavItem to="/app/planos" icon={CreditCard} label="Planos" />}
       {canSeeMinhaEmpresa && <NavItem to="/app/minha-empresa" icon={Building2} label="Minha Empresa" />}
       {(isAdmin || canAparencia) && <NavItem to="/app/aparencia" icon={Palette} label="Aparência & Marca" />}

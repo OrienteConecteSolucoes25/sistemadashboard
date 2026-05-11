@@ -1,12 +1,11 @@
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import {
   LayoutDashboard, FileSignature, FileStack, Users, Building2, KeyRound, ScrollText,
   Award, FileMinus, FolderOpen, MessageSquare, BookOpen, CalendarClock, Bot, Link as LinkIcon, ShieldCheck, HardHat, Settings, Gauge
 } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useUserModules } from "@/modules/planos/hooks/useUserModules";
 import { useMemo } from "react";
 import { CollapsibleModuleSidebar } from "@/modules/aparencia/ui/CollapsibleModuleSidebar";
+import { useCan } from "@/acl/AclProvider";
 
 const allTabs = [
   { to: "/app/crea", label: "Dashboard", icon: LayoutDashboard, end: true, group: "Visão geral", moduleKey: "crea.base" },
@@ -25,11 +24,11 @@ const allTabs = [
 ];
 
 export default function CreaLayout() {
-  const loc = useLocation();
-  const { has, ready } = useUserModules();
-  const tabs = useMemo(() => ready
-    ? allTabs.filter(t => t.moduleKey === "crea.base" || has(t.moduleKey) || has("crea.base"))
-    : allTabs, [ready, has]);
+  const canCrea = useCan("crea.acessar");
+  const tabs = useMemo(() => {
+    if (canCrea) return allTabs;
+    return [];
+  }, [canCrea]);
 
   return (
     <div className="flex gap-0 -m-4 md:-m-6 min-h-[calc(100vh-3rem)] rounded-none overflow-hidden">
