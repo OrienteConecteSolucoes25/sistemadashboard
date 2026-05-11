@@ -123,16 +123,16 @@ export const JarbasTrainingDashboard = () => {
                       <CardContent>
                         <div className="space-y-4">
                           <div className="flex justify-between text-[10px] font-bold uppercase">
-                            <span>Progresso</span>
-                            <span>35%</span>
+                            <span>Módulos</span>
+                            <span>{path.training_modules?.length ?? 0}</span>
                           </div>
-                          <Progress value={35} className="h-1 bg-cyan-950" />
+                          <Progress value={path.training_modules?.length ? 0 : 0} className="h-1 bg-cyan-950" />
                           <div className="flex items-center justify-between pt-2">
                             <span className="text-[10px] opacity-60 flex items-center gap-1">
-                              <Timer className="w-3 h-3" /> 2h 30min
+                              <Timer className="w-3 h-3" /> {path.training_modules?.length ?? 0} módulo(s)
                             </span>
                             <Button size="sm" variant="outline" className="h-7 text-[10px] border-cyan-500/50 hover:bg-cyan-500/10 text-cyan-400 uppercase font-bold">
-                              Continuar <ChevronRight className="ml-1 w-3 h-3" />
+                              Abrir <ChevronRight className="ml-1 w-3 h-3" />
                             </Button>
                           </div>
                         </div>
