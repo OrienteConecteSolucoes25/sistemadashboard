@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import AclPermissionsForm from "@/acl/AclPermissionsForm";
 import EmpresasMarcaToggle from "@/components/admin/EmpresasMarcaToggle";
+import CatalogSyncCard from "@/components/admin/CatalogSyncCard";
 import { usePlanosAccess } from "@/modules/planos/hooks/usePlanosAccess";
 import { useCan } from "@/acl/AclProvider";
 
@@ -29,6 +30,7 @@ const Adm = () => {
           Defina quais usuários veem as mesmas coisas, em quais módulos.
         </p>
       </div>
+      <CatalogSyncCard />
       <PermissoesTab />
       <EmpresasMarcaToggle />
     </div>
