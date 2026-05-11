@@ -44,7 +44,9 @@ export function ImportacoesTab() {
   const [lastSummary, setLastSummary] = useState<null | {
     arquivo: string; kind: string; total: number; ok: number; fail: number;
     semNumero: number; semUf: number; semDataCadastro: number; valorInvalido: number;
-    duplicadosNoArquivo: number; unmappedHeaders: string[];
+    duplicadosNoArquivo: number; encodingSuspeito: number; dataInvalida: number;
+    artsReconhecidas: number; registrosIncompletos: number;
+    unmappedHeaders: string[]; errosLog: { linha: number; tipo: string; detalhe: string }[];
   }>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
