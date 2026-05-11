@@ -56,6 +56,12 @@ export const JarbasCentralDashboard = () => {
           <Link to="/app/jarbas/knowledge" className="text-[10px] text-cyan-400 border border-cyan-500/30 px-3 py-1 rounded hover:bg-cyan-500/10 transition-colors uppercase font-bold flex items-center gap-2">
             <BookOpen className="w-3 h-3" /> Base de Conhecimento
           </Link>
+          <button 
+            onClick={simulateAlert}
+            className="text-[10px] text-red-500 border border-red-500/30 px-3 py-1 rounded hover:bg-red-500/10 transition-colors uppercase font-bold flex items-center gap-2"
+          >
+            <Radio className="w-3 h-3" /> Testar Alerta
+          </button>
           <div className="text-right">
             <div className="text-[10px] uppercase opacity-50">Health Score</div>
             <div className="text-2xl font-bold">{status.healthScore}%</div>
