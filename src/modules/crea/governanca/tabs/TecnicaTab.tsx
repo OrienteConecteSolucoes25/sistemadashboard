@@ -14,6 +14,10 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { deriveStatusFinanceiroArt } from "../lib/govNormalize";
+
+type RtInfo = { nome: string; titulo: string | null; modalidade: string | null };
+type ContratanteInfo = { nome: string };
 
 const fmt = (n: number | null | undefined) => n == null ? "—" : Number(n).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const fmtDate = (d: string | null | undefined) => d ? new Date(d + "T12:00:00").toLocaleDateString("pt-BR") : "—";
@@ -36,6 +40,8 @@ export function TecnicaTab({ filters }: { filters: GovFilters }) {
   const [delReason, setDelReason] = useState("");
   const [delBusy, setDelBusy] = useState(false);
   const [reload, setReload] = useState(0);
+  const [rtMap, setRtMap] = useState<Record<string, RtInfo>>({});
+  const [contMap, setContMap] = useState<Record<string, ContratanteInfo>>({});
 
   const doDelete = async () => {
     if (delReason.trim().length < 3) { toast.error("Informe o motivo (mínimo 3 caracteres)."); return; }
@@ -52,7 +58,30 @@ export function TecnicaTab({ filters }: { filters: GovFilters }) {
   useEffect(() => {
     if (!companyId) return;
     setArts(null); setErr(null); setSel(new Set());
-    fetchArts(companyId, filters, 2000).then(setArts).catch((e) => setErr(e.message));
+    fetchArts(companyId, filters, 2000).then(async (rows) => {
+      setArts(rows);
+      // Carrega RTs e Contratantes referenciados (lookup leve, sem FK)
+      const rtIds = Array.from(new Set(rows.map((a) => a.rt_id).filter(Boolean) as string[]));
+      const ctIds = Array.from(new Set(rows.map((a) => a.contratante_id).filter(Boolean) as string[]));
+      if (rtIds.length) {
+        const { data: rts } = await supabase
+          .from("crea_engineers")
+          .select("id,nome,titulo,modalidade")
+          .in("id", rtIds);
+        const m: Record<string, RtInfo> = {};
+        (rts ?? []).forEach((r: any) => { m[r.id] = { nome: r.nome, titulo: r.titulo ?? null, modalidade: r.modalidade ?? null }; });
+        setRtMap(m);
+      } else setRtMap({});
+      if (ctIds.length) {
+        const { data: cts } = await supabase
+          .from("crea_gov_contratantes")
+          .select("id,nome")
+          .in("id", ctIds);
+        const m: Record<string, ContratanteInfo> = {};
+        (cts ?? []).forEach((c: any) => { m[c.id] = { nome: c.nome }; });
+        setContMap(m);
+      } else setContMap({});
+    }).catch((e) => setErr(e.message));
   }, [companyId, JSON.stringify(filters), reload]);
 
   const filtered = useMemo(() => {
@@ -97,39 +126,50 @@ export function TecnicaTab({ filters }: { filters: GovFilters }) {
                 <TableHead>Nº ART</TableHead>
                 <TableHead>UF</TableHead>
                 <TableHead>Cadastro</TableHead>
-                <TableHead>Status análise</TableHead>
+                <TableHead>Resp. Técnico</TableHead>
+                <TableHead>Contratante</TableHead>
+                <TableHead>Proprietário</TableHead>
+                <TableHead>Cidade</TableHead>
+                <TableHead className="text-right">Valor ART</TableHead>
+                <TableHead className="text-right">Valor Pago</TableHead>
                 <TableHead>Status fin.</TableHead>
-                <TableHead className="text-right">Taxa</TableHead>
-                <TableHead className="text-right">Pago</TableHead>
-                <TableHead className="text-right">Contrato</TableHead>
+                <TableHead>Status análise</TableHead>
                 <TableHead>Boleto</TableHead>
                 <TableHead>Vencimento</TableHead>
                 <TableHead>Pagamento</TableHead>
-                <TableHead>Cidade</TableHead>
+                <TableHead className="text-right">Contrato</TableHead>
                 <TableHead>Observação</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((a) => (
+              {filtered.map((a) => {
+                const rt = a.rt_id ? rtMap[a.rt_id] : null;
+                const ct = a.contratante_id ? contMap[a.contratante_id] : null;
+                const stFin = deriveStatusFinanceiroArt(a);
+                const rtLabel = rt ? `${rt.nome}${rt.titulo ? ` — ${rt.titulo}` : ""}` : (a.rt_id ? "—" : <span className="text-rose-600">sem RT</span>);
+                return (
                 <TableRow key={a.id} className={sel.has(a.id) ? "bg-primary/5" : ""}>
                   <TableCell><Checkbox checked={sel.has(a.id)} onCheckedChange={() => toggle(a.id)} /></TableCell>
                   <TableCell className="font-mono text-xs">{a.numero}</TableCell>
                   <TableCell>{a.uf ?? "—"}</TableCell>
                   <TableCell className="whitespace-nowrap text-xs">{fmtDate(a.data_cadastro)}</TableCell>
-                  <TableCell><Badge variant="outline" className={`text-xs ${statusColor(a.status_analise)}`}>{a.status_analise ?? "—"}</Badge></TableCell>
-                  <TableCell><Badge variant="outline" className={`text-xs ${statusColor(a.status_financeiro)}`}>{a.status_financeiro ?? "—"}</Badge></TableCell>
+                  <TableCell className="text-xs max-w-[200px] truncate" title={rt ? `${rt.nome}${rt.titulo ? ` — ${rt.titulo}` : ""}${rt.modalidade ? ` (${rt.modalidade})` : ""}` : ""}>{rtLabel}</TableCell>
+                  <TableCell className="text-xs max-w-[180px] truncate" title={ct?.nome ?? ""}>{ct?.nome ?? (a.contratante_id ? "—" : <span className="text-muted-foreground">—</span>)}</TableCell>
+                  <TableCell className="text-xs max-w-[180px] truncate" title={a.proprietario ?? ""}>{a.proprietario ?? "—"}</TableCell>
+                  <TableCell className="text-xs">{a.cidade ?? "—"}</TableCell>
                   <TableCell className="text-right text-xs">{fmt(a.valor_taxa)}</TableCell>
                   <TableCell className="text-right text-xs">{fmt(a.valor_pago)}</TableCell>
-                  <TableCell className="text-right text-xs">{fmt(a.valor_contrato)}</TableCell>
+                  <TableCell><Badge variant="outline" className={`text-xs ${statusColor(stFin)}`}>{stFin}</Badge></TableCell>
+                  <TableCell><Badge variant="outline" className={`text-xs ${statusColor(a.status_analise)}`}>{a.status_analise ?? "—"}</Badge></TableCell>
                   <TableCell className="text-xs">{a.boleto_numero ?? "—"}</TableCell>
                   <TableCell className="whitespace-nowrap text-xs">{fmtDate(a.data_vencimento)}</TableCell>
                   <TableCell className="whitespace-nowrap text-xs">{fmtDate(a.data_pagamento)}</TableCell>
-                  <TableCell className="text-xs">{a.cidade ?? "—"}</TableCell>
+                  <TableCell className="text-right text-xs">{fmt(a.valor_contrato)}</TableCell>
                   <TableCell className="text-xs max-w-[260px] truncate" title={a.observacao ?? ""}>{a.observacao ?? "—"}</TableCell>
                 </TableRow>
-              ))}
+              );})}
               {filtered.length === 0 && (
-                <TableRow><TableCell colSpan={14} className="text-center text-sm text-muted-foreground py-8">Nenhuma ART encontrada.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={18} className="text-center text-sm text-muted-foreground py-8">Nenhuma ART encontrada.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
