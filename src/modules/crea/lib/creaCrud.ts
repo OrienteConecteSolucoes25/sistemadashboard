@@ -40,6 +40,7 @@ export function mapAdaptive(parsedRows: any[][], headers: string[], fields: Fiel
   fields.forEach((f) => {
     known.set(norm(f.key), f);
     known.set(norm(f.label), f);
+    (f.aliases ?? []).forEach((a) => known.set(norm(a), f));
   });
 
   return parsedRows.map((row) => {
