@@ -5409,6 +5409,78 @@ export type Database = {
           },
         ]
       }
+      crea_rts_pessoas: {
+        Row: {
+          anuidade: string
+          company_id: string
+          cpf: string
+          created_at: string
+          created_by: string | null
+          data_inicio: string | null
+          data_termino: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          id: string
+          is_deleted: boolean
+          modelo_contrato: string
+          nome: string
+          observacao: string
+          registro: string
+          rnp: string
+          status: string
+          termino_indefinido: boolean
+          updated_at: string
+          visto: string
+        }
+        Insert: {
+          anuidade?: string
+          company_id: string
+          cpf?: string
+          created_at?: string
+          created_by?: string | null
+          data_inicio?: string | null
+          data_termino?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          modelo_contrato?: string
+          nome: string
+          observacao?: string
+          registro?: string
+          rnp?: string
+          status?: string
+          termino_indefinido?: boolean
+          updated_at?: string
+          visto?: string
+        }
+        Update: {
+          anuidade?: string
+          company_id?: string
+          cpf?: string
+          created_at?: string
+          created_by?: string | null
+          data_inicio?: string | null
+          data_termino?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          id?: string
+          is_deleted?: boolean
+          modelo_contrato?: string
+          nome?: string
+          observacao?: string
+          registro?: string
+          rnp?: string
+          status?: string
+          termino_indefinido?: boolean
+          updated_at?: string
+          visto?: string
+        }
+        Relationships: []
+      }
       crea_treatments: {
         Row: {
           anexo_url: string | null
