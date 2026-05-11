@@ -82,7 +82,14 @@ const CharacterPanel = ({
   onFocusDesk?: (deskId: string) => void;
   onCallToMeeting?: (userId: string) => void;
 }) => {
+  const { user } = useAuth();
   const { data, loading } = useCharacterDetails(userId);
+  const isMe = user?.id === userId;
+
+  const updateStatus = async (newStatus: PixelStatus) => {
+    const { error } = await supabase.from("profiles").update({ status: newStatus }).eq("id", userId);
+    if (!error) toast.success("Status atualizado");
+  };
 
   if (loading || !data) {
     return (
