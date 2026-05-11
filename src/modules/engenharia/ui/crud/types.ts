@@ -11,6 +11,8 @@ export type FieldSchema = {
   /** width hint for form (full row) */
   full?: boolean;
   placeholder?: string;
+  /** Cabeçalhos alternativos aceitos no import e usados como fallback de leitura no `data` jsonb. */
+  aliases?: string[];
 };
 
 export type CrudConfig = {
