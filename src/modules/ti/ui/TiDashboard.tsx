@@ -38,13 +38,13 @@ export default function TiDashboard() {
       
       // Active tickets
       const { count: activeCount } = await supabase
-        .from('it_tickets')
+        .from('ti_tickets')
         .select('*', { count: 'exact', head: true })
         .neq('status', 'resolvido');
       
       // Assets
       const { count: assetCount } = await supabase
-        .from('it_assets')
+        .from('ti_assets')
         .select('*', { count: 'exact', head: true });
 
       // Tickets by category for performance chart
