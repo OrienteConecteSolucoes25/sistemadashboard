@@ -47,6 +47,12 @@ export function AuditoriaTab({ filters }: { filters: GovFilters }) {
     return m;
   }, [hits]);
 
+  const sevCounts = useMemo(() => {
+    const c = { critical: 0, high: 0, medium: 0, low: 0 } as Record<string, number>;
+    for (const h of hits) c[h.severity] = (c[h.severity] ?? 0) + 1;
+    return c;
+  }, [hits]);
+
   async function createAllAlerts() {
     if (!companyId || hits.length === 0) return;
     setCreating(true);
