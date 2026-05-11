@@ -36,13 +36,15 @@ export default function CreaAdminPage() {
           <TabsTrigger value="masterkey"><KeyRound className="w-4 h-4 mr-1" /> Chave-mestra</TabsTrigger>
           <TabsTrigger value="fontes"><BookOpen className="w-4 h-4 mr-1" /> Fontes IA</TabsTrigger>
           <TabsTrigger value="settings"><Settings className="w-4 h-4 mr-1" /> Configurações</TabsTrigger>
+          <TabsTrigger value="integracoes"><LinkIcon className="w-4 h-4 mr-1" /> Integrações</TabsTrigger>
           <TabsTrigger value="auditoria"><ShieldAlert className="w-4 h-4 mr-1" /> Auditoria</TabsTrigger>
         </TabsList>
         <TabsContent value="papeis" className="mt-4"><PapeisTab /></TabsContent>
         <TabsContent value="masterkey" className="mt-4"><MasterKeyTab /></TabsContent>
         <TabsContent value="fontes" className="mt-4"><FontesTab /></TabsContent>
         <TabsContent value="settings" className="mt-4"><SettingsTab /></TabsContent>
-        <TabsContent value="auditoria" className="mt-4"><AuditTab /></TabsContent>
+        <TabsContent value="integracoes" className="mt-4"><CreaIntegracoesPage /></TabsContent>
+        <TabsContent value="auditoria" className="mt-4"><AuditoriaPage /></TabsContent>
       </Tabs>
     </div>
   );
