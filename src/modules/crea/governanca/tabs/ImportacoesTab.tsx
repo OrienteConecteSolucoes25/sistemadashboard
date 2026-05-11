@@ -17,12 +17,20 @@ type ImportRow = {
   id: string;
   arquivo_nome: string | null;
   uf: string | null;
+  kind: string | null;
   total_linhas: number | null;
   ok: number | null;
   falhas: number | null;
   status: string;
   ran_at: string;
 };
+
+export const IMPORT_KINDS: { value: string; label: string; hint: string }[] = [
+  { value: "arts_extraidas",       label: "1. ARTs extraídas",                  hint: "Planilha base com nº ART, RT, contratante, valores, datas." },
+  { value: "relatorio_crea_art",   label: "2. Relatório CREA BA — ART",         hint: "Exportação oficial do CREA BA com status analítico/financeiro." },
+  { value: "relatorio_servicos",   label: "3. Relatório de serviços CREA",      hint: "Atividades técnicas, código TOS, quantidade e unidade." },
+  { value: "financeiro_baixas",    label: "4. Financeiro / baixas / pagamentos", hint: "Boletos, pagamentos, baixas e conciliação financeira." },
+];
 
 export function ImportacoesTab() {
   const { companyId } = useGovCompany();
