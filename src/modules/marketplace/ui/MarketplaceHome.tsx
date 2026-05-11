@@ -65,6 +65,7 @@ interface CartItem extends MarketplaceProduct {
 export default function MarketplaceHome() {
   const [products, setProducts] = useState<MarketplaceProduct[]>([]);
   const [categories, setCategories] = useState<MarketplaceCategory[]>([]);
+  const [activeStore, setActiveStore] = useState<MarketplaceStore | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
@@ -72,6 +73,7 @@ export default function MarketplaceHome() {
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [checkoutStep, setCheckoutStep] = useState(1); // 1: Cart, 2: Payment, 3: Success
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
 
   const addToCart = (product: MarketplaceProduct) => {
     setCart(prev => {
