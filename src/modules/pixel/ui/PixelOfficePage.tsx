@@ -324,6 +324,13 @@ export default function PixelOfficePage() {
             </Card>
           )}
 
+          {activeAgentPanel === "gamificacao" && (
+            <div className="mt-4 flex justify-center animate-in slide-in-from-bottom duration-300">
+              <PixelGamificationPanel userId={user?.id ?? ""} />
+            </div>
+          )}
+
+
           <PixelMeetingsPanel
             meetings={meetings}
             characters={characters}
