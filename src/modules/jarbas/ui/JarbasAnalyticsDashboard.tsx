@@ -130,23 +130,15 @@ export const JarbasAnalyticsDashboard = () => {
           </div>
           
           <div className="flex gap-4">
-             <Button variant="outline" className="border-cyan-500/30 text-cyan-400 h-10 px-4 text-xs font-bold uppercase">
-               <Filter className="w-3 h-3 mr-2" /> Filtrar Período
-             </Button>
-             <Badge className="bg-red-500 text-black px-3 flex items-center gap-2">
-               <AlertOctagon className="w-3 h-3" /> 3 RISCOS CRÍTICOS
+             <Badge className="bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 px-3 flex items-center gap-2">
+               <AlertOctagon className="w-3 h-3" /> {insights.filter((i) => i.impact_level === 'critical').length} RISCOS CRÍTICOS
              </Badge>
           </div>
         </header>
 
         {/* Top Metrics Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {[
-            { label: "Produtividade Global", value: "87.4%", trend: "+2.4%", up: true, icon: Activity },
-            { label: "Taxa de Atraso", value: "14.2%", trend: "-5.1%", up: true, icon: Clock },
-            { label: "Eficiência de Equipe", value: "92/100", trend: "+8", up: true, icon: Users },
-            { label: "Economia Projetada", value: "R$ 42k", trend: "On Track", up: true, icon: Target },
-          ].map((m, i) => (
+          {metrics.map((m: any, i) => (
             <Card key={i} className="bg-cyan-950/20 border-cyan-500/20">
               <CardContent className="pt-6">
                 <div className="flex justify-between items-start mb-2">
@@ -160,6 +152,13 @@ export const JarbasAnalyticsDashboard = () => {
               </CardContent>
             </Card>
           ))}
+          {metrics.length === 0 && (
+            <Card className="md:col-span-2 lg:col-span-4 bg-cyan-950/10 border-dashed border-cyan-500/20">
+              <CardContent className="py-8 text-center text-[11px] opacity-60">
+                {loading ? "Carregando métricas reais…" : "Nenhuma métrica registrada ainda em jarbas_analytics_metrics / jarbas_productivity_logs."}
+              </CardContent>
+            </Card>
+          )}
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
