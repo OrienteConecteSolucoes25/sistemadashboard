@@ -6,7 +6,7 @@ const sb: any = supabase;
 /** Linha unificada para Visão Executiva (origina-se de qualquer das 3 tabelas). */
 export type GovUnifiedRow = {
   id: string;
-  source: "servicos" | "art_bloco" | "relatorio_crea";
+  source: "servicos" | "art_bloco" | "relatorio_crea" | "arts_todas";
   numero: string | null;
   uf: string | null;
   cidade: string | null;
