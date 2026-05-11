@@ -31,6 +31,11 @@ const AppLayout = () => {
   const canPlanos = useCan("planos.acessar");
   const canAdmVis = useCan("adm.visibilidade.visualizar");
   const canMarketplace = useCan("marketplace.dashboard.visualizar");
+  const canVisaoGeral = useCan("visao_geral.acessar");
+  const canPixel = useCan("pixel_office.acessar");
+  const canJarbas = useCan("jarbas.acessar");
+  const canTI = useCan("ti.acessar");
+  const canCompliance = useCan("compliance.acessar");
   const loc = useLocation();
   const [open, setOpen] = useState(false);
   const { collapsed, setCollapsed } = useUserLayoutPreference("__root__");
