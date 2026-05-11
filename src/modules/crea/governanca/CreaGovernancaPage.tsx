@@ -50,7 +50,6 @@ const TABS: { value: string; label: string; icon: any; desc: string }[] = [
   { value: "alertas",     label: "Alertas",           icon: Bell,         desc: "Fila de exceções com criticidade, responsável e SLA." },
   { value: "creas",       label: "CREAs Brasil",      icon: MapPin,       desc: "Configuração por UF: layout do XLS, taxa, regras de extração." },
   { value: "relatorios",  label: "Relatórios",        icon: FileText,     desc: "Relatórios gerenciais com export XLSX/DOCX/PDF." },
-  { value: "ia",          label: "Assistente IA",     icon: Bot,          desc: "Chat com Lovable AI — gera tabelas, gráficos e insights via tool calling." },
 ];
 
 export default function CreaGovernancaPage() {
@@ -99,7 +98,6 @@ export default function CreaGovernancaPage() {
              : t.value === "clientes" ? <ClientesPanel filters={filters} />
              : t.value === "creas" ? <CreasBrasilTab />
              : t.value === "relatorios" ? <RelatoriosTab filters={filters} />
-             : t.value === "ia" ? <AssistenteIaTab />
              : <Placeholder title={t.label} description={t.desc} />}
           </TabsContent>
         ))}

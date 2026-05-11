@@ -11,7 +11,6 @@ import { CollapsibleModuleSidebar } from "@/modules/aparencia/ui/CollapsibleModu
 const allTabs = [
   { to: "/app/crea", label: "Dashboard", icon: LayoutDashboard, end: true, group: "Visão geral", moduleKey: "crea.base" },
   { to: "/app/crea/arts", label: "ARTs", icon: FileSignature, group: "Operação", moduleKey: "crea.arts" },
-  { to: "/app/crea/protocolos", label: "Protocolos", icon: FileStack, group: "Operação", moduleKey: "crea.protocolos" },
   { to: "/app/crea/cats", label: "CATs / Acervo", icon: Award, group: "Operação", moduleKey: "crea.cats" },
   { to: "/app/crea/certidoes", label: "Certidões", icon: ScrollText, group: "Operação", moduleKey: "crea.certidoes" },
   { to: "/app/crea/baixas", label: "Baixas", icon: FileMinus, group: "Operação", moduleKey: "crea.baixas" },
