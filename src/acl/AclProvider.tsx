@@ -20,9 +20,13 @@ type AclRow = { permission_key: string; company_id: string | null };
 type AclCtx = {
   loading: boolean;
   isInternalOcs: boolean;
+  /** True somente para staff OCS verdadeiro (registro em acl_internal_staff ou owner). Admin de cliente NÃO é true. */
+  isOcsTrueStaff: boolean;
   permissions: AclRow[];
   /** Verificação síncrona (cache local) */
   can: (key: string, companyId?: string | null) => boolean;
+  /** Verificação síncrona ignorando bypass internalOcs (apenas perms explícitas) */
+  hasGrant: (key: string, companyId?: string | null) => boolean;
   /** Verificação autoritativa via RPC (cobre fallback do sistema antigo) */
   canServer: (key: string, companyId?: string | null) => Promise<boolean>;
   refresh: () => Promise<void>;
@@ -31,8 +35,10 @@ type AclCtx = {
 const Ctx = createContext<AclCtx>({
   loading: true,
   isInternalOcs: false,
+  isOcsTrueStaff: false,
   permissions: [],
   can: () => false,
+  hasGrant: () => false,
   canServer: async () => false,
   refresh: async () => {},
 });
