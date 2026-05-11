@@ -92,11 +92,11 @@ const AppLayout = () => {
         </div>
       </div>
       {/* Módulo Projetos removido por não ter ligação funcional com o Soluções-Verso */}
-      <NavItem to="/app/visao-geral" icon={LayoutDashboard} label="Visão Geral" />
-      <NavItem to="/app/pixel-office" icon={Gamepad2} label="Soluções-Verso" />
-      <NavItem to="/app/jarbas" icon={Cpu} label="Jarbas" />
-      <NavItem to="/app/ti" icon={Monitor} label="TI & Suporte" />
-      <NavItem to="/app/compliance" icon={ShieldCheck} label="Compliance" />
+      {canVisaoGeral && <NavItem to="/app/visao-geral" icon={LayoutDashboard} label="Visão Geral" />}
+      {canPixel && <NavItem to="/app/pixel-office" icon={Gamepad2} label="Soluções-Verso" />}
+      {canJarbas && <NavItem to="/app/jarbas" icon={Cpu} label="Jarbas" />}
+      {canTI && <NavItem to="/app/ti" icon={Monitor} label="TI & Suporte" />}
+      {canCompliance && <NavItem to="/app/compliance" icon={ShieldCheck} label="Compliance" />}
       {engAccess && <NavItem to="/app/engenharia" icon={HardHat} label="Engenharia" />}
       {jurAccess && <NavItem to="/app/juridico" icon={Scale} label="Jurídico" />}
       {rhdpAccess && <NavItem to="/app/rh-dp" icon={HeartHandshake} label="RH/DP" />}
