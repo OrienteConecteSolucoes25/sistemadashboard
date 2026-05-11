@@ -39,6 +39,7 @@ export default function NovoRtDialog({ open, onOpenChange, companyId, initial, o
       setForm(initial ? {
         nome: initial.nome ?? "",
         cpf: initial.cpf ?? "",
+        uf: initial.uf ?? "",
         status: initial.status ?? "ativo",
         data_inicio: initial.data_inicio ?? "",
         data_termino: initial.data_termino ?? "",
@@ -49,6 +50,8 @@ export default function NovoRtDialog({ open, onOpenChange, companyId, initial, o
         registro: initial.registro ?? "",
         observacao: initial.observacao ?? "",
         anuidade: initial.anuidade ?? "nao_paga",
+        anuidade_ano: initial.anuidade_ano ?? "",
+        inclusao_ativa: initial.inclusao_ativa !== false,
       } : empty);
     }
   }, [open, initial]);
