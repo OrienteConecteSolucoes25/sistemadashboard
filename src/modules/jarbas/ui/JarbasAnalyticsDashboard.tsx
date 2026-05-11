@@ -38,41 +38,75 @@ import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-const productivityData = [
-  { name: "Seg", prod: 85, target: 80 },
-  { name: "Ter", prod: 92, target: 80 },
-  { name: "Qua", prod: 78, target: 80 },
-  { name: "Qui", prod: 95, target: 80 },
-  { name: "Sex", prod: 88, target: 80 },
-  { name: "Sab", prod: 60, target: 40 },
-  { name: "Dom", prod: 45, target: 40 },
-];
-
-const teamData = [
-  { team: "Norte", efficiency: 62, delay: 38, color: "#ef4444" },
-  { team: "Sul", efficiency: 88, delay: 12, color: "#22c55e" },
-  { team: "Leste", efficiency: 75, delay: 25, color: "#eab308" },
-  { team: "Oeste", efficiency: 91, delay: 9, color: "#06b6d4" },
-];
+const DOW = ["Dom", "Seg", "Ter", "Qua", "Qui", "Sex", "Sab"];
 
 export const JarbasAnalyticsDashboard = () => {
   const [insights, setInsights] = useState<any[]>([]);
+  const [productivityData, setProductivityData] = useState<{ name: string; prod: number; target: number }[]>([]);
+  const [teamData, setTeamData] = useState<{ team: string; efficiency: number; delay: number; color: string }[]>([]);
+  const [metrics, setMetrics] = useState<{ label: string; value: string; trend: string; up: boolean }[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchInsights();
+    void load();
   }, []);
 
-  const fetchInsights = async () => {
+  const load = async () => {
     try {
-      const { data, error } = await supabase
-        .from('jarbas_predictive_insights')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      setInsights(data || []);
+      const since = new Date(Date.now() - 7 * 24 * 3600 * 1000).toISOString();
+
+      const [insightsRes, prodRes, metricsRes] = await Promise.all([
+        supabase.from("jarbas_predictive_insights").select("*").order("created_at", { ascending: false }).limit(9),
+        supabase.from("jarbas_productivity_logs").select("recorded_at, on_time_completion_rate, activity_count, entity_id, entity_type, bottleneck_detected").gte("recorded_at", since),
+        supabase.from("jarbas_analytics_metrics").select("*").order("created_at", { ascending: false }).limit(50),
+      ]);
+
+      setInsights(insightsRes.data ?? []);
+
+      // Produtividade — média diária dos últimos 7 dias
+      const buckets: Record<string, { sum: number; n: number }> = {};
+      for (const r of prodRes.data ?? []) {
+        const d = new Date(r.recorded_at);
+        const key = DOW[d.getDay()];
+        const v = Number(r.on_time_completion_rate ?? 0) * 100;
+        buckets[key] = buckets[key] ? { sum: buckets[key].sum + v, n: buckets[key].n + 1 } : { sum: v, n: 1 };
+      }
+      const order = ["Seg", "Ter", "Qua", "Qui", "Sex", "Sab", "Dom"];
+      setProductivityData(order.map((k) => ({ name: k, prod: buckets[k] ? Math.round(buckets[k].sum / buckets[k].n) : 0, target: 80 })));
+
+      // Equipes — agrupa por entity_id (team)
+      const teams: Record<string, { ok: number; total: number }> = {};
+      for (const r of prodRes.data ?? []) {
+        if (r.entity_type !== "team" || !r.entity_id) continue;
+        const t = teams[r.entity_id] ?? { ok: 0, total: 0 };
+        t.ok += Number(r.on_time_completion_rate ?? 0);
+        t.total += 1;
+        teams[r.entity_id] = t;
+      }
+      const palette = ["#22c55e", "#06b6d4", "#eab308", "#ef4444", "#a855f7"];
+      setTeamData(
+        Object.entries(teams).slice(0, 5).map(([id, t], i) => {
+          const eff = Math.round((t.ok / t.total) * 100);
+          return { team: id.slice(0, 4).toUpperCase(), efficiency: eff, delay: 100 - eff, color: palette[i % palette.length] };
+        }),
+      );
+
+      // KPIs — usa jarbas_analytics_metrics + agregados acima
+      const m = metricsRes.data ?? [];
+      const find = (n: string) => m.find((x: any) => x.metric_name === n);
+      const prodGlobal = (productivityData.reduce((a, b) => a + b.prod, 0) || 0);
+      const avgProd = order.length ? Math.round((order.reduce((a, k) => a + (buckets[k] ? buckets[k].sum / buckets[k].n : 0), 0)) / order.length) : 0;
+      const delayed = (prodRes.data ?? []).filter((r: any) => r.bottleneck_detected).length;
+      const total = (prodRes.data ?? []).length || 1;
+      setMetrics([
+        { label: "Produtividade Global", value: `${avgProd}%`, trend: "7d", up: avgProd >= 80, icon: Activity } as any,
+        { label: "Taxa de Atraso", value: `${Math.round((delayed / total) * 100)}%`, trend: `${delayed}/${total}`, up: delayed === 0, icon: Clock } as any,
+        { label: "Eficiência de Equipe", value: teamData.length ? `${Math.round(teamData.reduce((a, t) => a + t.efficiency, 0) / Math.max(teamData.length, 1))}/100` : "—", trend: `${teamData.length} times`, up: true, icon: Users } as any,
+        { label: find("economia_projetada")?.metric_name ? "Economia Projetada" : "Insights ativos", value: find("economia_projetada") ? `R$ ${Number(find("economia_projetada")!.metric_value).toLocaleString("pt-BR")}` : `${insightsRes.data?.length ?? 0}`, trend: "live", up: true, icon: Target } as any,
+      ]);
     } catch (error) {
-      console.error("Error fetching insights:", error);
+      console.error("Error loading analytics:", error);
+      toast.error("Erro ao carregar analytics");
     } finally {
       setLoading(false);
     }
