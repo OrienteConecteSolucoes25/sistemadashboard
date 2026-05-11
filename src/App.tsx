@@ -59,12 +59,13 @@ import CreaAdminPage from "./modules/crea/ui/CreaAdminPage";
 import CreaIntegracoesPage from "./modules/crea/ui/CreaIntegracoesPage";
 import CreaGovernancaPage from "./modules/crea/governanca/CreaGovernancaPage";
 import {
-  ArtsPage as CreaArtsPage, ProtocolosPage as CreaProtocolosPage, CatsPage as CreaCatsPage,
+  ProtocolosPage as CreaProtocolosPage, CatsPage as CreaCatsPage,
   CertidoesPage as CreaCertidoesPage, BaixasPage as CreaBaixasPage, TratativasPage as CreaTratativasPage,
   PrazosPage as CreaPrazosPage, RtsPage as CreaRtsPage, EmpresasPage as CreaEmpresasPage,
   DocumentosPage as CreaDocumentosPage, NormasPage as CreaNormasPage, LinksPage as CreaLinksPage,
   CredenciaisPage as CreaCredenciaisPage, AssistentePage as CreaAssistentePage, AuditoriaPage as CreaAuditoriaPage,
 } from "./modules/crea/ui/CreaPages";
+import CreaArtsPage from "./modules/crea/art/ArtObrasPage";
 import ComunicacaoLayout from "./modules/comunicacao/ui/ComunicacaoLayout";
 import ComunicacaoDashboard from "./modules/comunicacao/ui/ComunicacaoDashboard";
 import {

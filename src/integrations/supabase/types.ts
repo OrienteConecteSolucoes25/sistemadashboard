@@ -3153,6 +3153,84 @@ export type Database = {
         }
         Relationships: []
       }
+      crea_art_obras: {
+        Row: {
+          cidade: string
+          cliente: string
+          company_id: string
+          coordenador: string
+          created_at: string
+          created_by: string | null
+          data_criacao_art: string | null
+          data_envio_pagamento: string | null
+          data_pasta: string | null
+          data_validacao: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          escopo: string
+          id: string
+          is_deleted: boolean
+          obra: string
+          observacao: string
+          responsavel: string | null
+          status: string
+          tipo_obra: string
+          uf: string
+          updated_at: string
+        }
+        Insert: {
+          cidade: string
+          cliente: string
+          company_id: string
+          coordenador: string
+          created_at?: string
+          created_by?: string | null
+          data_criacao_art?: string | null
+          data_envio_pagamento?: string | null
+          data_pasta?: string | null
+          data_validacao?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          escopo: string
+          id?: string
+          is_deleted?: boolean
+          obra: string
+          observacao?: string
+          responsavel?: string | null
+          status?: string
+          tipo_obra?: string
+          uf: string
+          updated_at?: string
+        }
+        Update: {
+          cidade?: string
+          cliente?: string
+          company_id?: string
+          coordenador?: string
+          created_at?: string
+          created_by?: string | null
+          data_criacao_art?: string | null
+          data_envio_pagamento?: string | null
+          data_pasta?: string | null
+          data_validacao?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          escopo?: string
+          id?: string
+          is_deleted?: boolean
+          obra?: string
+          observacao?: string
+          responsavel?: string | null
+          status?: string
+          tipo_obra?: string
+          uf?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       crea_arts: {
         Row: {
           anexo_url: string | null
