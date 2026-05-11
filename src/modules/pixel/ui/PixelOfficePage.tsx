@@ -103,6 +103,27 @@ export default function PixelOfficePage() {
       supabase.removeChannel(channel);
     };
   }, [activeWorkspace?.id]);
+  
+  // Integração Jarbas: Comandos de Voz para Movimento
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const { target } = customEvent.detail;
+      if (!user?.id) return;
+      
+      if (target === 'desk') {
+        const myDesk = desks.find(d => d.user_id === user.id);
+        if (myDesk) moveTo(user.id, myDesk.position_x, myDesk.position_y);
+        else toast.info("Você não possui uma mesa atribuída.");
+      } else if (target === 'room') {
+        const room = rooms[0]; // Vai para a primeira sala disponível
+        if (room) moveTo(user.id, room.position_x + 1, room.position_y + 1);
+      }
+    };
+    
+    window.addEventListener("pixel-office-move", handler);
+    return () => window.removeEventListener("pixel-office-move", handler);
+  }, [user?.id, desks, rooms, moveTo]);
 
   // Personagens "em reunião" recebem badge meeting (via status do profile já vem)
   // Posicionar personagens joined dentro/perto da sala da reunião visualmente
