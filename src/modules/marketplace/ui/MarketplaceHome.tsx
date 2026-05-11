@@ -152,7 +152,7 @@ export default function MarketplaceHome() {
         payment_method: 'credit_card'
       });
 
-      setCheckoutStep(3);
+      setCheckoutStep(4);
       setCart([]);
     } catch (error: any) {
       toast.error("Erro ao processar pedido: " + error.message);
