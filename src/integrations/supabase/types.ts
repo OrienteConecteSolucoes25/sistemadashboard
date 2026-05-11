@@ -10061,6 +10061,59 @@ export type Database = {
         }
         Relationships: []
       }
+      market_addresses: {
+        Row: {
+          city: string
+          complement: string | null
+          created_at: string
+          customer_id: string
+          id: string
+          is_default: boolean | null
+          label: string | null
+          neighborhood: string | null
+          number: string
+          state: string
+          street: string
+          zip_code: string
+        }
+        Insert: {
+          city: string
+          complement?: string | null
+          created_at?: string
+          customer_id: string
+          id?: string
+          is_default?: boolean | null
+          label?: string | null
+          neighborhood?: string | null
+          number: string
+          state: string
+          street: string
+          zip_code: string
+        }
+        Update: {
+          city?: string
+          complement?: string | null
+          created_at?: string
+          customer_id?: string
+          id?: string
+          is_default?: boolean | null
+          label?: string | null
+          neighborhood?: string | null
+          number?: string
+          state?: string
+          street?: string
+          zip_code?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_addresses_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "market_customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       market_categories: {
         Row: {
           created_at: string | null
@@ -10197,6 +10250,79 @@ export type Database = {
           },
         ]
       }
+      market_inventory_movements: {
+        Row: {
+          created_at: string
+          id: string
+          product_id: string
+          quantity: number
+          reason: string | null
+          type: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          product_id: string
+          quantity: number
+          reason?: string | null
+          type: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          product_id?: string
+          quantity?: number
+          reason?: string | null
+          type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_inventory_movements_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "market_products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      market_messages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          order_id: string
+          read_at: string | null
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          order_id: string
+          read_at?: string | null
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          order_id?: string
+          read_at?: string | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_messages_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "market_orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       market_order_items: {
         Row: {
           created_at: string | null
@@ -10308,10 +10434,12 @@ export type Database = {
           images: string[] | null
           is_active: boolean | null
           is_featured: boolean | null
+          is_highlighted: boolean | null
           metadata: Json | null
           min_stock_alert: number | null
           name: string
           price: number
+          product_type: string | null
           promo_price: number | null
           sku: string | null
           stock_quantity: number | null
@@ -10327,10 +10455,12 @@ export type Database = {
           images?: string[] | null
           is_active?: boolean | null
           is_featured?: boolean | null
+          is_highlighted?: boolean | null
           metadata?: Json | null
           min_stock_alert?: number | null
           name: string
           price: number
+          product_type?: string | null
           promo_price?: number | null
           sku?: string | null
           stock_quantity?: number | null
@@ -10346,10 +10476,12 @@ export type Database = {
           images?: string[] | null
           is_active?: boolean | null
           is_featured?: boolean | null
+          is_highlighted?: boolean | null
           metadata?: Json | null
           min_stock_alert?: number | null
           name?: string
           price?: number
+          product_type?: string | null
           promo_price?: number | null
           sku?: string | null
           stock_quantity?: number | null
@@ -10374,9 +10506,46 @@ export type Database = {
           },
         ]
       }
+      market_store_settings: {
+        Row: {
+          created_at: string
+          id: string
+          key: string
+          store_id: string
+          updated_at: string
+          value: Json | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          key: string
+          store_id: string
+          updated_at?: string
+          value?: Json | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          key?: string
+          store_id?: string
+          updated_at?: string
+          value?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "market_store_settings_store_id_fkey"
+            columns: ["store_id"]
+            isOneToOne: false
+            referencedRelation: "market_stores"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       market_stores: {
         Row: {
           banner_url: string | null
+          contact_email: string | null
+          contact_phone: string | null
           created_at: string | null
           description: string | null
           id: string
@@ -10384,12 +10553,16 @@ export type Database = {
           logo_url: string | null
           name: string
           organization_id: string | null
+          policies: string | null
+          primary_color: string | null
           settings: Json | null
           slug: string
           updated_at: string | null
         }
         Insert: {
           banner_url?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -10397,12 +10570,16 @@ export type Database = {
           logo_url?: string | null
           name: string
           organization_id?: string | null
+          policies?: string | null
+          primary_color?: string | null
           settings?: Json | null
           slug: string
           updated_at?: string | null
         }
         Update: {
           banner_url?: string | null
+          contact_email?: string | null
+          contact_phone?: string | null
           created_at?: string | null
           description?: string | null
           id?: string
@@ -10410,6 +10587,8 @@ export type Database = {
           logo_url?: string | null
           name?: string
           organization_id?: string | null
+          policies?: string | null
+          primary_color?: string | null
           settings?: Json | null
           slug?: string
           updated_at?: string | null
