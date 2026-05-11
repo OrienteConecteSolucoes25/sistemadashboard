@@ -74,9 +74,9 @@ export function ImportacoesTab() {
       setProgress(`${parsed.rows.length} linhas detectadas. Registrando importação…`);
 
       const { data: imp, error: impErr } = await supabase.from("crea_gov_importacoes").insert({
-        company_id: companyId, uf, kind: "arts_geral", arquivo_nome: file.name,
+        company_id: companyId, uf, kind, arquivo_nome: file.name,
         total_linhas: parsed.rows.length, status: "processando",
-        mapeamento: { unmappedHeaders: parsed.unmappedHeaders },
+        mapeamento: { unmappedHeaders: parsed.unmappedHeaders, origem_importacao: kind },
       }).select("id").single();
       if (impErr || !imp) throw new Error(impErr?.message ?? "Falha ao registrar importação");
 
