@@ -5,7 +5,7 @@ import { Shield, FolderKanban, LogOut, Settings, Gamepad2, HardHat, Scale, Menu,
 import { usePlanosAccess } from "@/modules/planos/hooks/usePlanosAccess";
 import { useEffect, useState } from "react";
 import { NotificationsBell } from "@/components/NotificationsBell";
-import { JarbasInterface } from "@/modules/jarbas/ui/JarbasInterface";
+import { AssistenteFloating } from "@/components/AssistenteFloating";
 import { ImpersonationProvider } from "@/modules/planos/hooks/useImpersonation";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { useUserLayoutPreference } from "@/modules/aparencia/hooks/useUserLayoutPreference";
