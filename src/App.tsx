@@ -89,6 +89,7 @@ import MarketplaceAdmin from "./modules/marketplace/ui/MarketplaceAdmin";
 import { JarbasCentralDashboard } from "./modules/jarbas/ui/JarbasCentralDashboard";
 import { JarbasKnowledgePage } from "./modules/jarbas/ui/JarbasKnowledgePage";
 import { JarbasTrainingDashboard } from "./modules/jarbas/ui/JarbasTrainingDashboard";
+import { JarbasAnalyticsDashboard } from "./modules/jarbas/ui/JarbasAnalyticsDashboard";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -226,6 +227,7 @@ const App = () => (
               <Route path="jarbas" element={<JarbasCentralDashboard />} />
               <Route path="jarbas/knowledge" element={<JarbasKnowledgePage />} />
               <Route path="jarbas/training" element={<JarbasTrainingDashboard />} />
+              <Route path="jarbas/analytics" element={<JarbasAnalyticsDashboard />} />
               <Route path="ocs-guard" element={<OcsGuardPage />} />
               <Route path="ti">
                 <Route index element={<TiDashboard />} />

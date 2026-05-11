@@ -9452,6 +9452,39 @@ export type Database = {
         }
         Relationships: []
       }
+      jarbas_analytics_metrics: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          metric_name: string
+          metric_value: number
+          module_key: string
+          reference_period: string | null
+          unit: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          metric_name: string
+          metric_value: number
+          module_key: string
+          reference_period?: string | null
+          unit?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          metric_name?: string
+          metric_value?: number
+          module_key?: string
+          reference_period?: string | null
+          unit?: string | null
+        }
+        Relationships: []
+      }
       jarbas_checklists: {
         Row: {
           created_at: string
@@ -9610,6 +9643,75 @@ export type Database = {
           updated_at?: string
           user_id?: string
           value?: Json
+        }
+        Relationships: []
+      }
+      jarbas_predictive_insights: {
+        Row: {
+          company_id: string
+          created_at: string
+          description: string
+          id: string
+          impact_level: string | null
+          probability: number | null
+          status: string | null
+          suggested_action: string | null
+          title: string
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          description: string
+          id?: string
+          impact_level?: string | null
+          probability?: number | null
+          status?: string | null
+          suggested_action?: string | null
+          title: string
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          description?: string
+          id?: string
+          impact_level?: string | null
+          probability?: number | null
+          status?: string | null
+          suggested_action?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
+      jarbas_productivity_logs: {
+        Row: {
+          activity_count: number | null
+          bottleneck_detected: boolean | null
+          company_id: string
+          entity_id: string | null
+          entity_type: string | null
+          id: string
+          on_time_completion_rate: number | null
+          recorded_at: string
+        }
+        Insert: {
+          activity_count?: number | null
+          bottleneck_detected?: boolean | null
+          company_id: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          on_time_completion_rate?: number | null
+          recorded_at?: string
+        }
+        Update: {
+          activity_count?: number | null
+          bottleneck_detected?: boolean | null
+          company_id?: string
+          entity_id?: string | null
+          entity_type?: string | null
+          id?: string
+          on_time_completion_rate?: number | null
+          recorded_at?: string
         }
         Relationships: []
       }
