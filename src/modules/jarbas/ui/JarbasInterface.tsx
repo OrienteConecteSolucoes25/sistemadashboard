@@ -22,7 +22,8 @@ import {
   Settings,
   BrainCircuit,
   Database,
-  GraduationCap
+  GraduationCap,
+  BarChart3
 } from "lucide-react";
 import { JarbasHolographicUI } from "./JarbasHolographicUI";
 import { JarbasVoiceVisualizer } from "./JarbasVoiceVisualizer";
