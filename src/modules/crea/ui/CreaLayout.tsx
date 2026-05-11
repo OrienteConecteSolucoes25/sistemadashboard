@@ -1,7 +1,7 @@
 import { Outlet } from "react-router-dom";
 import {
   LayoutDashboard, FileSignature, FileStack, Users, Building2, KeyRound, ScrollText,
-  Award, FileMinus, FolderOpen, MessageSquare, BookOpen, CalendarClock, Bot, Link as LinkIcon, ShieldCheck, HardHat, Settings, Gauge
+  Award, FileMinus, FolderOpen, MessageSquare, BookOpen, CalendarClock, Bot, Link as LinkIcon, ShieldCheck, HardHat, Settings, Gauge, Receipt
 } from "lucide-react";
 import { useMemo } from "react";
 import { CollapsibleModuleSidebar } from "@/modules/aparencia/ui/CollapsibleModuleSidebar";
