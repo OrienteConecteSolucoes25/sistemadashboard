@@ -1,72 +1,97 @@
 
-# Plano: E-mails de autenticação com domínio OCS + Reply-To dinâmico
+# Recriação da aba ART — Módulo CREA & ART
 
 ## Objetivo
-Resolver de vez o problema de **e-mails de auth não chegarem** (reset de senha, confirmação de cadastro), mantendo arquitetura multi-tenant compatível com clientes que **ainda não têm domínio próprio** (usam @gmail, @outlook, etc.).
+Apagar o modelo atual da aba ART e recriá-la espelhando a planilha enviada (`ART.xlsx`, aba "ART"), com formulário simples, lista em colunas e painel lateral só para datas do ciclo da ART.
 
-## Arquitetura escolhida
+## Modelo de dados (nova tabela `crea_art_obras`)
+
+Campos da OBRA (linha da lista):
+
+| Campo | Origem planilha | Obrigatório | Tipo |
+|---|---|---|---|
+| `obra` | SITE | sim | text |
+| `tipo_obra` | CIVIL/ELETRICA | sim | enum (`civil`, `eletrica`) |
+| `cidade` | Cidade | sim | text |
+| `uf` | UF | sim | text(2) |
+| `escopo` | Escopo | sim | text |
+| `cliente` | Cliente | sim | text |
+| `coordenador` | Coordenador | sim | text |
+| `status` | STATUS | sim | enum (`pendente`, `em_andamento`, `concluida`, `cancelada`) |
+| `observacao` | Observações | sim | text |
+| `responsavel` | Responsável | **não** | text |
+
+Campos do PAINEL LATERAL (datas — todos opcionais e editáveis):
+
+| Campo | Origem planilha |
+|---|---|
+| `data_criacao_art` | Data de criação de ART |
+| `data_validacao` | VALIDADA |
+| `data_envio_pagamento` | ENVIADA P/PAGAMENTO |
+| `data_pasta` | PASTA |
+
+Padrões: `id`, `company_id`, `created_at`, `updated_at`, `is_deleted`, `deleted_at`, `deleted_by`, `deleted_reason` (mantém padrão soft-delete do módulo).
+
+RLS: mesmas regras de `crea_arts` (escrita via `crea_can_edit(auth.uid())`, leitura por empresa).
+
+## UI
+
+### 1. Lista (substitui a aba ART atual)
+- Colunas: Obra · Tipo · Cidade · UF · Escopo · Cliente · Coordenador · Status · Responsável · Observação.
+- Cabeçalho: `DataActionsToolbar` (Exportar xlsx/csv/docx + Modelo + Importar) — colunas do modelo = exatamente os 10 campos acima.
+- Seleção múltipla + `BulkActionsBar` + `DeleteWithPasswordModal` (padrão do projeto).
+- Clicar na célula "Obra" abre o painel lateral.
+
+### 2. Formulário "Nova obra" (Dialog)
+- Campos na ordem pedida: Obra, Cidade, UF (select 27 UFs), Tipo (Civil/Elétrica), Escopo, Cliente, Coordenador, Status (select), Observação, Responsável (opcional).
+- Validação: todos obrigatórios exceto Responsável.
+
+### 3. Painel lateral (Sheet) ao clicar numa obra
+- Cabeçalho com nome da obra + cidade/UF.
+- Seção "Datas do ciclo" com 4 date-pickers (criação, validação, envio p/ pagamento, pasta) — cada um com botão "Limpar".
+- Botões: Salvar / Excluir obra (com `DeleteWithPasswordModal`).
+
+### 4. Importação / Exportação
+- Importação aceita exatamente os cabeçalhos da planilha (`SITE, CIVIL/ELETRICA, Cidade, UF, Escopo, Cliente, Responsável, STATUS, Data de criação de ART, VALIDADA, ENVIADA P/PAGAMENTO, PASTA, Coordenador, Observações`) — mapeia para os campos novos.
+- Datas vão direto para os campos do painel lateral.
+- Exportação reproduz o mesmo layout (mesma ordem de colunas) para reimportar sem fricção.
+
+## Limpeza do modelo antigo
+- Remover/desativar componentes específicos da aba ART antiga: `ArtDetailSheet.tsx` (será substituído por novo `ObraArtSheet.tsx`), entrada de ARTs em `creaCrudConfigs.ts`/`CreaPages.tsx`, e qualquer rota/aba que apontava para `crea_arts` lista bruta.
+- A tabela `crea_arts` **permanece no banco** (intocada) — apenas a UI é trocada. A aba Governança ART continua independente.
+
+## Arquivos a criar / mudar
 
 ```text
-Todos os e-mails saem de:  notify@orienteconectesolucoes.com.br
-                                      │
-                                      ▼
-                          Reply-To dinâmico por empresa:
-                          ├─ Empresa com domínio próprio  → suporte@empresaX.com.br
-                          ├─ Empresa sem domínio          → e-mail do admin (gmail/outlook)
-                          └─ OCS interno                  → suporte@orienteconectesolucoes.com.br
+NOVOS
+  src/modules/crea/art/
+    ArtObrasPage.tsx              # lista + toolbar + dialog novo + abre sheet
+    ObraArtSheet.tsx              # painel lateral com as 4 datas
+    NovaObraDialog.tsx            # form de criação/edição
+    lib/artObrasApi.ts            # CRUD + import/export mapper
+    lib/artObrasTypes.ts          # tipos + enums + headers da planilha
+
+ALTERAR
+  src/modules/crea/ui/CreaPages.tsx        # rota da aba ART aponta p/ ArtObrasPage
+  src/modules/crea/ui/CreaLayout.tsx       # rótulo "ART" (mantém)
+  src/modules/crea/ui/crud/creaCrudConfigs.ts  # remove config da ART antiga
+  mem://features/crea-module.md            # registrar nova tabela e fluxo
+
+REMOVER (ou marcar deprecated)
+  src/modules/crea/ui/ArtDetailSheet.tsx   # substituído
 ```
 
-**Vantagens:**
-- 1 só domínio para verificar DNS (o seu, que você já tem acesso)
-- Cliente novo entra na plataforma e já recebe e-mails — sem esperar configuração de DNS dele
-- Quando o cliente responder o e-mail, vai cair no e-mail certo da empresa dele
-- Padrão usado por Slack, Notion, Linear, Trello
+## Migração SQL (resumo)
+- `create type crea_art_tipo_obra as enum ('civil','eletrica');`
+- `create type crea_art_status as enum ('pendente','em_andamento','concluida','cancelada');`
+- `create table public.crea_art_obras (...)` com colunas acima + auditoria.
+- RLS: SELECT por empresa do usuário; INSERT/UPDATE/DELETE com `crea_can_edit(auth.uid())`.
+- Índices: `(company_id, is_deleted)`, `(company_id, status)`, `(uf)`.
+- Trigger `update_updated_at_column`.
 
-## Etapas
+## Fora do escopo desta etapa
+- Não mexe em Governança ART (`crea_gov_*`) — segue como está.
+- Não mexe em `crea_arts` legado nem na auditoria existente.
+- Sem IA, sem dashboards novos, sem cruzamento automático.
 
-### Etapa 1 — Configurar domínio remetente OCS (resolve 90% do problema)
-1. Abrir o diálogo de configuração de e-mail do Lovable Cloud
-2. Configurar subdomínio `notify.orienteconectesolucoes.com.br`
-3. Adicionar os registros NS no seu DNS (Lovable gera automaticamente — ~5 min de trabalho)
-4. Aguardar verificação DNS (até 72h, normalmente <1h)
-
-→ Resultado: e-mails de reset/confirmação **passam a chegar** com remetente `notify@orienteconectesolucoes.com.br`.
-
-### Etapa 2 — Templates de auth com a marca OCS
-- Scaffold dos 6 templates de auth (signup, recovery, magic-link, invite, email-change, reauthentication)
-- Aplicar identidade visual Oriente: teal `#2BBDC0`, sidebar dark, fonte Rajdhani/Inter, logo OCS
-- Conteúdo em PT-BR
-- Cada template terá `Reply-To` dinâmico (ver Etapa 3)
-
-### Etapa 3 — Reply-To dinâmico por empresa
-1. **Migração no banco**: adicionar colunas em `companies`:
-   - `support_email TEXT` (e-mail de suporte da empresa — pode ser corporativo ou pessoal)
-   - `support_name TEXT` (nome exibido no Reply-To)
-2. **Edge function `auth-email-hook`**: ao receber evento de auth, consulta a empresa do usuário (`company_users → companies.support_email`) e injeta no header `Reply-To`. Fallback: se não houver `support_email` cadastrado, usa `suporte@orienteconectesolucoes.com.br`.
-3. **UI de cadastro da empresa**: no Sheet da empresa em `/app/planos`, adicionar 2 campos opcionais ("E-mail de suporte" + "Nome de suporte") na aba Plano & Valor.
-
-### Etapa 4 — Validação end-to-end
-1. Disparar reset de senha de teste com user de empresa A (com `support_email` definido) → conferir Reply-To
-2. Disparar reset com user de empresa B (sem `support_email`) → conferir fallback OCS
-3. Confirmar Google OAuth funcionando (já corrigido na leva anterior)
-4. Conferir logs em Cloud → Emails
-
-## Detalhes técnicos
-
-- **Sender domain**: `notify.orienteconectesolucoes.com.br` (subdomínio dedicado, não conflita com seu e-mail corporativo principal)
-- **From header**: `Oriente Conecte Soluções <notify@orienteconectesolucoes.com.br>`
-- **Reply-To header**: dinâmico via consulta à tabela `companies`
-- **Hook**: `supabase/functions/auth-email-hook/index.ts` (já é o pattern oficial Lovable Cloud — usa `enqueue_email` na fila pgmq, com retry automático)
-- **Sem dependência de Resend/SendGrid**: tudo via infra nativa do Lovable Cloud
-- **Nada muda no `Auth.tsx`**: a correção é 100% backend
-
-## O que NÃO está no escopo
-- Multi-domínio real (cada empresa com seu próprio remetente verificado) — fica para uma fase futura, **se** algum cliente grande pedir. Hoje seria over-engineering.
-- E-mails transacionais (notificações de obras, relatórios RH) — outro módulo, não bloqueia o login.
-
-## Resultado esperado
-- ✅ Reset de senha chega na caixa de entrada em segundos
-- ✅ Confirmação de cadastro chega
-- ✅ E-mails brandados com identidade OCS
-- ✅ Cliente que responde o e-mail é atendido no canal certo da empresa dele
-- ✅ Login com Google continua funcionando
+Pronto para implementar ao aprovar.
