@@ -182,7 +182,7 @@ export function ImportacoesTab() {
 
       setLastSummary({
         arquivo: file.name, kind, total: parsed.rows.length, ok, fail,
-        ...valStats, unmappedHeaders: parsed.unmappedHeaders,
+        ...valStats, unmappedHeaders: parsed.unmappedHeaders, errosLog,
       });
 
       toast.success(`Importação concluída: ${ok} OK, ${fail} falhas. ${parsed.unmappedHeaders.length ? `Cabeçalhos não mapeados: ${parsed.unmappedHeaders.length}.` : ""}`);
