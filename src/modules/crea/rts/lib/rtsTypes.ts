@@ -14,6 +14,7 @@ export type RtPessoa = {
   company_id: string;
   nome: string;
   cpf: string;
+  uf: string;
   status: string;
   data_inicio: string | null;
   data_termino: string | null;
@@ -24,13 +25,20 @@ export type RtPessoa = {
   registro: string;
   observacao: string;
   anuidade: string;
+  anuidade_ano: number | null;
+  inclusao_ativa: boolean;
   created_at: string;
   updated_at: string;
 };
 
+export const UFS_BR = [
+  "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR",
+  "PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO",
+] as const;
+
 export const PLANILHA_HEADERS_RT = [
-  "Nome", "CPF", "Status", "Data início", "Data término", "Modelo contrato",
-  "Visto", "RNP", "Registro", "Anuidade", "Observação",
+  "Nome", "CPF", "UF", "Status", "Data início", "Data término", "Modelo contrato",
+  "Visto", "RNP", "Registro", "Anuidade", "Ano anuidade", "Inclusão ativa", "Observação",
 ] as const;
 
 const norm = (s: string) =>
