@@ -110,13 +110,23 @@ export function GovGenericTab({ table, title, description, fields, labelKey = "n
     if (delReason.trim().length < 3) { toast.error("Motivo obrigatório (mín. 3 chars)"); return; }
     setDelBusy(true);
     let ok = 0;
+    let lastErr: string | undefined;
     for (const id of delIds) {
       const { data, error } = await sb.rpc("crea_soft_delete", { _table: table, _id: id, _reason: delReason.trim() });
-      if (!error && data?.ok) ok++;
+      if (error) { lastErr = error.message; continue; }
+      if (data?.ok) ok++;
+      else lastErr = data?.error ?? "unknown";
     }
     setDelBusy(false);
+    const msgMap: Record<string, string> = {
+      forbidden: "Sem permissão para excluir nesta empresa.",
+      invalid_table: "Tabela não permite exclusão.",
+      reason_required: "Informe o motivo da exclusão.",
+      not_found: "Registro não encontrado.",
+    };
     if (ok === delIds.length) toast.success(`${ok} registro(s) excluído(s)`);
-    else toast.warning(`${ok} de ${delIds.length} excluídos`);
+    else if (ok === 0) toast.error(`Falha ao excluir: ${msgMap[lastErr ?? ""] ?? lastErr ?? "erro desconhecido"}`);
+    else toast.warning(`${ok} de ${delIds.length} excluídos. ${msgMap[lastErr ?? ""] ?? lastErr ?? ""}`);
     setDelOpen(false); setDelIds([]); sel.clear(); load();
   };
 
