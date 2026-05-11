@@ -27,7 +27,7 @@ export default function CreaGovernancaPage() {
         </p>
       </header>
 
-      {tab === "executiva" && <GovArtFilterBar value={filters} onChange={setFilters} />}
+      <GovArtFilterBar value={filters} onChange={setFilters} />
 
       <Tabs value={tab} onValueChange={setTab}>
         <div className="overflow-x-auto">
