@@ -341,7 +341,9 @@ export default function PixelOfficePage() {
               setMeetingModalOpen(true);
             }}
           />
-          <PixelCommunityPanel activeWorkspace={activeWorkspace} workspaces={workspaces} setTyping={setTyping} />
+          <div id="pixel-community-panel">
+            <PixelCommunityPanel activeWorkspace={activeWorkspace} workspaces={workspaces} setTyping={setTyping} />
+          </div>
 
           {/* Desktop/Tablet Sidebar-like Floating Navigation */}
           <div className="hidden md:flex fixed right-6 top-1/2 -translate-y-1/2 flex-col gap-4 bg-background/80 backdrop-blur-md p-3 rounded-2xl border border-primary/20 shadow-2xl z-[100] animate-in slide-in-from-right duration-500">
