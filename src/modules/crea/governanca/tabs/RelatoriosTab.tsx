@@ -77,6 +77,9 @@ function aggregateFinanceiro(arts: GovArt[]) {
     cur.pago += Number(a.valor_pago ?? 0);
     cur.qtd += 1;
     m.set(key, cur);
+  }
+  return [...m.values()].map(r => ({ ...r, pendente: Math.max(0, r.emitido - r.pago) }))
+    .sort((a, b) => b.ano - a.ano || b.mes - a.mes);
 }
 
 async function fetchNameMap(table: string, ids: string[], cols = "id,nome"): Promise<Record<string, string>> {
@@ -87,7 +90,7 @@ async function fetchNameMap(table: string, ids: string[], cols = "id,nome"): Pro
   return out;
 }
 
-async function enrichArts(companyId: string, arts: GovArt[]): Promise<any[]> {
+async function enrichArts(arts: GovArt[]): Promise<any[]> {
   const empresaIds = Array.from(new Set(arts.map(a => a.empresa_id).filter(Boolean))) as string[];
   const contIds = Array.from(new Set(arts.map(a => a.contratante_id).filter(Boolean))) as string[];
   const rtIds = Array.from(new Set(arts.map(a => a.rt_id).filter(Boolean))) as string[];
@@ -102,9 +105,6 @@ async function enrichArts(companyId: string, arts: GovArt[]): Promise<any[]> {
     contratante_nome: a.contratante_id ? (contratantes[a.contratante_id] || "") : "",
     rt_nome: a.rt_id ? (rts[a.rt_id] || "") : "",
   }));
-}
-  return [...m.values()].map(r => ({ ...r, pendente: Math.max(0, r.emitido - r.pago) }))
-    .sort((a, b) => b.ano - a.ano || b.mes - a.mes);
 }
 
 export function RelatoriosTab({ filters }: { filters: GovFilters }) {
