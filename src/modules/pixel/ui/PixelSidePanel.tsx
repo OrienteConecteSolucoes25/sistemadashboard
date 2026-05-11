@@ -2,7 +2,7 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle } from "
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
-import { Linkedin, MessageSquare, Video, Armchair, ExternalLink, Briefcase, LogOut, Store, Search, ShieldAlert, Cpu } from "lucide-react";
+import { Linkedin, MessageSquare, Video, Armchair, ExternalLink, Briefcase, LogOut, Store, Search, ShieldAlert, Cpu, Trophy } from "lucide-react";
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
@@ -14,6 +14,9 @@ import { roleFromSpriteKey } from "../core/pixelOfficeTheme";
 import { useCharacterDetails } from "../data/useCharacterDetails";
 import { useDeskActions } from "../data/useDeskActions";
 import type { PixelCharacter, DeskLite } from "../data/usePixelWorkspaceData";
+import { PixelGamificationPanel } from "../components/PixelGamificationPanel";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+
 
 type Selected =
   | { kind: "character"; data: PixelCharacter }
