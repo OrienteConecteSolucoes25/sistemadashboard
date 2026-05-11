@@ -102,6 +102,12 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
   const [rooms, setRooms] = useState<RoomLite[]>([]);
   const [furniture, setFurniture] = useState<FurnitureLite[]>([]);
   const [reloadTick, setReloadTick] = useState(0);
+  
+  const stateRef = useRef({ characters, desks, rooms, furniture });
+  useEffect(() => {
+    stateRef.current = { characters, desks, rooms, furniture };
+  }, [characters, desks, rooms, furniture]);
+
   const refresh = useCallback(() => setReloadTick((n) => n + 1), []);
 
   // Heartbeat em tempo real
