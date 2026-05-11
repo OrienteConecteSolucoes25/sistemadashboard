@@ -103,10 +103,12 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AuthProvider>
-          <AclProvider>
-          <CompanyThemeProvider>
-          <Routes>
+        <JarbasAmbientProvider>
+          <JarbasAmbientVisuals />
+          <AuthProvider>
+            <AclProvider>
+              <CompanyThemeProvider>
+                <Routes>
             <Route path="/" element={<Navigate to="/app" replace />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
