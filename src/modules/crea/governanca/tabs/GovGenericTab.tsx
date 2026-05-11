@@ -109,21 +109,33 @@ export function GovGenericTab({ table, title, description, fields, labelKey = "n
   const confirmDelete = async () => {
     if (delReason.trim().length < 3) { toast.error("Motivo obrigatório (mín. 3 chars)"); return; }
     setDelBusy(true);
-    let ok = 0;
-    let lastErr: string | undefined;
-    for (const id of delIds) {
-      const { data, error } = await sb.rpc("crea_soft_delete", { _table: table, _id: id, _reason: delReason.trim() });
-      if (error) { lastErr = error.message; continue; }
-      if (data?.ok) ok++;
-      else lastErr = data?.error ?? "unknown";
-    }
-    setDelBusy(false);
     const msgMap: Record<string, string> = {
       forbidden: "Sem permissão para excluir nesta empresa.",
       invalid_table: "Tabela não permite exclusão.",
       reason_required: "Informe o motivo da exclusão.",
       not_found: "Registro não encontrado.",
     };
+    // Tenta a versão em lote (uma única chamada → muito mais rápido)
+    const { data: bulk, error: bulkErr } = await sb.rpc("crea_soft_delete_bulk", {
+      _table: table, _ids: delIds, _reason: delReason.trim(),
+    });
+    let ok = 0;
+    let lastErr: string | undefined;
+    if (!bulkErr && bulk?.ok) {
+      ok = Number(bulk.deleted ?? 0);
+      if (Number(bulk.forbidden ?? 0) > 0) lastErr = "forbidden";
+      else if (Number(bulk.not_found ?? 0) > 0) lastErr = "not_found";
+    } else {
+      // Fallback: chamada individual (compat com RPC antigo)
+      lastErr = bulkErr?.message ?? bulk?.error;
+      for (const id of delIds) {
+        const { data, error } = await sb.rpc("crea_soft_delete", { _table: table, _id: id, _reason: delReason.trim() });
+        if (error) { lastErr = error.message; continue; }
+        if (data?.ok) ok++;
+        else lastErr = data?.error ?? "unknown";
+      }
+    }
+    setDelBusy(false);
     if (ok === delIds.length) toast.success(`${ok} registro(s) excluído(s)`);
     else if (ok === 0) toast.error(`Falha ao excluir: ${msgMap[lastErr ?? ""] ?? lastErr ?? "erro desconhecido"}`);
     else toast.warning(`${ok} de ${delIds.length} excluídos. ${msgMap[lastErr ?? ""] ?? lastErr ?? ""}`);
