@@ -55,11 +55,12 @@ export function exportRtsCsv(rows: RtPessoa[]) {
 }
 
 export function downloadTemplateRts() {
-  // Modelo com 1 linha de exemplo para guiar o preenchimento
+  // Modelo com 1 linha de exemplo cobrindo dados do RT + Login do portal
   const example = [[
-    "Fulano de Tal", "000.000.000-00", "BA", "Ativo",
+    "JOÃO ARTHUR", "000.000.000-00", "BA", "Ativo",
     "01/01/2024", "Indefinido", "CLT",
     "BA", "1234567", "BA-12345", "Paga", "2025", "Sim", "Observação opcional",
+    "BAHIA (BA)", "Arthur1309*", "Acesso ao portal CREA-BA",
   ]];
   const aoa = [[...PLANILHA_HEADERS_RT], ...example];
   const ws = XLSX.utils.aoa_to_sheet(aoa);
@@ -71,7 +72,11 @@ export function downloadTemplateRts() {
   }), "modelo_responsaveis_tecnicos.xlsx");
 }
 
-export type ParsedRt = Partial<Omit<RtPessoa, "id" | "company_id" | "created_at" | "updated_at">>;
+export type ParsedRt = Partial<Omit<RtPessoa, "id" | "company_id" | "created_at" | "updated_at">> & {
+  _login_regiao?: string;
+  _login_senha?: string;
+  _login_obs?: string;
+};
 
 export async function parseRtsFile(file: File): Promise<{ records: ParsedRt[]; headers: string[]; unmatched: string[] }> {
   const buf = await file.arrayBuffer();
