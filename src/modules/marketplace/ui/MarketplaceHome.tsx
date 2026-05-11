@@ -52,7 +52,9 @@ import {
   getMarketplaceCategories, 
   createMarketplaceOrder,
   MarketplaceProduct, 
-  MarketplaceCategory 
+  MarketplaceCategory,
+  MarketplaceStore,
+  getMarketplaceStores
 } from "../lib/marketplaceApi";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
