@@ -1,0 +1,1 @@
+UPDATE public.companies SET show_ocs_brand = false WHERE id = '5c4e22eb-ac86-4d89-9b84-8389a724280b';

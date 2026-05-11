@@ -20,9 +20,13 @@ type AclRow = { permission_key: string; company_id: string | null };
 type AclCtx = {
   loading: boolean;
   isInternalOcs: boolean;
+  /** True somente para staff OCS verdadeiro (registro em acl_internal_staff ou owner). Admin de cliente NÃO é true. */
+  isOcsTrueStaff: boolean;
   permissions: AclRow[];
   /** Verificação síncrona (cache local) */
   can: (key: string, companyId?: string | null) => boolean;
+  /** Verificação síncrona ignorando bypass internalOcs (apenas perms explícitas) */
+  hasGrant: (key: string, companyId?: string | null) => boolean;
   /** Verificação autoritativa via RPC (cobre fallback do sistema antigo) */
   canServer: (key: string, companyId?: string | null) => Promise<boolean>;
   refresh: () => Promise<void>;
@@ -31,8 +35,10 @@ type AclCtx = {
 const Ctx = createContext<AclCtx>({
   loading: true,
   isInternalOcs: false,
+  isOcsTrueStaff: false,
   permissions: [],
   can: () => false,
+  hasGrant: () => false,
   canServer: async () => false,
   refresh: async () => {},
 });
@@ -41,12 +47,14 @@ export function AclProvider({ children }: { children: ReactNode }) {
   const { user, isAdmin, loading: authLoading } = useAuth();
   const [perms, setPerms] = useState<AclRow[]>([]);
   const [internalOcs, setInternalOcs] = useState(false);
+  const [trueStaff, setTrueStaff] = useState(false);
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
     if (!user) {
       setPerms([]);
       setInternalOcs(false);
+      setTrueStaff(false);
       setLoading(false);
       return;
     }
@@ -63,9 +71,11 @@ export function AclProvider({ children }: { children: ReactNode }) {
         .maybeSingle(),
     ]);
     setPerms((rows as any) ?? []);
-    // Owner / admin sempre é interno (mantém alinhado com SQL is_internal_ocs)
     const isOwner = user.id === "3510fb25-714e-4906-b6bb-a2a9cef7c8c6";
-    setInternalOcs(!!staffRes.data || isAdmin || isOwner);
+    const realStaff = !!staffRes.data || isOwner;
+    setTrueStaff(realStaff);
+    // Owner / staff verdadeiro / admin sempre é interno (mantém alinhado com SQL is_internal_ocs)
+    setInternalOcs(realStaff || isAdmin);
     setLoading(false);
   }, [user, isAdmin]);
 
@@ -73,22 +83,27 @@ export function AclProvider({ children }: { children: ReactNode }) {
     if (!authLoading) load();
   }, [authLoading, load]);
 
-  const can = useCallback(
-    (key: string, companyId?: string | null) => {
-      if (internalOcs) return true;
-      return perms.some(
+  const hasGrant = useCallback(
+    (key: string, companyId?: string | null) =>
+      perms.some(
         (p) =>
           p.permission_key === key &&
           (p.company_id === null || p.company_id === companyId),
-      );
+      ),
+    [perms],
+  );
+
+  const can = useCallback(
+    (key: string, companyId?: string | null) => {
+      if (internalOcs) return true;
+      return hasGrant(key, companyId);
     },
-    [perms, internalOcs],
+    [internalOcs, hasGrant],
   );
 
   const canServer = useCallback(
     async (key: string, companyId?: string | null) => {
       if (internalOcs) return true;
-      // Cache local primeiro (rápido)
       if (can(key, companyId)) return true;
       const { data, error } = await supabase.rpc("can" as any, {
         _uid: user?.id,
@@ -102,8 +117,8 @@ export function AclProvider({ children }: { children: ReactNode }) {
   );
 
   const value = useMemo<AclCtx>(
-    () => ({ loading, isInternalOcs: internalOcs, permissions: perms, can, canServer, refresh: load }),
-    [loading, internalOcs, perms, can, canServer, load],
+    () => ({ loading, isInternalOcs: internalOcs, isOcsTrueStaff: trueStaff, permissions: perms, can, hasGrant, canServer, refresh: load }),
+    [loading, internalOcs, trueStaff, perms, can, hasGrant, canServer, load],
   );
 
   return <Ctx.Provider value={value}>{children}</Ctx.Provider>;
@@ -111,7 +126,9 @@ export function AclProvider({ children }: { children: ReactNode }) {
 
 export const useAcl = () => useContext(Ctx);
 export const useCan = (key: string, companyId?: string | null) => useContext(Ctx).can(key, companyId);
+export const useHasGrant = (key: string, companyId?: string | null) => useContext(Ctx).hasGrant(key, companyId);
 export const useIsInternalOcs = () => useContext(Ctx).isInternalOcs;
+export const useIsOcsTrueStaff = () => useContext(Ctx).isOcsTrueStaff;
 
 /** Esconde children se o usuário não tiver a permissão. */
 export function Can({
