@@ -163,11 +163,32 @@ export default function CreaDashboard() {
         <KpiCard label="Prazos próximos (30d)" value={loading ? "…" : k.prazos30} />
       </div>
 
+      <div>
+        <h2 className="text-sm font-semibold text-muted-foreground mb-2 mt-2 uppercase tracking-wider">Governança ART · consolidado</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          <KpiCard label="Serviços (relatório gerencial)" value={loading ? "…" : govServ.length} />
+          <KpiCard label="ARTs por bloco" value={loading ? "…" : govBloco.length} />
+          <KpiCard label="Linhas Relatórios CREA" value={loading ? "…" : govRel.length} />
+          <KpiCard
+            label="Valor ART (bloco) R$"
+            value={loading ? "…" : govBloco.reduce((s, x) => s + Number(x.valor_art ?? 0), 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+          />
+          <KpiCard
+            label="Valor pago (bloco) R$"
+            value={loading ? "…" : govBloco.reduce((s, x) => s + Number(x.valor_pago ?? 0), 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+          />
+          <KpiCard
+            label="Valor contrato (relatório) R$"
+            value={loading ? "…" : govRel.reduce((s, x) => s + Number(x.valor_contrato ?? 0), 0).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}
+          />
+        </div>
+      </div>
+
       <Card>
         <CardHeader><CardTitle className="text-base">Próximos passos</CardTitle></CardHeader>
         <CardContent className="text-sm text-muted-foreground space-y-1">
           <p>• Filtros aplicados: {hasAny ? <Badge variant="outline">{[fUf!==ALL&&`UF=${fUf}`, fStatus!==ALL&&`Status=${fStatus}`, fAno&&`Ano=${fAno}`, fRT&&`RT=${fRT}`].filter(Boolean).join(" · ")}</Badge> : "nenhum"}</p>
-          <p>• Use a aba <strong>Assistente IA</strong> para tirar dúvidas sobre normas e fluxos.</p>
+          <p>• Use a aba <strong>Assistente IA → Conversor de Documentos</strong> para transformar PDFs/Word do CREA em CSV.</p>
           <p>• Em <strong>Admin → Integrações</strong> habilite scraping/RPA quando autorizado.</p>
         </CardContent>
       </Card>
