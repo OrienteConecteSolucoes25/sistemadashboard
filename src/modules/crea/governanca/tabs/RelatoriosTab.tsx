@@ -123,18 +123,20 @@ export function RelatoriosTab({ filters }: { filters: GovFilters }) {
       const fields = SCHEMAS[template];
 
       if (template === "arts_completo" || template === "arts_resumo") {
-        rows = await fetchArts(companyId, filters, 5000);
+        const arts = await fetchArts(companyId, filters, 5000);
+        rows = await enrichArts(arts);
       } else if (template === "financeiro") {
         const arts = await fetchArts(companyId, filters, 5000);
         rows = aggregateFinanceiro(arts);
       } else if (template === "vencidas") {
         const arts = await fetchArts(companyId, filters, 5000);
         const today = new Date();
-        rows = arts.filter(a => a.data_vencimento && a.data_vencimento < today.toISOString().slice(0, 10) && !a.data_pagamento)
-          .map(a => ({
-            ...a,
-            dias_atraso: Math.floor((today.getTime() - new Date(a.data_vencimento!).getTime()) / 86400000),
-          }));
+        const venc = arts.filter(a => a.data_vencimento && a.data_vencimento < today.toISOString().slice(0, 10) && !a.data_pagamento);
+        const enriched = await enrichArts(venc);
+        rows = enriched.map(a => ({
+          ...a,
+          dias_atraso: Math.floor((today.getTime() - new Date(a.data_vencimento!).getTime()) / 86400000),
+        }));
       } else if (template === "conciliacao_divergencias") {
         const cs = await fetchConciliacoes(companyId, "divergente");
         rows = cs.map((c: any) => ({
