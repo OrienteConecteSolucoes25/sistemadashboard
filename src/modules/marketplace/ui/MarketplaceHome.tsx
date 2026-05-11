@@ -74,8 +74,10 @@ export default function MarketplaceHome() {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [checkoutStep, setCheckoutStep] = useState(1); // 1: Cart, 2: Payment, 3: Success
+  const [checkoutStep, setCheckoutStep] = useState(1); // 1: Cart, 2: Address, 3: Payment, 4: Success
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [addresses, setAddresses] = useState<any[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
 
   const addToCart = (product: MarketplaceProduct) => {
     setCart(prev => {
