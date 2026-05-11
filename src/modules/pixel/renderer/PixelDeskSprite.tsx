@@ -109,7 +109,6 @@ export const PixelDeskSprite = ({ kind, width, height }: Props) => {
       </g>
     </svg>
   );
-  );
 };
 
 const MeetingTable = ({ width, height }: { width: number; height: number }) => {
