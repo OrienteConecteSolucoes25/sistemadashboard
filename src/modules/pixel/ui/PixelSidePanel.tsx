@@ -156,6 +156,22 @@ const CharacterPanel = ({
         </div>
       </div>
 
+      {isMe && (
+        <div className="mt-4 flex flex-wrap justify-center gap-1.5">
+          {(["available", "busy", "meeting", "away", "focused"] as PixelStatus[]).map((s) => (
+            <Button
+              key={s}
+              variant={status === s ? "default" : "outline"}
+              size="sm"
+              className="h-7 text-[10px] px-2 rounded-full"
+              onClick={() => updateStatus(s)}
+            >
+              {STATUS_LABEL[s]}
+            </Button>
+          ))}
+        </div>
+      )}
+
       <Separator className="my-5" />
 
       {/* Bloco: identificação */}
