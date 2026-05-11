@@ -158,6 +158,11 @@ export function ImportacoesTab() {
         .update({ ok, falhas: fail, status: fail === 0 ? "concluido" : "concluido_com_erros" })
         .eq("id", imp.id);
 
+      setLastSummary({
+        arquivo: file.name, kind, total: parsed.rows.length, ok, fail,
+        ...valStats, unmappedHeaders: parsed.unmappedHeaders,
+      });
+
       toast.success(`Importação concluída: ${ok} OK, ${fail} falhas. ${parsed.unmappedHeaders.length ? `Cabeçalhos não mapeados: ${parsed.unmappedHeaders.length}.` : ""}`);
       setProgress(""); setFile(null); if (fileRef.current) fileRef.current.value = "";
       setReload((r) => r + 1);
