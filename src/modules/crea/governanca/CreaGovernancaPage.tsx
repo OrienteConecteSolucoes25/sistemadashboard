@@ -98,7 +98,6 @@ export default function CreaGovernancaPage() {
              : t.value === "clientes" ? <ClientesPanel filters={filters} />
              : t.value === "creas" ? <CreasBrasilTab />
              : t.value === "relatorios" ? <RelatoriosTab filters={filters} />
-             : t.value === "ia" ? <AssistenteIaTab />
              : <Placeholder title={t.label} description={t.desc} />}
           </TabsContent>
         ))}
