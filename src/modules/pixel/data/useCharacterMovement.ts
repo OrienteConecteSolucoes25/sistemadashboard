@@ -111,6 +111,12 @@ export function useCharacterMovement(opts: {
             persist(userId, lastPoint.x, lastPoint.y);
             delete persistTimers.current[userId];
           }, 500);
+
+          // Ganho de XP por movimento (Gamificação)
+          if (userId === user?.id) {
+            supabase.rpc("add_pixel_xp", { _uid: userId, _amount: 5 });
+          }
+
           return;
         }
 

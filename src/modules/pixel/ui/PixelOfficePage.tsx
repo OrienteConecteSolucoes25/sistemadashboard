@@ -20,6 +20,8 @@ import TiAgentPage from "@/modules/ti/ui/TiAgentPage";
 import { JarbasInterface } from "@/modules/jarbas/ui/JarbasInterface";
 import { PixelMeetingsPanel } from "./PixelMeetingsPanel";
 import { PixelCommunityPanel } from "./PixelCommunityPanel";
+import { PixelGamificationPanel } from "../components/PixelGamificationPanel";
+
 import MarketplaceHome from "@/modules/marketplace/ui/MarketplaceHome";
 import FinanceiroDashboard from "@/modules/financeiro/ui/FinanceiroDashboard";
 import { DiretorAgentChat } from "@/modules/comunicacao/ui/DiretorAgentChat";
@@ -248,7 +250,7 @@ export default function PixelOfficePage() {
                     secondaryColor={npc.secondaryColor}
                     startX={npc.startX}
                     onClick={() => {
-                      if (["ocs_guard", "ti", "financeiro", "jarbas", "marketplace"].includes(npc.id)) {
+                      if (["ocs_guard", "ti", "financeiro", "jarbas", "marketplace", "gamificacao"].includes(npc.id)) {
                         setActiveAgentPanel(npc.id);
                       }
                       open();
@@ -323,6 +325,13 @@ export default function PixelOfficePage() {
               </CardContent>
             </Card>
           )}
+
+          {activeAgentPanel === "gamificacao" && (
+            <div className="mt-4 flex justify-center animate-in slide-in-from-bottom duration-300">
+              <PixelGamificationPanel userId={user?.id ?? ""} />
+            </div>
+          )}
+
 
           <PixelMeetingsPanel
             meetings={meetings}

@@ -10876,6 +10876,36 @@ export type Database = {
         }
         Relationships: []
       }
+      pixel_achievements: {
+        Row: {
+          created_at: string | null
+          description: string | null
+          icon_key: string | null
+          id: string
+          name: string
+          points: number | null
+          requirements: Json | null
+        }
+        Insert: {
+          created_at?: string | null
+          description?: string | null
+          icon_key?: string | null
+          id?: string
+          name: string
+          points?: number | null
+          requirements?: Json | null
+        }
+        Update: {
+          created_at?: string | null
+          description?: string | null
+          icon_key?: string | null
+          id?: string
+          name?: string
+          points?: number | null
+          requirements?: Json | null
+        }
+        Relationships: []
+      }
       pixel_admin_actions: {
         Row: {
           action_type: string
@@ -11326,13 +11356,16 @@ export type Database = {
           is_visible: boolean
           job_title: string | null
           last_heartbeat: string | null
+          level: number | null
           linkedin_url: string | null
+          points: number | null
           sector_description: string | null
           show_age: boolean
           status: string
           updated_at: string
           user_id: string
           visibility_group_id: string | null
+          xp: number | null
         }
         Insert: {
           age?: number | null
@@ -11360,13 +11393,16 @@ export type Database = {
           is_visible?: boolean
           job_title?: string | null
           last_heartbeat?: string | null
+          level?: number | null
           linkedin_url?: string | null
+          points?: number | null
           sector_description?: string | null
           show_age?: boolean
           status?: string
           updated_at?: string
           user_id: string
           visibility_group_id?: string | null
+          xp?: number | null
         }
         Update: {
           age?: number | null
@@ -11394,13 +11430,16 @@ export type Database = {
           is_visible?: boolean
           job_title?: string | null
           last_heartbeat?: string | null
+          level?: number | null
           linkedin_url?: string | null
+          points?: number | null
           sector_description?: string | null
           show_age?: boolean
           status?: string
           updated_at?: string
           user_id?: string
           visibility_group_id?: string | null
+          xp?: number | null
         }
         Relationships: [
           {
@@ -11461,6 +11500,35 @@ export type Database = {
             columns: ["workspace_id"]
             isOneToOne: false
             referencedRelation: "pixel_workspaces"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pixel_user_achievements: {
+        Row: {
+          achievement_id: string | null
+          id: string
+          unlocked_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          achievement_id?: string | null
+          id?: string
+          unlocked_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          achievement_id?: string | null
+          id?: string
+          unlocked_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pixel_user_achievements_achievement_id_fkey"
+            columns: ["achievement_id"]
+            isOneToOne: false
+            referencedRelation: "pixel_achievements"
             referencedColumns: ["id"]
           },
         ]
@@ -12806,6 +12874,10 @@ export type Database = {
           _target: string
         }
         Returns: Json
+      }
+      add_pixel_xp: {
+        Args: { _amount: number; _uid: string }
+        Returns: undefined
       }
       apply_calculated_value: { Args: { _company_id: string }; Returns: number }
       calc_company_plan_value: {
