@@ -197,7 +197,9 @@ class PixiRoomsManager {
 
   private hexToNumber(hex: string): number {
     if (!hex) return 0x000000;
-    return parseInt(hex.replace('#', '').substring(0, 6), 16);
+    const cleanHex = hex.replace('#', '');
+    // Handle both 6-char and 8-char hex (ignoring alpha for color number)
+    return parseInt(cleanHex.substring(0, 6), 16);
   }
 }
 
