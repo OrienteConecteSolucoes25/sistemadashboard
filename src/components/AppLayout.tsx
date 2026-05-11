@@ -11,6 +11,7 @@ import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { useUserLayoutPreference } from "@/modules/aparencia/hooks/useUserLayoutPreference";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAcl, useCan } from "@/acl/AclProvider";
+import { useBrand } from "@/hooks/useBrand";
 // Import Jarbas removido daqui para ser usado apenas dentro do Soluções-Verso
 
 const AppLayout = () => {
@@ -31,6 +32,7 @@ const AppLayout = () => {
   const canJarbas = useCan("jarbas.acessar");
   const canTI = useCan("ti.acessar");
   const canCompliance = useCan("compliance.acessar");
+  const brand = useBrand();
   const loc = useLocation();
   const [open, setOpen] = useState(false);
   const { collapsed, setCollapsed } = useUserLayoutPreference("__root__");
@@ -64,11 +66,17 @@ const AppLayout = () => {
       <div className={`flex items-center justify-between mb-4 ${collapsed ? "flex-col gap-2" : ""}`}>
         {!collapsed && (
           <div className="leading-tight">
-            <div className="font-display font-bold text-lg">ERP OCS</div>
-            <div className="text-[10px] text-muted-foreground -mt-0.5">Oriente Conecte Soluções</div>
+            <div className="font-display font-bold text-lg">{brand.title}</div>
+            {brand.subtitle && (
+              <div className="text-[10px] text-muted-foreground -mt-0.5">{brand.subtitle}</div>
+            )}
           </div>
         )}
-        {collapsed && <div className="font-display font-bold text-sm">OCS</div>}
+        {collapsed && (
+          <div className="font-display font-bold text-sm">
+            {brand.showOcsBrand ? "OCS" : "SD"}
+          </div>
+        )}
         <div className="flex gap-1">
           <button
             className="hidden md:inline-flex p-1 rounded hover:bg-accent"
@@ -134,8 +142,10 @@ const AppLayout = () => {
           <Menu className="w-5 h-5" />
         </button>
         <div className="leading-tight text-center">
-          <div className="font-display font-bold text-sm">ERP OCS</div>
-          <div className="text-[9px] text-muted-foreground -mt-0.5">Oriente Conecte Soluções</div>
+          <div className="font-display font-bold text-sm">{brand.title}</div>
+          {brand.subtitle && (
+            <div className="text-[9px] text-muted-foreground -mt-0.5">{brand.subtitle}</div>
+          )}
         </div>
         <NotificationsBell />
       </header>

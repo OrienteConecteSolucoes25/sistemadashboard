@@ -12,6 +12,7 @@ import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 // Import Projetos removido
 import Adm from "./pages/Adm";
+import ModuleSelector from "./pages/ModuleSelector";
 import SolucoesVersoPage from "./modules/pixel/ui/SolucoesVersoPage";
 import MarketplaceHome from "./modules/marketplace/ui/MarketplaceHome";
 import PixelAdminPage from "./modules/pixel/ui/admin/PixelAdminPage";
@@ -114,7 +115,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/app" element={<AppLayout />}>
-              <Route index element={<Navigate to="/app/pixel-office" replace />} />
+              <Route index element={<ModuleSelector />} />
               <Route path="pixel-office" element={<SolucoesVersoPage />} />
               <Route path="pixel-office/meu-personagem" element={<SolucoesVersoPage />} />
               <Route path="pixel-office/admin" element={<SolucoesVersoPage />} />

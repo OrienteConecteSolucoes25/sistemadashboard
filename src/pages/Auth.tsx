@@ -111,8 +111,8 @@ const Auth = () => {
           <div className="mx-auto mb-3 h-12 w-12 rounded-md bg-primary flex items-center justify-center text-primary-foreground font-display text-2xl font-bold">
             O
           </div>
-          <CardTitle className="font-display text-2xl">ERP OCS</CardTitle>
-          <CardDescription>Oriente Conecte Soluções</CardDescription>
+          <CardTitle className="font-display text-2xl">Sistema dashboard</CardTitle>
+          <CardDescription>Acesse seus módulos</CardDescription>
         </CardHeader>
         <CardContent>
           <Tabs value={tab} onValueChange={(v) => setTab(v as "signin" | "signup")}>
