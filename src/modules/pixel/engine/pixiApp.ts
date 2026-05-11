@@ -4,9 +4,10 @@ export const PIXI_LAYERS = {
   BACKGROUND: 'background',
   FLOOR: 'floor',
   ROOMS: 'rooms',
-  DECORATIONS_BACK: 'decorationsBack',
+  FURNITURE_BELOW: 'furnitureBelow', // Below characters
   DESKS: 'desks',
   CHARACTERS: 'characters',
+  FURNITURE_ABOVE: 'furnitureAbove', // Above characters (tall plants, etc)
   EFFECTS: 'effects',
   UI_OVERLAY: 'uiOverlay',
   DEBUG: 'debug'
