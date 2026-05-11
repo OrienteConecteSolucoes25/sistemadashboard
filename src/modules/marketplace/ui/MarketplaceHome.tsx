@@ -333,7 +333,7 @@ export default function MarketplaceHome() {
                         {cartTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                       </span>
                     </div>
-                    <Button className="w-full h-12 text-md font-bold" onClick={() => { setIsCartOpen(false); setIsCheckoutOpen(true); setCheckoutStep(1); }}>
+                    <Button className="w-full h-12 text-md font-bold" onClick={() => { setIsCartOpen(false); setIsCheckoutOpen(true); setCheckoutStep(1); loadAddresses(); }}>
                       Finalizar Compra
                     </Button>
                   </div>
