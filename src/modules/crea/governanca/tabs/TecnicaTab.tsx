@@ -126,37 +126,48 @@ export function TecnicaTab({ filters }: { filters: GovFilters }) {
                 <TableHead>Nº ART</TableHead>
                 <TableHead>UF</TableHead>
                 <TableHead>Cadastro</TableHead>
-                <TableHead>Status análise</TableHead>
+                <TableHead>Resp. Técnico</TableHead>
+                <TableHead>Contratante</TableHead>
+                <TableHead>Proprietário</TableHead>
+                <TableHead>Cidade</TableHead>
+                <TableHead className="text-right">Valor ART</TableHead>
+                <TableHead className="text-right">Valor Pago</TableHead>
                 <TableHead>Status fin.</TableHead>
-                <TableHead className="text-right">Taxa</TableHead>
-                <TableHead className="text-right">Pago</TableHead>
-                <TableHead className="text-right">Contrato</TableHead>
+                <TableHead>Status análise</TableHead>
                 <TableHead>Boleto</TableHead>
                 <TableHead>Vencimento</TableHead>
                 <TableHead>Pagamento</TableHead>
-                <TableHead>Cidade</TableHead>
+                <TableHead className="text-right">Contrato</TableHead>
                 <TableHead>Observação</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filtered.map((a) => (
+              {filtered.map((a) => {
+                const rt = a.rt_id ? rtMap[a.rt_id] : null;
+                const ct = a.contratante_id ? contMap[a.contratante_id] : null;
+                const stFin = deriveStatusFinanceiroArt(a);
+                const rtLabel = rt ? `${rt.nome}${rt.titulo ? ` — ${rt.titulo}` : ""}` : (a.rt_id ? "—" : <span className="text-rose-600">sem RT</span>);
+                return (
                 <TableRow key={a.id} className={sel.has(a.id) ? "bg-primary/5" : ""}>
                   <TableCell><Checkbox checked={sel.has(a.id)} onCheckedChange={() => toggle(a.id)} /></TableCell>
                   <TableCell className="font-mono text-xs">{a.numero}</TableCell>
                   <TableCell>{a.uf ?? "—"}</TableCell>
                   <TableCell className="whitespace-nowrap text-xs">{fmtDate(a.data_cadastro)}</TableCell>
-                  <TableCell><Badge variant="outline" className={`text-xs ${statusColor(a.status_analise)}`}>{a.status_analise ?? "—"}</Badge></TableCell>
-                  <TableCell><Badge variant="outline" className={`text-xs ${statusColor(a.status_financeiro)}`}>{a.status_financeiro ?? "—"}</Badge></TableCell>
+                  <TableCell className="text-xs max-w-[200px] truncate" title={rt ? `${rt.nome}${rt.titulo ? ` — ${rt.titulo}` : ""}${rt.modalidade ? ` (${rt.modalidade})` : ""}` : ""}>{rtLabel}</TableCell>
+                  <TableCell className="text-xs max-w-[180px] truncate" title={ct?.nome ?? ""}>{ct?.nome ?? (a.contratante_id ? "—" : <span className="text-muted-foreground">—</span>)}</TableCell>
+                  <TableCell className="text-xs max-w-[180px] truncate" title={a.proprietario ?? ""}>{a.proprietario ?? "—"}</TableCell>
+                  <TableCell className="text-xs">{a.cidade ?? "—"}</TableCell>
                   <TableCell className="text-right text-xs">{fmt(a.valor_taxa)}</TableCell>
                   <TableCell className="text-right text-xs">{fmt(a.valor_pago)}</TableCell>
-                  <TableCell className="text-right text-xs">{fmt(a.valor_contrato)}</TableCell>
+                  <TableCell><Badge variant="outline" className={`text-xs ${statusColor(stFin)}`}>{stFin}</Badge></TableCell>
+                  <TableCell><Badge variant="outline" className={`text-xs ${statusColor(a.status_analise)}`}>{a.status_analise ?? "—"}</Badge></TableCell>
                   <TableCell className="text-xs">{a.boleto_numero ?? "—"}</TableCell>
                   <TableCell className="whitespace-nowrap text-xs">{fmtDate(a.data_vencimento)}</TableCell>
                   <TableCell className="whitespace-nowrap text-xs">{fmtDate(a.data_pagamento)}</TableCell>
-                  <TableCell className="text-xs">{a.cidade ?? "—"}</TableCell>
+                  <TableCell className="text-right text-xs">{fmt(a.valor_contrato)}</TableCell>
                   <TableCell className="text-xs max-w-[260px] truncate" title={a.observacao ?? ""}>{a.observacao ?? "—"}</TableCell>
                 </TableRow>
-              ))}
+              );})}
               {filtered.length === 0 && (
                 <TableRow><TableCell colSpan={14} className="text-center text-sm text-muted-foreground py-8">Nenhuma ART encontrada.</TableCell></TableRow>
               )}
