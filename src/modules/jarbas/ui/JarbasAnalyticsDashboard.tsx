@@ -203,6 +203,11 @@ export const JarbasAnalyticsDashboard = () => {
             </CardHeader>
             <CardContent>
               <div className="space-y-6">
+                {teamData.length === 0 && (
+                  <div className="text-center text-[11px] opacity-60 py-6">
+                    {loading ? "Carregando…" : "Nenhuma equipe com dados em jarbas_productivity_logs."}
+                  </div>
+                )}
                 {teamData.map((t, i) => (
                   <div key={i} className="space-y-2">
                     <div className="flex justify-between text-[10px] uppercase font-bold">
@@ -212,7 +217,7 @@ export const JarbasAnalyticsDashboard = () => {
                       </span>
                     </div>
                     <div className="h-1.5 w-full bg-cyan-950 rounded-full overflow-hidden">
-                      <motion.div 
+                      <motion.div
                         initial={{ width: 0 }}
                         animate={{ width: `${t.efficiency}%` }}
                         className="h-full bg-cyan-500"
@@ -223,14 +228,14 @@ export const JarbasAnalyticsDashboard = () => {
                 ))}
               </div>
 
-              <div className="mt-8 p-4 rounded bg-red-500/5 border border-red-500/20">
-                <p className="text-[10px] text-red-500 font-bold uppercase mb-1 flex items-center gap-2">
-                  <AlertOctagon className="w-3 h-3" /> Insight do Jarbas
-                </p>
-                <p className="text-[10px] opacity-70 leading-relaxed italic">
-                  "A equipe Norte apresenta 38% mais atrasos. Recomendo realocação de recursos do módulo de suprimentos."
-                </p>
-              </div>
+              {insights[0] && (
+                <div className="mt-8 p-4 rounded bg-red-500/5 border border-red-500/20">
+                  <p className="text-[10px] text-red-500 font-bold uppercase mb-1 flex items-center gap-2">
+                    <AlertOctagon className="w-3 h-3" /> Insight do Jarbas
+                  </p>
+                  <p className="text-[10px] opacity-70 leading-relaxed italic">"{insights[0].description}"</p>
+                </div>
+              )}
             </CardContent>
           </Card>
         </div>
