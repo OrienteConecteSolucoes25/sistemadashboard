@@ -6,6 +6,7 @@ import { FileSpreadsheet, FileText, FileType2, Loader2 } from "lucide-react";
 import { useGovCompany } from "../lib/useGovCompany";
 import { fetchArts, fetchPagamentos, fetchConciliacoes, fetchAlertas, GovArt } from "../lib/govApi";
 import { GovFilters } from "../lib/govTypes";
+import { supabase } from "@/integrations/supabase/client";
 import { exportData } from "@/lib/dataIO";
 import type { FieldSchema } from "@/modules/engenharia/ui/crud/types";
 import { toast } from "sonner";
