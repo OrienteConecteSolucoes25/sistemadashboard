@@ -43,6 +43,15 @@ export interface MarketplaceCategory {
   is_active: boolean;
 }
 
+export interface MarketplaceCustomer {
+  id: string;
+  user_id: string | null;
+  full_name: string;
+  email: string | null;
+  phone: string | null;
+  created_at: string;
+}
+
 export async function getMarketplaceProducts(limit = 12, storeId?: string) {
   let query = supabase
     .from('market_products')
@@ -78,15 +87,55 @@ export async function getMarketplaceStores() {
   return data as MarketplaceStore[];
 }
 
+export async function getMarketplaceCustomers() {
+  const { data, error } = await supabase
+    .from('market_customers' as any)
+    .select('*')
+    .order('created_at', { ascending: false });
+  
+  if (error) throw error;
+  return data as unknown as MarketplaceCustomer[];
+}
+
+export async function createMarketplaceProduct(product: Partial<MarketplaceProduct>) {
+  const { data, error } = await supabase
+    .from('market_products')
+    .insert([product as any])
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data as MarketplaceProduct;
+}
+
+export async function updateMarketplaceProduct(id: string, updates: Partial<MarketplaceProduct>) {
+  const { data, error } = await supabase
+    .from('market_products')
+    .update(updates as any)
+    .eq('id', id)
+    .select()
+    .single();
+  
+  if (error) throw error;
+  return data as MarketplaceProduct;
+}
+
+export async function deleteMarketplaceProduct(id: string) {
+  const { error } = await supabase
+    .from('market_products')
+    .delete()
+    .eq('id', id);
+  
+  if (error) throw error;
+  return true;
+}
+
 export async function createMarketplaceOrder(orderData: {
   customer_id: string;
   items: { product_id: string; quantity: number; unit_price: number }[];
   total_amount: number;
   payment_method?: string;
 }) {
-  // 1. Iniciar transação (mockada pois o JS client não suporta transactions multi-tabela nativamente sem RPC)
-  // Mas para o protótipo faremos sequential inserts ou usaremos uma Edge Function
-  
   const { data: order, error: orderError } = await supabase
     .from('market_orders' as any)
     .insert([{
@@ -125,3 +174,4 @@ export async function createMarketplaceOrder(orderData: {
 
   return order;
 }
+

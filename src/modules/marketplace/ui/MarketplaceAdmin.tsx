@@ -29,7 +29,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAcl } from "@/acl/AclProvider";
 import { supabase } from "@/integrations/supabase/client";
 import MarketplaceHome from "./MarketplaceHome";
-import { getMarketplaceProducts, MarketplaceProduct } from "../lib/marketplaceApi";
+import { getMarketplaceProducts, getMarketplaceCustomers, MarketplaceProduct, MarketplaceCustomer } from "../lib/marketplaceApi";
 
 
 // Sub-componentes do Marketplace Admin
@@ -326,14 +326,14 @@ const OrdersTab = () => {
 };
 
 const CustomersTab = () => {
-  const [customers, setCustomers] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<MarketplaceCustomer[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const { data, error } = await supabase.from('market_customers' as any).select('*');
-        if (!error) setCustomers(data || []);
+        const data = await getMarketplaceCustomers();
+        setCustomers(data);
       } catch (err) {
         console.error(err);
       } finally {
@@ -496,14 +496,6 @@ export default function MarketplaceAdmin() {
           )}
           {activeTab === "pedidos" && <OrdersTab />}
           {activeTab === "clientes" && <CustomersTab />}
-          {activeTab === "categorias" && (
-            <div className="bg-white rounded-2xl p-12 text-center border border-dashed border-slate-200">
-              <Tags className="w-12 h-12 text-slate-200 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold">Categorias & Tags</h3>
-              <p className="text-muted-foreground max-w-xs mx-auto mt-2">Organize seu catálogo por nichos, subcategorias e grupos de produtos.</p>
-              <Button variant="outline" className="mt-6">Criar primeira categoria</Button>
-            </div>
-          )}
           {!["dashboard", "produtos", "categorias", "pedidos", "clientes"].includes(activeTab) && (
             <div className="bg-white rounded-2xl p-12 text-center border border-dashed border-slate-200">
               <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4">
