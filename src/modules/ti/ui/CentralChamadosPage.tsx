@@ -87,8 +87,8 @@ export default function CentralChamadosPage() {
         .from('ti_tickets')
         .select(`
           *,
-          profiles:user_id(full_name, email),
-          technician:technician_id(full_name)
+          profiles:requester_id(full_name, email),
+          technician:assigned_to(full_name)
         `)
         .order('created_at', { ascending: false });
 
