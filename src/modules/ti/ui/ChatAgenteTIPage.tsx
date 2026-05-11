@@ -40,7 +40,7 @@ export default function ChatAgenteTIPage() {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error("Usuário não autenticado");
 
-      const { error } = await supabase.from('it_tickets').insert({
+      const { error } = await supabase.from('ti_tickets').insert({
         company_id: (await supabase.from('profiles').select('company_id').eq('id', userData.user.id).single()).data?.company_id,
         user_id: userData.user.id,
         title: "Chamado Crítico via Agente IA",
@@ -188,13 +188,13 @@ export default function ChatAgenteTIPage() {
                           {m.articles && (
                             <div className="p-3 rounded-xl bg-slate-50 border border-slate-100">
                               <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 flex items-center gap-2">
-                                <Lightbulb className="w-3 h-3" /> Sugestões da IA
+                                <Lightbulb className="w-3 h-3" /> Sugestões da Base de Conhecimento
                               </p>
                               <div className="space-y-1">
                                 {m.articles.map((art: any, i: number) => (
-                                  <a key={i} href={art.link} className="flex items-center gap-2 text-[11px] font-bold text-blue-600 hover:underline">
+                                  <div key={i} className="flex items-center gap-2 text-[11px] font-bold text-blue-600 hover:underline cursor-pointer">
                                     <FileText className="w-3 h-3" /> {art.title}
-                                  </a>
+                                  </div>
                                 ))}
                               </div>
                             </div>

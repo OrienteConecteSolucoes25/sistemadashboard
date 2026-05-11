@@ -84,11 +84,11 @@ export default function CentralChamadosPage() {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .from('it_tickets')
+        .from('ti_tickets')
         .select(`
           *,
           profiles:user_id(full_name, email),
-          technician:technician_id(full_name)
+          technician:assigned_to(full_name)
         `)
         .order('created_at', { ascending: false });
 
@@ -124,7 +124,7 @@ export default function CentralChamadosPage() {
       }
 
       const { error } = await supabase
-        .from('it_tickets')
+        .from('ti_tickets')
         .insert([{
           ...newTicket,
           user_id: userData.user.id,
@@ -205,7 +205,7 @@ export default function CentralChamadosPage() {
       if (!userData.user) return;
 
       const { error: updateError } = await supabase
-        .from('it_tickets')
+        .from('ti_tickets')
         .update({ status: newStatus })
         .eq('id', selectedTicket.id);
 
