@@ -391,16 +391,25 @@ const CustomersTab = () => {
 export default function MarketplaceAdmin() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showVitrine, setShowVitrine] = useState(false);
-  const { can, user: profile } = useAcl();
+  const { can, isInternalOcs } = useAcl();
+  const { user } = useAuth();
   const [storeId, setStoreId] = useState<string | null>(null);
   
   useEffect(() => {
     async function fetchStore() {
-      if (!profile?.company_id && profile?.role !== 'admin_ocs') return;
+      if (!user) return;
+      
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('company_id, role')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!profile?.company_id && !isInternalOcs) return;
       
       let query = supabase.from('market_stores').select('id');
       
-      if (profile.role !== 'admin_ocs') {
+      if (!isInternalOcs && profile?.company_id) {
         query = query.eq('organization_id', profile.company_id);
       }
       
@@ -413,7 +422,7 @@ export default function MarketplaceAdmin() {
     if (params.get('view') === 'vitrine') {
       setShowVitrine(true);
     }
-  }, [profile]);
+  }, [user, isInternalOcs]);
 
   if (showVitrine) {
     return (
