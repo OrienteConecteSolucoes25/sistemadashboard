@@ -84,7 +84,7 @@ export default function CentralChamadosPage() {
     try {
       setIsLoading(true);
       const { data, error } = await supabase
-        .from('it_tickets')
+        .from('ti_tickets')
         .select(`
           *,
           profiles:user_id(full_name, email),
