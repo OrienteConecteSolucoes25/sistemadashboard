@@ -18,6 +18,7 @@ const matrixFromRows = (rows: RtPessoa[]) => {
   const body = rows.map((r) => [
     r.nome ?? "",
     r.cpf ?? "",
+    r.uf ?? "",
     STATUS_RT_LABEL[r.status] ?? r.status ?? "",
     fmtDateBr(r.data_inicio),
     r.termino_indefinido ? "Indefinido" : fmtDateBr(r.data_termino),
@@ -26,6 +27,8 @@ const matrixFromRows = (rows: RtPessoa[]) => {
     r.rnp ?? "",
     r.registro ?? "",
     ANUIDADE_LABEL[r.anuidade] ?? r.anuidade ?? "",
+    r.anuidade_ano ?? "",
+    r.inclusao_ativa === false ? "Não" : "Sim",
     r.observacao ?? "",
   ]);
   return [head, ...body];
