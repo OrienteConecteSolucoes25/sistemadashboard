@@ -1,11 +1,11 @@
 import { useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Gauge, FileSpreadsheet, Boxes, FileText } from "lucide-react";
+import { Gauge, FileSpreadsheet, Boxes, FileText, ListChecks } from "lucide-react";
 import { GovArtFilterBar } from "./GovArtFilterBar";
 import { GovFilters } from "./lib/govTypes";
 import { VisaoExecutivaTab } from "./tabs/VisaoExecutivaTab";
 import { GovGenericTab } from "./tabs/GovGenericTab";
-import { SERVICOS_FIELDS, ART_BLOCO_FIELDS, RELATORIO_CREA_FIELDS } from "./tabs/govFields";
+import { SERVICOS_FIELDS, ART_BLOCO_FIELDS, RELATORIO_CREA_FIELDS, ARTS_TODAS_FIELDS } from "./tabs/govFields";
 
 const TABS = [
   { value: "executiva",      label: "Visão Executiva",        icon: Gauge },
