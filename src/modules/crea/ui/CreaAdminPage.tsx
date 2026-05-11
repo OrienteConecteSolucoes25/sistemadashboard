@@ -11,7 +11,9 @@ import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { toast } from "sonner";
-import { Shield, Users, KeyRound, BookOpen, Settings, ShieldAlert, Plus } from "lucide-react";
+import { Shield, Users, KeyRound, BookOpen, Settings, ShieldAlert, Plus, Link as LinkIcon } from "lucide-react";
+import CreaIntegracoesPage from "./CreaIntegracoesPage";
+import { AuditoriaPage } from "./CreaPages";
 
 const sb: any = supabase;
 
