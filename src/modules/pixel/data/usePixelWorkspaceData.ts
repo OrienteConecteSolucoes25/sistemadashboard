@@ -263,12 +263,19 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
     };
   }, [activeId, workspaces, reloadTick]);
 
-  // 3) Real-time Subscriptions (Optimized)
+  // 3) Real-time Subscriptions (Optimized with Presence)
   useEffect(() => {
-    if (!activeId) return;
+    if (!activeId || !user) return;
 
-    const channel = supabase
-      .channel(`workspace-${activeId}`)
+    const channel = supabase.channel(`workspace-${activeId}`, {
+      config: {
+        presence: {
+          key: user.id,
+        },
+      },
+    });
+
+    channel
       .on(
         "postgres_changes",
         {
@@ -283,11 +290,7 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
 
           setCharacters((prev) => {
             const index = prev.findIndex((c) => c.user_id === row.user_id);
-            if (index === -1) {
-              // Se não existe, talvez devesse carregar o perfil completo
-              // Mas por simplicidade, aguarda o próximo refresh ou ignora
-              return prev;
-            }
+            if (index === -1) return prev;
             const next = [...prev];
             next[index] = {
               ...next[index],
@@ -309,7 +312,7 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
           table: "pixel_desks",
           filter: `workspace_id=eq.${activeId}`,
         },
-        () => refresh() // Mesas mudam menos, refresh ok
+        () => refresh()
       )
       .on(
         "postgres_changes",
@@ -321,7 +324,6 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
         },
         () => refresh()
       )
-      // Broadcast para movimentos "fluidos" (opcional se quiser usar send() no useCharacterMovement)
       .on("broadcast", { event: "player-move" }, ({ payload }) => {
         if (payload.userId === user?.id) return;
         setCharacters((prev) => {
@@ -336,7 +338,25 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
           return next;
         });
       })
-      .subscribe();
+      .on("presence", { event: "sync" }, () => {
+        const newState = channel.presenceState();
+        const onlineIds = new Set(Object.keys(newState));
+        setCharacters(prev => prev.map(c => ({
+          ...c,
+          is_online: onlineIds.has(c.user_id)
+        })));
+      })
+      .on("presence", { event: "join" }, ({ newPresences }) => {
+        // Notificar via Jarbas ou Toast (opcional)
+      })
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await channel.track({
+            user_id: user.id,
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
 
     return () => {
       supabase.removeChannel(channel);
