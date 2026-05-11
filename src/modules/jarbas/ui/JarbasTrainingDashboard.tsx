@@ -173,14 +173,19 @@ export const JarbasTrainingDashboard = () => {
                 <Award className="w-4 h-4 text-yellow-500" /> Certificações Ativas
               </h2>
               <div className="space-y-3">
-                {[1, 2].map((i) => (
-                  <div key={i} className="p-3 bg-yellow-500/5 border border-yellow-500/20 rounded flex items-center gap-3">
+                {certs.length === 0 && (
+                  <p className="text-[10px] opacity-50 italic">{loading ? "Carregando…" : "Você ainda não possui certificações ativas."}</p>
+                )}
+                {certs.map((c: any) => (
+                  <div key={c.id} className="p-3 bg-yellow-500/5 border border-yellow-500/20 rounded flex items-center gap-3">
                     <Trophy className="w-8 h-8 text-yellow-500 shrink-0" />
                     <div className="flex-1 min-w-0">
-                      <p className="text-[11px] font-bold text-yellow-500 uppercase truncate">Eletricista de Redes Nível 1</p>
-                      <p className="text-[9px] opacity-50 uppercase">Validade: Mai 2027</p>
+                      <p className="text-[11px] font-bold text-yellow-500 uppercase truncate">{c.training_paths?.title ?? "Trilha"}</p>
+                      <p className="text-[9px] opacity-50 uppercase">
+                        {c.expiry_date ? `Validade: ${new Date(c.expiry_date).toLocaleDateString("pt-BR", { month: "short", year: "numeric" })}` : "Sem expiração"}
+                      </p>
                     </div>
-                    <Badge variant="outline" className="text-[8px] border-yellow-500/30 text-yellow-500">VER</Badge>
+                    <Badge variant="outline" className="text-[8px] border-yellow-500/30 text-yellow-500">{c.certificate_code ?? "ATIVA"}</Badge>
                   </div>
                 ))}
               </div>
@@ -192,14 +197,22 @@ export const JarbasTrainingDashboard = () => {
               </h2>
               <ScrollArea className="h-[400px] pr-4">
                 <div className="space-y-4">
-                  {[1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="relative pl-6 pb-4 border-l border-cyan-500/20">
-                      <div className="absolute left-[-5px] top-0 w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(0,242,255,0.8)]" />
-                      <div className="text-[10px] opacity-40 uppercase mb-1">Hoje às 14:30</div>
-                      <p className="text-[11px] font-bold uppercase mb-1">Concluiu Módulo: Segurança em Altura</p>
-                      <p className="text-[10px] text-cyan-400/60">Pontuação Final: 9.5/10</p>
-                    </div>
-                  ))}
+                  {activity.length === 0 && (
+                    <p className="text-[10px] opacity-50 italic">{loading ? "Carregando…" : "Nenhuma sessão de treinamento registrada."}</p>
+                  )}
+                  {activity.map((s: any) => {
+                    const dt = new Date(s.completed_at ?? s.started_at);
+                    return (
+                      <div key={s.id} className="relative pl-6 pb-4 border-l border-cyan-500/20">
+                        <div className="absolute left-[-5px] top-0 w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_rgba(0,242,255,0.8)]" />
+                        <div className="text-[10px] opacity-40 uppercase mb-1">{dt.toLocaleString("pt-BR")}</div>
+                        <p className="text-[11px] font-bold uppercase mb-1">
+                          {s.status === "completed" ? "Concluiu" : "Iniciou"} módulo: {s.training_modules?.title ?? "—"}
+                        </p>
+                        {s.score != null && <p className="text-[10px] text-cyan-400/60">Pontuação: {Number(s.score).toFixed(1)}/10</p>}
+                      </div>
+                    );
+                  })}
                 </div>
               </ScrollArea>
             </section>
