@@ -26,7 +26,20 @@ export const PrazosPage = () => <CreaCrudPage config={PRAZOS_CFG} />;
 export const RtsPage = () => <CreaCrudPage config={RTS_CFG} />;
 export const EmpresasPage = () => <CreaCrudPage config={EMPRESAS_CFG} />;
 export const DocumentosPage = () => <CreaCrudPage config={DOCUMENTOS_CFG} />;
-export const NormasPage = () => <CreaCrudPage config={NORMAS_CFG} isGlobal />;
+export const NormasPage = () => (
+  <Tabs defaultValue="normas" className="space-y-4">
+    <TabsList className="flex-wrap h-auto">
+      <TabsTrigger value="normas"><BookOpen className="w-4 h-4 mr-1" /> Normas e Regras</TabsTrigger>
+      <TabsTrigger value="links"><LinkIcon className="w-4 h-4 mr-1" /> Links Oficiais</TabsTrigger>
+      <TabsTrigger value="prazos"><CalendarClock className="w-4 h-4 mr-1" /> Prazos</TabsTrigger>
+      <TabsTrigger value="tratativas"><MessageSquare className="w-4 h-4 mr-1" /> Tratativas</TabsTrigger>
+    </TabsList>
+    <TabsContent value="normas"><CreaCrudPage config={NORMAS_CFG} isGlobal /></TabsContent>
+    <TabsContent value="links"><CreaCrudPage config={LINKS_CFG} isGlobal /></TabsContent>
+    <TabsContent value="prazos"><CreaCrudPage config={PRAZOS_CFG} /></TabsContent>
+    <TabsContent value="tratativas"><CreaCrudPage config={TRATATIVAS_CFG} /></TabsContent>
+  </Tabs>
+);
 export const LinksPage = () => <CreaCrudPage config={LINKS_CFG} isGlobal />;
 
 export { CredenciaisPage, AssistentePage };
