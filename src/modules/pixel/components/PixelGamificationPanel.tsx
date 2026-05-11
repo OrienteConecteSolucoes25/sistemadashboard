@@ -1,5 +1,5 @@
 import React from "react";
-import { Trophy, Star, TrendingUp, Award } from "lucide-react";
+import { Trophy, TrendingUp, Award } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { usePixelGamification } from "../data/usePixelGamification";
@@ -15,7 +15,7 @@ export function PixelGamificationPanel({ userId }: PixelGamificationPanelProps) 
 
   if (loading || !data) {
     return (
-      <Card className="bg-pixel-dark/90 border-pixel-purple/30 text-white animate-pulse">
+      <Card className="bg-black/60 border-pixel-purple/30 text-white animate-pulse">
         <CardContent className="p-4">Carregando progresso...</CardContent>
       </Card>
     );
@@ -26,7 +26,7 @@ export function PixelGamificationPanel({ userId }: PixelGamificationPanelProps) 
   return (
     <div className="space-y-4 w-full max-w-md">
       {/* Level & XP Card */}
-      <Card className="bg-pixel-dark/90 border-pixel-purple/50 text-white shadow-lg shadow-pixel-purple/20">
+      <Card className="bg-black/60 border-pixel-purple/50 text-white shadow-lg shadow-pixel-purple/20 backdrop-blur-sm">
         <CardHeader className="p-4 pb-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <TrendingUp className="w-4 h-4 text-pixel-purple" />
@@ -43,12 +43,12 @@ export function PixelGamificationPanel({ userId }: PixelGamificationPanelProps) 
               {data.xp} / {data.xp_to_next_level} XP
             </div>
           </div>
-          <Progress value={progressPercent} className="h-2 bg-white/10" indicatorClassName="bg-pixel-purple shadow-[0_0_8px_rgba(168,85,247,0.5)]" />
+          <Progress value={progressPercent} className="h-2 bg-white/10" />
         </CardContent>
       </Card>
 
       {/* Achievements Card */}
-      <Card className="bg-pixel-dark/90 border-pixel-purple/50 text-white shadow-lg shadow-pixel-purple/20">
+      <Card className="bg-black/60 border-pixel-purple/50 text-white shadow-lg shadow-pixel-purple/20 backdrop-blur-sm">
         <CardHeader className="p-4 pb-2">
           <CardTitle className="text-sm font-medium flex items-center gap-2">
             <Trophy className="w-4 h-4 text-yellow-500" />
