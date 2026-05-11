@@ -518,7 +518,7 @@ export default function MarketplaceHome() {
                 </motion.div>
               )}
 
-              {checkoutStep === 3 && (
+              {checkoutStep === 4 && (
                 <motion.div 
                   initial={{ opacity: 0, x: 20 }}
                   animate={{ opacity: 1, x: 0 }}
