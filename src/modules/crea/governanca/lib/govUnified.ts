@@ -112,10 +112,11 @@ function pickCidade(...vals: any[]): string | null {
 }
 
 export async function fetchGovUnified(companyId: string, f: GovFilters): Promise<GovUnifiedRow[]> {
-  const [serv, bloco, rel] = await Promise.all([
+  const [serv, bloco, rel, todas] = await Promise.all([
     fetchAll("crea_gov_servicos", companyId).catch(() => []),
     fetchAll("crea_gov_art_bloco", companyId).catch(() => []),
     fetchAll("crea_gov_relatorio_crea", companyId).catch(() => []),
+    fetchAll("crea_gov_arts_todas", companyId).catch(() => []),
   ]);
 
   const rows: GovUnifiedRow[] = [];
