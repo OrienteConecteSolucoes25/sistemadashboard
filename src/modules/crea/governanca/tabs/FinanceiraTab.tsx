@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { GovFilters } from "../lib/govTypes";
 import { useGovCompany } from "../lib/useGovCompany";
 import { fetchArts, fetchPagamentos, computeKpis, sumBy, GovArt, GovPagamento } from "../lib/govApi";
+import { deriveStatusFinanceiroArt } from "../lib/govNormalize";
 
 const fmtBRL = (v: number) =>
   v.toLocaleString("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 2 });
@@ -70,7 +71,7 @@ export function FinanceiraTab({ filters }: { filters: GovFilters }) {
   const statusFinanceiro = useMemo(() => {
     const m = new Map<string, number>();
     for (const a of arts) {
-      const s = a.status_financeiro || (a.data_pagamento ? "Pago" : "Pendente");
+      const s = deriveStatusFinanceiroArt(a);
       m.set(s, (m.get(s) ?? 0) + 1);
     }
     return Array.from(m, ([name, value]) => ({ name, value }));

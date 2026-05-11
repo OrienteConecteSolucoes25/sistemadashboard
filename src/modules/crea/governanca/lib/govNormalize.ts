@@ -251,6 +251,60 @@ export function parseDateISO(v: any): string | null {
   return null;
 }
 
+// ---------- derivação de status financeiro canônico por ART ----------
+
+export type StatusFinanceiroCanon = "Pago" | "Parcial" | "Não Paga" | "Vencido" | "Divergente";
+
+/**
+ * Deriva o status financeiro canônico de uma ART combinando:
+ *  - status_financeiro original (já normalizado, se existir)
+ *  - valor_taxa vs valor_pago
+ *  - data_vencimento vs hoje
+ *  - data_pagamento
+ *
+ * Regras (em ordem):
+ *  1. Sem taxa e sem pagamento → "Não Paga"
+ *  2. Pago > 0 e |taxa - pago| < 0,05 → "Pago"
+ *  3. Pago > 0 e pago < taxa     → "Parcial" (ou "Vencido" se já venceu sem quitar)
+ *  4. Pago > taxa (>0,05)         → "Divergente"
+ *  5. Pago = 0 e venceu           → "Vencido"
+ *  6. Pago = 0                    → "Não Paga"
+ * Se o status original já for canônico e coerente, ele tem prioridade leve.
+ */
+export function deriveStatusFinanceiroArt(a: {
+  valor_taxa?: number | null;
+  valor_pago?: number | null;
+  data_vencimento?: string | null;
+  data_pagamento?: string | null;
+  status_financeiro?: string | null;
+}): StatusFinanceiroCanon {
+  const taxa = Number(a.valor_taxa || 0);
+  const pago = Number(a.valor_pago || 0);
+  const today = new Date().toISOString().slice(0, 10);
+  const venceu = !!(a.data_vencimento && a.data_vencimento < today);
+  const orig = normalizeStatusFinanceiro(a.status_financeiro);
+
+  if (taxa <= 0 && pago <= 0) return (orig as StatusFinanceiroCanon) || "Não Paga";
+  if (pago > 0 && Math.abs(taxa - pago) < 0.05) return "Pago";
+  if (pago > taxa + 0.05) return "Divergente";
+  if (pago > 0 && pago < taxa - 0.05) return venceu ? "Vencido" : "Parcial";
+  if (pago <= 0 && venceu) return "Vencido";
+  if (pago <= 0) return "Não Paga";
+  return (orig as StatusFinanceiroCanon) || "Não Paga";
+}
+
+/** Pendente por-linha (nunca negativo). Usado para somatórios corretos. */
+export function pendenteArt(a: { valor_taxa?: number | null; valor_pago?: number | null }): number {
+  const t = Number(a.valor_taxa || 0);
+  const p = Number(a.valor_pago || 0);
+  return Math.max(0, t - p);
+}
+
+/** Diferença pago - taxa (positiva = superpagamento; negativa = falta). */
+export function divergenciaArt(a: { valor_taxa?: number | null; valor_pago?: number | null }): number {
+  return Number(a.valor_pago || 0) - Number(a.valor_taxa || 0);
+}
+
 /** Monta endereço único quando vier dividido (logradouro/numero/bairro/complemento). */
 export function buildEndereco(parts: {
   endereco?: any; endereco_logradouro?: any; endereco_numero?: any;

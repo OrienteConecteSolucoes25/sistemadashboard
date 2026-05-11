@@ -1,5 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 import { GovFilters } from "./govTypes";
+import { deriveStatusFinanceiroArt, pendenteArt, divergenciaArt } from "./govNormalize";
 
 export type GovArt = {
   id: string;
@@ -104,33 +105,59 @@ export type GovKpis = {
   valor_contratos: number;
   ticket_medio_taxa: number;
   ticket_medio_contrato: number;
+  // Novos (canônicos por-linha) — opcionais para retrocompat
+  pagas?: number;
+  parciais?: number;
+  divergentes?: number;
+  nao_pagas?: number;
+  valor_divergente?: number; // soma de |pago - taxa| onde pago > taxa
 };
 
 export function computeKpis(arts: GovArt[]): GovKpis {
+  return computeKpisInternal(arts);
+}
+
+function computeKpisInternal(arts: GovArt[]): GovKpis {
   const k: GovKpis = {
     total: arts.length, registradas: 0, aguardando_pgto: 0, vencidas: 0, baixadas: 0, canceladas: 0,
     valor_emitido: 0, valor_pago: 0, valor_pendente: 0, valor_contratos: 0,
     ticket_medio_taxa: 0, ticket_medio_contrato: 0,
+    pagas: 0, parciais: 0, divergentes: 0, nao_pagas: 0, valor_divergente: 0,
   };
-  const today = new Date().toISOString().slice(0, 10);
   let nTaxa = 0, nContrato = 0;
   for (const a of arts) {
     const sa = (a.status_analise ?? "").toLowerCase();
-    const sf = (a.status_financeiro ?? "").toLowerCase();
     if (sa.includes("registrada")) k.registradas++;
-    if (sa.includes("aguardando") || sf.includes("não pag") || sf.includes("nao pag")) k.aguardando_pgto++;
     if (sa.includes("cancelada") || sa.includes("invalid")) k.canceladas++;
     if (a.data_baixa) k.baixadas++;
-    if (a.data_vencimento && a.data_vencimento < today && !a.data_pagamento) k.vencidas++;
+
     if (a.valor_taxa) { k.valor_emitido += Number(a.valor_taxa); nTaxa++; }
     if (a.valor_pago) k.valor_pago += Number(a.valor_pago);
     if (a.valor_contrato) { k.valor_contratos += Number(a.valor_contrato); nContrato++; }
+
+    // Pendente por-linha (não global) — não compensa entre ARTs
+    k.valor_pendente += pendenteArt(a);
+
+    // Status financeiro canônico por ART
+    const st = deriveStatusFinanceiroArt(a);
+    if (st === "Pago") k.pagas!++;
+    else if (st === "Parcial") k.parciais!++;
+    else if (st === "Divergente") {
+      k.divergentes!++;
+      const diff = divergenciaArt(a);
+      if (diff > 0) k.valor_divergente! += diff;
+    }
+    else if (st === "Vencido") k.vencidas++;
+    else if (st === "Não Paga") k.nao_pagas!++;
+
+    // Mantém compat: aguardando_pgto = não-pagas + parciais + vencidas
+    if (st === "Não Paga" || st === "Parcial" || st === "Vencido") k.aguardando_pgto++;
   }
-  k.valor_pendente = Math.max(0, k.valor_emitido - k.valor_pago);
   k.ticket_medio_taxa = nTaxa ? k.valor_emitido / nTaxa : 0;
   k.ticket_medio_contrato = nContrato ? k.valor_contratos / nContrato : 0;
   return k;
 }
+
 
 export function groupBy<T>(arr: T[], key: (x: T) => string): { name: string; value: number }[] {
   const m = new Map<string, number>();
