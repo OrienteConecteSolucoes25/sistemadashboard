@@ -1,4 +1,5 @@
 import * as PIXI from 'pixi.js';
+import { GlowFilter } from 'pixi-filters';
 import { pixiApp, PIXI_LAYERS } from './pixiApp';
 import { TILE_SIZE } from '../core/constants';
 
