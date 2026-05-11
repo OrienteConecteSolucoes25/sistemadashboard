@@ -1,9 +1,8 @@
-import { NavLink, Outlet, useLocation } from "react-router-dom";
+import { Outlet } from "react-router-dom";
 import {
   LayoutDashboard, FileSignature, FileStack, Users, Building2, KeyRound, ScrollText,
   Award, FileMinus, FolderOpen, MessageSquare, BookOpen, CalendarClock, Bot, Link as LinkIcon, ShieldCheck, HardHat, Settings, Gauge
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 import { useMemo } from "react";
 import { CollapsibleModuleSidebar } from "@/modules/aparencia/ui/CollapsibleModuleSidebar";
 import { useCan } from "@/acl/AclProvider";
@@ -25,7 +24,6 @@ const allTabs = [
 ];
 
 export default function CreaLayout() {
-  const loc = useLocation();
   const canCrea = useCan("crea.acessar");
   const tabs = useMemo(() => {
     if (canCrea) return allTabs;
