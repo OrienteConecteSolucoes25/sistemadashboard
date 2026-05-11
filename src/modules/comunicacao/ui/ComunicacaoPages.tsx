@@ -16,6 +16,7 @@ import { Link } from "react-router-dom";
 import { ApprovalPanel } from "./ApprovalPanel";
 import { ScheduleDialog } from "./ScheduleDialog";
 import { useActiveBrandKit } from "../hooks/useActiveBrandKit";
+import BrandKitVisualTab from "./BrandKitVisualTab";
 
 // ========== HELPERS ==========
 async function loadBrands(companyId: string | null) {
@@ -131,15 +132,7 @@ export function BrandKitsPage() {
           </TabsContent>
 
           <TabsContent value="visual" className="space-y-3 pt-3">
-            <Card className="p-4 space-y-3">
-              <div><Label>Estilo visual</Label><Input value={edit.estilo_visual ?? ""} onChange={(e) => setEdit({ ...edit, estilo_visual: e.target.value })} /></div>
-              <div className="grid grid-cols-2 gap-3">
-                <div><Label>Cores principais (CSV)</Label><Input value={Array.isArray(edit.cores_principais) ? edit.cores_principais.join(", ") : edit.cores_principais ?? ""} onChange={(e) => setEdit({ ...edit, cores_principais: e.target.value })} /></div>
-                <div><Label>Cores secundárias (CSV)</Label><Input value={Array.isArray(edit.cores_secundarias) ? edit.cores_secundarias.join(", ") : edit.cores_secundarias ?? ""} onChange={(e) => setEdit({ ...edit, cores_secundarias: e.target.value })} /></div>
-                <div className="col-span-2"><Label>Fontes (CSV)</Label><Input value={Array.isArray(edit.fontes) ? edit.fontes.join(", ") : edit.fontes ?? ""} onChange={(e) => setEdit({ ...edit, fontes: e.target.value })} /></div>
-              </div>
-              <div><Label>Logo (URL)</Label><Input value={edit.logo_url ?? ""} onChange={(e) => setEdit({ ...edit, logo_url: e.target.value })} placeholder="https://..." /></div>
-            </Card>
+            <BrandKitVisualTab edit={edit} setEdit={setEdit} />
           </TabsContent>
 
           <TabsContent value="links" className="space-y-3 pt-3">
