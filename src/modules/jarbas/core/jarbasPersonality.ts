@@ -6,6 +6,7 @@ export interface JarbasPersonalityResponse {
   content: string;
   tone: JarbasTone;
   suggestedAction?: string;
+  action?: any;
 }
 
 class JarbasPersonalityEngine {
