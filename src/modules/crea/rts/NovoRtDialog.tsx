@@ -135,11 +135,34 @@ export default function NovoRtDialog({ open, onOpenChange, companyId, initial, o
             </Select>
           </div>
           <div>
+            <Label>UF (CREA)</Label>
+            <Select value={form.uf || ""} onValueChange={(v) => upd({ uf: v })}>
+              <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+              <SelectContent className="max-h-64">
+                {UFS_BR.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
             <Label>Anuidade</Label>
-            <Select value={form.anuidade} onValueChange={(v) => upd({ anuidade: v })}>
+            <Select value={form.anuidade} onValueChange={(v) => upd({ anuidade: v, ...(v !== "paga" ? { anuidade_ano: "" } : {}) })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{ANUIDADE.map((a) => <SelectItem key={a} value={a}>{ANUIDADE_LABEL[a]}</SelectItem>)}</SelectContent>
             </Select>
+          </div>
+          {form.anuidade === "paga" && (
+            <div>
+              <Label>Ano da anuidade *</Label>
+              <Input type="number" min={2000} max={2100} value={form.anuidade_ano ?? ""}
+                onChange={(e) => upd({ anuidade_ano: e.target.value })} placeholder="Ex.: 2025" />
+            </div>
+          )}
+          <div className={form.anuidade === "paga" ? "" : "col-span-1"}>
+            <Label>Inclusão ativa</Label>
+            <div className="flex items-center gap-2 h-10">
+              <Switch checked={!!form.inclusao_ativa} onCheckedChange={(v) => upd({ inclusao_ativa: v })} />
+              <span className="text-xs text-muted-foreground">{form.inclusao_ativa ? "Sim" : "Não"}</span>
+            </div>
           </div>
           <div>
             <Label>Visto</Label>
