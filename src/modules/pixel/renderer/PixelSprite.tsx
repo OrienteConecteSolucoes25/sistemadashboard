@@ -43,8 +43,8 @@ export const PixelSprite = ({ spriteKey, size = 64, className, fallback, glow }:
   return (
     <div
       className={cn(
-        "relative overflow-hidden rounded-sm transition-all duration-300",
-        glow && "animate-pulse shadow-[0_0_15px_rgba(255,255,255,0.2)]",
+        "relative transition-all duration-300",
+        glow && "animate-pulse",
         isHovered && "scale-105 z-10",
         className
       )}
@@ -54,12 +54,10 @@ export const PixelSprite = ({ spriteKey, size = 64, className, fallback, glow }:
         width: size,
         height: size,
         imageRendering: "pixelated",
-        background: `linear-gradient(135deg, ${sprite.placeholderColor}, ${adjustBrightness(sprite.placeholderColor, -20)})`,
+        background: errored ? `linear-gradient(135deg, ${sprite.placeholderColor}, ${adjustBrightness(sprite.placeholderColor, -20)})` : "transparent",
       }}
       aria-label={sprite.label}
     >
-      {/* Gloss Effect Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-transparent pointer-events-none" />
 
       {showImage && (
         <img
