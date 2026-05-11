@@ -58,7 +58,30 @@ export function TecnicaTab({ filters }: { filters: GovFilters }) {
   useEffect(() => {
     if (!companyId) return;
     setArts(null); setErr(null); setSel(new Set());
-    fetchArts(companyId, filters, 2000).then(setArts).catch((e) => setErr(e.message));
+    fetchArts(companyId, filters, 2000).then(async (rows) => {
+      setArts(rows);
+      // Carrega RTs e Contratantes referenciados (lookup leve, sem FK)
+      const rtIds = Array.from(new Set(rows.map((a) => a.rt_id).filter(Boolean) as string[]));
+      const ctIds = Array.from(new Set(rows.map((a) => a.contratante_id).filter(Boolean) as string[]));
+      if (rtIds.length) {
+        const { data: rts } = await supabase
+          .from("crea_engineers")
+          .select("id,nome,titulo,modalidade")
+          .in("id", rtIds);
+        const m: Record<string, RtInfo> = {};
+        (rts ?? []).forEach((r: any) => { m[r.id] = { nome: r.nome, titulo: r.titulo ?? null, modalidade: r.modalidade ?? null }; });
+        setRtMap(m);
+      } else setRtMap({});
+      if (ctIds.length) {
+        const { data: cts } = await supabase
+          .from("crea_gov_contratantes")
+          .select("id,nome")
+          .in("id", ctIds);
+        const m: Record<string, ContratanteInfo> = {};
+        (cts ?? []).forEach((c: any) => { m[c.id] = { nome: c.nome }; });
+        setContMap(m);
+      } else setContMap({});
+    }).catch((e) => setErr(e.message));
   }, [companyId, JSON.stringify(filters), reload]);
 
   const filtered = useMemo(() => {
