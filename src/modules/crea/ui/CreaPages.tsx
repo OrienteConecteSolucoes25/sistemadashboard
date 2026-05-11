@@ -25,7 +25,16 @@ export const TratativasPage = () => <CreaCrudPage config={TRATATIVAS_CFG} />;
 export const PrazosPage = () => <CreaCrudPage config={PRAZOS_CFG} />;
 export const RtsPage = () => <CreaCrudPage config={RTS_CFG} />;
 export const EmpresasPage = () => <CreaCrudPage config={EMPRESAS_CFG} />;
-export const DocumentosPage = () => <CreaCrudPage config={DOCUMENTOS_CFG} />;
+export const DocumentosPage = () => (
+  <Tabs defaultValue="documentos" className="space-y-4">
+    <TabsList className="flex-wrap h-auto">
+      <TabsTrigger value="documentos"><BookOpen className="w-4 h-4 mr-1" /> Documentações</TabsTrigger>
+      <TabsTrigger value="protocolos"><BookOpen className="w-4 h-4 mr-1" /> Protocolos</TabsTrigger>
+    </TabsList>
+    <TabsContent value="documentos"><CreaCrudPage config={DOCUMENTOS_CFG} /></TabsContent>
+    <TabsContent value="protocolos"><CreaCrudPage config={PROTOCOLOS_CFG} /></TabsContent>
+  </Tabs>
+);
 export const NormasPage = () => (
   <Tabs defaultValue="normas" className="space-y-4">
     <TabsList className="flex-wrap h-auto">
