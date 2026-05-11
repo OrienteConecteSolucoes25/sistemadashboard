@@ -248,7 +248,7 @@ export default function PixelOfficePage() {
                     secondaryColor={npc.secondaryColor}
                     startX={npc.startX}
                     onClick={() => {
-                      if (["ocs_guard", "ti", "financeiro", "jarbas", "marketplace"].includes(npc.id)) {
+                      if (["ocs_guard", "ti", "financeiro", "jarbas", "marketplace", "gamificacao"].includes(npc.id)) {
                         setActiveAgentPanel(npc.id);
                       }
                       open();
