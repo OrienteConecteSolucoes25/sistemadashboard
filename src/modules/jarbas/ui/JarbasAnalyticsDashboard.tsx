@@ -270,13 +270,9 @@ export const JarbasAnalyticsDashboard = () => {
                 </CardContent>
               </Card>
             )) : (
-              [1, 2, 3].map((i) => (
-                <div key={i} className="p-4 bg-cyan-950/5 border border-dashed border-cyan-500/20 rounded-lg animate-pulse flex flex-col justify-center items-center text-center">
-                  <div className="w-8 h-8 rounded-full bg-cyan-500/10 mb-2" />
-                  <div className="h-2 w-24 bg-cyan-500/10 rounded mb-2" />
-                  <div className="h-2 w-16 bg-cyan-500/10 rounded" />
-                </div>
-              ))
+              <div className="md:col-span-3 p-6 bg-cyan-950/5 border border-dashed border-cyan-500/20 rounded-lg text-center text-[11px] opacity-60">
+                {loading ? "Carregando insights preditivos…" : "Nenhum insight registrado em jarbas_predictive_insights ainda."}
+              </div>
             )}
           </div>
         </section>
