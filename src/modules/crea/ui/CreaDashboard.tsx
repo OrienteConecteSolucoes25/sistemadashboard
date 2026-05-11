@@ -98,7 +98,7 @@ export default function CreaDashboard() {
     if (fStatus !== ALL && r.status && r.status !== fStatus) return false;
     if (fAno && dateKey && r[dateKey]) { if (!String(r[dateKey]).startsWith(fAno)) return false; }
     if (fMes && dateKey && r[dateKey]) { if (String(r[dateKey]).slice(5,7) !== fMes) return false; }
-    if (fRT && r.responsavel_tecnico) { if (!String(r.responsavel_tecnico).toLowerCase().includes(fRT.toLowerCase())) return false; }
+    if (fRT && r.contratante == null && r.empresa_vinculada) { if (!String(r.empresa_vinculada).toLowerCase().includes(fRT.toLowerCase())) return false; }
     if (fCliente && r.contratante) { if (!String(r.contratante).toLowerCase().includes(fCliente.toLowerCase())) return false; }
     return true;
   });
