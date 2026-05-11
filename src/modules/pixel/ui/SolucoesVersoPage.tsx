@@ -1,20 +1,25 @@
 import { useLocation, useSearchParams } from "react-router-dom";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Gamepad2, User } from "lucide-react";
+import { Gamepad2, User, Shield } from "lucide-react";
 import PixelOfficePage from "./PixelOfficePage";
 import MyCharacterPage from "./MyCharacterPage";
+import PixelAdminPage from "./admin/PixelAdminPage";
+import { usePlanosAccess } from "@/modules/planos/hooks/usePlanosAccess";
 
 /**
  * Soluções-Verso — antigo "Pixel Office".
- * Reúne em abas o Escritório virtual e a edição do Meu Personagem.
+ * Reúne em abas o Escritório virtual, edição do Meu Personagem e Admin (OCS staff).
  */
 export default function SolucoesVersoPage() {
   const [params, setParams] = useSearchParams();
   const { pathname } = useLocation();
-  const tab =
-    pathname.endsWith("/meu-personagem") || params.get("tab") === "meu-personagem"
-      ? "meu-personagem"
-      : "escritorio";
+  const { isOcsStaff } = usePlanosAccess();
+
+  const tab = pathname.endsWith("/admin") || params.get("tab") === "admin"
+    ? "admin"
+    : pathname.endsWith("/meu-personagem") || params.get("tab") === "meu-personagem"
+    ? "meu-personagem"
+    : "escritorio";
 
   const setTab = (v: string) => {
     if (v === "escritorio") params.delete("tab");
@@ -39,6 +44,11 @@ export default function SolucoesVersoPage() {
           <TabsTrigger value="meu-personagem" className="gap-2">
             <User className="w-4 h-4" /> Meu Personagem
           </TabsTrigger>
+          {isOcsStaff && (
+            <TabsTrigger value="admin" className="gap-2">
+              <Shield className="w-4 h-4" /> Admin
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="escritorio" className="mt-0">
@@ -47,6 +57,11 @@ export default function SolucoesVersoPage() {
         <TabsContent value="meu-personagem" className="mt-0">
           <MyCharacterPage />
         </TabsContent>
+        {isOcsStaff && (
+          <TabsContent value="admin" className="mt-0">
+            <PixelAdminPage />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

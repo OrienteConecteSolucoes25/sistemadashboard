@@ -100,7 +100,7 @@ const AppLayout = () => {
       {(isFinanceiro || canPlanos) && <NavItem to="/app/planos" icon={CreditCard} label="Planos" />}
       {canSeeMinhaEmpresa && <NavItem to="/app/minha-empresa" icon={Building2} label="Minha Empresa" />}
       {(isAdmin || canAparencia) && <NavItem to="/app/aparencia" icon={Palette} label="Aparência & Marca" />}
-      {isOcsStaff && <NavItem to="/app/pixel-office/admin" icon={Shield} label="Soluções-Verso Admin" />}
+      
       {(isOcsStaff || canAdmVis) && <NavItem to="/app/adm" icon={Settings} label="ADM — Visibilidade" />}
       {canMarketplace && <NavItem to="/app/marketplace" icon={Store} label="Marketplace" />}
       <div className="mt-auto pt-4 border-t">

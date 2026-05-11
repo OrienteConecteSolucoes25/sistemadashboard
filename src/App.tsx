@@ -115,7 +115,7 @@ const App = () => (
               <Route index element={<Navigate to="/app/pixel-office" replace />} />
               <Route path="pixel-office" element={<SolucoesVersoPage />} />
               <Route path="pixel-office/meu-personagem" element={<SolucoesVersoPage />} />
-              <Route path="pixel-office/admin" element={<PixelAdminPage />} />
+              <Route path="pixel-office/admin" element={<SolucoesVersoPage />} />
               <Route path="engenharia" element={<EngenhariaGuard />}>
                 <Route index element={<EngenhariaDashboard />} />
                 <Route path="governanca" element={<GovernancaPage />} />
