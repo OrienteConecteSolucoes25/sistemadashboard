@@ -9,6 +9,10 @@ export interface MarketplaceStore {
   description: string | null;
   logo_url: string | null;
   banner_url: string | null;
+  primary_color: string | null;
+  contact_email: string | null;
+  contact_phone: string | null;
+  policies: string | null;
   settings: any;
   is_active: boolean;
   created_at: string;
