@@ -48,9 +48,10 @@ export default function CreaGovernancaPage() {
         <TabsContent value="servicos" className="mt-4">
           <GovGenericTab
             table="crea_gov_servicos"
-            title="Relatório Gerencial de Serviços"
-            description="Importe planilhas do CREA com Número, Detalhe, Análise, Baixa, Boleto, Pagamento, Cadastro, Empresa, Contratante, Endereço, Observação."
+            title="Relatório Gerencial — CREA-PB (23 colunas)"
+            description="Modelo oficial CREA-PB: ART, Tipo, Participação Técnica, Forma de Registro, Pagamento, Taxa Paga, Cadastro, Observação, Contratante, CNPJ contratante, Proprietário, CNPJ proprietário, Número, Valor do contrato, Data início, Data fim, Endereços, Atividades, Nível, Atividade subordinada, Atividade/Serviço, Quantidade, Unidade de medida."
             fields={SERVICOS_FIELDS}
+            labelKey="art"
           />
         </TabsContent>
         <TabsContent value="art_bloco" className="mt-4">

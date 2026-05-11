@@ -1,0 +1,18 @@
+ALTER TABLE public.crea_gov_servicos
+  ADD COLUMN IF NOT EXISTS art text,
+  ADD COLUMN IF NOT EXISTS tipo text,
+  ADD COLUMN IF NOT EXISTS participacao_tecnica text,
+  ADD COLUMN IF NOT EXISTS forma_registro text,
+  ADD COLUMN IF NOT EXISTS taxa_paga text,
+  ADD COLUMN IF NOT EXISTS cnpj_contratante text,
+  ADD COLUMN IF NOT EXISTS proprietario text,
+  ADD COLUMN IF NOT EXISTS cnpj_proprietario text,
+  ADD COLUMN IF NOT EXISTS valor_contrato numeric,
+  ADD COLUMN IF NOT EXISTS data_inicio text,
+  ADD COLUMN IF NOT EXISTS data_fim text,
+  ADD COLUMN IF NOT EXISTS atividades text,
+  ADD COLUMN IF NOT EXISTS nivel text,
+  ADD COLUMN IF NOT EXISTS atividade_subordinada text,
+  ADD COLUMN IF NOT EXISTS atividade_servico text,
+  ADD COLUMN IF NOT EXISTS quantidade numeric,
+  ADD COLUMN IF NOT EXISTS unidade_medida text;

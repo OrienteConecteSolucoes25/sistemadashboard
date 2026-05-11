@@ -5377,72 +5377,123 @@ export type Database = {
       crea_gov_servicos: {
         Row: {
           analise: string | null
+          art: string | null
+          atividade_servico: string | null
+          atividade_subordinada: string | null
+          atividades: string | null
           baixa: string | null
           boleto: string | null
           cadastro: string | null
+          cnpj_contratante: string | null
+          cnpj_proprietario: string | null
           company_id: string
           contratante: string | null
           created_at: string
           created_by: string | null
+          data_fim: string | null
+          data_inicio: string | null
           delete_reason: string | null
           deleted_at: string | null
           deleted_by: string | null
           detalhe: string | null
           empresa: string | null
           endereco: string | null
+          forma_registro: string | null
           id: string
           is_deleted: boolean
+          nivel: string | null
           numero: string | null
           observacao: string | null
           pagamento: string | null
+          participacao_tecnica: string | null
+          proprietario: string | null
+          quantidade: number | null
+          taxa_paga: string | null
+          tipo: string | null
+          unidade_medida: string | null
           updated_at: string
           updated_by: string | null
+          valor_contrato: number | null
         }
         Insert: {
           analise?: string | null
+          art?: string | null
+          atividade_servico?: string | null
+          atividade_subordinada?: string | null
+          atividades?: string | null
           baixa?: string | null
           boleto?: string | null
           cadastro?: string | null
+          cnpj_contratante?: string | null
+          cnpj_proprietario?: string | null
           company_id: string
           contratante?: string | null
           created_at?: string
           created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
           delete_reason?: string | null
           deleted_at?: string | null
           deleted_by?: string | null
           detalhe?: string | null
           empresa?: string | null
           endereco?: string | null
+          forma_registro?: string | null
           id?: string
           is_deleted?: boolean
+          nivel?: string | null
           numero?: string | null
           observacao?: string | null
           pagamento?: string | null
+          participacao_tecnica?: string | null
+          proprietario?: string | null
+          quantidade?: number | null
+          taxa_paga?: string | null
+          tipo?: string | null
+          unidade_medida?: string | null
           updated_at?: string
           updated_by?: string | null
+          valor_contrato?: number | null
         }
         Update: {
           analise?: string | null
+          art?: string | null
+          atividade_servico?: string | null
+          atividade_subordinada?: string | null
+          atividades?: string | null
           baixa?: string | null
           boleto?: string | null
           cadastro?: string | null
+          cnpj_contratante?: string | null
+          cnpj_proprietario?: string | null
           company_id?: string
           contratante?: string | null
           created_at?: string
           created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
           delete_reason?: string | null
           deleted_at?: string | null
           deleted_by?: string | null
           detalhe?: string | null
           empresa?: string | null
           endereco?: string | null
+          forma_registro?: string | null
           id?: string
           is_deleted?: boolean
+          nivel?: string | null
           numero?: string | null
           observacao?: string | null
           pagamento?: string | null
+          participacao_tecnica?: string | null
+          proprietario?: string | null
+          quantidade?: number | null
+          taxa_paga?: string | null
+          tipo?: string | null
+          unidade_medida?: string | null
           updated_at?: string
           updated_by?: string | null
+          valor_contrato?: number | null
         }
         Relationships: []
       }
