@@ -208,7 +208,7 @@ export function useJarbasCore() {
       // Governança de IA: Logar ação no OCS Guard
       await ocsGuard.logAiAction({
         agent: 'Jarbas OCS',
-        classification: action?.type === 'automation' ? 'operacional' : 'informativa',
+        classification: action?.type === 'automation' ? 'IA operacional' : 'IA informativa',
         module: context.current_module,
         prompt: input,
         response: text,
