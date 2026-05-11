@@ -23,7 +23,8 @@ import {
   BrainCircuit,
   Database,
   GraduationCap,
-  BarChart3
+  BarChart3,
+  Eye
 } from "lucide-react";
 import { JarbasHolographicUI } from "./JarbasHolographicUI";
 import { JarbasVoiceVisualizer } from "./JarbasVoiceVisualizer";
