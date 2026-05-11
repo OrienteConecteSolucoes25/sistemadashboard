@@ -76,12 +76,33 @@ export function ImportacoesTab() {
         toast.warning("Nenhuma linha válida detectada no arquivo.");
         setBusy(false); return;
       }
-      setProgress(`${parsed.rows.length} linhas detectadas. Registrando importação…`);
+      setProgress(`${parsed.rows.length} linhas detectadas. Validando…`);
+
+      // ── Validação técnica (não-destrutiva) ────────────────────────
+      const valStats = {
+        semNumero: 0, semUf: 0, semDataCadastro: 0, valorInvalido: 0,
+        duplicadosNoArquivo: 0,
+      };
+      const seenHash = new Set<string>();
+      for (const r of parsed.rows) {
+        if (!r.numero) valStats.semNumero++;
+        if (!r.uf && !uf) valStats.semUf++;
+        if (!r.data_cadastro) valStats.semDataCadastro++;
+        const vt = Number(r.valor_taxa); const vp = Number(r.valor_pago);
+        if ((r.valor_taxa != null && Number.isNaN(vt)) || (r.valor_pago != null && Number.isNaN(vp))) valStats.valorInvalido++;
+        const key = `${(r.uf ?? uf ?? "BA").toString().trim().toUpperCase()}::${(r.numero ?? "").toString().trim()}::${r.data_cadastro ?? ""}`;
+        if (seenHash.has(key)) valStats.duplicadosNoArquivo++;
+        else seenHash.add(key);
+      }
 
       const { data: imp, error: impErr } = await supabase.from("crea_gov_importacoes").insert({
         company_id: companyId, uf, kind, arquivo_nome: file.name,
         total_linhas: parsed.rows.length, status: "processando",
-        mapeamento: { unmappedHeaders: parsed.unmappedHeaders, origem_importacao: kind },
+        mapeamento: {
+          unmappedHeaders: parsed.unmappedHeaders,
+          origem_importacao: kind,
+          validacao: valStats,
+        },
       }).select("id").single();
       if (impErr || !imp) throw new Error(impErr?.message ?? "Falha ao registrar importação");
 
