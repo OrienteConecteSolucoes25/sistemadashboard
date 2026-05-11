@@ -151,13 +151,23 @@ export function ImportacoesTab() {
           <p className="text-xs text-muted-foreground">Aceita .xlsx, .xls e .csv exportados do SITAC/portal CREA. As colunas são detectadas automaticamente; cabeçalhos não reconhecidos vão para o JSON bruto da ART e podem ser mapeados depois. Linhas com mesmo (UF + número + cadastro + empresa) são atualizadas (upsert).</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2 items-end">
             <div>
+              <Label className="text-xs">Tipo de importação</Label>
+              <Select value={kind} onValueChange={setKind}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {IMPORT_KINDS.map((k) => <SelectItem key={k.value} value={k.value}>{k.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] text-muted-foreground mt-1">{IMPORT_KINDS.find(k => k.value === kind)?.hint}</p>
+            </div>
+            <div>
               <Label className="text-xs">UF do CREA (default)</Label>
               <Select value={uf} onValueChange={setUf}>
                 <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                 <SelectContent>{UFS_BR.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <div className="md:col-span-2">
+            <div>
               <Label className="text-xs">Arquivo</Label>
               <Input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="h-9" onChange={(e) => setFile(e.target.files?.[0] ?? null)} disabled={busy} />
             </div>
