@@ -124,7 +124,7 @@ export default function CentralChamadosPage() {
       }
 
       const { error } = await supabase
-        .from('it_tickets')
+        .from('ti_tickets')
         .insert([{
           ...newTicket,
           user_id: userData.user.id,
