@@ -169,7 +169,7 @@ export function TecnicaTab({ filters }: { filters: GovFilters }) {
                 </TableRow>
               );})}
               {filtered.length === 0 && (
-                <TableRow><TableCell colSpan={14} className="text-center text-sm text-muted-foreground py-8">Nenhuma ART encontrada.</TableCell></TableRow>
+                <TableRow><TableCell colSpan={18} className="text-center text-sm text-muted-foreground py-8">Nenhuma ART encontrada.</TableCell></TableRow>
               )}
             </TableBody>
           </Table>
