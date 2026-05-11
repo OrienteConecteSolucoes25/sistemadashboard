@@ -113,6 +113,13 @@ export async function parseRtsFile(file: File): Promise<{ records: ParsedRt[]; h
       } else if (key === "data_termino") {
         const { date, indef } = parseDateOrIndef(cell);
         rec.data_termino = date; rec.termino_indefinido = indef;
+      } else if (key === "uf") rec.uf = String(cell ?? "").trim().toUpperCase().slice(0, 2);
+      else if (key === "anuidade_ano") {
+        const n = parseInt(String(cell ?? "").replace(/\D/g, ""), 10);
+        rec.anuidade_ano = isNaN(n) ? null : n;
+      } else if (key === "inclusao_ativa") {
+        const s = String(cell ?? "").trim().toLowerCase();
+        rec.inclusao_ativa = !(s === "nao" || s === "não" || s === "n" || s === "false" || s === "0");
       } else (rec as any)[key] = String(cell ?? "").trim();
     });
     return rec;
