@@ -40,7 +40,7 @@ export default function ChatAgenteTIPage() {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error("Usuário não autenticado");
 
-      const { error } = await supabase.from('it_tickets').insert({
+      const { error } = await supabase.from('ti_tickets').insert({
         company_id: (await supabase.from('profiles').select('company_id').eq('id', userData.user.id).single()).data?.company_id,
         user_id: userData.user.id,
         title: "Chamado Crítico via Agente IA",
