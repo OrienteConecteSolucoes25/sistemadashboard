@@ -17,6 +17,7 @@ type ImportRow = {
   id: string;
   arquivo_nome: string | null;
   uf: string | null;
+  kind: string | null;
   total_linhas: number | null;
   ok: number | null;
   falhas: number | null;
@@ -24,9 +25,17 @@ type ImportRow = {
   ran_at: string;
 };
 
+export const IMPORT_KINDS: { value: string; label: string; hint: string }[] = [
+  { value: "arts_extraidas",       label: "1. ARTs extraídas",                  hint: "Planilha base com nº ART, RT, contratante, valores, datas." },
+  { value: "relatorio_crea_art",   label: "2. Relatório CREA BA — ART",         hint: "Exportação oficial do CREA BA com status analítico/financeiro." },
+  { value: "relatorio_servicos",   label: "3. Relatório de serviços CREA",      hint: "Atividades técnicas, código TOS, quantidade e unidade." },
+  { value: "financeiro_baixas",    label: "4. Financeiro / baixas / pagamentos", hint: "Boletos, pagamentos, baixas e conciliação financeira." },
+];
+
 export function ImportacoesTab() {
   const { companyId } = useGovCompany();
   const [uf, setUf] = useState<string>("BA");
+  const [kind, setKind] = useState<string>("arts_extraidas");
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<string>("");
@@ -37,7 +46,7 @@ export function ImportacoesTab() {
   useEffect(() => {
     if (!companyId) return;
     supabase.from("crea_gov_importacoes")
-      .select("id,arquivo_nome,uf,total_linhas,ok,falhas,status,ran_at")
+      .select("id,arquivo_nome,uf,kind,total_linhas,ok,falhas,status,ran_at")
       .eq("company_id", companyId).order("ran_at", { ascending: false }).limit(20)
       .then(({ data }) => setHistory((data as ImportRow[]) ?? []));
   }, [companyId, reload]);
@@ -65,9 +74,9 @@ export function ImportacoesTab() {
       setProgress(`${parsed.rows.length} linhas detectadas. Registrando importação…`);
 
       const { data: imp, error: impErr } = await supabase.from("crea_gov_importacoes").insert({
-        company_id: companyId, uf, kind: "arts_geral", arquivo_nome: file.name,
+        company_id: companyId, uf, kind, arquivo_nome: file.name,
         total_linhas: parsed.rows.length, status: "processando",
-        mapeamento: { unmappedHeaders: parsed.unmappedHeaders },
+        mapeamento: { unmappedHeaders: parsed.unmappedHeaders, origem_importacao: kind },
       }).select("id").single();
       if (impErr || !imp) throw new Error(impErr?.message ?? "Falha ao registrar importação");
 
@@ -142,13 +151,23 @@ export function ImportacoesTab() {
           <p className="text-xs text-muted-foreground">Aceita .xlsx, .xls e .csv exportados do SITAC/portal CREA. As colunas são detectadas automaticamente; cabeçalhos não reconhecidos vão para o JSON bruto da ART e podem ser mapeados depois. Linhas com mesmo (UF + número + cadastro + empresa) são atualizadas (upsert).</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-2 items-end">
             <div>
+              <Label className="text-xs">Tipo de importação</Label>
+              <Select value={kind} onValueChange={setKind}>
+                <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  {IMPORT_KINDS.map((k) => <SelectItem key={k.value} value={k.value}>{k.label}</SelectItem>)}
+                </SelectContent>
+              </Select>
+              <p className="text-[10px] text-muted-foreground mt-1">{IMPORT_KINDS.find(k => k.value === kind)?.hint}</p>
+            </div>
+            <div>
               <Label className="text-xs">UF do CREA (default)</Label>
               <Select value={uf} onValueChange={setUf}>
                 <SelectTrigger className="h-9"><SelectValue /></SelectTrigger>
                 <SelectContent>{UFS_BR.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}</SelectContent>
               </Select>
             </div>
-            <div className="md:col-span-2">
+            <div>
               <Label className="text-xs">Arquivo</Label>
               <Input ref={fileRef} type="file" accept=".xlsx,.xls,.csv" className="h-9" onChange={(e) => setFile(e.target.files?.[0] ?? null)} disabled={busy} />
             </div>
@@ -165,12 +184,15 @@ export function ImportacoesTab() {
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow><TableHead>Data</TableHead><TableHead>Arquivo</TableHead><TableHead>UF</TableHead><TableHead className="text-right">Linhas</TableHead><TableHead className="text-right">OK</TableHead><TableHead className="text-right">Falhas</TableHead><TableHead>Status</TableHead></TableRow>
+              <TableRow><TableHead>Data</TableHead><TableHead>Tipo</TableHead><TableHead>Arquivo</TableHead><TableHead>UF</TableHead><TableHead className="text-right">Linhas</TableHead><TableHead className="text-right">OK</TableHead><TableHead className="text-right">Falhas</TableHead><TableHead>Status</TableHead></TableRow>
             </TableHeader>
             <TableBody>
-              {history.map((h) => (
+              {history.map((h) => {
+                const k = IMPORT_KINDS.find(x => x.value === h.kind);
+                return (
                 <TableRow key={h.id}>
                   <TableCell className="text-xs whitespace-nowrap">{new Date(h.ran_at).toLocaleString("pt-BR")}</TableCell>
+                  <TableCell className="text-xs"><Badge variant="secondary" className="text-[10px]">{k?.label ?? h.kind ?? "—"}</Badge></TableCell>
                   <TableCell className="text-xs">{h.arquivo_nome ?? "—"}</TableCell>
                   <TableCell className="text-xs">{h.uf ?? "—"}</TableCell>
                   <TableCell className="text-xs text-right">{h.total_linhas ?? 0}</TableCell>
@@ -178,8 +200,9 @@ export function ImportacoesTab() {
                   <TableCell className="text-xs text-right text-rose-600">{h.falhas ?? 0}</TableCell>
                   <TableCell><Badge variant="outline" className="text-xs">{h.status === "concluido" ? <><CheckCircle2 className="h-3 w-3 mr-1 text-emerald-600" />OK</> : h.status === "concluido_com_erros" ? <><AlertTriangle className="h-3 w-3 mr-1 text-amber-600" />Com erros</> : h.status}</Badge></TableCell>
                 </TableRow>
-              ))}
-              {history.length === 0 && <TableRow><TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-6">Nenhuma importação ainda.</TableCell></TableRow>}
+                );
+              })}
+              {history.length === 0 && <TableRow><TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-6">Nenhuma importação ainda.</TableCell></TableRow>}
             </TableBody>
           </Table>
         </CardContent>
