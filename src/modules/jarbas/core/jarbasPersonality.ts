@@ -53,6 +53,24 @@ class JarbasPersonalityEngine {
       };
     }
 
+    // Office Navigation Commands
+    if (lowerInput.includes('vá para') || lowerInput.includes('mova') || lowerInput.includes('navegar') || lowerInput.includes('ir para')) {
+      if (lowerInput.includes('mesa')) {
+        return {
+          content: this.formatProfessionalResponse("Iniciando deslocamento até a estação de trabalho solicitada."),
+          tone: 'instructional',
+          action: { type: 'pixel_office_move', target: 'desk' }
+        };
+      }
+      if (lowerInput.includes('sala') || lowerInput.includes('reunião')) {
+        return {
+          content: this.formatProfessionalResponse("Deslocando sua representação para a sala de reuniões."),
+          tone: 'instructional',
+          action: { type: 'pixel_office_move', target: 'room' }
+        };
+      }
+    }
+
     // Resposta Padrão Professional
     return {
       content: this.formatProfessionalResponse("Entendido. Estou processando sua solicitação com base nos dados operacionais integrados. Em que mais posso auxiliar na supervisão técnica agora?"),
