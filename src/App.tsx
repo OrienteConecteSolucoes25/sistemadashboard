@@ -97,7 +97,16 @@ import { JarbasVisionDashboard } from "./modules/jarbas/ui/JarbasVisionDashboard
 import { ComplianceGovernanceDashboard } from "./modules/governance/ui/ComplianceGovernanceDashboard";
 import NotFound from "./pages/NotFound.tsx";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      staleTime: 60_000,
+      retry: 1,
+    },
+  },
+});
 
 const App = () => (
   <QueryClientProvider client={queryClient}>

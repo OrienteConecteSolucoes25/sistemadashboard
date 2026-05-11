@@ -20,9 +20,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const lastSessionRef = useRef<Session | null>(null);
 
   const handleSession = (s: Session | null) => {
+    const prev = lastSessionRef.current;
+    // Evita re-render quando é só refresh de token do mesmo usuário
+    if (prev && s && prev.user?.id === s.user?.id && prev.access_token === s.access_token) {
+      return;
+    }
+    const sameUser = prev?.user?.id && s?.user?.id && prev.user.id === s.user.id;
     setSession(s);
     lastSessionRef.current = s;
-    if (s?.user) {
+    if (s?.user && !sameUser) {
       setTimeout(async () => {
         // Garante profile (idempotente)
         try {
