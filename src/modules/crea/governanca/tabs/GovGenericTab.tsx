@@ -52,6 +52,35 @@ export function GovGenericTab({ table, title, description, fields, labelKey = "n
   const listFields = useMemo(() => fields.filter(f => f.inList !== false), [fields]);
   const searchKeys = useMemo(() => fields.filter(f => f.type === "text" || f.type === "textarea").map(f => f.key), [fields]);
 
+  // Normaliza chave (sem acentos, sem espaços/símbolos) para casar aliases vs. headers do `data`.
+  const normKey = (s: string) =>
+    String(s ?? "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .trim().replace(/[\s\-/:]+/g, "_").replace(/[^a-z0-9_]/g, "");
+
+  // Para cada campo com aliases, se o valor da coluna estiver vazio,
+  // procura no jsonb `data` por qualquer header equivalente. Isso garante
+  // que "Empresa" mostre o nome mesmo quando a planilha veio com cabeçalho
+  // diferente (proprietário, razão social, executora etc.).
+  const enrichWithAliases = (row: any) => {
+    const out = { ...row };
+    const dataMap: Record<string, any> = {};
+    if (row.data && typeof row.data === "object") {
+      for (const k of Object.keys(row.data)) dataMap[normKey(k)] = row.data[k];
+    }
+    for (const f of fields) {
+      const cur = out[f.key];
+      if (cur !== null && cur !== undefined && String(cur).trim() !== "") continue;
+      const candidates = [f.key, f.label, ...(f.aliases ?? [])].map(normKey);
+      for (const c of candidates) {
+        if (dataMap[c] !== undefined && dataMap[c] !== null && String(dataMap[c]).trim() !== "") {
+          out[f.key] = dataMap[c];
+          break;
+        }
+      }
+    }
+    return out;
+  };
+
   const load = async () => {
     if (!companyId) { setRows([]); return; }
     setLoading(true);
@@ -59,7 +88,7 @@ export function GovGenericTab({ table, title, description, fields, labelKey = "n
       .eq("company_id", companyId).eq("is_deleted", false)
       .order("created_at", { ascending: false }).limit(2000);
     if (error) toast.error(error.message);
-    setRows(data || []);
+    setRows((data || []).map(enrichWithAliases));
     setLoading(false);
   };
 
