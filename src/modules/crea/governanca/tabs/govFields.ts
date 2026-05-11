@@ -15,19 +15,14 @@ export const SERVICOS_FIELDS: FieldSchema[] = [
   { key: "observacao",  label: "Observação",   type: "textarea", full: true, inList: false },
 ];
 
-/** ARTs (Todas) — listagem completa exportada do SITAC/CREA (mesmas 11 colunas de SERVICOS) */
+/** ARTs (Todas) — listagem completa exportada do SITAC/CREA.
+ *  Ordem fixa conforme planilha modelo: Número, Detalhe, Análise, Baixa, Boleto,
+ *  Pagamento, Cadastro, Empresa, Contratante, Endereço, Observação. */
 export const ARTS_TODAS_FIELDS: FieldSchema[] = [
   { key: "numero",      label: "Número",       type: "text",
     aliases: ["art","n art","numero art","número da art","numero da art"] },
-  { key: "contratante", label: "Contratante",  type: "text",
-    aliases: ["contratante:","cliente","tomador"] },
-  { key: "empresa",     label: "Empresa",      type: "text",
-    aliases: [
-      "proprietario","proprietário","proprietario:","proprietário:",
-      "razao social","razão social","razao_social","razão_social",
-      "nome empresa","nome da empresa","empresa:","empresa contratada",
-      "executora","contratado","contratada","responsavel","responsável",
-    ] },
+  { key: "detalhe",     label: "Detalhe",      type: "textarea", full: true,
+    aliases: ["descricao","descrição","atividades","atividade/serviço","atividade servico"] },
   { key: "analise",     label: "Análise",      type: "text",
     aliases: ["status","situacao","situação","status analise","status análise"] },
   { key: "baixa",       label: "Baixa",        type: "text" },
@@ -37,11 +32,18 @@ export const ARTS_TODAS_FIELDS: FieldSchema[] = [
     aliases: ["data pagamento","data de pagamento","pago em"] },
   { key: "cadastro",    label: "Cadastro",     type: "text",
     aliases: ["data cadastro","data de cadastro","emitido em","registrado em"] },
-  { key: "detalhe",     label: "Detalhe",      type: "textarea", full: true, inList: false,
-    aliases: ["descricao","descrição","atividades","atividade/serviço","atividade servico"] },
-  { key: "endereco",    label: "Endereço",     type: "textarea", full: true, inList: false,
+  { key: "empresa",     label: "Empresa",      type: "text",
+    aliases: [
+      "proprietario","proprietário","proprietario:","proprietário:",
+      "razao social","razão social","razao_social","razão_social",
+      "nome empresa","nome da empresa","empresa:","empresa contratada",
+      "executora","contratado","contratada","responsavel","responsável",
+    ] },
+  { key: "contratante", label: "Contratante",  type: "text",
+    aliases: ["contratante:","cliente","tomador"] },
+  { key: "endereco",    label: "Endereço",     type: "textarea", full: true,
     aliases: ["enderecos","endereços","endereço:","local"] },
-  { key: "observacao",  label: "Observação",   type: "textarea", full: true, inList: false,
+  { key: "observacao",  label: "Observação",   type: "textarea", full: true,
     aliases: ["obs","observacoes","observações"] },
 ];
 
