@@ -46,8 +46,10 @@ export function GovGenericTab({ table, title, description, fields, labelKey = "n
   const [delIds, setDelIds] = useState<string[]>([]);
   const [delReason, setDelReason] = useState("");
   const [delBusy, setDelBusy] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
 
-  const listFields = useMemo(() => fields.filter(f => f.inList !== false).slice(0, 7), [fields]);
+  const listFields = useMemo(() => fields.filter(f => f.inList !== false), [fields]);
   const searchKeys = useMemo(() => fields.filter(f => f.type === "text" || f.type === "textarea").map(f => f.key), [fields]);
 
   const load = async () => {
