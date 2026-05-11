@@ -52,6 +52,7 @@ export default function CreaGovernancaPage() {
             description="Modelo oficial CREA-PB: ART, Tipo, Participação Técnica, Forma de Registro, Pagamento, Taxa Paga, Cadastro, Observação, Contratante, CNPJ contratante, Proprietário, CNPJ proprietário, Número, Valor do contrato, Data início, Data fim, Endereços, Atividades, Nível, Atividade subordinada, Atividade/Serviço, Quantidade, Unidade de medida."
             fields={SERVICOS_FIELDS}
             labelKey="art"
+            filters={filters}
           />
         </TabsContent>
         <TabsContent value="art_bloco" className="mt-4">
@@ -61,6 +62,7 @@ export default function CreaGovernancaPage() {
             description="Bloco completo de ARTs (RT, contratante, contrato, valores, datas, atividades técnicas)."
             fields={ART_BLOCO_FIELDS}
             labelKey="numero_art"
+            filters={filters}
           />
         </TabsContent>
         <TabsContent value="relatorio_crea" className="mt-4">
@@ -70,6 +72,7 @@ export default function CreaGovernancaPage() {
             description="Relatório consolidado por ART (tipo, participação, contratante, proprietário, atividades)."
             fields={RELATORIO_CREA_FIELDS}
             labelKey="art"
+            filters={filters}
           />
         </TabsContent>
         <TabsContent value="arts_todas" className="mt-4">
@@ -79,6 +82,7 @@ export default function CreaGovernancaPage() {
             description="Listagem completa de ARTs exportada do SITAC/CREA (NÚMERO, DETALHE, ANÁLISE, BAIXA, BOLETO, PAGAMENTO, CADASTRO, EMPRESA, CONTRATANTE, ENDEREÇO, OBSERVAÇÃO)."
             fields={ARTS_TODAS_FIELDS}
             labelKey="numero"
+            filters={filters}
           />
         </TabsContent>
       </Tabs>
