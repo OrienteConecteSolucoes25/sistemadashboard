@@ -200,8 +200,9 @@ export function ImportacoesTab() {
                   <TableCell className="text-xs text-right text-rose-600">{h.falhas ?? 0}</TableCell>
                   <TableCell><Badge variant="outline" className="text-xs">{h.status === "concluido" ? <><CheckCircle2 className="h-3 w-3 mr-1 text-emerald-600" />OK</> : h.status === "concluido_com_erros" ? <><AlertTriangle className="h-3 w-3 mr-1 text-amber-600" />Com erros</> : h.status}</Badge></TableCell>
                 </TableRow>
-              ))}
-              {history.length === 0 && <TableRow><TableCell colSpan={7} className="text-center text-sm text-muted-foreground py-6">Nenhuma importação ainda.</TableCell></TableRow>}
+                );
+              })}
+              {history.length === 0 && <TableRow><TableCell colSpan={8} className="text-center text-sm text-muted-foreground py-6">Nenhuma importação ainda.</TableCell></TableRow>}
             </TableBody>
           </Table>
         </CardContent>
