@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AclProvider } from "@/acl/AclProvider";
 import AppLayout from "@/components/AppLayout";
+import { JarbasAmbientProvider } from "./modules/jarbas/hooks/useJarbasAmbient";
+import { JarbasAmbientVisuals } from "./modules/jarbas/ui/JarbasAmbientVisuals";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 // Import Projetos removido
