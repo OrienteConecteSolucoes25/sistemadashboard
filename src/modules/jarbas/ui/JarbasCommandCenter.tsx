@@ -174,11 +174,12 @@ export const JarbasCommandCenter = () => {
               </div>
               
               <div className="absolute inset-0 bg-[#0a0a0f] flex items-center justify-center">
-                {/* Mock Map UI */}
                 <div className="relative w-full h-full p-8">
-                  <div className="absolute inset-0 bg-[url('https://api.mapbox.com/styles/v1/mapbox/dark-v10/static/-46.6333,-23.5505,12,0/800x600?access_token=mock')] bg-cover opacity-20" />
-                  
-                  {sites.map((site) => (
+                  <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(0,242,255,0.05),transparent_70%)]" />
+                  {sites.length === 0 && (
+                    <p className="absolute inset-0 flex items-center justify-center text-[10px] opacity-50 italic">Sem sites cadastrados em eng_sites.</p>
+                  )}
+                  {sites.map((site: any) => (
                     <motion.div
                       key={site.id}
                       whileHover={{ scale: 1.2 }}
@@ -187,9 +188,9 @@ export const JarbasCommandCenter = () => {
                         site.status === 'critical' ? 'border-red-500 shadow-[0_0_10px_rgba(239,68,68,0.5)]' :
                         site.status === 'warning' ? 'border-yellow-500' : 'border-green-500'
                       }`}
-                      style={{ 
-                        left: `${20 + (site.id * 20)}%`, 
-                        top: `${30 + (site.id * 15)}%` 
+                      style={{
+                        left: `${15 + ((site.idx * 17) % 70)}%`,
+                        top: `${20 + ((site.idx * 23) % 60)}%`
                       }}
                     >
                       <Construction className={`w-4 h-4 ${site.status === 'critical' ? 'text-red-500' : 'text-cyan-400'}`} />

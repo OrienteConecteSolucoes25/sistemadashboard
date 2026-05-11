@@ -26,6 +26,7 @@ import { toast } from "sonner";
 
 export const JarbasIntegrationHub = () => {
   const [integrations, setIntegrations] = useState<any[]>([]);
+  const [activity, setActivity] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   const integrationOptions = [
@@ -38,17 +39,17 @@ export const JarbasIntegrationHub = () => {
   ];
 
   useEffect(() => {
-    fetchIntegrations();
+    void load();
   }, []);
 
-  const fetchIntegrations = async () => {
+  const load = async () => {
     try {
-      const { data, error } = await supabase
-        .from('jarbas_integrations')
-        .select('*')
-        .order('created_at', { ascending: false });
-      if (error) throw error;
-      setIntegrations(data || []);
+      const [intRes, logRes] = await Promise.all([
+        supabase.from('jarbas_integrations').select('*').order('created_at', { ascending: false }),
+        supabase.from('jarbas_external_logs').select('id, action_type, status, created_at, payload, integration_id').order('created_at', { ascending: false }).limit(20),
+      ]);
+      setIntegrations(intRes.data ?? []);
+      setActivity(logRes.data ?? []);
     } catch (error) {
       console.error("Error fetching integrations:", error);
     } finally {
