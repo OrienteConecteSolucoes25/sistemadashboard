@@ -8,13 +8,15 @@ export type CreaTable =
   | "crea_deregistrations" | "crea_treatments" | "crea_deadlines"
   | "crea_responsible_technicians" | "crea_engineers" | "crea_companies_crea"
   | "crea_documents" | "crea_norms" | "crea_links_oficiais"
-  | "crea_credentials" | "crea_ai_sources";
+  | "crea_credentials" | "crea_ai_sources"
+  | "crea_gov_servicos" | "crea_gov_art_bloco" | "crea_gov_relatorio_crea" | "crea_gov_arts_todas";
 
 export const CREA_TABLES: CreaTable[] = [
   "crea_arts","crea_protocols","crea_cats","crea_certificates",
   "crea_deregistrations","crea_treatments","crea_deadlines",
   "crea_responsible_technicians","crea_engineers","crea_companies_crea",
   "crea_documents","crea_norms","crea_links_oficiais","crea_credentials","crea_ai_sources",
+  "crea_gov_servicos","crea_gov_art_bloco","crea_gov_relatorio_crea","crea_gov_arts_todas",
 ];
 
 export async function creaSoftDelete(table: CreaTable, id: string, reason: string) {
