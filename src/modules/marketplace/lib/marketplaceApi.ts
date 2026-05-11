@@ -33,6 +33,8 @@ export interface MarketplaceProduct {
   tags: string[] | null;
   is_featured: boolean;
   is_active: boolean;
+  product_type: 'physical' | 'digital';
+  is_highlighted: boolean;
   market_stores?: { name: string };
   market_categories?: { name: string };
 }
