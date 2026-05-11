@@ -282,3 +282,17 @@ export function ImportacoesTab() {
     </div>
   );
 }
+
+function SummaryStat({ label, value, tone }: { label: string; value: number; tone?: "ok" | "warn" | "fail" }) {
+  const cls =
+    tone === "ok"   ? "text-emerald-600"
+  : tone === "fail" ? "text-rose-600"
+  : tone === "warn" ? "text-amber-600"
+  : "text-foreground";
+  return (
+    <div className="rounded-md border border-border/40 p-2">
+      <p className="text-[10px] uppercase tracking-wide text-muted-foreground">{label}</p>
+      <p className={`text-lg font-semibold ${cls}`}>{value}</p>
+    </div>
+  );
+}
