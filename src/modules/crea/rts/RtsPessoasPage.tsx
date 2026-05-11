@@ -81,6 +81,7 @@ export default function RtsPessoasPage() {
       const payload = records.map((r) => ({
         nome: r.nome ?? "",
         cpf: r.cpf ?? "",
+        uf: r.uf ?? "",
         status: r.status ?? "ativo",
         data_inicio: r.data_inicio ?? null,
         data_termino: r.termino_indefinido ? null : (r.data_termino ?? null),
@@ -91,6 +92,8 @@ export default function RtsPessoasPage() {
         registro: r.registro ?? "",
         observacao: r.observacao ?? "",
         anuidade: r.anuidade ?? "nao_paga",
+        anuidade_ano: r.anuidade_ano ?? null,
+        inclusao_ativa: r.inclusao_ativa !== false,
         company_id: companyId,
       }));
       const n = await bulkInsertRts(payload);
@@ -194,7 +197,9 @@ export default function RtsPessoasPage() {
                   </TableHead>
                   <TableHead>Nome</TableHead>
                   <TableHead>CPF</TableHead>
+                  <TableHead>UF</TableHead>
                   <TableHead>Status</TableHead>
+                  <TableHead>Inclusão</TableHead>
                   <TableHead>Início</TableHead>
                   <TableHead>Término</TableHead>
                   <TableHead>Contrato</TableHead>
@@ -202,6 +207,7 @@ export default function RtsPessoasPage() {
                   <TableHead>RNP</TableHead>
                   <TableHead>Registro</TableHead>
                   <TableHead>Anuidade</TableHead>
+                  <TableHead>Ano</TableHead>
                   <TableHead>Observação</TableHead>
                   <TableHead className="w-16 text-right">Ações</TableHead>
                 </TableRow>
@@ -216,9 +222,15 @@ export default function RtsPessoasPage() {
                       </button>
                     </TableCell>
                     <TableCell className="text-xs">{r.cpf || "—"}</TableCell>
+                    <TableCell className="text-xs">{r.uf || "—"}</TableCell>
                     <TableCell>
                       <Badge variant="outline" className={`text-xs ${statusColor(r.status)}`}>
                         {STATUS_RT_LABEL[r.status] ?? r.status}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant="outline" className={`text-xs ${r.inclusao_ativa === false ? "bg-muted text-muted-foreground border-border" : "bg-emerald-500/15 text-emerald-700 border-emerald-500/30"}`}>
+                        {r.inclusao_ativa === false ? "Não" : "Sim"}
                       </Badge>
                     </TableCell>
                     <TableCell className="text-xs whitespace-nowrap">{fmtDateBr(r.data_inicio)}</TableCell>
@@ -234,6 +246,7 @@ export default function RtsPessoasPage() {
                         {ANUIDADE_LABEL[r.anuidade] ?? r.anuidade}
                       </Badge>
                     </TableCell>
+                    <TableCell className="text-xs">{r.anuidade_ano ?? "—"}</TableCell>
                     <TableCell className="text-xs max-w-[220px] truncate" title={r.observacao}>{r.observacao || "—"}</TableCell>
                     <TableCell className="text-right">
                       <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(r)} title="Editar">
@@ -243,7 +256,7 @@ export default function RtsPessoasPage() {
                   </TableRow>
                 ))}
                 {filtered.length === 0 && (
-                  <TableRow><TableCell colSpan={13} className="text-center text-sm text-muted-foreground py-8">
+                  <TableRow><TableCell colSpan={16} className="text-center text-sm text-muted-foreground py-8">
                     Nenhum RT cadastrado. Clique em "Novo RT" ou importe pela planilha.
                   </TableCell></TableRow>
                 )}

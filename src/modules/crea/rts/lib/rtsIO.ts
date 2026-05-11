@@ -18,6 +18,7 @@ const matrixFromRows = (rows: RtPessoa[]) => {
   const body = rows.map((r) => [
     r.nome ?? "",
     r.cpf ?? "",
+    r.uf ?? "",
     STATUS_RT_LABEL[r.status] ?? r.status ?? "",
     fmtDateBr(r.data_inicio),
     r.termino_indefinido ? "Indefinido" : fmtDateBr(r.data_termino),
@@ -26,6 +27,8 @@ const matrixFromRows = (rows: RtPessoa[]) => {
     r.rnp ?? "",
     r.registro ?? "",
     ANUIDADE_LABEL[r.anuidade] ?? r.anuidade ?? "",
+    r.anuidade_ano ?? "",
+    r.inclusao_ativa === false ? "Não" : "Sim",
     r.observacao ?? "",
   ]);
   return [head, ...body];
@@ -53,9 +56,9 @@ export function exportRtsCsv(rows: RtPessoa[]) {
 export function downloadTemplateRts() {
   // Modelo com 1 linha de exemplo para guiar o preenchimento
   const example = [[
-    "Fulano de Tal", "000.000.000-00", "Ativo",
+    "Fulano de Tal", "000.000.000-00", "BA", "Ativo",
     "01/01/2024", "Indefinido", "CLT",
-    "BA", "1234567", "BA-12345", "Paga", "Observação opcional",
+    "BA", "1234567", "BA-12345", "Paga", "2025", "Sim", "Observação opcional",
   ]];
   const aoa = [[...PLANILHA_HEADERS_RT], ...example];
   const ws = XLSX.utils.aoa_to_sheet(aoa);
@@ -110,6 +113,13 @@ export async function parseRtsFile(file: File): Promise<{ records: ParsedRt[]; h
       } else if (key === "data_termino") {
         const { date, indef } = parseDateOrIndef(cell);
         rec.data_termino = date; rec.termino_indefinido = indef;
+      } else if (key === "uf") rec.uf = String(cell ?? "").trim().toUpperCase().slice(0, 2);
+      else if (key === "anuidade_ano") {
+        const n = parseInt(String(cell ?? "").replace(/\D/g, ""), 10);
+        rec.anuidade_ano = isNaN(n) ? null : n;
+      } else if (key === "inclusao_ativa") {
+        const s = String(cell ?? "").trim().toLowerCase();
+        rec.inclusao_ativa = !(s === "nao" || s === "não" || s === "n" || s === "false" || s === "0");
       } else (rec as any)[key] = String(cell ?? "").trim();
     });
     return rec;

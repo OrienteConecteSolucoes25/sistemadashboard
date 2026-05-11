@@ -5412,6 +5412,7 @@ export type Database = {
       crea_rts_pessoas: {
         Row: {
           anuidade: string
+          anuidade_ano: number | null
           company_id: string
           cpf: string
           created_at: string
@@ -5422,6 +5423,7 @@ export type Database = {
           deleted_at: string | null
           deleted_by: string | null
           id: string
+          inclusao_ativa: boolean
           is_deleted: boolean
           modelo_contrato: string
           nome: string
@@ -5430,11 +5432,13 @@ export type Database = {
           rnp: string
           status: string
           termino_indefinido: boolean
+          uf: string | null
           updated_at: string
           visto: string
         }
         Insert: {
           anuidade?: string
+          anuidade_ano?: number | null
           company_id: string
           cpf?: string
           created_at?: string
@@ -5445,6 +5449,7 @@ export type Database = {
           deleted_at?: string | null
           deleted_by?: string | null
           id?: string
+          inclusao_ativa?: boolean
           is_deleted?: boolean
           modelo_contrato?: string
           nome: string
@@ -5453,11 +5458,13 @@ export type Database = {
           rnp?: string
           status?: string
           termino_indefinido?: boolean
+          uf?: string | null
           updated_at?: string
           visto?: string
         }
         Update: {
           anuidade?: string
+          anuidade_ano?: number | null
           company_id?: string
           cpf?: string
           created_at?: string
@@ -5468,6 +5475,7 @@ export type Database = {
           deleted_at?: string | null
           deleted_by?: string | null
           id?: string
+          inclusao_ativa?: boolean
           is_deleted?: boolean
           modelo_contrato?: string
           nome?: string
@@ -5476,6 +5484,7 @@ export type Database = {
           rnp?: string
           status?: string
           termino_indefinido?: boolean
+          uf?: string | null
           updated_at?: string
           visto?: string
         }

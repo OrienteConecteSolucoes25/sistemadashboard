@@ -10,7 +10,7 @@ import { Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import {
   RtPessoa, STATUS_RT, STATUS_RT_LABEL, MODELOS_CONTRATO, MODELO_LABEL,
-  ANUIDADE, ANUIDADE_LABEL, maskCpf,
+  ANUIDADE, ANUIDADE_LABEL, maskCpf, UFS_BR,
 } from "./lib/rtsTypes";
 import { createRt, updateRt } from "./lib/rtsApi";
 
@@ -23,10 +23,11 @@ type Props = {
 };
 
 const empty = {
-  nome: "", cpf: "", status: "ativo",
+  nome: "", cpf: "", uf: "", status: "ativo",
   data_inicio: "", data_termino: "", termino_indefinido: false,
   modelo_contrato: "clt", visto: "", rnp: "", registro: "",
-  observacao: "", anuidade: "nao_paga",
+  observacao: "", anuidade: "nao_paga", anuidade_ano: "" as string | number,
+  inclusao_ativa: true,
 };
 
 export default function NovoRtDialog({ open, onOpenChange, companyId, initial, onSaved }: Props) {
@@ -38,6 +39,7 @@ export default function NovoRtDialog({ open, onOpenChange, companyId, initial, o
       setForm(initial ? {
         nome: initial.nome ?? "",
         cpf: initial.cpf ?? "",
+        uf: initial.uf ?? "",
         status: initial.status ?? "ativo",
         data_inicio: initial.data_inicio ?? "",
         data_termino: initial.data_termino ?? "",
@@ -48,6 +50,8 @@ export default function NovoRtDialog({ open, onOpenChange, companyId, initial, o
         registro: initial.registro ?? "",
         observacao: initial.observacao ?? "",
         anuidade: initial.anuidade ?? "nao_paga",
+        anuidade_ano: initial.anuidade_ano ?? "",
+        inclusao_ativa: initial.inclusao_ativa !== false,
       } : empty);
     }
   }, [open, initial]);
@@ -61,6 +65,7 @@ export default function NovoRtDialog({ open, onOpenChange, companyId, initial, o
       const payload: any = {
         nome: form.nome.trim(),
         cpf: form.cpf ?? "",
+        uf: (form.uf ?? "").toUpperCase().slice(0, 2),
         status: form.status ?? "ativo",
         data_inicio: form.data_inicio || null,
         data_termino: form.termino_indefinido ? null : (form.data_termino || null),
@@ -71,6 +76,10 @@ export default function NovoRtDialog({ open, onOpenChange, companyId, initial, o
         registro: form.registro ?? "",
         observacao: form.observacao ?? "",
         anuidade: form.anuidade ?? "nao_paga",
+        anuidade_ano: form.anuidade === "paga"
+          ? (form.anuidade_ano ? parseInt(String(form.anuidade_ano), 10) : null)
+          : null,
+        inclusao_ativa: !!form.inclusao_ativa,
         company_id: companyId,
       };
       const saved = initial ? await updateRt(initial.id, payload) : await createRt(payload);
@@ -126,11 +135,34 @@ export default function NovoRtDialog({ open, onOpenChange, companyId, initial, o
             </Select>
           </div>
           <div>
+            <Label>UF (CREA)</Label>
+            <Select value={form.uf || ""} onValueChange={(v) => upd({ uf: v })}>
+              <SelectTrigger><SelectValue placeholder="Selecione" /></SelectTrigger>
+              <SelectContent className="max-h-64">
+                {UFS_BR.map((u) => <SelectItem key={u} value={u}>{u}</SelectItem>)}
+              </SelectContent>
+            </Select>
+          </div>
+          <div>
             <Label>Anuidade</Label>
-            <Select value={form.anuidade} onValueChange={(v) => upd({ anuidade: v })}>
+            <Select value={form.anuidade} onValueChange={(v) => upd({ anuidade: v, ...(v !== "paga" ? { anuidade_ano: "" } : {}) })}>
               <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>{ANUIDADE.map((a) => <SelectItem key={a} value={a}>{ANUIDADE_LABEL[a]}</SelectItem>)}</SelectContent>
             </Select>
+          </div>
+          {form.anuidade === "paga" && (
+            <div>
+              <Label>Ano da anuidade *</Label>
+              <Input type="number" min={2000} max={2100} value={form.anuidade_ano ?? ""}
+                onChange={(e) => upd({ anuidade_ano: e.target.value })} placeholder="Ex.: 2025" />
+            </div>
+          )}
+          <div className={form.anuidade === "paga" ? "" : "col-span-1"}>
+            <Label>Inclusão ativa</Label>
+            <div className="flex items-center gap-2 h-10">
+              <Switch checked={!!form.inclusao_ativa} onCheckedChange={(v) => upd({ inclusao_ativa: v })} />
+              <span className="text-xs text-muted-foreground">{form.inclusao_ativa ? "Sim" : "Não"}</span>
+            </div>
           </div>
           <div>
             <Label>Visto</Label>
