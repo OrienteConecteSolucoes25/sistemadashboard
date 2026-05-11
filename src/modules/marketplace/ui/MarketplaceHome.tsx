@@ -455,32 +455,98 @@ export default function MarketplaceHome() {
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Frete</span>
-                        <span className="text-green-600 font-bold uppercase text-[10px]">Grátis</span>
+                        <span className="text-green-600 font-bold uppercase text-[10px]">Simulado</span>
                       </div>
                       <div className="pt-2 border-t border-slate-200 flex justify-between">
                         <span className="font-black uppercase tracking-widest text-xs">Total</span>
                         <span className="font-black text-xl text-primary">{cartTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
                       </div>
                     </div>
-
-                    <div className="space-y-3">
-                      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                        <CreditCard className="w-3 h-3 text-primary" /> Método de Pagamento
-                      </h4>
-                      <div className="p-4 rounded-xl border-2 border-primary bg-primary/5 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <CreditCard className="w-5 h-5 text-primary" />
-                          <span className="font-bold text-sm text-slate-800">Cartão de Crédito</span>
-                        </div>
-                        <Badge variant="outline" className="text-[10px] border-primary text-primary">Ativo</Badge>
-                      </div>
-                    </div>
                   </div>
 
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setIsCheckoutOpen(false)} className="font-bold uppercase text-[10px] tracking-widest">Cancelar</Button>
-                    <Button onClick={handleCheckout} disabled={isProcessing} className="flex-1 font-bold uppercase text-[10px] tracking-widest">
-                      {isProcessing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Confirmar e Pagar"}
+                    <Button onClick={() => setCheckoutStep(2)} className="flex-1 font-bold uppercase text-[10px] tracking-widest">
+                      Próximo: Endereço
+                    </Button>
+                  </DialogFooter>
+                </motion.div>
+              )}
+
+              {checkoutStep === 2 && (
+                <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="p-6 space-y-6"
+                >
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-bold">Endereço de Entrega</DialogTitle>
+                    <DialogDescription>Selecione onde deseja receber seus produtos.</DialogDescription>
+                  </DialogHeader>
+
+                  <div className="space-y-3">
+                    {addresses.length > 0 ? (
+                      addresses.map((addr) => (
+                        <div 
+                          key={addr.id}
+                          onClick={() => setSelectedAddressId(addr.id)}
+                          className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedAddressId === addr.id ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}
+                        >
+                          <p className="font-bold text-sm">{addr.label || 'Endereço'}</p>
+                          <p className="text-xs text-muted-foreground">{addr.street}, {addr.number} - {addr.city}/{addr.state}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-6 border-2 border-dashed rounded-xl">
+                        <p className="text-sm text-muted-foreground">Nenhum endereço cadastrado.</p>
+                        <Button variant="link" size="sm" className="mt-2">Adicionar Novo</Button>
+                      </div>
+                    )}
+                  </div>
+
+                  <DialogFooter>
+                    <Button variant="ghost" onClick={() => setCheckoutStep(1)} className="font-bold uppercase text-[10px]">Voltar</Button>
+                    <Button 
+                      onClick={() => setCheckoutStep(3)} 
+                      disabled={!selectedAddressId && addresses.length > 0} 
+                      className="flex-1 font-bold uppercase text-[10px]"
+                    >
+                      Próximo: Pagamento
+                    </Button>
+                  </DialogFooter>
+                </motion.div>
+              )}
+
+              {checkoutStep === 3 && (
+                <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="p-6 space-y-6"
+                >
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-bold">Pagamento</DialogTitle>
+                    <DialogDescription>Simulação de pagamento para o Marketplace OCS.</DialogDescription>
+                  </DialogHeader>
+
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-xl border-2 border-primary bg-primary/5 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <CreditCard className="w-5 h-5 text-primary" />
+                        <span className="font-bold text-sm text-slate-800">Cartão de Crédito (Simulado)</span>
+                      </div>
+                      <CheckCircle2 className="w-5 h-5 text-primary" />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground text-center italic">
+                      * Nenhum valor real será cobrado nesta etapa de desenvolvimento.
+                    </p>
+                  </div>
+
+                  <DialogFooter>
+                    <Button variant="ghost" onClick={() => setCheckoutStep(2)} className="font-bold uppercase text-[10px]">Voltar</Button>
+                    <Button onClick={handleCheckout} disabled={isProcessing} className="flex-1 font-bold uppercase text-[10px]">
+                      {isProcessing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Finalizar Pedido"}
                     </Button>
                   </DialogFooter>
                 </motion.div>
