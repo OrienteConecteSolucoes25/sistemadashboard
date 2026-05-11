@@ -88,6 +88,7 @@ import FinancialAuditPage from "./modules/financeiro/ui/FinancialAuditPage";
 import MarketplaceAdmin from "./modules/marketplace/ui/MarketplaceAdmin";
 import { JarbasCentralDashboard } from "./modules/jarbas/ui/JarbasCentralDashboard";
 import { JarbasKnowledgePage } from "./modules/jarbas/ui/JarbasKnowledgePage";
+import { JarbasTrainingDashboard } from "./modules/jarbas/ui/JarbasTrainingDashboard";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -224,6 +225,7 @@ const App = () => (
               <Route path="adm" element={<Adm />} />
               <Route path="jarbas" element={<JarbasCentralDashboard />} />
               <Route path="jarbas/knowledge" element={<JarbasKnowledgePage />} />
+              <Route path="jarbas/training" element={<JarbasTrainingDashboard />} />
               <Route path="ocs-guard" element={<OcsGuardPage />} />
               <Route path="ti">
                 <Route index element={<TiDashboard />} />

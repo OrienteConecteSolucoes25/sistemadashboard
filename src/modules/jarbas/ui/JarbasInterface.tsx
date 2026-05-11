@@ -21,7 +21,8 @@ import {
   CheckCircle2,
   Settings,
   BrainCircuit,
-  Database
+  Database,
+  GraduationCap
 } from "lucide-react";
 import { JarbasHolographicUI } from "./JarbasHolographicUI";
 import { JarbasVoiceVisualizer } from "./JarbasVoiceVisualizer";
@@ -134,6 +135,13 @@ export function JarbasInterface() {
         <div className="flex flex-col items-center p-1 rounded bg-slate-800/30 border border-white/5">
           <ShieldAlert className="w-3 h-3 text-red-500 mb-1" />
           <span className="text-slate-500 truncate w-full text-center">SAFETY: ON</span>
+        </div>
+        <div 
+          className="flex flex-col items-center p-1 rounded bg-cyan-500/10 border border-cyan-500/20 cursor-pointer hover:bg-cyan-500/20"
+          onClick={() => navigate('/app/jarbas/training')}
+        >
+          <GraduationCap className="w-3 h-3 text-cyan-400 mb-1" />
+          <span className="text-cyan-400 truncate w-full text-center">TRAINING</span>
         </div>
       </div>
 

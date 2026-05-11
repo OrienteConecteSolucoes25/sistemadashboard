@@ -10217,6 +10217,44 @@ export type Database = {
         }
         Relationships: []
       }
+      operational_certifications: {
+        Row: {
+          certificate_code: string | null
+          expiry_date: string | null
+          id: string
+          issue_date: string
+          path_id: string | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          certificate_code?: string | null
+          expiry_date?: string | null
+          id?: string
+          issue_date?: string
+          path_id?: string | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          certificate_code?: string | null
+          expiry_date?: string | null
+          id?: string
+          issue_date?: string
+          path_id?: string | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "operational_certifications_path_id_fkey"
+            columns: ["path_id"]
+            isOneToOne: false
+            referencedRelation: "training_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       organizations: {
         Row: {
           created_at: string | null
@@ -11810,6 +11848,192 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      training_modules: {
+        Row: {
+          content: string | null
+          created_at: string
+          estimated_minutes: number | null
+          id: string
+          order_index: number
+          path_id: string | null
+          title: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          estimated_minutes?: number | null
+          id?: string
+          order_index?: number
+          path_id?: string | null
+          title: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          estimated_minutes?: number | null
+          id?: string
+          order_index?: number
+          path_id?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_modules_path_id_fkey"
+            columns: ["path_id"]
+            isOneToOne: false
+            referencedRelation: "training_paths"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_paths: {
+        Row: {
+          category: string | null
+          company_id: string
+          created_at: string
+          description: string | null
+          id: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string | null
+          company_id: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string | null
+          company_id?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      training_questions: {
+        Row: {
+          correct_option_index: number
+          created_at: string
+          explanation: string | null
+          id: string
+          module_id: string | null
+          options: Json
+          question_text: string
+        }
+        Insert: {
+          correct_option_index: number
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          module_id?: string | null
+          options: Json
+          question_text: string
+        }
+        Update: {
+          correct_option_index?: number
+          created_at?: string
+          explanation?: string | null
+          id?: string
+          module_id?: string | null
+          options?: Json
+          question_text?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_questions_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "training_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_sessions: {
+        Row: {
+          completed_at: string | null
+          id: string
+          module_id: string | null
+          score: number | null
+          started_at: string
+          status: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          id?: string
+          module_id?: string | null
+          score?: number | null
+          started_at?: string
+          status?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          id?: string
+          module_id?: string | null
+          score?: number | null
+          started_at?: string
+          status?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_sessions_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "training_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      training_user_answers: {
+        Row: {
+          created_at: string
+          id: string
+          is_correct: boolean
+          question_id: string | null
+          selected_option_index: number
+          session_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_correct: boolean
+          question_id?: string | null
+          selected_option_index: number
+          session_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_correct?: boolean
+          question_id?: string | null
+          selected_option_index?: number
+          session_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "training_user_answers_question_id_fkey"
+            columns: ["question_id"]
+            isOneToOne: false
+            referencedRelation: "training_questions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "training_user_answers_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "training_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_chart_preferences: {
         Row: {
