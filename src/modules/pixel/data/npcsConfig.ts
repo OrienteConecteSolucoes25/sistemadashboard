@@ -112,5 +112,17 @@ export const NPCS_CONFIG: Record<string, NpcData> = {
     secondaryColor: "#1d4ed8",
     startX: 28,
     welcomeMessage: "Olá! Sou a **Conselheira Financeira OCS**. Posso te ajudar a gerenciar suas contas, analisar lucros e planejar suas metas, seja você pessoa física ou jurídica. Qual sua dúvida financeira hoje?"
+  },
+  gamificacao: {
+    id: "gamificacao",
+    name: "Mestre de Gamificação",
+    moduleKey: "gamificacao",
+    role: "Gestão de Recompensas",
+    icon: Bot,
+    primaryColor: "#a855f7",
+    secondaryColor: "#7e22ce",
+    startX: 72,
+    welcomeMessage: "Olá! Sou o **Mestre de Gamificação**. Estou aqui para monitorar seu progresso, nível e conquistas no Pixel Office. Quer ver como está sua evolução no ranking da empresa?"
   }
 };
+
