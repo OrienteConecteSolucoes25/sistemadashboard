@@ -46,8 +46,10 @@ export function GovGenericTab({ table, title, description, fields, labelKey = "n
   const [delIds, setDelIds] = useState<string[]>([]);
   const [delReason, setDelReason] = useState("");
   const [delBusy, setDelBusy] = useState(false);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(50);
 
-  const listFields = useMemo(() => fields.filter(f => f.inList !== false).slice(0, 7), [fields]);
+  const listFields = useMemo(() => fields.filter(f => f.inList !== false), [fields]);
   const searchKeys = useMemo(() => fields.filter(f => f.type === "text" || f.type === "textarea").map(f => f.key), [fields]);
 
   const load = async () => {
@@ -70,6 +72,12 @@ export function GovGenericTab({ table, title, description, fields, labelKey = "n
   }, [rows, search, searchKeys]);
 
   const sel = useBulkSelection(filtered);
+
+  useEffect(() => { setPage(1); }, [search, pageSize, companyId, table]);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * pageSize;
+  const paged = useMemo(() => filtered.slice(pageStart, pageStart + pageSize), [filtered, pageStart, pageSize]);
 
   const startNew = () => {
     const empty: any = {};
@@ -136,36 +144,77 @@ export function GovGenericTab({ table, title, description, fields, labelKey = "n
         </div>
       </div>
 
-      <Card className="overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead className="bg-muted/50">
-            <tr>
-              <th className="px-2 py-2 w-8">
-                <Checkbox checked={sel.allChecked} onCheckedChange={() => sel.toggleAll()} />
-              </th>
-              {listFields.map(f => <th key={f.key} className="text-left px-3 py-2 font-medium whitespace-nowrap">{f.label}</th>)}
-              <th className="px-3 py-2 w-24 text-right">Ações</th>
-            </tr>
-          </thead>
-          <tbody>
-            {loading || loadingCompany ? (
-              <tr><td colSpan={listFields.length + 2} className="px-3 py-8 text-center text-muted-foreground">Carregando…</td></tr>
-            ) : !companyId ? (
-              <tr><td colSpan={listFields.length + 2} className="px-3 py-8 text-center text-muted-foreground">Sem empresa vinculada.</td></tr>
-            ) : filtered.length === 0 ? (
-              <tr><td colSpan={listFields.length + 2} className="px-3 py-8 text-center text-muted-foreground">Nenhum registro.</td></tr>
-            ) : filtered.map(r => (
-              <tr key={r.id} className="border-t hover:bg-accent/40">
-                <td className="px-2 py-2"><Checkbox checked={sel.isSelected(r.id)} onCheckedChange={() => sel.toggle(r.id)} /></td>
-                {listFields.map(f => <td key={f.key} className="px-3 py-2 max-w-xs truncate" title={String(r[f.key] ?? "")}>{fmt(r[f.key])}</td>)}
-                <td className="px-3 py-2 text-right whitespace-nowrap">
-                  <Button size="icon" variant="ghost" title="Editar" onClick={() => { setEditing(r); setOpenForm(true); }}><Pencil className="w-4 h-4" /></Button>
-                  <Button size="icon" variant="ghost" title="Excluir" onClick={() => askDelete([r.id])}><Trash2 className="w-4 h-4 text-destructive" /></Button>
-                </td>
+      <Card className="overflow-hidden">
+        <div className="overflow-auto max-h-[60vh]">
+          <table className="w-full text-sm">
+            <thead className="bg-muted/50 sticky top-0 z-10">
+              <tr>
+                <th className="px-2 py-2 w-8">
+                  <Checkbox checked={sel.allChecked} onCheckedChange={() => sel.toggleAll()} />
+                </th>
+                {listFields.map(f => <th key={f.key} className="text-left px-3 py-2 font-medium whitespace-nowrap">{f.label}</th>)}
+                <th className="px-3 py-2 w-24 text-right whitespace-nowrap sticky right-0 bg-muted/50">Ações</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody>
+              {loading || loadingCompany ? (
+                <tr><td colSpan={listFields.length + 2} className="px-3 py-8 text-center text-muted-foreground">Carregando…</td></tr>
+              ) : !companyId ? (
+                <tr><td colSpan={listFields.length + 2} className="px-3 py-8 text-center text-muted-foreground">Sem empresa vinculada.</td></tr>
+              ) : paged.length === 0 ? (
+                <tr><td colSpan={listFields.length + 2} className="px-3 py-8 text-center text-muted-foreground">Nenhum registro.</td></tr>
+              ) : paged.map(r => (
+                <tr key={r.id} className="border-t hover:bg-accent/40">
+                  <td className="px-2 py-2"><Checkbox checked={sel.isSelected(r.id)} onCheckedChange={() => sel.toggle(r.id)} /></td>
+                  {listFields.map(f => <td key={f.key} className="px-3 py-2 max-w-xs truncate" title={String(r[f.key] ?? "")}>{fmt(r[f.key])}</td>)}
+                  <td className="px-3 py-2 text-right whitespace-nowrap sticky right-0 bg-background">
+                    <Button size="icon" variant="ghost" title="Editar" onClick={() => { setEditing(r); setOpenForm(true); }}><Pencil className="w-4 h-4" /></Button>
+                    <Button size="icon" variant="ghost" title="Excluir" onClick={() => askDelete([r.id])}><Trash2 className="w-4 h-4 text-destructive" /></Button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {filtered.length > 0 && (
+          <div className="flex items-center justify-between gap-2 flex-wrap px-3 py-2 border-t bg-muted/20 text-xs">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">
+                Mostrando {pageStart + 1}–{Math.min(pageStart + pageSize, filtered.length)} de {filtered.length}
+              </span>
+              <select
+                className="h-7 rounded-md border bg-background px-2 text-xs"
+                value={pageSize}
+                onChange={(e) => setPageSize(Number(e.target.value))}
+              >
+                <option value={50}>50/pág</option>
+                <option value={100}>100/pág</option>
+              </select>
+            </div>
+            <div className="flex items-center gap-1">
+              <Button size="sm" variant="outline" className="h-7 px-2" onClick={() => setPage(1)} disabled={currentPage === 1}>«</Button>
+              <Button size="sm" variant="outline" className="h-7 px-2" onClick={() => setPage(p => Math.max(1, p - 1))} disabled={currentPage === 1}>‹ Anterior</Button>
+              {(() => {
+                const pages: number[] = [];
+                const start = Math.max(1, currentPage - 2);
+                const end = Math.min(totalPages, start + 4);
+                for (let i = start; i <= end; i++) pages.push(i);
+                return pages.map(p => (
+                  <Button
+                    key={p}
+                    size="sm"
+                    variant={p === currentPage ? "default" : "outline"}
+                    className="h-7 w-7 p-0"
+                    onClick={() => setPage(p)}
+                  >{p}</Button>
+                ));
+              })()}
+              <Button size="sm" variant="outline" className="h-7 px-2" onClick={() => setPage(p => Math.min(totalPages, p + 1))} disabled={currentPage === totalPages}>Próxima ›</Button>
+              <Button size="sm" variant="outline" className="h-7 px-2" onClick={() => setPage(totalPages)} disabled={currentPage === totalPages}>»</Button>
+            </div>
+          </div>
+        )}
       </Card>
 
       <ImportColumnPickerModal
