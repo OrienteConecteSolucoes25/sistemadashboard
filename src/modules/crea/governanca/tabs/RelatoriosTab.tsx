@@ -51,7 +51,9 @@ const SCHEMAS: Record<Template, FieldSchema[]> = {
     F("qtd", "Qtd ARTs", "number"),
   ],
   vencidas: [
-    F("numero", "Número"), F("uf", "UF"), F("valor_taxa", "Valor", "number"),
+    F("numero", "Número"), F("uf", "UF"),
+    F("empresa_nome", "Empresa"), F("contratante_nome", "Contratante"), F("rt_nome", "RT"),
+    F("valor_taxa", "Valor", "number"),
     F("data_vencimento", "Vencimento", "date"), F("dias_atraso", "Dias atraso", "number"),
   ],
   conciliacao_divergencias: [
