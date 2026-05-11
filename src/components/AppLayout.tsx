@@ -96,6 +96,7 @@ const AppLayout = () => {
       <NavItem to="/app/jarbas/vision" icon={Eye} label="Jarbas Vision" />
       <NavItem to="/app/jarbas/command" icon={Terminal} label="Jarbas Command" />
       <NavItem to="/app/jarbas/integrations" icon={Share2} label="Jarbas API Brain" />
+      <NavItem to="/app/compliance" icon={ShieldCheck} label="Compliance" />
       {engAccess && <NavItem to="/app/engenharia" icon={HardHat} label="Engenharia" />}
       {jurAccess && <NavItem to="/app/juridico" icon={Scale} label="Jurídico" />}
       {rhdpAccess && <NavItem to="/app/rh-dp" icon={HeartHandshake} label="RH/DP" />}
