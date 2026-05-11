@@ -341,20 +341,37 @@ export default function PixelOfficePage() {
               setMeetingModalOpen(true);
             }}
           />
-          <PixelCommunityPanel activeWorkspace={activeWorkspace} workspaces={workspaces} setTyping={setTyping} />
+          <div id="pixel-community-panel">
+            <PixelCommunityPanel activeWorkspace={activeWorkspace} workspaces={workspaces} setTyping={setTyping} />
+          </div>
 
           {/* Desktop/Tablet Sidebar-like Floating Navigation */}
           <div className="hidden md:flex fixed right-6 top-1/2 -translate-y-1/2 flex-col gap-4 bg-background/80 backdrop-blur-md p-3 rounded-2xl border border-primary/20 shadow-2xl z-[100] animate-in slide-in-from-right duration-500">
-            <Button variant="ghost" size="icon" className="w-12 h-12 rounded-xl hover:bg-primary/20" title="Workspace Office" onClick={() => setActiveWorkspaceId(workspaces[0]?.id)}>
+            <Button variant="ghost" size="icon" className="w-12 h-12 rounded-xl hover:bg-primary/20" title="Trocar Workspace" onClick={() => {
+              if (!workspaces.length) return;
+              const idx = workspaces.findIndex(w => w.id === activeWorkspace?.id);
+              const next = workspaces[(idx + 1) % workspaces.length];
+              setActiveWorkspaceId(next.id);
+              toast.info(`Workspace: ${next.name}`);
+            }}>
               <Cpu className="w-6 h-6 text-primary" />
             </Button>
-            <Button variant="ghost" size="icon" className="w-12 h-12 rounded-xl hover:bg-primary/20" title="Meu Perfil" onClick={() => setSelected({ kind: "character", data: characters.find(c => c.user_id === user?.id) as any })}>
+            <Button variant="ghost" size="icon" className="w-12 h-12 rounded-xl hover:bg-primary/20" title="Meu Perfil" onClick={() => {
+              const me = characters.find(c => c.user_id === user?.id);
+              if (me) setSelected({ kind: "character", data: me });
+              else toast.info("Seu personagem ainda não foi inicializado neste workspace.");
+            }}>
               <Users className="w-6 h-6 text-emerald-400" />
             </Button>
-            <Button variant="ghost" size="icon" className="w-12 h-12 rounded-xl hover:bg-primary/20" title="Chat Comunitário">
+            <Button variant="ghost" size="icon" className="w-12 h-12 rounded-xl hover:bg-primary/20" title="Chat Comunitário" onClick={() => {
+              document.getElementById("pixel-community-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}>
               <MessageSquare className="w-6 h-6 text-blue-400" />
             </Button>
-            <Button variant="ghost" size="icon" className="w-12 h-12 rounded-xl hover:bg-primary/20" title="Central de Reuniões">
+            <Button variant="ghost" size="icon" className="w-12 h-12 rounded-xl hover:bg-primary/20" title="Nova Reunião" onClick={() => {
+              setPreselectInvitee(null);
+              setMeetingModalOpen(true);
+            }}>
               <Video className="w-6 h-6 text-purple-400" />
             </Button>
             <div className="h-px bg-white/10 mx-2" />
@@ -365,19 +382,33 @@ export default function PixelOfficePage() {
 
           {/* Mobile Navigation Fixa */}
           <div className="md:hidden fixed bottom-0 left-0 right-0 bg-background/95 backdrop-blur-sm border-t p-2 flex justify-around items-center z-[100] safe-area-bottom shadow-lg">
-            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2" onClick={() => setActiveWorkspaceId(workspaces[0]?.id)}>
+            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2" onClick={() => {
+              if (!workspaces.length) return;
+              const idx = workspaces.findIndex(w => w.id === activeWorkspace?.id);
+              const next = workspaces[(idx + 1) % workspaces.length];
+              setActiveWorkspaceId(next.id);
+            }}>
               <Cpu className="w-5 h-5" />
               <span className="text-[10px]">Office</span>
             </Button>
-            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2" onClick={() => setSelected({ kind: "character", data: characters.find(c => c.user_id === user?.id) as any })}>
+            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2" onClick={() => {
+              const me = characters.find(c => c.user_id === user?.id);
+              if (me) setSelected({ kind: "character", data: me });
+              else toast.info("Seu personagem ainda não foi inicializado.");
+            }}>
               <Users className="w-5 h-5" />
               <span className="text-[10px]">Eu</span>
             </Button>
-            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2">
+            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2" onClick={() => {
+              document.getElementById("pixel-community-panel")?.scrollIntoView({ behavior: "smooth", block: "start" });
+            }}>
               <MessageSquare className="w-5 h-5" />
               <span className="text-[10px]">Chat</span>
             </Button>
-            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2">
+            <Button variant="ghost" size="sm" className="flex flex-col gap-1 h-auto py-2" onClick={() => {
+              setPreselectInvitee(null);
+              setMeetingModalOpen(true);
+            }}>
               <Video className="w-5 h-5" />
               <span className="text-[10px]">Reunião</span>
             </Button>

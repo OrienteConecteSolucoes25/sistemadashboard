@@ -58,11 +58,14 @@ const formatRelativeTime = (iso: string | null): string => {
 };
 
 export const PixelSidePanel = ({ selected, onClose, onFocusDesk, onCallToMeeting, refresh }: Props) => {
-  const open = selected !== null;
+  const hasValid =
+    selected?.kind === "character" ? !!selected.data?.user_id :
+    selected?.kind === "desk" ? !!selected.data?.id : false;
+  const open = selected !== null && hasValid;
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
       <SheetContent side="right" className="w-[380px] sm:w-[420px] overflow-y-auto p-0">
-        {selected?.kind === "character" && (
+        {selected?.kind === "character" && selected.data?.user_id && (
           <Tabs defaultValue="profile" className="w-full h-full flex flex-col">
             <div className="p-6 pb-0">
               <SheetHeader className="mb-4">

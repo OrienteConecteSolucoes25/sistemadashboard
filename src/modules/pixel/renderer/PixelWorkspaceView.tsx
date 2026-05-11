@@ -236,14 +236,22 @@ export const PixelWorkspaceView = memo(({
             variant={isEditMode ? "default" : "outline"} 
             size="sm" 
             onClick={() => {
-              setIsEditMode(!isEditMode);
+              const next = !isEditMode;
+              setIsEditMode(next);
               setSelectedItem(null);
+              // Modo edição requer o renderer DOM (Pixi captura todos os eventos do canvas).
+              if (next && currentRenderer !== "dom") setCurrentRenderer("dom");
             }}
             className="gap-2"
           >
             <Move className="w-4 h-4" />
             {isEditMode ? "Sair do Modo Edição" : "Modo Edição (Admin)"}
           </Button>
+          {isEditMode && (
+            <span className="text-[11px] text-muted-foreground ml-1">
+              Selecione um item, clique em "Mover Selecionado" e clique no piso onde deseja posicioná-lo.
+            </span>
+          )}
 
           {isEditMode && (
             <>
