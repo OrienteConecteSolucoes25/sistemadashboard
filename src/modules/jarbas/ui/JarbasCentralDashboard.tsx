@@ -8,9 +8,11 @@ import {
   Zap,
   LayoutDashboard,
   MessageSquareCode,
-  BookOpen
+  BookOpen,
+  Radio
 } from "lucide-react";
 import { jarbasCore } from "../core/jarbasCore";
+import { useJarbasAmbient } from "../hooks/useJarbasAmbient";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { motion } from "framer-motion";
