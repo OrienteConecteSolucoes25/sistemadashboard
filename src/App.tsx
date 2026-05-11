@@ -6,6 +6,8 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { AuthProvider } from "@/hooks/useAuth";
 import { AclProvider } from "@/acl/AclProvider";
 import AppLayout from "@/components/AppLayout";
+import { JarbasAmbientProvider } from "./modules/jarbas/hooks/useJarbasAmbient";
+import { JarbasAmbientVisuals } from "./modules/jarbas/ui/JarbasAmbientVisuals";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 // Import Projetos removido
@@ -101,10 +103,12 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <AuthProvider>
-          <AclProvider>
-          <CompanyThemeProvider>
-          <Routes>
+        <JarbasAmbientProvider>
+          <JarbasAmbientVisuals />
+          <AuthProvider>
+            <AclProvider>
+              <CompanyThemeProvider>
+                <Routes>
             <Route path="/" element={<Navigate to="/app" replace />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
@@ -244,6 +248,7 @@ const App = () => (
           </CompanyThemeProvider>
           </AclProvider>
         </AuthProvider>
+        </JarbasAmbientProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
