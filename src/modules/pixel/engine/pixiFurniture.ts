@@ -7,15 +7,16 @@ class PixiFurnitureManager {
   private furnitureMap: Map<string, PIXI.Container> = new Map();
 
   render(furniture: FurnitureLite[]) {
-    const container = pixiApp.getContainer(PIXI_LAYERS.DECORATIONS_BACK);
-    if (!container) return;
+    const containerBelow = pixiApp.getContainer(PIXI_LAYERS.FURNITURE_BELOW);
+    const containerAbove = pixiApp.getContainer(PIXI_LAYERS.FURNITURE_ABOVE);
+    if (!containerBelow || !containerAbove) return;
 
     const activeIds = new Set(furniture.map(f => f.id));
 
     // Remove old
     for (const [id, sprite] of this.furnitureMap.entries()) {
       if (!activeIds.has(id)) {
-        container.removeChild(sprite);
+        if (sprite.parent) sprite.parent.removeChild(sprite);
         this.furnitureMap.delete(id);
       }
     }
@@ -26,10 +27,17 @@ class PixiFurnitureManager {
       if (!itemContainer) {
         itemContainer = this.createFurnitureSprite(item);
         this.furnitureMap.set(item.id, itemContainer);
-        container.addChild(itemContainer);
+        
+        // Decide layer
+        const layer = this.isTall(item.furniture_key) ? containerAbove : containerBelow;
+        layer.addChild(itemContainer);
       }
       this.updateFurnitureSprite(itemContainer, item);
     });
+  }
+
+  private isTall(key: string | null): boolean {
+    return key === 'plant' || key === 'board' || key === 'divider';
   }
 
   private createFurnitureSprite(item: FurnitureLite): PIXI.Container {

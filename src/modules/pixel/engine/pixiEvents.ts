@@ -17,6 +17,24 @@ export const pixiEvents = {
     stage.eventMode = 'static';
     stage.hitArea = app.screen;
 
+    // Real-time hover logic
+    stage.on('pointermove', (event) => {
+      const local = stage.toLocal(event.global);
+      const target = event.target as PIXI.Container;
+      
+      // Update cursor based on target
+      if (target && target.label && (
+        target.label.startsWith('npc-') || 
+        target.label.startsWith('char-') || 
+        target.label.startsWith('desk-') || 
+        target.label.startsWith('room-')
+      )) {
+        stage.cursor = 'pointer';
+      } else {
+        stage.cursor = 'inherit';
+      }
+    });
+
     stage.on('pointertap', (event) => {
       // Local position inside stage
       const local = stage.toLocal(event.global);
