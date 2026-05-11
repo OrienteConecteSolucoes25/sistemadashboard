@@ -26,6 +26,7 @@ export const PrazosPage = () => <CreaCrudPage config={PRAZOS_CFG} />;
 export const RtsPage = () => <CreaCrudPage config={RTS_CFG} />;
 import EmpresasPageNew from "../empresas/EmpresasPage";
 export const EmpresasPage = () => <EmpresasPageNew />;
+export const AnuidadesPage = () => <CreaCrudPage config={ANUIDADES_CFG} />;
 export const DocumentosPage = () => (
   <Tabs defaultValue="documentos" className="space-y-4">
     <TabsList className="flex-wrap h-auto">
