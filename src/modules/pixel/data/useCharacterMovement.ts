@@ -126,6 +126,16 @@ export function useCharacterMovement(opts: {
           });
         }
 
+        // Auto-sit logic
+        if (step === path.length - 1) {
+          const isDesk = mapEngine.isDeskAt(nextPoint.x, nextPoint.y);
+          if (isDesk) {
+             supabase.from("pixel_positions").update({ is_sitting: true, current_action: "working" } as any).eq("user_id", userId);
+          } else {
+             supabase.from("pixel_positions").update({ is_sitting: false, current_action: "idle" } as any).eq("user_id", userId);
+          }
+        }
+
         step++;
       }, 200); // 200ms por tile (velocidade do personagem)
 
