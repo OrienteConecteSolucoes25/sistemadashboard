@@ -93,6 +93,7 @@ import { JarbasKnowledgePage } from "./modules/jarbas/ui/JarbasKnowledgePage";
 import { JarbasTrainingDashboard } from "./modules/jarbas/ui/JarbasTrainingDashboard";
 import { JarbasAnalyticsDashboard } from "./modules/jarbas/ui/JarbasAnalyticsDashboard";
 import { JarbasVisionDashboard } from "./modules/jarbas/ui/JarbasVisionDashboard";
+import { JarbasCommandCenter } from "./modules/jarbas/ui/JarbasCommandCenter";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -234,6 +235,7 @@ const App = () => (
               <Route path="jarbas/training" element={<JarbasTrainingDashboard />} />
               <Route path="jarbas/analytics" element={<JarbasAnalyticsDashboard />} />
               <Route path="jarbas/vision" element={<JarbasVisionDashboard />} />
+              <Route path="jarbas/command" element={<JarbasCommandCenter />} />
               <Route path="ocs-guard" element={<OcsGuardPage />} />
               <Route path="ti">
                 <Route index element={<TiDashboard />} />
