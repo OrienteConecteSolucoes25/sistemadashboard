@@ -129,11 +129,7 @@ export const JarbasCommandCenter = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                {[
-                  { label: "Produtividade Equipes", value: 84, trend: "up" },
-                  { label: "Conformidade Segurança", value: 98, trend: "stable" },
-                  { label: "Utilização Recursos", value: 72, trend: "down" },
-                ].map((item, i) => (
+                {kpis.map((item, i) => (
                   <div key={i} className="space-y-1">
                     <div className="flex justify-between text-[9px] uppercase">
                       <span>{item.label}</span>
@@ -154,9 +150,13 @@ export const JarbasCommandCenter = () => {
               <CardContent>
                 <ScrollArea className="h-[320px] pr-4">
                   <div className="space-y-3">
-                    {[1, 2, 3, 4, 5].map((i) => (
-                      <div key={i} className="text-[9px] p-2 border border-white/5 bg-white/5 rounded">
-                        <span className="text-cyan-500 font-bold">[14:2{i}]</span> SISTEMA: Execução validada no Site {i} via Vision AI.
+                    {events.length === 0 && (
+                      <p className="text-[9px] opacity-50 italic">Sem eventos registrados em jarbas_logs.</p>
+                    )}
+                    {events.map((ev: any) => (
+                      <div key={ev.id} className="text-[9px] p-2 border border-white/5 bg-white/5 rounded">
+                        <span className="text-cyan-500 font-bold">[{new Date(ev.created_at).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}]</span>{" "}
+                        {ev.command ?? ev.response ?? "—"}
                       </div>
                     ))}
                   </div>
