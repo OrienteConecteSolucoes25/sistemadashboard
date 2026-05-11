@@ -104,7 +104,20 @@ export async function parseRtsFile(file: File): Promise<{ records: ParsedRt[]; h
   const dataRows = aoa.slice(headerRowIdx + 1)
     .filter((r) => (r as any[]).some((c) => c !== "" && c !== null && c !== undefined));
   const fieldByCol = headers.map((h) => headerToFieldRt(h));
-  const unmatched = headers.filter((_, i) => !fieldByCol[i]);
+
+  // Localiza colunas de login (independente de mapping de RT)
+  const normH = (s: string) => s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
+  const findCol = (...needles: string[]) => headers.findIndex((h) => {
+    const n = normH(h); return needles.some((w) => n === w || n.includes(w));
+  });
+  const colRegiao = findCol("regiao (login)", "regiao login", "regiao");
+  const colSenha = findCol("senha (login)", "senha login", "senha");
+  const colObsLogin = findCol("observacao (login)", "observacao login", "obs login");
+
+  const usedCols = new Set<number>();
+  fieldByCol.forEach((f, i) => { if (f) usedCols.add(i); });
+  [colRegiao, colSenha, colObsLogin].forEach((i) => { if (i >= 0) usedCols.add(i); });
+  const unmatched = headers.filter((_, i) => !usedCols.has(i));
 
   const records: ParsedRt[] = dataRows.map((row) => {
     const rec: ParsedRt = {};
@@ -128,8 +141,27 @@ export async function parseRtsFile(file: File): Promise<{ records: ParsedRt[]; h
         rec.inclusao_ativa = !(s === "nao" || s === "não" || s === "n" || s === "false" || s === "0");
       } else (rec as any)[key] = String(cell ?? "").trim();
     });
+    if (colRegiao >= 0) {
+      const reg = String(row[colRegiao] ?? "").trim();
+      if (reg) {
+        rec._login_regiao = reg;
+        // tenta extrair UF entre parênteses, se UF não foi preenchido
+        if (!rec.uf) {
+          const m = reg.match(/\(([A-Za-z]{2})\)/);
+          if (m) rec.uf = m[1].toUpperCase();
+        }
+      }
+    }
+    if (colSenha >= 0) {
+      const s = String(row[colSenha] ?? "").trim();
+      if (s) rec._login_senha = s;
+    }
+    if (colObsLogin >= 0) {
+      const s = String(row[colObsLogin] ?? "").trim();
+      if (s) rec._login_obs = s;
+    }
     return rec;
-  }).filter((r) => (r.nome ?? "").length > 0);
+  }).filter((r) => (r.nome ?? "").length > 0 || !!r._login_regiao);
 
   return { records, headers, unmatched };
 }
