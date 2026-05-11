@@ -17,17 +17,32 @@ export const SERVICOS_FIELDS: FieldSchema[] = [
 
 /** ARTs (Todas) — listagem completa exportada do SITAC/CREA (mesmas 11 colunas de SERVICOS) */
 export const ARTS_TODAS_FIELDS: FieldSchema[] = [
-  { key: "numero",      label: "Número",       type: "text" },
-  { key: "contratante", label: "Contratante",  type: "text" },
-  { key: "empresa",     label: "Empresa",      type: "text" },
-  { key: "analise",     label: "Análise",      type: "text" },
+  { key: "numero",      label: "Número",       type: "text",
+    aliases: ["art","n art","numero art","número da art","numero da art"] },
+  { key: "contratante", label: "Contratante",  type: "text",
+    aliases: ["contratante:","cliente","tomador"] },
+  { key: "empresa",     label: "Empresa",      type: "text",
+    aliases: [
+      "proprietario","proprietário","proprietario:","proprietário:",
+      "razao social","razão social","razao_social","razão_social",
+      "nome empresa","nome da empresa","empresa:","empresa contratada",
+      "executora","contratado","contratada","responsavel","responsável",
+    ] },
+  { key: "analise",     label: "Análise",      type: "text",
+    aliases: ["status","situacao","situação","status analise","status análise"] },
   { key: "baixa",       label: "Baixa",        type: "text" },
-  { key: "boleto",      label: "Boleto",       type: "text" },
-  { key: "pagamento",   label: "Pagamento",    type: "text" },
-  { key: "cadastro",    label: "Cadastro",     type: "text" },
-  { key: "detalhe",     label: "Detalhe",      type: "textarea", full: true, inList: false },
-  { key: "endereco",    label: "Endereço",     type: "textarea", full: true, inList: false },
-  { key: "observacao",  label: "Observação",   type: "textarea", full: true, inList: false },
+  { key: "boleto",      label: "Boleto",       type: "text",
+    aliases: ["numero boleto","número boleto","nosso numero","nosso número"] },
+  { key: "pagamento",   label: "Pagamento",    type: "text",
+    aliases: ["data pagamento","data de pagamento","pago em"] },
+  { key: "cadastro",    label: "Cadastro",     type: "text",
+    aliases: ["data cadastro","data de cadastro","emitido em","registrado em"] },
+  { key: "detalhe",     label: "Detalhe",      type: "textarea", full: true, inList: false,
+    aliases: ["descricao","descrição","atividades","atividade/serviço","atividade servico"] },
+  { key: "endereco",    label: "Endereço",     type: "textarea", full: true, inList: false,
+    aliases: ["enderecos","endereços","endereço:","local"] },
+  { key: "observacao",  label: "Observação",   type: "textarea", full: true, inList: false,
+    aliases: ["obs","observacoes","observações"] },
 ];
 
 /** ART por Bloco (crea_gov_art_bloco) — ordem e labels conforme planilha modelo "ARTs" (53 colunas) */
