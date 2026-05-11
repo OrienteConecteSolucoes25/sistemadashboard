@@ -18,14 +18,14 @@ export const SERVICOS_FIELDS: FieldSchema[] = [
 /** ARTs (Todas) — listagem completa exportada do SITAC/CREA (mesmas 11 colunas de SERVICOS) */
 export const ARTS_TODAS_FIELDS: FieldSchema[] = [
   { key: "numero",      label: "Número",       type: "text" },
-  { key: "detalhe",     label: "Detalhe",      type: "textarea", full: true },
+  { key: "contratante", label: "Contratante",  type: "text" },
+  { key: "empresa",     label: "Empresa",      type: "text" },
   { key: "analise",     label: "Análise",      type: "text" },
   { key: "baixa",       label: "Baixa",        type: "text" },
   { key: "boleto",      label: "Boleto",       type: "text" },
   { key: "pagamento",   label: "Pagamento",    type: "text" },
   { key: "cadastro",    label: "Cadastro",     type: "text" },
-  { key: "empresa",     label: "Empresa",      type: "text" },
-  { key: "contratante", label: "Contratante",  type: "text" },
+  { key: "detalhe",     label: "Detalhe",      type: "textarea", full: true, inList: false },
   { key: "endereco",    label: "Endereço",     type: "textarea", full: true, inList: false },
   { key: "observacao",  label: "Observação",   type: "textarea", full: true, inList: false },
 ];
