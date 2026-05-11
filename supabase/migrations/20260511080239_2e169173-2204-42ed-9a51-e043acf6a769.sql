@@ -1,0 +1,4 @@
+ALTER TABLE public.crea_rts_pessoas
+  ADD COLUMN IF NOT EXISTS uf TEXT,
+  ADD COLUMN IF NOT EXISTS anuidade_ano INTEGER,
+  ADD COLUMN IF NOT EXISTS inclusao_ativa BOOLEAN NOT NULL DEFAULT true;
