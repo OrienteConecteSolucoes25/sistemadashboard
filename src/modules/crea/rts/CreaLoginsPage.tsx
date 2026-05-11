@@ -102,20 +102,12 @@ export default function CreaLoginsPage() {
     setBulkOpen(false); setBulkReason(""); reload();
   };
 
-  const doExport = (kind: "xlsx" | "csv") => {
-    const data = filtered.map(r => ({
-      "Região": r.regiao, "Responsável Técnico": r.rt_nome,
-      "Senha": r.senha ?? "", "Observações": r.observacoes ?? "",
-    }));
-    if (kind === "xlsx") exportXLSX(data, `crea-logins-${Date.now()}.xlsx`, "Logins");
-    else exportCSV(data, `crea-logins-${Date.now()}.csv`);
+  const doExport = (format: "xlsx" | "csv") => {
+    exportData({ rows: filtered, fields: FIELDS as any, filename: `crea-logins-${Date.now()}`, format, title: "Logins CREA" });
   };
 
   const downloadTemplate = () => {
-    exportXLSX(
-      [{ "Região": "ALAGOAS (AL)", "Responsável Técnico": "JOÃO ARTHUR", "Senha": "Arthur1309*", "Observações": "" }],
-      "modelo-crea-logins.xlsx", "Logins"
-    );
+    dlTemplate({ fields: FIELDS as any, filename: "modelo-crea-logins", format: "xlsx", title: "Logins CREA" });
   };
 
   const onPickFile = async (f: File | null) => {
