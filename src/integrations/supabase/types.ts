@@ -4191,6 +4191,204 @@ export type Database = {
           },
         ]
       }
+      crea_gov_art_bloco: {
+        Row: {
+          acao_institucional: string | null
+          assinaturas: string | null
+          atendido: string | null
+          ativ_tec_descricao: string | null
+          ativ_tec_numeros_atos: string | null
+          ativ_tec_quantidade: string | null
+          ativ_tec_unidade: string | null
+          bairro_contrato: string | null
+          bairro_obra: string | null
+          celebrado_em: string | null
+          cep_contrato: string | null
+          cep_obra: string | null
+          cidade_contrato: string | null
+          cidade_obra: string | null
+          cnpj_cpf_proprietario: string | null
+          codigo: string | null
+          company_id: string
+          complemento_contrato: string | null
+          complemento_obra: string | null
+          contratante: string | null
+          contrato: string | null
+          coordenadas: string | null
+          cpf_cnpj_contratante: string | null
+          created_at: string
+          created_by: string | null
+          data_atendimento: string | null
+          data_inicio: string | null
+          data_solicitacao: string | null
+          declaracoes: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          endereco_contrato: string | null
+          endereco_obra: string | null
+          entidade_classe: string | null
+          finalidade: string | null
+          id: string
+          informacoes: string | null
+          is_deleted: boolean
+          motivo: string | null
+          nosso_numero: string | null
+          num_contrato_endereco: string | null
+          num_obra: string | null
+          numero_art: string | null
+          observacoes: string | null
+          paginas_pdf: string | null
+          previsao_termino: string | null
+          proprietario: string | null
+          registrada_em: string | null
+          registro: string | null
+          responsavel_tecnico: string | null
+          rnp: string | null
+          situacao: string | null
+          tipo_contratante: string | null
+          tipo_status_documento: string | null
+          titulo_profissional: string | null
+          uf_contrato: string | null
+          uf_obra: string | null
+          updated_at: string
+          updated_by: string | null
+          valor_art: number | null
+          valor_contrato: number | null
+          valor_pago: number | null
+        }
+        Insert: {
+          acao_institucional?: string | null
+          assinaturas?: string | null
+          atendido?: string | null
+          ativ_tec_descricao?: string | null
+          ativ_tec_numeros_atos?: string | null
+          ativ_tec_quantidade?: string | null
+          ativ_tec_unidade?: string | null
+          bairro_contrato?: string | null
+          bairro_obra?: string | null
+          celebrado_em?: string | null
+          cep_contrato?: string | null
+          cep_obra?: string | null
+          cidade_contrato?: string | null
+          cidade_obra?: string | null
+          cnpj_cpf_proprietario?: string | null
+          codigo?: string | null
+          company_id: string
+          complemento_contrato?: string | null
+          complemento_obra?: string | null
+          contratante?: string | null
+          contrato?: string | null
+          coordenadas?: string | null
+          cpf_cnpj_contratante?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_atendimento?: string | null
+          data_inicio?: string | null
+          data_solicitacao?: string | null
+          declaracoes?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          endereco_contrato?: string | null
+          endereco_obra?: string | null
+          entidade_classe?: string | null
+          finalidade?: string | null
+          id?: string
+          informacoes?: string | null
+          is_deleted?: boolean
+          motivo?: string | null
+          nosso_numero?: string | null
+          num_contrato_endereco?: string | null
+          num_obra?: string | null
+          numero_art?: string | null
+          observacoes?: string | null
+          paginas_pdf?: string | null
+          previsao_termino?: string | null
+          proprietario?: string | null
+          registrada_em?: string | null
+          registro?: string | null
+          responsavel_tecnico?: string | null
+          rnp?: string | null
+          situacao?: string | null
+          tipo_contratante?: string | null
+          tipo_status_documento?: string | null
+          titulo_profissional?: string | null
+          uf_contrato?: string | null
+          uf_obra?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          valor_art?: number | null
+          valor_contrato?: number | null
+          valor_pago?: number | null
+        }
+        Update: {
+          acao_institucional?: string | null
+          assinaturas?: string | null
+          atendido?: string | null
+          ativ_tec_descricao?: string | null
+          ativ_tec_numeros_atos?: string | null
+          ativ_tec_quantidade?: string | null
+          ativ_tec_unidade?: string | null
+          bairro_contrato?: string | null
+          bairro_obra?: string | null
+          celebrado_em?: string | null
+          cep_contrato?: string | null
+          cep_obra?: string | null
+          cidade_contrato?: string | null
+          cidade_obra?: string | null
+          cnpj_cpf_proprietario?: string | null
+          codigo?: string | null
+          company_id?: string
+          complemento_contrato?: string | null
+          complemento_obra?: string | null
+          contratante?: string | null
+          contrato?: string | null
+          coordenadas?: string | null
+          cpf_cnpj_contratante?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_atendimento?: string | null
+          data_inicio?: string | null
+          data_solicitacao?: string | null
+          declaracoes?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          endereco_contrato?: string | null
+          endereco_obra?: string | null
+          entidade_classe?: string | null
+          finalidade?: string | null
+          id?: string
+          informacoes?: string | null
+          is_deleted?: boolean
+          motivo?: string | null
+          nosso_numero?: string | null
+          num_contrato_endereco?: string | null
+          num_obra?: string | null
+          numero_art?: string | null
+          observacoes?: string | null
+          paginas_pdf?: string | null
+          previsao_termino?: string | null
+          proprietario?: string | null
+          registrada_em?: string | null
+          registro?: string | null
+          responsavel_tecnico?: string | null
+          rnp?: string | null
+          situacao?: string | null
+          tipo_contratante?: string | null
+          tipo_status_documento?: string | null
+          titulo_profissional?: string | null
+          uf_contrato?: string | null
+          uf_obra?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          valor_art?: number | null
+          valor_contrato?: number | null
+          valor_pago?: number | null
+        }
+        Relationships: []
+      }
       crea_gov_art_setores_extra: {
         Row: {
           art_id: string
@@ -4929,6 +5127,186 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      crea_gov_relatorio_crea: {
+        Row: {
+          art: string | null
+          atividade_servico: string | null
+          atividade_subordinada: string | null
+          atividades: string | null
+          cadastro: string | null
+          cnpj_contratante: string | null
+          cnpj_proprietario: string | null
+          company_id: string
+          contratante: string | null
+          created_at: string
+          created_by: string | null
+          data_fim: string | null
+          data_inicio: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          enderecos: string | null
+          forma_registro: string | null
+          id: string
+          is_deleted: boolean
+          nivel: string | null
+          numero: string | null
+          observacao: string | null
+          pagamento: string | null
+          participacao_tecnica: string | null
+          proprietario: string | null
+          quantidade: string | null
+          taxa_paga: string | null
+          tipo: string | null
+          unidade_medida: string | null
+          updated_at: string
+          updated_by: string | null
+          valor_contrato: number | null
+        }
+        Insert: {
+          art?: string | null
+          atividade_servico?: string | null
+          atividade_subordinada?: string | null
+          atividades?: string | null
+          cadastro?: string | null
+          cnpj_contratante?: string | null
+          cnpj_proprietario?: string | null
+          company_id: string
+          contratante?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          enderecos?: string | null
+          forma_registro?: string | null
+          id?: string
+          is_deleted?: boolean
+          nivel?: string | null
+          numero?: string | null
+          observacao?: string | null
+          pagamento?: string | null
+          participacao_tecnica?: string | null
+          proprietario?: string | null
+          quantidade?: string | null
+          taxa_paga?: string | null
+          tipo?: string | null
+          unidade_medida?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          valor_contrato?: number | null
+        }
+        Update: {
+          art?: string | null
+          atividade_servico?: string | null
+          atividade_subordinada?: string | null
+          atividades?: string | null
+          cadastro?: string | null
+          cnpj_contratante?: string | null
+          cnpj_proprietario?: string | null
+          company_id?: string
+          contratante?: string | null
+          created_at?: string
+          created_by?: string | null
+          data_fim?: string | null
+          data_inicio?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          enderecos?: string | null
+          forma_registro?: string | null
+          id?: string
+          is_deleted?: boolean
+          nivel?: string | null
+          numero?: string | null
+          observacao?: string | null
+          pagamento?: string | null
+          participacao_tecnica?: string | null
+          proprietario?: string | null
+          quantidade?: string | null
+          taxa_paga?: string | null
+          tipo?: string | null
+          unidade_medida?: string | null
+          updated_at?: string
+          updated_by?: string | null
+          valor_contrato?: number | null
+        }
+        Relationships: []
+      }
+      crea_gov_servicos: {
+        Row: {
+          analise: string | null
+          baixa: string | null
+          boleto: string | null
+          cadastro: string | null
+          company_id: string
+          contratante: string | null
+          created_at: string
+          created_by: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          detalhe: string | null
+          empresa: string | null
+          endereco: string | null
+          id: string
+          is_deleted: boolean
+          numero: string | null
+          observacao: string | null
+          pagamento: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          analise?: string | null
+          baixa?: string | null
+          boleto?: string | null
+          cadastro?: string | null
+          company_id: string
+          contratante?: string | null
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          detalhe?: string | null
+          empresa?: string | null
+          endereco?: string | null
+          id?: string
+          is_deleted?: boolean
+          numero?: string | null
+          observacao?: string | null
+          pagamento?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          analise?: string | null
+          baixa?: string | null
+          boleto?: string | null
+          cadastro?: string | null
+          company_id?: string
+          contratante?: string | null
+          created_at?: string
+          created_by?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          detalhe?: string | null
+          empresa?: string | null
+          endereco?: string | null
+          id?: string
+          is_deleted?: boolean
+          numero?: string | null
+          observacao?: string | null
+          pagamento?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       crea_gov_setores: {
         Row: {
