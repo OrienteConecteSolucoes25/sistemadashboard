@@ -542,7 +542,7 @@ export default function MarketplaceAdmin() {
 
         {/* Área de Conteúdo */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
-          {activeTab === "dashboard" && <MarketplaceDashboard />}
+          {activeTab === "dashboard" && <MarketplaceDashboard storeId={storeId} />}
           {activeTab === "produtos" && <ProductsTab />}
           {activeTab === "categorias" && (
             <div className="bg-white rounded-2xl p-12 text-center border border-dashed border-slate-200">
