@@ -248,6 +248,7 @@ const App = () => (
           </CompanyThemeProvider>
           </AclProvider>
         </AuthProvider>
+        </JarbasAmbientProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
