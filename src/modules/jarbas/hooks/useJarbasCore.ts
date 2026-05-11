@@ -183,7 +183,12 @@ export function useJarbasCore() {
 
     try {
       const { data, error } = await supabase.functions.invoke('jarbas-engine', {
-        body: { transcript: input, context, history: chatHistory.slice(-5) }
+        body: { 
+          transcript: input, 
+          context, 
+          history: chatHistory.slice(-5),
+          personality_tone: personalityResponse.tone
+        }
       });
 
       if (error) throw error;
