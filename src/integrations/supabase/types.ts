@@ -9784,6 +9784,80 @@ export type Database = {
         }
         Relationships: []
       }
+      jarbas_vision_analysis: {
+        Row: {
+          ai_feedback: string | null
+          analysis_type: string
+          company_id: string
+          confidence_score: number | null
+          created_at: string
+          detected_objects: Json | null
+          id: string
+          image_url: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          ai_feedback?: string | null
+          analysis_type: string
+          company_id: string
+          confidence_score?: number | null
+          created_at?: string
+          detected_objects?: Json | null
+          id?: string
+          image_url: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          ai_feedback?: string | null
+          analysis_type?: string
+          company_id?: string
+          confidence_score?: number | null
+          created_at?: string
+          detected_objects?: Json | null
+          id?: string
+          image_url?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      jarbas_visual_validations: {
+        Row: {
+          analysis_id: string | null
+          discrepancy_details: string | null
+          id: string
+          is_compliant: boolean
+          required_standard: string | null
+          validated_at: string
+        }
+        Insert: {
+          analysis_id?: string | null
+          discrepancy_details?: string | null
+          id?: string
+          is_compliant: boolean
+          required_standard?: string | null
+          validated_at?: string
+        }
+        Update: {
+          analysis_id?: string | null
+          discrepancy_details?: string | null
+          id?: string
+          is_compliant?: boolean
+          required_standard?: string | null
+          validated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "jarbas_visual_validations_analysis_id_fkey"
+            columns: ["analysis_id"]
+            isOneToOne: false
+            referencedRelation: "jarbas_vision_analysis"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       market_categories: {
         Row: {
           created_at: string | null
