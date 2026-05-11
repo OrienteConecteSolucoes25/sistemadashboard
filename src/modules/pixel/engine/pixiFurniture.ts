@@ -7,8 +7,9 @@ class PixiFurnitureManager {
   private furnitureMap: Map<string, PIXI.Container> = new Map();
 
   render(furniture: FurnitureLite[]) {
-    const container = pixiApp.getContainer(PIXI_LAYERS.DECORATIONS_BACK);
-    if (!container) return;
+    const containerBelow = pixiApp.getContainer(PIXI_LAYERS.FURNITURE_BELOW);
+    const containerAbove = pixiApp.getContainer(PIXI_LAYERS.FURNITURE_ABOVE);
+    if (!containerBelow || !containerAbove) return;
 
     const activeIds = new Set(furniture.map(f => f.id));
 
