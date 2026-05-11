@@ -23,7 +23,18 @@ export const CertidoesPage = () => <CreaCrudPage config={CERTIDOES_CFG} />;
 export const BaixasPage = () => <CreaCrudPage config={BAIXAS_CFG} />;
 export const TratativasPage = () => <CreaCrudPage config={TRATATIVAS_CFG} />;
 export const PrazosPage = () => <CreaCrudPage config={PRAZOS_CFG} />;
-export const RtsPage = () => <CreaCrudPage config={RTS_CFG} />;
+import CreaLoginsPage from "../rts/CreaLoginsPage";
+import { Users as UsersIcon, KeyRound } from "lucide-react";
+export const RtsPage = () => (
+  <Tabs defaultValue="pessoas" className="space-y-4">
+    <TabsList className="flex-wrap h-auto">
+      <TabsTrigger value="pessoas"><UsersIcon className="w-4 h-4 mr-1" /> Responsáveis Técnicos</TabsTrigger>
+      <TabsTrigger value="logins"><KeyRound className="w-4 h-4 mr-1" /> Login</TabsTrigger>
+    </TabsList>
+    <TabsContent value="pessoas"><CreaCrudPage config={RTS_CFG} /></TabsContent>
+    <TabsContent value="logins"><CreaLoginsPage /></TabsContent>
+  </Tabs>
+);
 import EmpresasPageNew from "../empresas/EmpresasPage";
 export const EmpresasPage = () => <EmpresasPageNew />;
 export const DocumentosPage = () => (
