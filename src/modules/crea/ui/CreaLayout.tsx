@@ -15,19 +15,14 @@ const allTabs = [
   { to: "/app/crea/cats", label: "CATs / Acervo", icon: Award, group: "Operação", moduleKey: "crea.cats" },
   { to: "/app/crea/certidoes", label: "Certidões", icon: ScrollText, group: "Operação", moduleKey: "crea.certidoes" },
   { to: "/app/crea/baixas", label: "Baixas", icon: FileMinus, group: "Operação", moduleKey: "crea.baixas" },
-  { to: "/app/crea/tratativas", label: "Tratativas", icon: MessageSquare, group: "Operação", moduleKey: "crea.tratativas" },
-  { to: "/app/crea/prazos", label: "Prazos", icon: CalendarClock, group: "Operação", moduleKey: "crea.prazos" },
   { to: "/app/crea/rts", label: "Responsáveis Técnicos", icon: Users, group: "Cadastros", moduleKey: "crea.rts" },
   { to: "/app/crea/empresas", label: "Empresas e CREAs", icon: Building2, group: "Cadastros", moduleKey: "crea.empresas" },
   { to: "/app/crea/documentos", label: "Documentações", icon: FolderOpen, group: "Cadastros", moduleKey: "crea.documentos" },
   { to: "/app/crea/credenciais", label: "Credenciais", icon: KeyRound, group: "Segurança", moduleKey: "crea.credenciais" },
   { to: "/app/crea/normas", label: "Normas e Regras", icon: BookOpen, group: "Conhecimento", moduleKey: "crea.normas" },
-  { to: "/app/crea/links", label: "Links Oficiais", icon: LinkIcon, group: "Conhecimento", moduleKey: "crea.links" },
   { to: "/app/crea/assistente", label: "Assistente IA", icon: Bot, group: "Conhecimento", moduleKey: "crea.assistente" },
   { to: "/app/crea/governanca", label: "Governança ART", icon: Gauge, group: "Governança", moduleKey: "crea.base" },
-  { to: "/app/crea/auditoria", label: "Auditoria", icon: ShieldCheck, group: "Admin", moduleKey: "crea.auditoria" },
   { to: "/app/crea/admin", label: "Admin", icon: Settings, group: "Admin", moduleKey: "crea.base" },
-  { to: "/app/crea/integracoes", label: "Integrações", icon: Settings, group: "Admin", moduleKey: "crea.base" },
 ];
 
 export default function CreaLayout() {
