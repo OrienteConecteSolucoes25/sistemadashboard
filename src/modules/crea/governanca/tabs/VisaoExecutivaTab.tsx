@@ -110,7 +110,8 @@ export function VisaoExecutivaTab({ filters }: { filters: GovFilters }) {
         <Card className="card-elegant">
           <CardHeader className="pb-1"><CardTitle className="text-sm flex items-center gap-1"><Building2 className="h-3 w-3" /> ARTs por contratante (top 10)</CardTitle></CardHeader>
           <CardContent className="h-72">
-            <ResponsiveContainer><BarChart data={porContratante} layout="vertical"><XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} /><YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={140} /><Tooltip /><Bar dataKey="value" fill="#60a5fa" /></BarChart></ResponsiveContainer>
+            <ResponsiveContainer><BarChart data={porContratante} layout="vertical" margin={{ left: 8, right: 8 }}><XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} /><YAxis type="category" dataKey="name" tick={false} width={0} /><Tooltip formatter={(v: any, _n, p: any) => [v, p?.payload?.name]} /><Bar dataKey="value" fill="#60a5fa" /></BarChart></ResponsiveContainer>
+            <p className="text-[10px] text-muted-foreground mt-1">Passe o mouse sobre as barras para ver o nome do contratante.</p>
           </CardContent>
         </Card>
 
