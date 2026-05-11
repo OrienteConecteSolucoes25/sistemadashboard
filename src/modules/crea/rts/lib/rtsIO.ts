@@ -30,6 +30,7 @@ const matrixFromRows = (rows: RtPessoa[]) => {
     r.anuidade_ano ?? "",
     r.inclusao_ativa === false ? "Não" : "Sim",
     r.observacao ?? "",
+    "", "", "",
   ]);
   return [head, ...body];
 };
