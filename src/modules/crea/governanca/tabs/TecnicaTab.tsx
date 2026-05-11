@@ -40,6 +40,8 @@ export function TecnicaTab({ filters }: { filters: GovFilters }) {
   const [delReason, setDelReason] = useState("");
   const [delBusy, setDelBusy] = useState(false);
   const [reload, setReload] = useState(0);
+  const [rtMap, setRtMap] = useState<Record<string, RtInfo>>({});
+  const [contMap, setContMap] = useState<Record<string, ContratanteInfo>>({});
 
   const doDelete = async () => {
     if (delReason.trim().length < 3) { toast.error("Informe o motivo (mínimo 3 caracteres)."); return; }
