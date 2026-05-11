@@ -13770,6 +13770,10 @@ export type Database = {
         Args: { _id: string; _reason: string; _table: string }
         Returns: Json
       }
+      crea_soft_delete_bulk: {
+        Args: { _ids: string[]; _reason: string; _table: string }
+        Returns: Json
+      }
       current_user_modules: { Args: { _uid: string }; Returns: string[] }
       eng_can_edit: { Args: { _uid: string }; Returns: boolean }
       eng_log_audit: {
