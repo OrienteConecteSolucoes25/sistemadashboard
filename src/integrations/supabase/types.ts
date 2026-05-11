@@ -3156,6 +3156,69 @@ export type Database = {
         }
         Relationships: []
       }
+      crea_anuidades: {
+        Row: {
+          ano: number | null
+          company_id: string
+          created_at: string
+          created_by: string | null
+          data_pagamento: string | null
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          desconto_pct: number | null
+          id: string
+          is_deleted: boolean
+          nome: string
+          observacao: string | null
+          status: string
+          tipo: string
+          updated_at: string
+          updated_by: string | null
+          valor: number | null
+        }
+        Insert: {
+          ano?: number | null
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          data_pagamento?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          desconto_pct?: number | null
+          id?: string
+          is_deleted?: boolean
+          nome: string
+          observacao?: string | null
+          status?: string
+          tipo: string
+          updated_at?: string
+          updated_by?: string | null
+          valor?: number | null
+        }
+        Update: {
+          ano?: number | null
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          data_pagamento?: string | null
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          desconto_pct?: number | null
+          id?: string
+          is_deleted?: boolean
+          nome?: string
+          observacao?: string | null
+          status?: string
+          tipo?: string
+          updated_at?: string
+          updated_by?: string | null
+          valor?: number | null
+        }
+        Relationships: []
+      }
       crea_art_obras: {
         Row: {
           cidade: string
