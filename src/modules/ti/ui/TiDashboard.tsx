@@ -49,7 +49,7 @@ export default function TiDashboard() {
 
       // Tickets by category for performance chart
       const { data: catData } = await supabase
-        .from('it_tickets')
+        .from('ti_tickets')
         .select('category');
       
       const counts: Record<string, number> = {};
