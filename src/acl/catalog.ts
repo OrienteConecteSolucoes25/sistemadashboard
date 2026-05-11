@@ -22,17 +22,19 @@ export type CatalogEntry = {
   ordem: number;
 };
 
-type ModuleDef = {
+export type SubTabDef = { key: string; label: string; actions?: string[] };
+export type TabDef = { key: string; label: string; actions?: string[]; subTabs?: SubTabDef[] };
+export type ModuleDef = {
   module: string;
   label: string;
   ordem: number;
   /** Tabs visíveis no módulo (cada uma vira `module.tab.visualizar`). */
-  tabs: { key: string; label: string; actions?: string[]; subTabs?: { key: string; label: string; actions?: string[] }[] }[];
+  tabs: TabDef[];
 };
 
-const DEFAULT_TAB_ACTIONS = ["visualizar"];
+export const DEFAULT_TAB_ACTIONS = ["visualizar"];
 
-const MODULES: ModuleDef[] = [
+export const MODULES: ModuleDef[] = [
   { module: "visao_geral", label: "Visão Geral", ordem: 10, tabs: [] },
   { module: "pixel_office", label: "Soluções-Verso", ordem: 20, tabs: [] },
   { module: "jarbas", label: "Jarbas", ordem: 30, tabs: [] },
