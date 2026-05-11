@@ -2473,6 +2473,7 @@ export type Database = {
           master_password_hash: string | null
           nome: string
           pix_chave: string | null
+          show_ocs_brand: boolean
           updated_at: string
         }
         Insert: {
@@ -2486,6 +2487,7 @@ export type Database = {
           master_password_hash?: string | null
           nome: string
           pix_chave?: string | null
+          show_ocs_brand?: boolean
           updated_at?: string
         }
         Update: {
@@ -2499,6 +2501,7 @@ export type Database = {
           master_password_hash?: string | null
           nome?: string
           pix_chave?: string | null
+          show_ocs_brand?: boolean
           updated_at?: string
         }
         Relationships: []
