@@ -93,6 +93,7 @@ import { JarbasKnowledgePage } from "./modules/jarbas/ui/JarbasKnowledgePage";
 import { JarbasTrainingDashboard } from "./modules/jarbas/ui/JarbasTrainingDashboard";
 import { JarbasAnalyticsDashboard } from "./modules/jarbas/ui/JarbasAnalyticsDashboard";
 import { JarbasVisionDashboard } from "./modules/jarbas/ui/JarbasVisionDashboard";
+import { JarbasCommandCenter } from "./modules/jarbas/ui/JarbasCommandCenter";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
