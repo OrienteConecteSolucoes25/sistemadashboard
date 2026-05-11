@@ -205,7 +205,7 @@ export default function CentralChamadosPage() {
       if (!userData.user) return;
 
       const { error: updateError } = await supabase
-        .from('it_tickets')
+        .from('ti_tickets')
         .update({ status: newStatus })
         .eq('id', selectedTicket.id);
 
