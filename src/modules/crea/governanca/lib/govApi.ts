@@ -114,13 +114,8 @@ export type GovKpis = {
 };
 
 export function computeKpis(arts: GovArt[]): GovKpis {
-  // Import dinâmico evita ciclo: govNormalize não depende de govApi
-  // (usa-se require apenas em runtime do bundler? não — usar import estático seguro)
   return computeKpisInternal(arts);
 }
-
-// Implementação real, separada para permitir reuso interno.
-import { deriveStatusFinanceiroArt, pendenteArt, divergenciaArt } from "./govNormalize";
 
 function computeKpisInternal(arts: GovArt[]): GovKpis {
   const k: GovKpis = {
