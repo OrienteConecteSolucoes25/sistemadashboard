@@ -3955,6 +3955,60 @@ export type Database = {
         }
         Relationships: []
       }
+      crea_empresas: {
+        Row: {
+          cep: string | null
+          cidade: string | null
+          cnpj: string | null
+          company_id: string
+          created_at: string
+          delete_reason: string | null
+          deleted_at: string | null
+          deleted_by: string | null
+          endereco_completo: string | null
+          id: string
+          is_deleted: boolean
+          nome_fantasia: string
+          razao_social: string | null
+          uf: string | null
+          updated_at: string
+        }
+        Insert: {
+          cep?: string | null
+          cidade?: string | null
+          cnpj?: string | null
+          company_id: string
+          created_at?: string
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          endereco_completo?: string | null
+          id?: string
+          is_deleted?: boolean
+          nome_fantasia: string
+          razao_social?: string | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Update: {
+          cep?: string | null
+          cidade?: string | null
+          cnpj?: string | null
+          company_id?: string
+          created_at?: string
+          delete_reason?: string | null
+          deleted_at?: string | null
+          deleted_by?: string | null
+          endereco_completo?: string | null
+          id?: string
+          is_deleted?: boolean
+          nome_fantasia?: string
+          razao_social?: string | null
+          uf?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       crea_engineers: {
         Row: {
           anexo_url: string | null
