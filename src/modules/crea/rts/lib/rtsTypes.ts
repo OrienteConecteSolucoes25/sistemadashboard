@@ -46,7 +46,7 @@ const norm = (s: string) =>
   s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim().replace(/\s+/g, "_");
 
 const HEADER_TO_FIELD: Record<string, keyof RtPessoa | "termino_indefinido" | null> = {
-  nome: "nome",
+  nome: "nome", responsavel: "nome", "responsavel_tecnico": "nome", rt: "nome",
   cpf: "cpf",
   uf: "uf", estado: "uf",
   status: "status",
@@ -54,9 +54,9 @@ const HEADER_TO_FIELD: Record<string, keyof RtPessoa | "termino_indefinido" | nu
   data_termino: "data_termino", termino: "data_termino", "data_de_termino": "data_termino", fim: "data_termino",
   modelo_contrato: "modelo_contrato", contrato: "modelo_contrato", "modelo_de_contrato": "modelo_contrato",
   visto: "visto",
-  rnp: "rnp",
-  registro: "registro",
-  anuidade: "anuidade",
+  rnp: "rnp", "usuario_rnp": "rnp", "usuario_/_rnp": "rnp",
+  registro: "registro", "registro/visto": "registro", "registro_visto": "registro",
+  anuidade: "anuidade", anuidades: "anuidade",
   ano_anuidade: "anuidade_ano", anuidade_ano: "anuidade_ano", ano: "anuidade_ano",
   inclusao_ativa: "inclusao_ativa", inclusao: "inclusao_ativa", ativa: "inclusao_ativa",
   observacao: "observacao", observacoes: "observacao",
