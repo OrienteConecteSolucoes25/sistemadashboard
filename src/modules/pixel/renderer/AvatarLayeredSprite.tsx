@@ -91,7 +91,7 @@ export const AvatarLayeredSprite = ({ customization, size = 56, faded, grayscale
         aria-hidden="true"
       >
         <defs>
-          <linearGradient id={`grad-${c.user_id}`} x1="0%" y1="0%" x2="0%" y2="100%">
+          <linearGradient id={`grad-${c.avatar_sprite_key || "avatar"}`} x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" style={{ stopColor: outfitColor, stopOpacity: 1 }} />
             <stop offset="100%" style={{ stopColor: outfitShadow, stopOpacity: 1 }} />
           </linearGradient>
