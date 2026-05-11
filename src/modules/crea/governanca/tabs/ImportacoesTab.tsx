@@ -35,6 +35,7 @@ export const IMPORT_KINDS: { value: string; label: string; hint: string }[] = [
 export function ImportacoesTab() {
   const { companyId } = useGovCompany();
   const [uf, setUf] = useState<string>("BA");
+  const [kind, setKind] = useState<string>("arts_extraidas");
   const [file, setFile] = useState<File | null>(null);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<string>("");
@@ -45,7 +46,7 @@ export function ImportacoesTab() {
   useEffect(() => {
     if (!companyId) return;
     supabase.from("crea_gov_importacoes")
-      .select("id,arquivo_nome,uf,total_linhas,ok,falhas,status,ran_at")
+      .select("id,arquivo_nome,uf,kind,total_linhas,ok,falhas,status,ran_at")
       .eq("company_id", companyId).order("ran_at", { ascending: false }).limit(20)
       .then(({ data }) => setHistory((data as ImportRow[]) ?? []));
   }, [companyId, reload]);
