@@ -180,6 +180,7 @@ export async function fetchGovUnified(companyId: string, f: GovFilters): Promise
       atividade_servico: r.atividade_servico ?? r.atividades ?? null,
       data: toDate(r.data_inicio) ?? toDate(r.cadastro),
       raw: r,
+    });
   });
 
   todas.forEach((r: any) => {
@@ -200,7 +201,6 @@ export async function fetchGovUnified(companyId: string, f: GovFilters): Promise
       data: toDate(r.cadastro) ?? toDate(r.pagamento),
       raw: r,
     });
-  });
   });
 
   return rows.filter((r) =>
