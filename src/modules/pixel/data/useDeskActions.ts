@@ -66,7 +66,14 @@ export function useDeskActions(refresh?: () => void) {
       if (posErr) throw posErr;
 
       refresh?.();
+
+      // Ganho de XP por trabalhar (Gamificação)
+      if (patch.currentAction === "working" && desk.user_id) {
+        supabase.rpc("add_pixel_xp", { _uid: desk.user_id, _amount: 20 });
+      }
+
       return true;
+
     } catch (e: any) {
       toast.error("Erro: " + (e.message ?? "ação falhou"));
       return false;
