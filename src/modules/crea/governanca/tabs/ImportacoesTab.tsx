@@ -184,12 +184,15 @@ export function ImportacoesTab() {
         <CardContent className="p-0">
           <Table>
             <TableHeader>
-              <TableRow><TableHead>Data</TableHead><TableHead>Arquivo</TableHead><TableHead>UF</TableHead><TableHead className="text-right">Linhas</TableHead><TableHead className="text-right">OK</TableHead><TableHead className="text-right">Falhas</TableHead><TableHead>Status</TableHead></TableRow>
+              <TableRow><TableHead>Data</TableHead><TableHead>Tipo</TableHead><TableHead>Arquivo</TableHead><TableHead>UF</TableHead><TableHead className="text-right">Linhas</TableHead><TableHead className="text-right">OK</TableHead><TableHead className="text-right">Falhas</TableHead><TableHead>Status</TableHead></TableRow>
             </TableHeader>
             <TableBody>
-              {history.map((h) => (
+              {history.map((h) => {
+                const k = IMPORT_KINDS.find(x => x.value === h.kind);
+                return (
                 <TableRow key={h.id}>
                   <TableCell className="text-xs whitespace-nowrap">{new Date(h.ran_at).toLocaleString("pt-BR")}</TableCell>
+                  <TableCell className="text-xs"><Badge variant="secondary" className="text-[10px]">{k?.label ?? h.kind ?? "—"}</Badge></TableCell>
                   <TableCell className="text-xs">{h.arquivo_nome ?? "—"}</TableCell>
                   <TableCell className="text-xs">{h.uf ?? "—"}</TableCell>
                   <TableCell className="text-xs text-right">{h.total_linhas ?? 0}</TableCell>
