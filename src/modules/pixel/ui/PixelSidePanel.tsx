@@ -61,17 +61,43 @@ export const PixelSidePanel = ({ selected, onClose, onFocusDesk, onCallToMeeting
   const open = selected !== null;
   return (
     <Sheet open={open} onOpenChange={(v) => !v && onClose()}>
-      <SheetContent side="right" className="w-[380px] sm:w-[420px] overflow-y-auto">
+      <SheetContent side="right" className="w-[380px] sm:w-[420px] overflow-y-auto p-0">
         {selected?.kind === "character" && (
-          <CharacterPanel
-            userId={selected.data.user_id}
-            onFocusDesk={onFocusDesk}
-            onCallToMeeting={onCallToMeeting}
-          />
+          <Tabs defaultValue="profile" className="w-full h-full flex flex-col">
+            <div className="p-6 pb-0">
+              <SheetHeader className="mb-4">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="profile">Perfil</TabsTrigger>
+                  <TabsTrigger value="gamification" className="flex items-center gap-2">
+                    <Trophy className="w-3 h-3" /> Progresso
+                  </TabsTrigger>
+                </TabsList>
+              </SheetHeader>
+            </div>
+            
+            <TabsContent value="profile" className="flex-1 overflow-y-auto p-6 pt-0">
+              <CharacterPanel
+                userId={selected.data.user_id}
+                onFocusDesk={onFocusDesk}
+                onCallToMeeting={onCallToMeeting}
+              />
+            </TabsContent>
+            
+            <TabsContent value="gamification" className="flex-1 overflow-y-auto p-6 pt-0">
+              <div className="space-y-4 py-2">
+                <PixelGamificationPanel userId={selected.data.user_id} />
+              </div>
+            </TabsContent>
+          </Tabs>
         )}
-        {selected?.kind === "desk" && <DeskPanel desk={selected.data} refresh={refresh} />}
+        {selected?.kind === "desk" && (
+          <div className="p-6">
+            <DeskPanel desk={selected.data} refresh={refresh} />
+          </div>
+        )}
       </SheetContent>
     </Sheet>
+
   );
 };
 
