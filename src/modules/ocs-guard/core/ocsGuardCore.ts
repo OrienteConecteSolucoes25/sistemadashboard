@@ -8,6 +8,8 @@ export type OcsRole =
   | 'admin_ocs' 
   | 'root_ocs';
 
+export type AiClassification = 'IA informativa' | 'IA operacional' | 'IA administrativa' | 'IA crítica';
+
 export interface SecurityStatus {
   isEmergencyMode: boolean;
   overallScore: number;
