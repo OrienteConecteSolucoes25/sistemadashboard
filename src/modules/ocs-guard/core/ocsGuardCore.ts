@@ -100,7 +100,7 @@ class OcsGuardCore {
 
   public async logAiAction(params: {
     agent: string;
-    classification: 'informativa' | 'operacional' | 'administrativa' | 'critica';
+    classification: AiClassification;
     module: string;
     prompt: string;
     response: string;
@@ -117,6 +117,8 @@ class OcsGuardCore {
       .eq('id', user.id)
       .single();
 
+    const requiresApproval = params.requiresApproval || params.classification === 'IA crítica' || params.classification === 'IA operacional';
+
     return await supabase.from('ai_governance_logs').insert({
       user_id: user.id,
       company_id: profile?.company_id,
@@ -127,8 +129,19 @@ class OcsGuardCore {
       response_text: params.response,
       action_executed: params.action,
       impact_description: params.impact,
-      requires_approval: params.requiresApproval || params.classification === 'critica'
+      requires_approval: requiresApproval,
+      is_approved: !requiresApproval
     });
+  }
+
+  public async getTrustScore(targetId: string, type: 'user' | 'company' | 'device' | 'integration') {
+    const { data } = await supabase
+      .from('ocs_guard_trust_scores')
+      .select('*')
+      .eq('target_id', targetId)
+      .eq('target_type', type)
+      .single();
+    return data;
   }
 
   public async triggerFinancialAlert(params: {
