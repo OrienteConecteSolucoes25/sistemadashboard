@@ -5,6 +5,8 @@ import {
 } from "./crud/creaCrudConfigs";
 import CredenciaisPage from "./CredenciaisPage";
 import AssistentePage from "./AssistentePage";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BookOpen, Link as LinkIcon, CalendarClock, MessageSquare } from "lucide-react";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
