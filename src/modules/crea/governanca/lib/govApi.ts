@@ -30,6 +30,12 @@ export type GovArt = {
   status_financeiro: string | null;
   boleto_numero: string | null;
   centro_custo: string | null;
+  participacao_tecnica?: string | null;
+  forma_registro?: string | null;
+  atividades_texto?: string | null;
+  codigo_tos?: string | null;
+  quantidade?: number | null;
+  unidade_medida?: string | null;
 };
 
 function applyFilters<T extends ReturnType<typeof supabase.from>>(q: any, f: GovFilters) {
@@ -61,7 +67,7 @@ function applyFilters<T extends ReturnType<typeof supabase.from>>(q: any, f: Gov
   return q;
 }
 
-const ART_COLS = "id,numero,uf,tipo,natureza,cidade,uf_obra,endereco,observacao,proprietario,contratante_id,rt_id,empresa_id,valor_taxa,valor_pago,valor_contrato,data_cadastro,data_pagamento,data_vencimento,data_baixa,ano,mes,status_analise,status_baixa,status_financeiro,boleto_numero,centro_custo";
+const ART_COLS = "id,numero,uf,tipo,natureza,participacao_tecnica,forma_registro,cidade,uf_obra,endereco,observacao,proprietario,contratante_id,rt_id,empresa_id,valor_taxa,valor_pago,valor_contrato,data_cadastro,data_pagamento,data_vencimento,data_baixa,ano,mes,status_analise,status_baixa,status_financeiro,boleto_numero,centro_custo,atividades_texto,codigo_tos,quantidade,unidade_medida";
 
 // Paginação automática para evitar truncamento silencioso quando há
 // muitas ARTs (CREA-BA + outros CREAs futuros). Mantém assinatura
