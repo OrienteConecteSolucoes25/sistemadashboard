@@ -163,10 +163,28 @@ export default function MarketplaceHome() {
     async function loadData() {
       try {
         setLoading(true);
+        const params = new URLSearchParams(window.location.search);
+        const storeSlug = params.get('loja');
+        
+        let targetStoreId = undefined;
+        if (storeSlug) {
+          const { data: storeData } = await supabase
+            .from('market_stores')
+            .select('*')
+            .eq('slug', storeSlug)
+            .maybeSingle();
+          
+          if (storeData) {
+            setActiveStore(storeData as MarketplaceStore);
+            targetStoreId = (storeData as any).id;
+          }
+        }
+
         const [prodData, catData] = await Promise.all([
-          getMarketplaceProducts(12),
+          getMarketplaceProducts(24, targetStoreId),
           getMarketplaceCategories()
         ]);
+        
         setProducts(prodData);
         setCategories(catData);
       } catch (error) {
