@@ -27,112 +27,147 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Input } from "@/components/ui/input";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAcl } from "@/acl/AclProvider";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import MarketplaceHome from "./MarketplaceHome";
 import { getMarketplaceProducts, getMarketplaceCustomers, MarketplaceProduct, MarketplaceCustomer } from "../lib/marketplaceApi";
 
 
 // Sub-componentes do Marketplace Admin
-const MarketplaceDashboard = () => (
-  <div className="space-y-6">
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-      {[
-        { label: "Vendas Totais", value: "R$ 45.230,00", change: "+12.5%", icon: BarChart3, color: "text-blue-600" },
-        { label: "Pedidos", value: "124", change: "+8%", icon: ShoppingCart, color: "text-green-600" },
-        { label: "Produtos Ativos", value: "48", change: "0%", icon: Package, color: "text-purple-600" },
-        { label: "Clientes", value: "892", change: "+24%", icon: Users, color: "text-orange-600" },
-      ].map((stat, i) => (
-        <Card key={i} className="border-none shadow-sm overflow-hidden">
-          <CardContent className="p-6">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
-                <h3 className="text-2xl font-bold mt-1">{stat.value}</h3>
-                <p className="text-xs text-green-600 font-medium mt-1">{stat.change} <span className="text-muted-foreground">vs mês anterior</span></p>
+const MarketplaceDashboard = ({ storeId }: { storeId: string | null }) => {
+  const [stats, setStats] = useState({
+    totalSales: 0,
+    ordersCount: 0,
+    productsCount: 0,
+    customersCount: 0
+  });
+  const [recentOrders, setRecentOrders] = useState<any[]>([]);
+  const [lowStock, setLowStock] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadStats() {
+      try {
+        setLoading(true);
+        
+        let ordersQuery = supabase.from('market_orders').select('id, total_amount, status, created_at, market_customers(full_name)');
+        let productsQuery = supabase.from('market_products').select('id, name, stock_quantity, min_stock_alert');
+        let customersQuery = supabase.from('market_customers').select('id', { count: 'exact' });
+
+        if (storeId) {
+          // Filtrar por loja se necessário (pedidos precisam de join com items para filtrar por store_id do produto)
+          productsQuery = productsQuery.eq('store_id', storeId);
+        }
+
+        const [ordersRes, productsRes, customersRes] = await Promise.all([
+          ordersQuery.order('created_at', { ascending: false }).limit(5),
+          productsQuery,
+          customersQuery
+        ]);
+
+        const allProducts = productsRes.data || [];
+        const recent = ordersRes.data || [];
+        
+        setStats({
+          totalSales: recent.reduce((sum, o) => sum + (o.total_amount || 0), 0),
+          ordersCount: recent.length,
+          productsCount: allProducts.length,
+          customersCount: customersRes.count || 0
+        });
+
+        setRecentOrders(recent);
+        setLowStock(allProducts.filter(p => p.stock_quantity <= p.min_stock_alert).slice(0, 5));
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadStats();
+  }, [storeId]);
+
+  return (
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {[
+          { label: "Vendas (Amostra)", value: stats.totalSales.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' }), change: "Real", icon: BarChart3, color: "text-blue-600" },
+          { label: "Pedidos", value: stats.ordersCount.toString(), change: "Recentes", icon: ShoppingCart, color: "text-green-600" },
+          { label: "Produtos", value: stats.productsCount.toString(), change: "Cadastrados", icon: Package, color: "text-purple-600" },
+          { label: "Clientes", value: stats.customersCount.toString(), change: "Base total", icon: Users, color: "text-orange-600" },
+        ].map((stat, i) => (
+          <Card key={i} className="border-none shadow-sm overflow-hidden">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-muted-foreground">{stat.label}</p>
+                  <h3 className="text-2xl font-bold mt-1">{stat.value}</h3>
+                  <p className="text-xs text-muted-foreground font-medium mt-1">{stat.change}</p>
+                </div>
+                <div className={`p-3 rounded-xl bg-slate-50 ${stat.color}`}>
+                  <stat.icon className="w-5 h-5" />
+                </div>
               </div>
-              <div className={`p-3 rounded-xl bg-slate-50 ${stat.color}`}>
-                <stat.icon className="w-5 h-5" />
-              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="border-none shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-lg">Pedidos Recentes</CardTitle>
+            <Button variant="ghost" size="sm" className="text-primary">Ver todos</Button>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {recentOrders.length > 0 ? recentOrders.map((order, i) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-slate-50 hover:bg-slate-50/50 transition-colors">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-xs">
+                      #{order.id.split('-')[0].toUpperCase()}
+                    </div>
+                    <div>
+                      <p className="text-sm font-medium">{order.market_customers?.full_name || 'Cliente'}</p>
+                      <p className="text-xs text-muted-foreground">{new Date(order.created_at).toLocaleDateString()}</p>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm font-bold">{order.total_amount.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</p>
+                    <Badge variant="secondary" className="text-[10px] h-5">{order.status}</Badge>
+                  </div>
+                </div>
+              )) : <p className="text-sm text-muted-foreground italic text-center py-4">Nenhum pedido recente</p>}
             </div>
           </CardContent>
         </Card>
-      ))}
-    </div>
 
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card className="border-none shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Pedidos Recentes</CardTitle>
-          <Button variant="ghost" size="sm" className="text-primary">Ver todos</Button>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {[1, 2, 3].map((_, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-slate-50 hover:bg-slate-50/50 transition-colors">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-slate-100 flex items-center justify-center font-bold text-xs">
-                    #12{i}
+        <Card className="border-none shadow-sm">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-lg">Estoque Crítico</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {lowStock.length > 0 ? lowStock.map((product, i) => (
+                <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-slate-50">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded bg-slate-100" />
+                    <div>
+                      <p className="text-sm font-medium">{product.name}</p>
+                      <p className="text-xs text-red-500 font-medium">{product.stock_quantity} unidades restantes</p>
+                    </div>
                   </div>
-                  <div>
-                    <p className="text-sm font-medium">Cliente Teste {i}</p>
-                    <p className="text-xs text-muted-foreground">Há {i + 1} hora(s)</p>
-                  </div>
+                  <Button size="icon" variant="ghost" className="h-8 w-8">
+                    <Plus className="w-4 h-4" />
+                  </Button>
                 </div>
-                <div className="text-right">
-                  <p className="text-sm font-bold">R$ {(Math.random() * 500 + 100).toFixed(2)}</p>
-                  <div className="flex flex-col items-end gap-1">
-                    <Badge variant="secondary" className="text-[10px] h-5">Pendente</Badge>
-                    <Button 
-                      variant="ghost" 
-                      size="sm" 
-                      className="h-6 text-[8px] uppercase text-cyan-500 border border-cyan-500/20"
-                      onClick={() => {
-                        jarbasCore.registerEvent({
-                          module: 'marketplace',
-                          type: 'order_review',
-                          title: 'Revisão de Pedido Pendente',
-                          description: `O Jarbas identificou um pedido de R$ ${(Math.random() * 500 + 100).toFixed(2)} que requer atenção operacional.`,
-                          severity: 'medium'
-                        });
-                      }}
-                    >
-                      Audit Jarbas
-                    </Button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border-none shadow-sm">
-        <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle className="text-lg">Estoque Baixo</CardTitle>
-          <Button variant="ghost" size="sm" className="text-primary text-xs">Repor estoque</Button>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {[1, 2, 3].map((_, i) => (
-              <div key={i} className="flex items-center justify-between p-3 rounded-lg border border-slate-50">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded bg-slate-100" />
-                  <div>
-                    <p className="text-sm font-medium">Produto Exemplo {i}</p>
-                    <p className="text-xs text-red-500 font-medium">{i + 2} unidades restantes</p>
-                  </div>
-                </div>
-                <Button size="icon" variant="ghost" className="h-8 w-8">
-                  <Plus className="w-4 h-4" />
-                </Button>
-              </div>
-            ))}
-          </div>
-        </CardContent>
-      </Card>
+              )) : <p className="text-sm text-muted-foreground italic text-center py-4">Estoque em dia</p>}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 const ProductsTab = () => {
   const [products, setProducts] = useState<MarketplaceProduct[]>([]);
@@ -390,15 +425,38 @@ const CustomersTab = () => {
 export default function MarketplaceAdmin() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showVitrine, setShowVitrine] = useState(false);
-  const { can } = useAcl();
+  const { can, isInternalOcs } = useAcl();
+  const { user } = useAuth();
+  const [storeId, setStoreId] = useState<string | null>(null);
   
-  // Efeito para checar se a URL pede a vitrine
   useEffect(() => {
+    async function fetchStore() {
+      if (!user) return;
+      
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('company_id, role')
+        .eq('id', user.id)
+        .maybeSingle();
+
+      if (!profile?.company_id && !isInternalOcs) return;
+      
+      let query = supabase.from('market_stores').select('id');
+      
+      if (!isInternalOcs && profile?.company_id) {
+        query = query.eq('organization_id', profile.company_id);
+      }
+      
+      const { data } = await query.maybeSingle();
+      if (data) setStoreId(data.id);
+    }
+    fetchStore();
+
     const params = new URLSearchParams(window.location.search);
     if (params.get('view') === 'vitrine') {
       setShowVitrine(true);
     }
-  }, []);
+  }, [user, isInternalOcs]);
 
   if (showVitrine) {
     return (
@@ -484,7 +542,7 @@ export default function MarketplaceAdmin() {
 
         {/* Área de Conteúdo */}
         <main className="flex-1 overflow-y-auto p-4 md:p-8">
-          {activeTab === "dashboard" && <MarketplaceDashboard />}
+          {activeTab === "dashboard" && <MarketplaceDashboard storeId={storeId} />}
           {activeTab === "produtos" && <ProductsTab />}
           {activeTab === "categorias" && (
             <div className="bg-white rounded-2xl p-12 text-center border border-dashed border-slate-200">

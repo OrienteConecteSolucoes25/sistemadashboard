@@ -52,7 +52,9 @@ import {
   getMarketplaceCategories, 
   createMarketplaceOrder,
   MarketplaceProduct, 
-  MarketplaceCategory 
+  MarketplaceCategory,
+  MarketplaceStore,
+  getMarketplaceStores
 } from "../lib/marketplaceApi";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -65,13 +67,17 @@ interface CartItem extends MarketplaceProduct {
 export default function MarketplaceHome() {
   const [products, setProducts] = useState<MarketplaceProduct[]>([]);
   const [categories, setCategories] = useState<MarketplaceCategory[]>([]);
+  const [activeStore, setActiveStore] = useState<MarketplaceStore | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [cart, setCart] = useState<CartItem[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-  const [checkoutStep, setCheckoutStep] = useState(1); // 1: Cart, 2: Payment, 3: Success
+  const [checkoutStep, setCheckoutStep] = useState(1); // 1: Cart, 2: Address, 3: Payment, 4: Success
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
+  const [addresses, setAddresses] = useState<any[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
 
   const addToCart = (product: MarketplaceProduct) => {
     setCart(prev => {
@@ -146,7 +152,7 @@ export default function MarketplaceHome() {
         payment_method: 'credit_card'
       });
 
-      setCheckoutStep(3);
+      setCheckoutStep(4);
       setCart([]);
     } catch (error: any) {
       toast.error("Erro ao processar pedido: " + error.message);
@@ -155,14 +161,57 @@ export default function MarketplaceHome() {
     }
   };
 
+  const loadAddresses = async () => {
+    try {
+      const { data: userData } = await supabase.auth.getUser();
+      if (!userData.user) return;
+
+      const { data: customer } = await supabase
+        .from('market_customers' as any)
+        .select('id')
+        .eq('user_id', userData.user.id)
+        .maybeSingle();
+
+      if (customer) {
+        const { data } = await supabase
+          .from('market_addresses')
+          .select('*')
+          .eq('customer_id', (customer as any).id);
+        
+        setAddresses(data || []);
+        if (data?.length) setSelectedAddressId(data[0].id);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   useEffect(() => {
     async function loadData() {
       try {
         setLoading(true);
+        const params = new URLSearchParams(window.location.search);
+        const storeSlug = params.get('loja');
+        
+        let targetStoreId = undefined;
+        if (storeSlug) {
+          const { data: storeData } = await supabase
+            .from('market_stores')
+            .select('*')
+            .eq('slug', storeSlug)
+            .maybeSingle();
+          
+          if (storeData) {
+            setActiveStore(storeData as MarketplaceStore);
+            targetStoreId = (storeData as any).id;
+          }
+        }
+
         const [prodData, catData] = await Promise.all([
-          getMarketplaceProducts(12),
+          getMarketplaceProducts(24, targetStoreId),
           getMarketplaceCategories()
         ]);
+        
         setProducts(prodData);
         setCategories(catData);
       } catch (error) {
@@ -174,18 +223,27 @@ export default function MarketplaceHome() {
     loadData();
   }, []);
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProducts = products.filter(p => {
+    const matchesSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = selectedCategory ? p.category_id === selectedCategory : true;
+    return matchesSearch && matchesCategory;
+  });
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col">
+    <div 
+      className="min-h-screen bg-slate-50 flex flex-col"
+      style={{ '--primary': activeStore?.primary_color || '#3b82f6' } as React.CSSProperties}
+    >
       {/* Header do Marketplace */}
       <header className="sticky top-0 z-50 bg-white border-b shadow-sm">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between gap-4">
-          <div className="flex items-center gap-2 font-bold text-xl text-primary">
-            <ShoppingBag className="w-6 h-6" />
-            <span className="hidden sm:inline">OCS Marketplace</span>
+          <div className="flex items-center gap-2 font-bold text-xl text-primary cursor-pointer" onClick={() => window.location.search = ''}>
+            {activeStore?.logo_url ? (
+              <img src={activeStore.logo_url} alt={activeStore.name} className="h-8 w-auto" />
+            ) : (
+              <ShoppingBag className="w-6 h-6" />
+            )}
+            <span className="hidden sm:inline">{activeStore?.name || "OCS Marketplace"}</span>
           </div>
 
           <div className="flex-1 max-w-2xl relative">
@@ -277,7 +335,7 @@ export default function MarketplaceHome() {
                         {cartTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}
                       </span>
                     </div>
-                    <Button className="w-full h-12 text-md font-bold" onClick={() => { setIsCartOpen(false); setIsCheckoutOpen(true); setCheckoutStep(1); }}>
+                    <Button className="w-full h-12 text-md font-bold" onClick={() => { setIsCartOpen(false); setIsCheckoutOpen(true); setCheckoutStep(1); loadAddresses(); }}>
                       Finalizar Compra
                     </Button>
                   </div>
@@ -295,18 +353,26 @@ export default function MarketplaceHome() {
       <main className="flex-1 pb-12">
         {/* Banner Principal */}
         <section className="container mx-auto px-4 py-6">
-          <div className="relative h-[200px] md:h-[400px] rounded-2xl overflow-hidden bg-gradient-to-r from-primary to-blue-600 flex items-center px-8 md:px-16">
+          <div 
+            className="relative h-[200px] md:h-[400px] rounded-2xl overflow-hidden bg-gradient-to-r from-primary to-blue-600 flex items-center px-8 md:px-16"
+            style={activeStore?.banner_url ? { backgroundImage: `url(${activeStore.banner_url})`, backgroundSize: 'cover', backgroundPosition: 'center' } : {}}
+          >
+            {/* Overlay if there is a banner image to ensure text readability */}
+            {activeStore?.banner_url && <div className="absolute inset-0 bg-black/40" />}
+            
             <div className="relative z-10 text-white max-w-md space-y-4">
-              <Badge className="bg-white/20 text-white border-none backdrop-blur-md">Oferta da Semana</Badge>
-              <h1 className="text-3xl md:text-5xl font-bold leading-tight">Tecnologia com 30% OFF</h1>
-              <p className="text-blue-100 hidden md:block text-lg">Os melhores gadgets e eletrônicos com entrega rápida para todo o Brasil.</p>
+              <Badge className="bg-white/20 text-white border-none backdrop-blur-md">
+                {activeStore ? "Destaques da Loja" : "Oferta da Semana"}
+              </Badge>
+              <h1 className="text-3xl md:text-5xl font-bold leading-tight">
+                {activeStore ? activeStore.name : "Tecnologia com 30% OFF"}
+              </h1>
+              <p className="text-blue-100 hidden md:block text-lg">
+                {activeStore?.description || "Os melhores gadgets e eletrônicos com entrega rápida para todo o Brasil."}
+              </p>
               <Button size="lg" variant="secondary" className="font-bold">
                 Ver Ofertas <ChevronRight className="ml-2 w-4 h-4" />
               </Button>
-            </div>
-            <div className="absolute right-0 bottom-0 top-0 w-1/2 hidden lg:block opacity-20">
-               {/* Decoração ou Imagem de fundo */}
-               <div className="w-full h-full bg-[url('https://images.unsplash.com/photo-1550745165-9bc0b252726f?w=800&q=80')] bg-cover bg-center" />
             </div>
           </div>
         </section>
@@ -323,7 +389,8 @@ export default function MarketplaceHome() {
               <motion.button 
                 whileHover={{ y: -5 }}
                 key={cat.id || i} 
-                className="bg-white p-4 rounded-xl border hover:shadow-md transition-all flex flex-col items-center gap-3 group"
+                onClick={() => setSelectedCategory(cat.id === selectedCategory ? null : cat.id)}
+                className={`p-4 rounded-xl border hover:shadow-md transition-all flex flex-col items-center gap-3 group ${selectedCategory === cat.id ? 'border-primary bg-primary/5 ring-2 ring-primary/20' : 'bg-white'}`}
               >
                 <span className="text-3xl grayscale group-hover:grayscale-0 transition-all">{cat.icon || "📦"}</span>
                 <span className="text-sm font-medium">{cat.name}</span>
@@ -399,32 +466,98 @@ export default function MarketplaceHome() {
                       </div>
                       <div className="flex justify-between text-sm">
                         <span className="text-muted-foreground">Frete</span>
-                        <span className="text-green-600 font-bold uppercase text-[10px]">Grátis</span>
+                        <span className="text-green-600 font-bold uppercase text-[10px]">Simulado</span>
                       </div>
                       <div className="pt-2 border-t border-slate-200 flex justify-between">
                         <span className="font-black uppercase tracking-widest text-xs">Total</span>
                         <span className="font-black text-xl text-primary">{cartTotal.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' })}</span>
                       </div>
                     </div>
-
-                    <div className="space-y-3">
-                      <h4 className="text-[10px] font-black uppercase text-slate-400 tracking-widest flex items-center gap-2">
-                        <CreditCard className="w-3 h-3 text-primary" /> Método de Pagamento
-                      </h4>
-                      <div className="p-4 rounded-xl border-2 border-primary bg-primary/5 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <CreditCard className="w-5 h-5 text-primary" />
-                          <span className="font-bold text-sm text-slate-800">Cartão de Crédito</span>
-                        </div>
-                        <Badge variant="outline" className="text-[10px] border-primary text-primary">Ativo</Badge>
-                      </div>
-                    </div>
                   </div>
 
                   <DialogFooter>
                     <Button variant="outline" onClick={() => setIsCheckoutOpen(false)} className="font-bold uppercase text-[10px] tracking-widest">Cancelar</Button>
-                    <Button onClick={handleCheckout} disabled={isProcessing} className="flex-1 font-bold uppercase text-[10px] tracking-widest">
-                      {isProcessing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Confirmar e Pagar"}
+                    <Button onClick={() => setCheckoutStep(2)} className="flex-1 font-bold uppercase text-[10px] tracking-widest">
+                      Próximo: Endereço
+                    </Button>
+                  </DialogFooter>
+                </motion.div>
+              )}
+
+              {checkoutStep === 2 && (
+                <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="p-6 space-y-6"
+                >
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-bold">Endereço de Entrega</DialogTitle>
+                    <DialogDescription>Selecione onde deseja receber seus produtos.</DialogDescription>
+                  </DialogHeader>
+
+                  <div className="space-y-3">
+                    {addresses.length > 0 ? (
+                      addresses.map((addr) => (
+                        <div 
+                          key={addr.id}
+                          onClick={() => setSelectedAddressId(addr.id)}
+                          className={`p-4 rounded-xl border-2 cursor-pointer transition-all ${selectedAddressId === addr.id ? 'border-primary bg-primary/5' : 'border-slate-100 hover:border-slate-200'}`}
+                        >
+                          <p className="font-bold text-sm">{addr.label || 'Endereço'}</p>
+                          <p className="text-xs text-muted-foreground">{addr.street}, {addr.number} - {addr.city}/{addr.state}</p>
+                        </div>
+                      ))
+                    ) : (
+                      <div className="text-center py-6 border-2 border-dashed rounded-xl">
+                        <p className="text-sm text-muted-foreground">Nenhum endereço cadastrado.</p>
+                        <Button variant="link" size="sm" className="mt-2">Adicionar Novo</Button>
+                      </div>
+                    )}
+                  </div>
+
+                  <DialogFooter>
+                    <Button variant="ghost" onClick={() => setCheckoutStep(1)} className="font-bold uppercase text-[10px]">Voltar</Button>
+                    <Button 
+                      onClick={() => setCheckoutStep(3)} 
+                      disabled={!selectedAddressId && addresses.length > 0} 
+                      className="flex-1 font-bold uppercase text-[10px]"
+                    >
+                      Próximo: Pagamento
+                    </Button>
+                  </DialogFooter>
+                </motion.div>
+              )}
+
+              {checkoutStep === 4 && (
+                <motion.div 
+                  initial={{ opacity: 0, x: 20 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -20 }}
+                  className="p-6 space-y-6"
+                >
+                  <DialogHeader>
+                    <DialogTitle className="text-xl font-bold">Pagamento</DialogTitle>
+                    <DialogDescription>Simulação de pagamento para o Marketplace OCS.</DialogDescription>
+                  </DialogHeader>
+
+                  <div className="space-y-4">
+                    <div className="p-4 rounded-xl border-2 border-primary bg-primary/5 flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <CreditCard className="w-5 h-5 text-primary" />
+                        <span className="font-bold text-sm text-slate-800">Cartão de Crédito (Simulado)</span>
+                      </div>
+                      <CheckCircle2 className="w-5 h-5 text-primary" />
+                    </div>
+                    <p className="text-[10px] text-muted-foreground text-center italic">
+                      * Nenhum valor real será cobrado nesta etapa de desenvolvimento.
+                    </p>
+                  </div>
+
+                  <DialogFooter>
+                    <Button variant="ghost" onClick={() => setCheckoutStep(2)} className="font-bold uppercase text-[10px]">Voltar</Button>
+                    <Button onClick={handleCheckout} disabled={isProcessing} className="flex-1 font-bold uppercase text-[10px]">
+                      {isProcessing ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : "Finalizar Pedido"}
                     </Button>
                   </DialogFooter>
                 </motion.div>
