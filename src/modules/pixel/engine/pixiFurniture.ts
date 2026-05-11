@@ -77,7 +77,10 @@ class PixiFurnitureManager {
         break;
       default:
         graphics.rect(0, 0, TILE_SIZE, TILE_SIZE);
-    }
+  private isTall(key: string | null): boolean {
+    return key === 'plant' || key === 'board' || key === 'divider';
+  }
+}
     
     graphics.fill(color);
   }
