@@ -81,6 +81,7 @@ export default function RtsPessoasPage() {
       const payload = records.map((r) => ({
         nome: r.nome ?? "",
         cpf: r.cpf ?? "",
+        uf: r.uf ?? "",
         status: r.status ?? "ativo",
         data_inicio: r.data_inicio ?? null,
         data_termino: r.termino_indefinido ? null : (r.data_termino ?? null),
@@ -91,6 +92,8 @@ export default function RtsPessoasPage() {
         registro: r.registro ?? "",
         observacao: r.observacao ?? "",
         anuidade: r.anuidade ?? "nao_paga",
+        anuidade_ano: r.anuidade_ano ?? null,
+        inclusao_ativa: r.inclusao_ativa !== false,
         company_id: companyId,
       }));
       const n = await bulkInsertRts(payload);
