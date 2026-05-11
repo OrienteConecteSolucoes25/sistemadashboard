@@ -29,7 +29,8 @@ export default function ModuleSelector() {
   const mods: ModEntry[] = [
     { key: "visao_geral", label: "Visão Geral", to: "/app/visao-geral", icon: LayoutDashboard, description: "Indicadores consolidados", allowed: allow("visao_geral.acessar") },
     { key: "pixel_office", label: "Soluções-Verso", to: "/app/pixel-office", icon: Gamepad2, description: "Ambiente interativo", allowed: allow("pixel_office.acessar") },
-    { key: "jarbas", label: "Jarbas", to: "/app/jarbas", icon: Cpu, description: "Assistente IA", allowed: allow("jarbas.acessar") },
+    // Jarbas oculto temporariamente — será liberado por empresa quando estiver pronto.
+    // { key: "jarbas", label: "Jarbas", to: "/app/jarbas", icon: Cpu, description: "Assistente IA", allowed: allow("jarbas.acessar") },
     { key: "ti", label: "TI & Suporte", to: "/app/ti", icon: Monitor, description: "Chamados e infra", allowed: allow("ti.acessar") },
     { key: "compliance", label: "Compliance", to: "/app/compliance", icon: ShieldCheck, description: "Auditoria e conformidade", allowed: allow("compliance.acessar") },
     { key: "engenharia", label: "Engenharia", to: "/app/engenharia", icon: HardHat, description: "Projetos e obras", allowed: allow("engenharia.acessar") },

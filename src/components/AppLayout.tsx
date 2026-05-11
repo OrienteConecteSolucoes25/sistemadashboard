@@ -5,7 +5,7 @@ import { Shield, FolderKanban, LogOut, Settings, Gamepad2, HardHat, Scale, Menu,
 import { usePlanosAccess } from "@/modules/planos/hooks/usePlanosAccess";
 import { useEffect, useState } from "react";
 import { NotificationsBell } from "@/components/NotificationsBell";
-import { JarbasInterface } from "@/modules/jarbas/ui/JarbasInterface";
+import { AssistenteFloating } from "@/components/AssistenteFloating";
 import { ImpersonationProvider } from "@/modules/planos/hooks/useImpersonation";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
 import { useUserLayoutPreference } from "@/modules/aparencia/hooks/useUserLayoutPreference";
@@ -97,7 +97,8 @@ const AppLayout = () => {
       {/* Módulo Projetos removido por não ter ligação funcional com o Soluções-Verso */}
       {canVisaoGeral && <NavItem to="/app/visao-geral" icon={LayoutDashboard} label="Visão Geral" />}
       {canPixel && <NavItem to="/app/pixel-office" icon={Gamepad2} label="Soluções-Verso" />}
-      {canJarbas && <NavItem to="/app/jarbas" icon={Cpu} label="Jarbas" />}
+      {/* Jarbas oculto temporariamente — será liberado por empresa quando estiver pronto.
+      {canJarbas && <NavItem to="/app/jarbas" icon={Cpu} label="Jarbas" />} */}
       {canTI && <NavItem to="/app/ti" icon={Monitor} label="TI & Suporte" />}
       {canCompliance && <NavItem to="/app/compliance" icon={ShieldCheck} label="Compliance" />}
       {canEngenharia && <NavItem to="/app/engenharia" icon={HardHat} label="Engenharia" />}
@@ -176,7 +177,7 @@ const AppLayout = () => {
           <Outlet />
         </div>
       </main>
-      <JarbasInterface />
+      <AssistenteFloating />
     </div>
     </ImpersonationProvider>
   );
