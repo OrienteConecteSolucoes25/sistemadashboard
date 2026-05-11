@@ -247,13 +247,17 @@ export function ImportacoesTab() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
               <SummaryStat label="Linhas no arquivo" value={lastSummary.total} />
+              <SummaryStat label="ARTs reconhecidas" value={lastSummary.artsReconhecidas} tone="ok" />
               <SummaryStat label="Importadas (OK)" value={lastSummary.ok} tone="ok" />
               <SummaryStat label="Falhas" value={lastSummary.fail} tone={lastSummary.fail > 0 ? "fail" : undefined} />
               <SummaryStat label="Duplicadas no arquivo" value={lastSummary.duplicadosNoArquivo} tone={lastSummary.duplicadosNoArquivo > 0 ? "warn" : undefined} />
+              <SummaryStat label="Registros incompletos" value={lastSummary.registrosIncompletos} tone={lastSummary.registrosIncompletos > 0 ? "warn" : undefined} />
               <SummaryStat label="Sem nº ART" value={lastSummary.semNumero} tone={lastSummary.semNumero > 0 ? "warn" : undefined} />
               <SummaryStat label="Sem UF" value={lastSummary.semUf} tone={lastSummary.semUf > 0 ? "warn" : undefined} />
               <SummaryStat label="Sem data cadastro" value={lastSummary.semDataCadastro} tone={lastSummary.semDataCadastro > 0 ? "warn" : undefined} />
+              <SummaryStat label="Datas inválidas" value={lastSummary.dataInvalida} tone={lastSummary.dataInvalida > 0 ? "warn" : undefined} />
               <SummaryStat label="Valores inválidos" value={lastSummary.valorInvalido} tone={lastSummary.valorInvalido > 0 ? "warn" : undefined} />
+              <SummaryStat label="Encoding suspeito" value={lastSummary.encodingSuspeito} tone={lastSummary.encodingSuspeito > 0 ? "warn" : undefined} />
             </div>
             {lastSummary.unmappedHeaders.length > 0 && (
               <div className="mt-3 pt-3 border-t border-border/40">
@@ -269,6 +273,29 @@ export function ImportacoesTab() {
                   )}
                 </div>
               </div>
+            )}
+            {lastSummary.errosLog.length > 0 && (
+              <details className="mt-3 pt-3 border-t border-border/40">
+                <summary className="text-[11px] font-semibold text-muted-foreground cursor-pointer">
+                  Log técnico — {lastSummary.errosLog.length} ocorrência(s) (até 50 amostras)
+                </summary>
+                <div className="mt-2 max-h-56 overflow-auto rounded border border-border/40">
+                  <table className="w-full text-[10px] font-mono">
+                    <thead className="bg-muted/30 sticky top-0">
+                      <tr><th className="text-left p-1">Linha</th><th className="text-left p-1">Tipo</th><th className="text-left p-1">Detalhe</th></tr>
+                    </thead>
+                    <tbody>
+                      {lastSummary.errosLog.map((e, i) => (
+                        <tr key={i} className="border-t border-border/30">
+                          <td className="p-1 text-muted-foreground">{e.linha}</td>
+                          <td className="p-1"><Badge variant="outline" className="text-[9px]">{e.tipo}</Badge></td>
+                          <td className="p-1">{e.detalhe}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </details>
             )}
           </CardContent>
         </Card>
