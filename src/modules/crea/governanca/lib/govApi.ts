@@ -60,18 +60,35 @@ function applyFilters<T extends ReturnType<typeof supabase.from>>(q: any, f: Gov
   return q;
 }
 
-export async function fetchArts(companyId: string, filters: GovFilters, limit = 1000): Promise<GovArt[]> {
-  let q = supabase
-    .from("crea_gov_arts")
-    .select("id,numero,uf,tipo,natureza,cidade,uf_obra,endereco,observacao,proprietario,contratante_id,rt_id,empresa_id,valor_taxa,valor_pago,valor_contrato,data_cadastro,data_pagamento,data_vencimento,data_baixa,ano,mes,status_analise,status_baixa,status_financeiro,boleto_numero,centro_custo")
-    .eq("company_id", companyId)
-    .eq("is_deleted", false)
-    .order("data_cadastro", { ascending: false, nullsFirst: false })
-    .limit(limit);
-  q = applyFilters(q, filters);
-  const { data, error } = await q;
-  if (error) throw error;
-  return (data ?? []) as GovArt[];
+const ART_COLS = "id,numero,uf,tipo,natureza,cidade,uf_obra,endereco,observacao,proprietario,contratante_id,rt_id,empresa_id,valor_taxa,valor_pago,valor_contrato,data_cadastro,data_pagamento,data_vencimento,data_baixa,ano,mes,status_analise,status_baixa,status_financeiro,boleto_numero,centro_custo";
+
+// Paginação automática para evitar truncamento silencioso quando há
+// muitas ARTs (CREA-BA + outros CREAs futuros). Mantém assinatura
+// retrocompatível: 3º parâmetro vira o "cap" total (default 10000).
+export async function fetchArts(companyId: string, filters: GovFilters, cap = 10000): Promise<GovArt[]> {
+  const PAGE = 1000;
+  const rows: GovArt[] = [];
+  let from = 0;
+  while (rows.length < cap) {
+    const to = Math.min(from + PAGE, cap) - 1;
+    let q = supabase
+      .from("crea_gov_arts")
+      .select(ART_COLS)
+      .eq("company_id", companyId)
+      .eq("is_deleted", false)
+      .order("data_cadastro", { ascending: false, nullsFirst: false })
+      .range(from, to);
+    q = applyFilters(q, filters);
+    const { data, error } = await q;
+    if (error) throw error;
+    const batch = (data ?? []) as GovArt[];
+    rows.push(...batch);
+    if (batch.length < to - from + 1) break; // acabou
+    from = to + 1;
+  }
+  // Marcador opcional para o UI exibir aviso de truncamento
+  (rows as any).__truncated = rows.length >= cap;
+  return rows;
 }
 
 export type GovKpis = {
