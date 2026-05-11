@@ -132,7 +132,10 @@ class OcsGuardCore {
       action_executed: params.action,
       impact_description: params.impact,
       requires_approval: requiresApproval,
-      is_approved: !requiresApproval
+      is_approved: !requiresApproval,
+      classification: params.classification === 'IA informativa' ? 'informativa' : 
+                      params.classification === 'IA operacional' ? 'operacional' :
+                      params.classification === 'IA administrativa' ? 'administrativa' : 'critica'
     };
 
     return await supabase.from('ai_governance_logs').insert(insertData);
