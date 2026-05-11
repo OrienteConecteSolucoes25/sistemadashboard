@@ -12,6 +12,7 @@ const TABS = [
   { value: "servicos",       label: "Relatório Gerencial",    icon: FileSpreadsheet },
   { value: "art_bloco",      label: "ART por Bloco",          icon: Boxes },
   { value: "relatorio_crea", label: "Relatórios CREA",        icon: FileText },
+  { value: "arts_todas",     label: "ARTs (Todas)",           icon: ListChecks },
 ];
 
 export default function CreaGovernancaPage() {
