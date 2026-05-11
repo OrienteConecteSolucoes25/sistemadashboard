@@ -89,8 +89,11 @@ const CharacterPanel = ({
   const isMe = user?.id === userId;
 
   const updateStatus = async (newStatus: PixelStatus) => {
-    const { error } = await supabase.from("profiles").update({ status: newStatus }).eq("id", userId);
-    if (!error) toast.success("Status atualizado");
+    const { error } = await supabase.from("pixel_profiles").update({ status: newStatus } as any).eq("user_id", userId);
+    if (!error) {
+      toast.success("Status atualizado");
+      // O refresh acontece via realtime na página principal ou no usePixelWorkspaceData
+    }
   };
 
   if (loading || !data) {
