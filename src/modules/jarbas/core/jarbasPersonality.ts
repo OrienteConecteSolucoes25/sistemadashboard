@@ -6,6 +6,7 @@ export interface JarbasPersonalityResponse {
   content: string;
   tone: JarbasTone;
   suggestedAction?: string;
+  action?: any;
 }
 
 class JarbasPersonalityEngine {
@@ -50,6 +51,24 @@ class JarbasPersonalityEngine {
         content: this.formatProfessionalResponse("Todos os sistemas operacionais estão estáveis. O monitoramento vision não detectou inconformidades nos últimos ciclos de análise."),
         tone: 'calm'
       };
+    }
+
+    // Office Navigation Commands
+    if (lowerInput.includes('vá para') || lowerInput.includes('mova') || lowerInput.includes('navegar') || lowerInput.includes('ir para')) {
+      if (lowerInput.includes('mesa')) {
+        return {
+          content: this.formatProfessionalResponse("Iniciando deslocamento até a estação de trabalho solicitada."),
+          tone: 'instructional',
+          action: { type: 'pixel_office_move', target: 'desk' }
+        };
+      }
+      if (lowerInput.includes('sala') || lowerInput.includes('reunião')) {
+        return {
+          content: this.formatProfessionalResponse("Deslocando sua representação para a sala de reuniões."),
+          tone: 'instructional',
+          action: { type: 'pixel_office_move', target: 'room' }
+        };
+      }
     }
 
     // Resposta Padrão Professional

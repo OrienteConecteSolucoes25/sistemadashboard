@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import {
@@ -102,6 +102,12 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
   const [rooms, setRooms] = useState<RoomLite[]>([]);
   const [furniture, setFurniture] = useState<FurnitureLite[]>([]);
   const [reloadTick, setReloadTick] = useState(0);
+  
+  const stateRef = useRef({ characters, desks, rooms, furniture });
+  useEffect(() => {
+    stateRef.current = { characters, desks, rooms, furniture };
+  }, [characters, desks, rooms, furniture]);
+
   const refresh = useCallback(() => setReloadTick((n) => n + 1), []);
 
   // Heartbeat em tempo real
@@ -256,6 +262,106 @@ export function usePixelWorkspaceData(): UsePixelWorkspaceDataResult {
       cancelled = true;
     };
   }, [activeId, workspaces, reloadTick]);
+
+  // 3) Real-time Subscriptions (Optimized with Presence)
+  useEffect(() => {
+    if (!activeId || !user) return;
+
+    const channel = supabase.channel(`workspace-${activeId}`, {
+      config: {
+        presence: {
+          key: user.id,
+        },
+      },
+    });
+
+    channel
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "pixel_positions",
+          filter: `workspace_id=eq.${activeId}`,
+        },
+        (payload) => {
+          const row: any = payload.new || payload.old;
+          if (!row) return;
+
+          setCharacters((prev) => {
+            const index = prev.findIndex((c) => c.user_id === row.user_id);
+            if (index === -1) return prev;
+            const next = [...prev];
+            next[index] = {
+              ...next[index],
+              position_x: row.position_x,
+              position_y: row.position_y,
+              current_action: row.current_action,
+              is_sitting: row.is_sitting,
+              is_typing: row.is_typing,
+            };
+            return next;
+          });
+        }
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "pixel_desks",
+          filter: `workspace_id=eq.${activeId}`,
+        },
+        () => refresh()
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "pixel_furniture",
+          filter: `workspace_id=eq.${activeId}`,
+        },
+        () => refresh()
+      )
+      .on("broadcast", { event: "player-move" }, ({ payload }) => {
+        if (payload.userId === user?.id) return;
+        setCharacters((prev) => {
+          const index = prev.findIndex((c) => c.user_id === payload.userId);
+          if (index === -1) return prev;
+          const next = [...prev];
+          next[index] = {
+            ...next[index],
+            position_x: payload.x,
+            position_y: payload.y,
+          };
+          return next;
+        });
+      })
+      .on("presence", { event: "sync" }, () => {
+        const newState = channel.presenceState();
+        const onlineIds = new Set(Object.keys(newState));
+        setCharacters(prev => prev.map(c => ({
+          ...c,
+          is_online: onlineIds.has(c.user_id)
+        })));
+      })
+      .on("presence", { event: "join" }, ({ newPresences }) => {
+        // Notificar via Jarbas ou Toast (opcional)
+      })
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await channel.track({
+            user_id: user.id,
+            online_at: new Date().toISOString(),
+          });
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [activeId, user?.id, refresh]);
 
   const activeWorkspace = workspaces.find((w) => w.id === activeId) ?? null;
 

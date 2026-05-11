@@ -113,6 +113,9 @@ export function useJarbasCore() {
       case "automation":
         await handleAutomation(action.data);
         break;
+      case "pixel_office_move":
+        window.dispatchEvent(new CustomEvent("pixel-office-move", { detail: action }));
+        break;
       default:
         console.log("Ação não reconhecida:", action);
     }
@@ -174,6 +177,10 @@ export function useJarbasCore() {
         timestamp: new Date() 
       }]);
       if (isVoice) speak(localResponse);
+      
+      if (personalityResponse.action) {
+        await executeAction(personalityResponse.action);
+      }
       
       if (personalityResponse.tone === 'urgent') {
         setIsProcessing(false);

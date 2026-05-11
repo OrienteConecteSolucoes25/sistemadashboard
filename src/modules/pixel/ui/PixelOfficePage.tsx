@@ -29,6 +29,7 @@ import { ModuleAgentChat } from "./ModuleAgentChat";
 import { NPCS_CONFIG } from "../data/npcsConfig";
 import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare, ShieldAlert, Cpu, Zap, ShoppingCart, DollarSign, Users, Video } from "lucide-react";
 import { ActiveBrandKitProvider } from "@/modules/comunicacao/hooks/useActiveBrandKit";
+import { toast } from "sonner";
 
 type Selected =
   | { kind: "character"; data: PixelCharacter }
@@ -64,30 +65,8 @@ export default function PixelOfficePage() {
 
   const meetings = usePixelMeetings({ workspaceId: activeWorkspace?.id ?? null });
 
-  // Realtime: posições de outros usuários
-  useEffect(() => {
-    if (!activeWorkspace?.id) return;
-    const channel = supabase
-      .channel(`pixel-positions-${activeWorkspace.id}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "pixel_positions",
-          filter: `workspace_id=eq.${activeWorkspace.id}`,
-        },
-        (payload) => {
-          const row: any = payload.new ?? payload.old;
-          if (row?.user_id === user?.id) return;
-          refresh();
-        },
-      )
-      .subscribe();
-    return () => {
-      supabase.removeChannel(channel);
-    };
-  }, [activeWorkspace?.id, user?.id, refresh]);
+  // Real-time synchronization is now handled inside usePixelWorkspaceData
+  // which manages character positions more efficiently via broadcasts and state updates.
 
   // Realtime: Bubbles de chat
   useEffect(() => {
@@ -125,6 +104,27 @@ export default function PixelOfficePage() {
       supabase.removeChannel(channel);
     };
   }, [activeWorkspace?.id]);
+  
+  // Integração Jarbas: Comandos de Voz para Movimento
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent;
+      const { target } = customEvent.detail;
+      if (!user?.id) return;
+      
+      if (target === 'desk') {
+        const myDesk = desks.find(d => d.user_id === user.id);
+        if (myDesk) moveTo(user.id, myDesk.position_x, myDesk.position_y);
+        else toast.info("Você não possui uma mesa atribuída.");
+      } else if (target === 'room') {
+        const room = rooms[0]; // Vai para a primeira sala disponível
+        if (room) moveTo(user.id, room.position_x + 1, room.position_y + 1);
+      }
+    };
+    
+    window.addEventListener("pixel-office-move", handler);
+    return () => window.removeEventListener("pixel-office-move", handler);
+  }, [user?.id, desks, rooms, moveTo]);
 
   // Personagens "em reunião" recebem badge meeting (via status do profile já vem)
   // Posicionar personagens joined dentro/perto da sala da reunião visualmente
@@ -198,7 +198,7 @@ export default function PixelOfficePage() {
       {activeWorkspace && (
         <>
           <div className="flex flex-wrap gap-4 text-xs text-muted-foreground">
-            <span>👤 {characters.length} personagens</span>
+            <span>👤 {characters.filter(c => c.is_online).length}/{characters.length} online</span>
             <span>🪑 {desks.length} mesas</span>
             <span>🚪 {rooms.length} salas</span>
             <span>🎥 {meetings.meetings.length} reuniões</span>

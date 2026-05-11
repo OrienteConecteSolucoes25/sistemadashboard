@@ -4,6 +4,8 @@ import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { Linkedin, MessageSquare, Video, Armchair, ExternalLink, Briefcase, LogOut, Store, Search, ShieldAlert, Cpu } from "lucide-react";
 import { toast } from "sonner";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
 import { STATUS_COLOR, STATUS_LABEL, type PixelStatus } from "../core/constants";
 import { PixelSprite } from "../renderer/PixelSprite";
 import { AvatarLayeredSprite } from "../renderer/AvatarLayeredSprite";
@@ -82,7 +84,17 @@ const CharacterPanel = ({
   onFocusDesk?: (deskId: string) => void;
   onCallToMeeting?: (userId: string) => void;
 }) => {
+  const { user } = useAuth();
   const { data, loading } = useCharacterDetails(userId);
+  const isMe = user?.id === userId;
+
+  const updateStatus = async (newStatus: PixelStatus) => {
+    const { error } = await supabase.from("pixel_profiles").update({ status: newStatus } as any).eq("user_id", userId);
+    if (!error) {
+      toast.success("Status atualizado");
+      // O refresh acontece via realtime na página principal ou no usePixelWorkspaceData
+    }
+  };
 
   if (loading || !data) {
     return (
@@ -143,6 +155,22 @@ const CharacterPanel = ({
           )}
         </div>
       </div>
+
+      {isMe && (
+        <div className="mt-4 flex flex-wrap justify-center gap-1.5">
+          {(["available", "busy", "meeting", "away", "focused"] as PixelStatus[]).map((s) => (
+            <Button
+              key={s}
+              variant={status === s ? "default" : "outline"}
+              size="sm"
+              className="h-7 text-[10px] px-2 rounded-full"
+              onClick={() => updateStatus(s)}
+            >
+              {STATUS_LABEL[s]}
+            </Button>
+          ))}
+        </div>
+      )}
 
       <Separator className="my-5" />
 
