@@ -118,7 +118,7 @@ export const AvatarLayeredSprite = ({ customization, size = 56, faded, grayscale
           <rect x="8" y="21" width="4" height="1" fill={shoesColor} />
 
           {/* torso */}
-          <rect x="4" y="10" width="8" height="6" fill={`url(#grad-${c.user_id})`} />
+          <rect x="4" y="10" width="8" height="6" fill={`url(#grad-${c.avatar_sprite_key || "avatar"})`} />
           <rect x="11" y="10" width="1" height="6" fill={outfitShadow} opacity="0.5" />
           <rect x="4" y="15" width="8" height="1" fill={outfitShadow} opacity="0.3" />
 
