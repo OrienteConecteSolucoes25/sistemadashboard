@@ -1,7 +1,7 @@
 import { Link, Navigate, Outlet, useLocation } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/button";
-import { Shield, FolderKanban, LogOut, Settings, Gamepad2, HardHat, Scale, Menu, X, CreditCard, Building2, LayoutDashboard, HeartHandshake, Palette, FileSignature, MessageSquare, ChevronLeft, ChevronRight, ShieldAlert, Cpu, ShoppingBag, DollarSign, Store, Monitor, GraduationCap, BarChart3, Eye, Terminal } from "lucide-react";
+import { Shield, FolderKanban, LogOut, Settings, Gamepad2, HardHat, Scale, Menu, X, CreditCard, Building2, LayoutDashboard, HeartHandshake, Palette, FileSignature, MessageSquare, ChevronLeft, ChevronRight, ShieldAlert, Cpu, ShoppingBag, DollarSign, Store, Monitor, GraduationCap, BarChart3, Eye, Terminal, Share2 } from "lucide-react";
 import { useComunicacaoAccess } from "@/modules/comunicacao/hooks/useComunicacaoAccess";
 import { useRhdpAccess } from "@/modules/rhdp/hooks/useRhdpAccess";
 import { useCreaAccess } from "@/modules/crea/hooks/useCreaAccess";
@@ -95,6 +95,7 @@ const AppLayout = () => {
       <NavItem to="/app/jarbas/analytics" icon={BarChart3} label="Jarbas Analytics" />
       <NavItem to="/app/jarbas/vision" icon={Eye} label="Jarbas Vision" />
       <NavItem to="/app/jarbas/command" icon={Terminal} label="Jarbas Command" />
+      <NavItem to="/app/jarbas/integrations" icon={Share2} label="Jarbas API Brain" />
       {engAccess && <NavItem to="/app/engenharia" icon={HardHat} label="Engenharia" />}
       {jurAccess && <NavItem to="/app/juridico" icon={Scale} label="Jurídico" />}
       {rhdpAccess && <NavItem to="/app/rh-dp" icon={HeartHandshake} label="RH/DP" />}
