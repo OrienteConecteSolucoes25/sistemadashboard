@@ -44,7 +44,9 @@ export function ImportacoesTab() {
   const [lastSummary, setLastSummary] = useState<null | {
     arquivo: string; kind: string; total: number; ok: number; fail: number;
     semNumero: number; semUf: number; semDataCadastro: number; valorInvalido: number;
-    duplicadosNoArquivo: number; unmappedHeaders: string[];
+    duplicadosNoArquivo: number; encodingSuspeito: number; dataInvalida: number;
+    artsReconhecidas: number; registrosIncompletos: number;
+    unmappedHeaders: string[]; errosLog: { linha: number; tipo: string; detalhe: string }[];
   }>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -81,17 +83,37 @@ export function ImportacoesTab() {
       // ── Validação técnica (não-destrutiva) ────────────────────────
       const valStats = {
         semNumero: 0, semUf: 0, semDataCadastro: 0, valorInvalido: 0,
-        duplicadosNoArquivo: 0,
+        duplicadosNoArquivo: 0, encodingSuspeito: 0, dataInvalida: 0,
+        artsReconhecidas: 0, registrosIncompletos: 0,
       };
+      const errosLog: { linha: number; tipo: string; detalhe: string }[] = [];
       const seenHash = new Set<string>();
+      const ENC_RX = /[ÃÂ�]\w|Ã[©£§ª¡]|â€/; // mojibake típico de UTF-8↔Latin1
+      const isISODate = (s: any) => typeof s === "string" && /^\d{4}-\d{2}-\d{2}$/.test(s);
+      let linhaIdx = 0;
       for (const r of parsed.rows) {
-        if (!r.numero) valStats.semNumero++;
-        if (!r.uf && !uf) valStats.semUf++;
-        if (!r.data_cadastro) valStats.semDataCadastro++;
+        linhaIdx++;
+        const push = (tipo: string, detalhe: string) => {
+          if (errosLog.length < 50) errosLog.push({ linha: linhaIdx, tipo, detalhe });
+        };
+        if (!r.numero) { valStats.semNumero++; push("sem_numero", "ART sem número identificado"); }
+        else valStats.artsReconhecidas++;
+        if (!r.uf && !uf) { valStats.semUf++; push("sem_uf", "UF do CREA ausente e sem default"); }
+        if (!r.data_cadastro) { valStats.semDataCadastro++; push("sem_data_cadastro", "Data de cadastro ausente"); }
+        else if (!isISODate(r.data_cadastro)) { valStats.dataInvalida++; push("data_invalida", `data_cadastro=${r.data_cadastro}`); }
+        if (r.data_pagamento && !isISODate(r.data_pagamento)) { valStats.dataInvalida++; push("data_invalida", `data_pagamento=${r.data_pagamento}`); }
         const vt = Number(r.valor_taxa); const vp = Number(r.valor_pago);
-        if ((r.valor_taxa != null && Number.isNaN(vt)) || (r.valor_pago != null && Number.isNaN(vp))) valStats.valorInvalido++;
+        if ((r.valor_taxa != null && Number.isNaN(vt)) || (r.valor_pago != null && Number.isNaN(vp))) {
+          valStats.valorInvalido++; push("valor_invalido", `taxa=${r.valor_taxa} pago=${r.valor_pago}`);
+        }
+        // encoding suspeito em strings textuais
+        const txt = `${r.contratante_nome ?? ""}|${r.rt_nome ?? ""}|${r.atividades_texto ?? ""}|${r.proprietario ?? ""}|${r.endereco ?? ""}`;
+        if (ENC_RX.test(txt)) { valStats.encodingSuspeito++; push("encoding", "Caracteres suspeitos (mojibake) em campos textuais"); }
+        // registro incompleto: faltam pelo menos 2 dos campos chave
+        const faltantes = [r.numero, r.contratante_nome, r.rt_nome, r.data_cadastro].filter((x) => !x).length;
+        if (faltantes >= 2) { valStats.registrosIncompletos++; push("incompleto", `${faltantes} campos-chave ausentes`); }
         const key = `${(r.uf ?? uf ?? "BA").toString().trim().toUpperCase()}::${(r.numero ?? "").toString().trim()}::${r.data_cadastro ?? ""}`;
-        if (seenHash.has(key)) valStats.duplicadosNoArquivo++;
+        if (seenHash.has(key)) { valStats.duplicadosNoArquivo++; push("duplicado_arquivo", `chave=${key}`); }
         else seenHash.add(key);
       }
 
@@ -102,6 +124,7 @@ export function ImportacoesTab() {
           unmappedHeaders: parsed.unmappedHeaders,
           origem_importacao: kind,
           validacao: valStats,
+          errosLog,
         },
       }).select("id").single();
       if (impErr || !imp) throw new Error(impErr?.message ?? "Falha ao registrar importação");
@@ -160,7 +183,7 @@ export function ImportacoesTab() {
 
       setLastSummary({
         arquivo: file.name, kind, total: parsed.rows.length, ok, fail,
-        ...valStats, unmappedHeaders: parsed.unmappedHeaders,
+        ...valStats, unmappedHeaders: parsed.unmappedHeaders, errosLog,
       });
 
       toast.success(`Importação concluída: ${ok} OK, ${fail} falhas. ${parsed.unmappedHeaders.length ? `Cabeçalhos não mapeados: ${parsed.unmappedHeaders.length}.` : ""}`);
@@ -224,13 +247,17 @@ export function ImportacoesTab() {
           <CardContent>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-xs">
               <SummaryStat label="Linhas no arquivo" value={lastSummary.total} />
+              <SummaryStat label="ARTs reconhecidas" value={lastSummary.artsReconhecidas} tone="ok" />
               <SummaryStat label="Importadas (OK)" value={lastSummary.ok} tone="ok" />
               <SummaryStat label="Falhas" value={lastSummary.fail} tone={lastSummary.fail > 0 ? "fail" : undefined} />
               <SummaryStat label="Duplicadas no arquivo" value={lastSummary.duplicadosNoArquivo} tone={lastSummary.duplicadosNoArquivo > 0 ? "warn" : undefined} />
+              <SummaryStat label="Registros incompletos" value={lastSummary.registrosIncompletos} tone={lastSummary.registrosIncompletos > 0 ? "warn" : undefined} />
               <SummaryStat label="Sem nº ART" value={lastSummary.semNumero} tone={lastSummary.semNumero > 0 ? "warn" : undefined} />
               <SummaryStat label="Sem UF" value={lastSummary.semUf} tone={lastSummary.semUf > 0 ? "warn" : undefined} />
               <SummaryStat label="Sem data cadastro" value={lastSummary.semDataCadastro} tone={lastSummary.semDataCadastro > 0 ? "warn" : undefined} />
+              <SummaryStat label="Datas inválidas" value={lastSummary.dataInvalida} tone={lastSummary.dataInvalida > 0 ? "warn" : undefined} />
               <SummaryStat label="Valores inválidos" value={lastSummary.valorInvalido} tone={lastSummary.valorInvalido > 0 ? "warn" : undefined} />
+              <SummaryStat label="Encoding suspeito" value={lastSummary.encodingSuspeito} tone={lastSummary.encodingSuspeito > 0 ? "warn" : undefined} />
             </div>
             {lastSummary.unmappedHeaders.length > 0 && (
               <div className="mt-3 pt-3 border-t border-border/40">
@@ -246,6 +273,29 @@ export function ImportacoesTab() {
                   )}
                 </div>
               </div>
+            )}
+            {lastSummary.errosLog.length > 0 && (
+              <details className="mt-3 pt-3 border-t border-border/40">
+                <summary className="text-[11px] font-semibold text-muted-foreground cursor-pointer">
+                  Log técnico — {lastSummary.errosLog.length} ocorrência(s) (até 50 amostras)
+                </summary>
+                <div className="mt-2 max-h-56 overflow-auto rounded border border-border/40">
+                  <table className="w-full text-[10px] font-mono">
+                    <thead className="bg-muted/30 sticky top-0">
+                      <tr><th className="text-left p-1">Linha</th><th className="text-left p-1">Tipo</th><th className="text-left p-1">Detalhe</th></tr>
+                    </thead>
+                    <tbody>
+                      {lastSummary.errosLog.map((e, i) => (
+                        <tr key={i} className="border-t border-border/30">
+                          <td className="p-1 text-muted-foreground">{e.linha}</td>
+                          <td className="p-1"><Badge variant="outline" className="text-[9px]">{e.tipo}</Badge></td>
+                          <td className="p-1">{e.detalhe}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
+              </details>
             )}
           </CardContent>
         </Card>
