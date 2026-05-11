@@ -29,7 +29,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { useAcl } from "@/acl/AclProvider";
 import { supabase } from "@/integrations/supabase/client";
 import MarketplaceHome from "./MarketplaceHome";
-import { getMarketplaceProducts, MarketplaceProduct } from "../lib/marketplaceApi";
+import { getMarketplaceProducts, getMarketplaceCustomers, MarketplaceProduct, MarketplaceCustomer } from "../lib/marketplaceApi";
 
 
 // Sub-componentes do Marketplace Admin
@@ -326,14 +326,14 @@ const OrdersTab = () => {
 };
 
 const CustomersTab = () => {
-  const [customers, setCustomers] = useState<any[]>([]);
+  const [customers, setCustomers] = useState<MarketplaceCustomer[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function load() {
       try {
-        const { data, error } = await supabase.from('market_customers' as any).select('*');
-        if (!error) setCustomers(data || []);
+        const data = await getMarketplaceCustomers();
+        setCustomers(data);
       } catch (err) {
         console.error(err);
       } finally {
