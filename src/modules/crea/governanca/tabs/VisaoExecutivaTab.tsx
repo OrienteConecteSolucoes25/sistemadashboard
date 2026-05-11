@@ -116,12 +116,16 @@ export function VisaoExecutivaTab({ filters }: { filters: GovFilters }) {
         </Card>
 
         <Card className="card-elegant">
-          <CardHeader className="pb-1"><CardTitle className="text-sm flex items-center gap-1"><Wrench className="h-3 w-3" /> Valor de ART por Ativ./Serviço (top 10)</CardTitle></CardHeader>
-          <CardContent className="h-72">
+          <CardHeader className="pb-1"><CardTitle className="text-sm flex items-center gap-1"><Wrench className="h-3 w-3" /> Valor de ART por Ativ./Serviço</CardTitle></CardHeader>
+          <CardContent className="h-72 p-2">
             {valorPorAtividade.length === 0 ? (
               <div className="h-full flex items-center justify-center text-xs text-muted-foreground">Sem valores de ART por atividade.</div>
             ) : (
-              <ResponsiveContainer><BarChart data={valorPorAtividade} layout="vertical"><XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={fmtBRLk} /><YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={160} /><Tooltip formatter={(v: any) => fmtBRL(Number(v))} /><Bar dataKey="value" fill="#a78bfa" /></BarChart></ResponsiveContainer>
+              <div className="h-full overflow-y-auto pr-2">
+                <div style={{ height: Math.max(260, valorPorAtividade.length * 28) }}>
+                  <ResponsiveContainer><BarChart data={valorPorAtividade} layout="vertical" margin={{ left: 8, right: 16, top: 4, bottom: 4 }}><XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={fmtBRLk} /><YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={220} interval={0} /><Tooltip formatter={(v: any) => fmtBRL(Number(v))} /><Bar dataKey="value" fill="#a78bfa" /></BarChart></ResponsiveContainer>
+                </div>
+              </div>
             )}
           </CardContent>
         </Card>
