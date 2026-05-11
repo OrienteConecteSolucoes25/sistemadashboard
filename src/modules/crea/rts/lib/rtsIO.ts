@@ -56,9 +56,9 @@ export function exportRtsCsv(rows: RtPessoa[]) {
 export function downloadTemplateRts() {
   // Modelo com 1 linha de exemplo para guiar o preenchimento
   const example = [[
-    "Fulano de Tal", "000.000.000-00", "Ativo",
+    "Fulano de Tal", "000.000.000-00", "BA", "Ativo",
     "01/01/2024", "Indefinido", "CLT",
-    "BA", "1234567", "BA-12345", "Paga", "Observação opcional",
+    "BA", "1234567", "BA-12345", "Paga", "2025", "Sim", "Observação opcional",
   ]];
   const aoa = [[...PLANILHA_HEADERS_RT], ...example];
   const ws = XLSX.utils.aoa_to_sheet(aoa);
