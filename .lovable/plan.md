@@ -1,39 +1,73 @@
-## Objetivo
+# Plano: Modo Offline (PWA + cache de dados)
 
-Criar uma 5ª sub-aba de dados em **Governança ART** chamada **"ARTs (Todas)"**, com a mesma experiência (importar/exportar/modelo/novo/editar/excluir/paginação/scroll) das outras sub-abas, baseada na planilha enviada.
+Objetivo: tornar o sistema instalável e utilizável sem internet, com cache do shell e das últimas listas críticas (ARTs, Obras, Empresas, Governança CREA, Engenharia, Jurídico). Escritas offline ficam na fila e sincronizam quando voltar a conexão.
 
-A planilha "ARTS (TODAS)" do CREA-PB tem exatamente 11 colunas:
-`NÚMERO · DETALHE · ANÁLISE · BAIXA · BOLETO · PAGAMENTO · CADASTRO · EMPRESA · CONTRATANTE · ENDEREÇO · OBSERVAÇÃO`
+## ⚠️ Avisos importantes
+- **Não funciona no preview do Lovable** (iframe bloqueia Service Worker). Só na URL publicada (`sistemadashboard.lovable.app` / domínio próprio).
+- **Primeira visita online é obrigatória** para baixar o app e os dados.
+- **Login** exige internet na primeira vez; depois a sessão Supabase fica em `localStorage` e o app abre offline em modo leitura.
+- Após cada deploy, usuários precisam abrir online uma vez para baixar a nova versão (auto-update via SW).
 
-## Mudanças
+## Escopo
 
-### 1. Banco (migration)
+### 1. Infra PWA
+- Instalar `vite-plugin-pwa` + `workbox-window`.
+- Configurar em `vite.config.ts`:
+  - `registerType: "autoUpdate"`, `devOptions.enabled: false`.
+  - Manifest: nome "OCS — Oriente", tema teal `#2BBDC0`, `display: standalone`, ícones 192/512.
+  - `navigateFallbackDenylist: [/^\/~oauth/, /^\/api/]`.
+  - `runtimeCaching`:
+    - Navegações HTML → `NetworkFirst` (3s timeout).
+    - Assets JS/CSS/fontes → `StaleWhileRevalidate`.
+    - Imagens → `CacheFirst` (30 dias).
+    - Supabase REST `*/rest/v1/*` GET → `NetworkFirst` (cache nomeado `sb-data`, 7 dias) — só GET.
+- Guard em `src/main.tsx`: não registrar SW em iframe nem em `id-preview--*` / `lovableproject.com`.
 
-- Criar tabela `public.crea_gov_arts_todas` espelhando `crea_gov_servicos`:
-  - Colunas: `id uuid pk`, `company_id uuid not null`, `numero`, `detalhe`, `analise`, `baixa`, `boleto`, `pagamento`, `cadastro`, `empresa`, `contratante`, `endereco`, `observacao` (todas `text`), + `is_deleted`, `deleted_at`, `deleted_by`, `delete_reason`, `created_by`, `updated_by`, `created_at`, `updated_at`.
-  - Índices: por `company_id`, parcial `(company_id) WHERE is_deleted=false`, e por `numero`.
-  - Trigger `update_updated_at_column`.
-  - RLS habilitado com 4 policies (`select/insert/update/delete`) usando `crea_can(auth.uid(), company_id, ...)` — mesmas de `crea_gov_servicos`.
-- Atualizar `crea_soft_delete`: adicionar `'crea_gov_arts_todas'` ao array `allowed`.
+### 2. Ícones e manifest
+- Gerar 2 ícones (192, 512) com a marca Oriente (teal sobre dark) em `public/icons/`.
+- `apple-touch-icon` + meta tags mobile no `index.html`.
 
-### 2. Schema de campos (`src/modules/crea/governanca/tabs/govFields.ts`)
+### 3. Cache de dados-chave (camada leve)
+Criar `src/lib/offlineCache.ts`:
+- Wrapper `cachedQuery(key, fetcher)` que:
+  - Tenta rede; em sucesso grava JSON em IndexedDB (`idb-keyval`) com timestamp.
+  - Em falha (offline), lê do IndexedDB e marca o resultado como `stale: true`.
+- Aplicar nos hooks de leitura mais usados (sem mudar UI):
+  - `crea_arts`, `crea_obras`, `crea_empresas`
+  - `crea_gov_*` (Visão Executiva)
+  - `eng_*` listas principais
+  - `jur_*` listas
+- Componente `OfflineBanner` no `AppLayout` mostrando "Você está offline — exibindo dados em cache de {data}".
 
-- Adicionar `ARTS_TODAS_FIELDS` com as 11 colunas na ordem da planilha (`numero`, `detalhe`, `analise`, `baixa`, `boleto`, `pagamento`, `cadastro`, `empresa`, `contratante`, `endereco`, `observacao`). `detalhe`/`endereco`/`observacao` como `textarea full`. Mesma estrutura de `SERVICOS_FIELDS`.
+### 4. Fila de escrita offline (mínima)
+- `src/lib/offlineQueue.ts`: enfileira mutações em IndexedDB quando `!navigator.onLine`.
+- Listener `online` reprocessa a fila chamando o supabase client.
+- Aplicar inicialmente só em criar/editar ARTs e Obras (resto continua exigindo internet com toast claro).
 
-### 3. Página (`src/modules/crea/governanca/CreaGovernancaPage.tsx`)
+### 5. UX
+- Hook `useOnlineStatus()` global.
+- Toast quando perde/recupera conexão.
+- Badge "Offline" no header.
 
-- Adicionar nova aba `arts_todas` no array `TABS` com label "ARTs (Todas)" e ícone (`ListChecks`).
-- Adicionar `<TabsContent value="arts_todas">` com `<GovGenericTab table="crea_gov_arts_todas" title="ARTs (Todas)" description="Listagem completa de ARTs exportada do SITAC/CREA (NÚMERO, DETALHE, ANÁLISE, BAIXA, BOLETO, PAGAMENTO, CADASTRO, EMPRESA, CONTRATANTE, ENDEREÇO, OBSERVAÇÃO)." fields={ARTS_TODAS_FIELDS} labelKey="numero" />`.
-- O `GovGenericTab` já entrega: importação adaptativa (preserva qualquer valor), exportação xlsx/csv/docx + modelo, paginação 50/100, scroll horizontal/vertical, exclusão com senha em lote.
+## Arquivos a criar/editar
+- `vite.config.ts` (editar)
+- `src/main.tsx` (registro SW com guard)
+- `index.html` (meta tags PWA)
+- `public/icons/icon-192.png`, `public/icons/icon-512.png` (gerar)
+- `src/lib/offlineCache.ts` (novo)
+- `src/lib/offlineQueue.ts` (novo)
+- `src/hooks/useOnlineStatus.ts` (novo)
+- `src/components/OfflineBanner.tsx` (novo)
+- `src/components/AppLayout.tsx` (montar banner)
+- Hooks de dados existentes (CREA/Eng/Jur) — envolver `select` com `cachedQuery`
 
-### 4. Visão Executiva (`src/modules/crea/governanca/lib/govUnified.ts`)
+## Detalhes técnicos
+- `idb-keyval` (~600 bytes) para persistência simples.
+- TTL padrão de cache de dados: 7 dias.
+- Service Worker exclui rotas auth/oauth para não quebrar login.
+- Auto-update: prompt sutil "Nova versão disponível — recarregar".
 
-- Incluir `fetchAll("crea_gov_arts_todas", companyId)` no `Promise.all` da função unificadora, marcando origem `"ARTs (Todas)"`. Assim a sub-aba Visão Executiva continua agregando todas as fontes (Serviços + ART por Bloco + Relatórios CREA + ARTs Todas).
-
-### 5. Tipos
-
-- Adicionar `'crea_gov_arts_todas'` ao tipo `CreaTable` em `src/modules/crea/lib/creaCrud.ts` e ao array `CREA_TABLES`.
-
-## Não muda
-
-- `GovGenericTab.tsx`, `creaCrud.ts mapAdaptive`, exportação/importação — tudo já é genérico e passa a funcionar nessa nova sub-aba sem ajustes.
+## Fora de escopo
+- Sincronização bidirecional complexa (CRDT).
+- Conflitos de edição offline simultânea (resolução last-write-wins).
+- Funcionalidades que dependem de IA/edge functions (continuam exigindo internet).
