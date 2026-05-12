@@ -57,10 +57,11 @@ export function canonContratante(v: any): string | null {
   s = s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/\s+/g, " ").trim();
   // Remove pontuação final (., ,, ;) e pontos em abreviações comuns (LTDA., S.A.)
   s = s.replace(/[.,;]+$/g, "").trim();
-  s = s.replace(/\bS\.\s*A\b\.?/g, "SA").replace(/\bLTDA\.?/g, "LTDA");
+  s = s.replace(/\bS\s*\/\s*A\b\.?/g, "SA").replace(/\bS\.\s*A\b\.?/g, "SA").replace(/\bLTDA\.?/g, "LTDA");
   s = s.replace(/\s+/g, " ").trim();
   if (s.startsWith("HIGHLINE")) return "HIGHLINE";
   if (s.startsWith("NOVA CORRENTE")) return "NOVA CORRENTE";
+  if (s.startsWith("CLARO")) return "CLARO SA";
   return s;
 }
 
