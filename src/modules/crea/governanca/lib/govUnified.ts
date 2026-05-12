@@ -38,6 +38,16 @@ function toDate(v: any): string | null {
   return null;
 }
 
+/** Canoniza nome de contratante: agrupa todos que começam com "HIGHLINE" em um único nome. */
+export function canonContratante(v: any): string | null {
+  if (v == null) return null;
+  const s = String(v).trim();
+  if (!s) return null;
+  const norm = s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+  if (/^HIGHLINE\b/.test(norm) || norm.startsWith("HIGHLINE")) return "HIGHLINE";
+  return s;
+}
+
 function toNumber(v: any): number | null {
   if (v == null || v === "") return null;
   if (typeof v === "number") return v;
