@@ -93,13 +93,19 @@ async function fetchAll(table: string, companyId: string): Promise<any[]> {
   return out;
 }
 
+const UFS_BR = new Set([
+  "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
+  "PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"
+]);
 function pickUF(...vals: any[]): string | null {
   for (const v of vals) {
     const s = String(v ?? "").trim();
     if (!s) continue;
-    const m = s.match(/\b([A-Z]{2})\b/);
-    if (m) return m[1];
-    if (/^[A-Za-z]{2}$/.test(s)) return s.toUpperCase();
+    if (/^[A-Za-z]{2}$/.test(s) && UFS_BR.has(s.toUpperCase())) return s.toUpperCase();
+    const m2 = s.match(/\/\s*([A-Za-z]{2})\b/);
+    if (m2 && UFS_BR.has(m2[1].toUpperCase())) return m2[1].toUpperCase();
+    const matches = s.toUpperCase().match(/\b[A-Z]{2}\b/g) ?? [];
+    for (const m of matches) if (UFS_BR.has(m)) return m;
   }
   return null;
 }
