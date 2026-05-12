@@ -215,6 +215,56 @@ export function VisaoExecutivaTab({ filters }: { filters: GovFilters }) {
             <ResponsiveContainer><BarChart data={custoArtPorUF} layout="vertical" margin={{ left: 8, right: 8 }}><XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={fmtBRLk} /><YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={50} /><Tooltip formatter={(v: any) => fmtBRL(Number(v))} /><Bar dataKey="value" fill="#a78bfa" name="Custo ART" /></BarChart></ResponsiveContainer>
           </CardContent>
         </Card>
+
+        <Card className="card-elegant">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-sm flex items-center gap-1"><DollarSign className="h-3 w-3" /> Quantidade de ARTs por valor pago</CardTitle>
+          </CardHeader>
+          <CardContent className="h-72">
+            <ResponsiveContainer>
+              <BarChart data={distribValorPago} margin={{ left: 8, right: 8, bottom: 30 }}>
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-25} textAnchor="end" interval={0} height={50} />
+                <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                <Tooltip formatter={(v: any) => [`${v} ARTs`, "Quantidade"]} />
+                <Bar dataKey="value" fill="#60a5fa" name="ARTs" />
+              </BarChart>
+            </ResponsiveContainer>
+            <p className="text-[10px] text-muted-foreground mt-1">Conta quantas ARTs foram pagas em cada valor (R$ 285, R$ 108, etc.).</p>
+          </CardContent>
+        </Card>
+
+        <Card className="card-elegant">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-sm flex items-center gap-1"><DollarSign className="h-3 w-3" /> Economia se todas as ARTs custassem R$ 108</CardTitle>
+          </CardHeader>
+          <CardContent className="h-72">
+            <div className="grid grid-cols-3 gap-2 mb-2">
+              <div className="rounded-md border p-2">
+                <p className="text-[10px] uppercase text-muted-foreground">Pago atual</p>
+                <p className="text-sm font-semibold">{fmtBRL(economiaSe108.atual)}</p>
+              </div>
+              <div className="rounded-md border p-2">
+                <p className="text-[10px] uppercase text-muted-foreground">Projetado a R$108</p>
+                <p className="text-sm font-semibold">{fmtBRL(economiaSe108.projetado)}</p>
+              </div>
+              <div className="rounded-md border p-2 bg-emerald-500/10">
+                <p className="text-[10px] uppercase text-muted-foreground">Economia</p>
+                <p className="text-sm font-semibold text-emerald-600">{fmtBRL(economiaSe108.economia)}</p>
+              </div>
+            </div>
+            <ResponsiveContainer height={170}>
+              <BarChart data={economiaSe108.porAno} margin={{ left: 8, right: 8 }}>
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} tickFormatter={fmtBRLk} />
+                <Tooltip formatter={(v: any) => fmtBRL(Number(v))} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Bar dataKey="atual" fill="#f87171" name="Pago atual" />
+                <Bar dataKey="projetado" fill="#34d399" name="A R$108" />
+                <Bar dataKey="economia" fill="#a78bfa" name="Economia" />
+              </BarChart>
+            </ResponsiveContainer>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
