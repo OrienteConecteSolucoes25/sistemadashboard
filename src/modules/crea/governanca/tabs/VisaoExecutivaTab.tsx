@@ -6,6 +6,8 @@ import { GovFilters } from "../lib/govTypes";
 import { fetchGovUnified, unifiedKpis, groupCount, groupSum, GovUnifiedRow } from "../lib/govUnified";
 import { useGovCompany } from "../lib/useGovCompany";
 import { FileBarChart, DollarSign, MapPin, Users, Building2, CheckCircle2, FileText, Wrench } from "lucide-react";
+import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const COLORS = ["hsl(var(--primary))", "#34d399", "#fbbf24", "#f87171", "#60a5fa", "#a78bfa", "#f472b6", "#94a3b8"];
 
@@ -24,6 +26,46 @@ function Kpi({ label, value, icon: Icon, hint }: { label: string; value: string;
         </div>
       </CardContent>
     </Card>
+  );
+}
+
+function KpiList({
+  label, value, icon: Icon, items,
+}: { label: string; value: string; icon: any; items: { name: string; value: number }[] }) {
+  return (
+    <HoverCard openDelay={120} closeDelay={80}>
+      <HoverCardTrigger asChild>
+        <Card className="card-elegant cursor-help">
+          <CardContent className="p-3 flex items-center gap-3">
+            <div className="rounded-md bg-primary/15 text-primary p-2"><Icon className="h-4 w-4" /></div>
+            <div className="min-w-0">
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground">{label}</p>
+              <p className="text-lg font-semibold truncate">{value}</p>
+              <p className="text-[10px] text-muted-foreground">Passe o mouse para detalhar</p>
+            </div>
+          </CardContent>
+        </Card>
+      </HoverCardTrigger>
+      <HoverCardContent className="w-80 p-0" align="start" side="bottom">
+        <div className="px-3 py-2 border-b bg-muted/40">
+          <p className="text-xs font-semibold">{label} <span className="text-muted-foreground">· {items.length}</span></p>
+        </div>
+        <ScrollArea className="h-64">
+          {items.length === 0 ? (
+            <p className="p-3 text-xs text-muted-foreground">Nenhum item.</p>
+          ) : (
+            <ul className="divide-y">
+              {items.map((it, i) => (
+                <li key={i} className="flex items-center justify-between gap-2 px-3 py-1.5 text-xs hover:bg-accent/40">
+                  <span className="truncate" title={it.name}>{it.name || "—"}</span>
+                  <span className="text-muted-foreground tabular-nums shrink-0">{it.value}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+        </ScrollArea>
+      </HoverCardContent>
+    </HoverCard>
   );
 }
 
@@ -46,6 +88,11 @@ export function VisaoExecutivaTab({ filters }: { filters: GovFilters }) {
   const valorPagoPorMes = useMemo(() => rows ? groupSum(rows, (r) => r.data?.slice(0, 7), (r) => r.valor_pago ?? 0).slice(-12) : [], [rows]);
 
   const porUF = useMemo(() => rows ? groupCount(rows, (r) => r.uf).slice(0, 10) : [], [rows]);
+  // Listas completas para os pop-ups dos KPIs auxiliares
+  const ufsList = useMemo(() => rows ? groupCount(rows, (r) => r.uf) : [], [rows]);
+  const cidadesList = useMemo(() => rows ? groupCount(rows, (r) => r.cidade) : [], [rows]);
+  const rtsList = useMemo(() => rows ? groupCount(rows, (r) => r.rt_nome) : [], [rows]);
+  const contratantesList = useMemo(() => rows ? groupCount(rows, (r) => r.contratante) : [], [rows]);
   const porFonte = useMemo(() => rows ? groupCount(rows, (r) => ({ servicos: "Serviços", art_bloco: "ART por Bloco", relatorio_crea: "Relatórios CREA" }[r.source])) : [], [rows]);
 
   const porContratante = useMemo(() => rows ? groupCount(rows, (r) => r.contratante).slice(0, 10) : [], [rows]);
@@ -72,12 +119,12 @@ export function VisaoExecutivaTab({ filters }: { filters: GovFilters }) {
         <Kpi label="Valor total Pago"  value={fmtBRL(k!.valor_pago)}       icon={CheckCircle2} hint="Soma efetivamente paga" />
       </div>
 
-      {/* KPIs auxiliares */}
+      {/* KPIs auxiliares — passe o mouse para ver a lista detalhada */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-        <Kpi label="UFs distintas"     value={String(k!.ufs)}          icon={MapPin} />
-        <Kpi label="Cidades distintas" value={String(k!.cidades)}      icon={MapPin} />
-        <Kpi label="RTs distintos"     value={String(k!.rts)}          icon={Users} />
-        <Kpi label="Contratantes"      value={String(k!.contratantes)} icon={Building2} />
+        <KpiList label="UFs distintas"     value={String(k!.ufs)}          icon={MapPin}     items={ufsList} />
+        <KpiList label="Cidades distintas" value={String(k!.cidades)}      icon={MapPin}     items={cidadesList} />
+        <KpiList label="RTs distintos"     value={String(k!.rts)}          icon={Users}      items={rtsList} />
+        <KpiList label="Contratantes"      value={String(k!.contratantes)} icon={Building2}  items={contratantesList} />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
