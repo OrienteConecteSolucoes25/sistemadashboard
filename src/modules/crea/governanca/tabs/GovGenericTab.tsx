@@ -97,6 +97,16 @@ export function GovGenericTab({ table, title, description, fields, labelKey = "n
 
   useEffect(() => { load(); /* eslint-disable-next-line */ }, [companyId, table]);
 
+  // Normaliza string: minúsculas, sem acentos, espaços colapsados.
+  // Garante que filtros como RT "JOAO ARTHUR" (sem acento, vindo das opções)
+  // casem com linhas que ainda têm "João Arthur" no banco.
+  const norm = (s: any) =>
+    String(s ?? "")
+      .toLowerCase()
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
+
   // Achata todos os valores legíveis de uma linha (colunas + jsonb `data`) em uma string única
   // para busca cruzada — assim os filtros globais funcionam em qualquer sub-aba/schema.
   const flattenValues = (r: any): string => {
@@ -113,7 +123,7 @@ export function GovGenericTab({ table, title, description, fields, labelKey = "n
         parts.push(String(v));
       }
     }
-    return parts.join(" \u0001 ").toLowerCase();
+    return norm(parts.join(" \u0001 "));
   };
 
   // Extrai todas as datas (ISO YYYY-MM-DD ou DD/MM/YYYY) presentes na linha — para os filtros "Data de/até".
@@ -139,22 +149,22 @@ export function GovGenericTab({ table, title, description, fields, labelKey = "n
   };
 
   const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = norm(search);
     const f = filters ?? {};
     // Lista de termos textuais exigidos (todos devem casar — AND lógico).
     const terms: string[] = [];
-    if (f.uf) terms.push(String(f.uf).toLowerCase());
-    if (f.uf_obra) terms.push(String(f.uf_obra).toLowerCase());
-    if (f.cidade) terms.push(String(f.cidade).toLowerCase());
-    if (f.nome_obra) terms.push(String(f.nome_obra).toLowerCase());
-    if (f.rt_nome) terms.push(String(f.rt_nome).toLowerCase());
-    if (f.numero) terms.push(String(f.numero).toLowerCase());
-    if (f.boleto) terms.push(String(f.boleto).toLowerCase());
-    if (f.tipo) terms.push(String(f.tipo).toLowerCase());
-    if (f.natureza) terms.push(String(f.natureza).toLowerCase());
-    if (f.status_analise) terms.push(String(f.status_analise).toLowerCase());
-    if (f.status_financeiro) terms.push(String(f.status_financeiro).toLowerCase());
-    if (f.centro_custo) terms.push(String(f.centro_custo).toLowerCase());
+    if (f.uf) terms.push(norm(f.uf));
+    if (f.uf_obra) terms.push(norm(f.uf_obra));
+    if (f.cidade) terms.push(norm(f.cidade));
+    if (f.nome_obra) terms.push(norm(f.nome_obra));
+    if (f.rt_nome) terms.push(norm(f.rt_nome));
+    if (f.numero) terms.push(norm(f.numero));
+    if (f.boleto) terms.push(norm(f.boleto));
+    if (f.tipo) terms.push(norm(f.tipo));
+    if (f.natureza) terms.push(norm(f.natureza));
+    if (f.status_analise) terms.push(norm(f.status_analise));
+    if (f.status_financeiro) terms.push(norm(f.status_financeiro));
+    if (f.centro_custo) terms.push(norm(f.centro_custo));
     if (q) terms.push(q);
 
     const ano = f.ano ? String(f.ano) : "";
