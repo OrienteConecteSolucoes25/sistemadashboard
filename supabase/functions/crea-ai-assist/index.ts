@@ -102,8 +102,51 @@ const ENTIDADE_TABLE: Record<string,string> = {
   arts: "crea_arts", protocolos: "crea_protocolos", cats: "crea_cats",
   certidoes: "crea_certidoes", baixas: "crea_baixas", tratativas: "crea_tratativas",
   prazos: "crea_prazos", rts: "crea_responsaveis_tecnicos", empresas: "crea_empresas",
-  documentos: "crea_documentos",
+  documentos: "crea_documents",
+  normas: "crea_norms", links_oficiais: "crea_links_oficiais",
 };
+
+// Extrai texto legível de HTML simples (sem dependências externas)
+function htmlToText(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+async function fetchUrlContent(url: string): Promise<{ url: string; status?: number; tipo?: string; texto?: string; bytes?: number; error?: string }> {
+  try {
+    if (!/^https?:\/\//i.test(url)) return { url, error: "URL inválida" };
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 15000);
+    const resp = await fetch(url, {
+      signal: ctrl.signal,
+      headers: { "User-Agent": "Mozilla/5.0 OCS-Assistant/1.0", Accept: "text/html,application/pdf,*/*" },
+      redirect: "follow",
+    });
+    clearTimeout(t);
+    const ct = (resp.headers.get("content-type") ?? "").toLowerCase();
+    if (!resp.ok) return { url, status: resp.status, tipo: ct, error: `HTTP ${resp.status}` };
+    if (ct.includes("application/pdf") || url.toLowerCase().endsWith(".pdf")) {
+      const buf = new Uint8Array(await resp.arrayBuffer());
+      // Extração simples de strings legíveis do PDF (sem libs)
+      const dec = new TextDecoder("latin1");
+      const raw = dec.decode(buf);
+      const matches = raw.match(/\(([^()\\]{2,}?)\)/g) ?? [];
+      const texto = matches.map(m => m.slice(1, -1)).join(" ").replace(/\s+/g, " ").slice(0, 12000);
+      return { url, status: resp.status, tipo: "application/pdf", bytes: buf.length, texto: texto || "(PDF sem texto extraível por método simples)" };
+    }
+    const txt = await resp.text();
+    const out = ct.includes("text/html") ? htmlToText(txt) : txt;
+    return { url, status: resp.status, tipo: ct, bytes: txt.length, texto: out.slice(0, 12000) };
+  } catch (e) {
+    return { url, error: e instanceof Error ? e.message : "fetch falhou" };
+  }
+}
 
 async function buildBaseQuery(supabase: any, companyId: string, args: any) {
   let q = supabase.from("crea_gov_arts").select("*").eq("company_id", companyId).eq("is_deleted", false);
