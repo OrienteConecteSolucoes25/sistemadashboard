@@ -38,6 +38,16 @@ function toDate(v: any): string | null {
   return null;
 }
 
+/** Canoniza nome de contratante: agrupa todos que começam com "HIGHLINE" em um único nome. */
+export function canonContratante(v: any): string | null {
+  if (v == null) return null;
+  const s = String(v).trim();
+  if (!s) return null;
+  const norm = s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
+  if (/^HIGHLINE\b/.test(norm) || norm.startsWith("HIGHLINE")) return "HIGHLINE";
+  return s;
+}
+
 function toNumber(v: any): number | null {
   if (v == null || v === "") return null;
   if (typeof v === "number") return v;
@@ -134,7 +144,7 @@ export async function fetchGovUnified(companyId: string, f: GovFilters): Promise
     cidade: pickCidade(r.cidade_obra, r.cidade_contrato),
     nome_obra: r.endereco ?? null,
     rt_nome: r.responsavel_tecnico ?? null,
-    contratante: r.contratante ?? null,
+    contratante: canonContratante(r.contratante),
     empresa: r.empresa ?? null,
     status: r.analise ?? r.baixa ?? null,
     valor_art: toNumber(r.valor_art),
@@ -154,7 +164,7 @@ export async function fetchGovUnified(companyId: string, f: GovFilters): Promise
       cidade: pickCidade(r.cidade_obra, r.cidade_contrato),
       nome_obra: end,
       rt_nome: r.responsavel_tecnico ?? null,
-      contratante: r.contratante ?? null,
+      contratante: canonContratante(r.contratante),
       empresa: null,
       status: r.situacao ?? r.atendido ?? null,
       valor_art: toNumber(r.valor_art),
@@ -177,7 +187,7 @@ export async function fetchGovUnified(companyId: string, f: GovFilters): Promise
       cidade,
       nome_obra: end,
       rt_nome: null,
-      contratante: r.contratante ?? null,
+      contratante: canonContratante(r.contratante),
       empresa: r.proprietario ?? null,
       status: r.tipo ?? r.pagamento ?? null,
       valor_art: null,
@@ -199,7 +209,7 @@ export async function fetchGovUnified(companyId: string, f: GovFilters): Promise
       uf, cidade,
       nome_obra: end,
       rt_nome: null,
-      contratante: r.contratante ?? null,
+      contratante: canonContratante(r.contratante),
       empresa: r.empresa ?? null,
       status: r.analise ?? r.baixa ?? null,
       valor_art: null, valor_pago: null, valor_contrato: null,
