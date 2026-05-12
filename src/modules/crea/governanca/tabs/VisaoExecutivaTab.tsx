@@ -103,6 +103,44 @@ export function VisaoExecutivaTab({ filters }: { filters: GovFilters }) {
     [rows]
   );
 
+  // Distribuição de valores pagos por ART (ex.: 285, 108, etc.)
+  const distribValorPago = useMemo(() => {
+    if (!rows) return [];
+    const map = new Map<string, number>();
+    for (const r of rows) {
+      const v = r.valor_pago;
+      if (v == null || !isFinite(v) || v <= 0) continue;
+      const key = (Math.round(v * 100) / 100).toFixed(2);
+      map.set(key, (map.get(key) ?? 0) + 1);
+    }
+    return Array.from(map.entries())
+      .map(([k, value]) => ({ name: fmtBRL(Number(k)), valorNum: Number(k), value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 12);
+  }, [rows]);
+
+  // Economia anual estimada se todas as ARTs custassem R$ 108
+  const economiaSe108 = useMemo(() => {
+    if (!rows) return { atual: 0, projetado: 0, economia: 0, qtd: 0, porAno: [] as { name: string; atual: number; projetado: number; economia: number }[] };
+    const ALVO = 108;
+    let atual = 0, qtd = 0;
+    const byYear = new Map<string, { atual: number; qtd: number }>();
+    for (const r of rows) {
+      const v = r.valor_pago;
+      if (v == null || !isFinite(v) || v <= 0) continue;
+      atual += v; qtd += 1;
+      const ano = r.data?.slice(0, 4) || "—";
+      const cur = byYear.get(ano) ?? { atual: 0, qtd: 0 };
+      cur.atual += v; cur.qtd += 1;
+      byYear.set(ano, cur);
+    }
+    const projetado = qtd * ALVO;
+    const porAno = Array.from(byYear.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([ano, x]) => ({ name: ano, atual: x.atual, projetado: x.qtd * ALVO, economia: Math.max(0, x.atual - x.qtd * ALVO) }));
+    return { atual, projetado, economia: Math.max(0, atual - projetado), qtd, porAno };
+  }, [rows]);
+
   if (cl) return <Skeleton className="h-40 w-full" />;
   if (!companyId) return <Card><CardContent className="p-6 text-sm text-muted-foreground">Você precisa estar vinculado a uma empresa.</CardContent></Card>;
   if (err) return <Card><CardContent className="p-6 text-sm text-destructive">{err}</CardContent></Card>;
