@@ -53,11 +53,46 @@ const TOOLS = [
       parameters: {
         type: "object",
         properties: {
-          entidade: { type: "string", enum: ["arts","protocolos","cats","certidoes","baixas","tratativas","prazos","rts","empresas","documentos"] },
+          entidade: { type: "string", enum: ["arts","protocolos","cats","certidoes","baixas","tratativas","prazos","rts","empresas","documentos","normas","links_oficiais"] },
           limit: { type: "number" },
           status: { type: "string" },
         },
         required: ["entidade"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "buscar_normas",
+      description: "Busca em Normas e Regras (crea_norms) por palavra-chave, UF, tipo, número, ano ou tema. Retorna até 20 normas com link, resumo e vigência.",
+      parameters: {
+        type: "object",
+        properties: {
+          q: { type: "string", description: "Texto a buscar em tipo, número, tema, resumo, órgão." },
+          uf: { type: "string" }, tipo: { type: "string" }, ano: { type: "number" },
+          limit: { type: "number" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "links_oficiais",
+      description: "Retorna links oficiais (portal, consultas, certidões, protocolo, normas) por UF.",
+      parameters: { type: "object", properties: { uf: { type: "string" } } },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "fetch_link",
+      description: "Baixa o conteúdo de uma URL (anexo PDF/HTML, link de norma, portal oficial) e retorna texto extraído (até 12k caracteres). Use para LER de fato o conteúdo de um link/anexo cadastrado em Normas e Regras, Documentações ou Links Oficiais.",
+      parameters: {
+        type: "object",
+        properties: { url: { type: "string", description: "URL completa (https://...)" } },
+        required: ["url"],
       },
     },
   },
@@ -67,8 +102,51 @@ const ENTIDADE_TABLE: Record<string,string> = {
   arts: "crea_arts", protocolos: "crea_protocolos", cats: "crea_cats",
   certidoes: "crea_certidoes", baixas: "crea_baixas", tratativas: "crea_tratativas",
   prazos: "crea_prazos", rts: "crea_responsaveis_tecnicos", empresas: "crea_empresas",
-  documentos: "crea_documentos",
+  documentos: "crea_documents",
+  normas: "crea_norms", links_oficiais: "crea_links_oficiais",
 };
+
+// Extrai texto legível de HTML simples (sem dependências externas)
+function htmlToText(html: string): string {
+  return html
+    .replace(/<script[\s\S]*?<\/script>/gi, " ")
+    .replace(/<style[\s\S]*?<\/style>/gi, " ")
+    .replace(/<[^>]+>/g, " ")
+    .replace(/&nbsp;/g, " ")
+    .replace(/&amp;/g, "&").replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&quot;/g, '"')
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
+async function fetchUrlContent(url: string): Promise<{ url: string; status?: number; tipo?: string; texto?: string; bytes?: number; error?: string }> {
+  try {
+    if (!/^https?:\/\//i.test(url)) return { url, error: "URL inválida" };
+    const ctrl = new AbortController();
+    const t = setTimeout(() => ctrl.abort(), 15000);
+    const resp = await fetch(url, {
+      signal: ctrl.signal,
+      headers: { "User-Agent": "Mozilla/5.0 OCS-Assistant/1.0", Accept: "text/html,application/pdf,*/*" },
+      redirect: "follow",
+    });
+    clearTimeout(t);
+    const ct = (resp.headers.get("content-type") ?? "").toLowerCase();
+    if (!resp.ok) return { url, status: resp.status, tipo: ct, error: `HTTP ${resp.status}` };
+    if (ct.includes("application/pdf") || url.toLowerCase().endsWith(".pdf")) {
+      const buf = new Uint8Array(await resp.arrayBuffer());
+      // Extração simples de strings legíveis do PDF (sem libs)
+      const dec = new TextDecoder("latin1");
+      const raw = dec.decode(buf);
+      const matches = raw.match(/\(([^()\\]{2,}?)\)/g) ?? [];
+      const texto = matches.map(m => m.slice(1, -1)).join(" ").replace(/\s+/g, " ").slice(0, 12000);
+      return { url, status: resp.status, tipo: "application/pdf", bytes: buf.length, texto: texto || "(PDF sem texto extraível por método simples)" };
+    }
+    const txt = await resp.text();
+    const out = ct.includes("text/html") ? htmlToText(txt) : txt;
+    return { url, status: resp.status, tipo: ct, bytes: txt.length, texto: out.slice(0, 12000) };
+  } catch (e) {
+    return { url, error: e instanceof Error ? e.message : "fetch falhou" };
+  }
+}
 
 async function buildBaseQuery(supabase: any, companyId: string, args: any) {
   let q = supabase.from("crea_gov_arts").select("*").eq("company_id", companyId).eq("is_deleted", false);
@@ -159,11 +237,41 @@ async function execTool(supabase: any, companyId: string, name: string, args: an
   if (name === "listar") {
     const tbl = ENTIDADE_TABLE[args?.entidade];
     if (!tbl) return { error: "entidade inválida" };
-    let q = supabase.from(tbl).select("*").eq("company_id", companyId).eq("is_deleted", false).order("created_at", { ascending: false }).limit(Math.min(args?.limit ?? 10, 20));
+    const isGlobal = args?.entidade === "normas" || args?.entidade === "links_oficiais";
+    let q = supabase.from(tbl).select("*").eq("is_deleted", false).order("created_at", { ascending: false }).limit(Math.min(args?.limit ?? 10, 20));
+    if (!isGlobal) q = q.eq("company_id", companyId);
     if (args?.status) q = q.eq("status", args.status);
     const { data, error } = await q;
     if (error) return { error: error.message };
     return data ?? [];
+  }
+  if (name === "buscar_normas") {
+    let q = supabase.from("crea_norms")
+      .select("id,tipo,numero,ano,orgao,uf,tema,resumo,link,arquivo_url,anexo_url,status,data_vigencia")
+      .eq("is_deleted", false)
+      .order("ano", { ascending: false })
+      .limit(Math.min(args?.limit ?? 20, 30));
+    if (args?.uf) q = q.in("uf", [args.uf, "BR"]);
+    if (args?.tipo) q = q.ilike("tipo", `%${args.tipo}%`);
+    if (args?.ano) q = q.eq("ano", args.ano);
+    if (args?.q) {
+      const term = String(args.q).replace(/[,()]/g, " ").trim();
+      q = q.or(`tipo.ilike.%${term}%,numero.ilike.%${term}%,tema.ilike.%${term}%,resumo.ilike.%${term}%,orgao.ilike.%${term}%`);
+    }
+    const { data, error } = await q;
+    if (error) return { error: error.message };
+    return data ?? [];
+  }
+  if (name === "links_oficiais") {
+    let q = supabase.from("crea_links_oficiais").select("*").eq("is_deleted", false).limit(40);
+    if (args?.uf) q = q.eq("uf", args.uf);
+    const { data, error } = await q;
+    if (error) return { error: error.message };
+    return data ?? [];
+  }
+  if (name === "fetch_link") {
+    if (!args?.url) return { error: "url obrigatória" };
+    return await fetchUrlContent(String(args.url));
   }
   return { error: `tool desconhecida: ${name}` };
 }
@@ -188,12 +296,42 @@ serve(async (req) => {
     const { data: cu } = u?.user ? await supabase.from("company_users").select("company_id").eq("user_id", u.user.id).maybeSingle() : { data: null } as any;
     const companyId = cu?.company_id ?? null;
 
-    // RAG: fontes de Normas/Regras
+    // RAG: fontes de Normas/Regras (crea_ai_sources + crea_norms + crea_links_oficiais)
     let sq = supabase.from("crea_ai_sources").select("id,titulo,tipo,uf,conteudo,link").eq("ativo", true).eq("is_deleted", false).limit(30);
     if (uf) sq = sq.in("uf", [uf, "BR"]);
-    const { data: sources } = await sq;
-    const ctx = (sources ?? []).map((s, i) =>
-      `[${i+1}] ${s.titulo} (${s.tipo ?? ""} · ${s.uf ?? "-"})\n${(s.conteudo ?? "").slice(0, 1500)}`
+    const { data: aiSources } = await sq;
+
+    let nq = supabase.from("crea_norms")
+      .select("id,tipo,numero,ano,orgao,uf,tema,resumo,link,arquivo_url,anexo_url,status,data_vigencia")
+      .eq("is_deleted", false)
+      .order("ano", { ascending: false })
+      .limit(40);
+    if (uf) nq = nq.in("uf", [uf, "BR"]);
+    const { data: norms } = await nq;
+
+    let lq = supabase.from("crea_links_oficiais")
+      .select("uf,portal_principal,portal_servicos,consulta_art,consulta_cat,certidoes,protocolo,atendimento,normas,observacoes")
+      .eq("is_deleted", false).limit(40);
+    if (uf) lq = lq.eq("uf", uf);
+    const { data: links } = await lq;
+
+    type Src = { titulo: string; uf?: string|null; tipo?: string|null; link?: string|null; conteudo?: string };
+    const all: Src[] = [];
+    for (const s of (aiSources ?? [])) all.push({ titulo: s.titulo, uf: s.uf, tipo: s.tipo, link: s.link, conteudo: s.conteudo ?? "" });
+    for (const n of (norms ?? [])) {
+      const titulo = `${n.tipo ?? "Norma"} ${n.numero ?? ""}/${n.ano ?? ""} — ${n.tema ?? ""}`.trim();
+      const anexos = [n.link, n.arquivo_url, n.anexo_url].filter(Boolean).join(" | ");
+      const conteudo = `Órgão: ${n.orgao ?? "-"} · Status: ${n.status ?? "-"} · Vigência: ${n.data_vigencia ?? "-"}\nResumo: ${n.resumo ?? "(sem resumo cadastrado)"}\nAnexos/links: ${anexos || "—"}`;
+      all.push({ titulo, uf: n.uf, tipo: "norma", link: n.link ?? n.arquivo_url ?? n.anexo_url ?? null, conteudo });
+    }
+    for (const l of (links ?? [])) {
+      const conteudo = Object.entries(l).filter(([k,v]) => v && k !== "uf").map(([k,v]) => `${k}: ${v}`).join(" · ");
+      all.push({ titulo: `Links Oficiais CREA-${l.uf}`, uf: l.uf, tipo: "links_oficiais", link: l.portal_principal, conteudo });
+    }
+
+    const sources = all;
+    const ctx = sources.map((s, i) =>
+      `[${i+1}] ${s.titulo} (${s.tipo ?? ""} · ${s.uf ?? "-"})${s.link ? `\nLink: ${s.link}` : ""}\n${(s.conteudo ?? "").slice(0, 1500)}`
     ).join("\n\n---\n\n");
 
     const MODULE_DOCS = `MÓDULO CREA & ART — VISÃO COMPLETA (Dashboard, ARTs, CATs, Certidões, Baixas, RTs, Empresas e CREAs, Documentações (com sub-aba Protocolos), Normas e Regras (com sub-abas Links Oficiais, Prazos, Tratativas), Credenciais, Governança ART, Admin (com sub-abas Integrações, Auditoria), Assistente IA).
@@ -207,7 +345,8 @@ Credenciais: senhas cifradas (AES); revelação exige motivo e auto-oculta em 30
 Regras:
 - Para perguntas SOBRE DADOS REAIS da empresa (quantidades, listas, KPIs, rankings, vencidas, divergências), CHAME AS TOOLS. Não especule números.
 - Para perguntas sobre COMO O MÓDULO FUNCIONA, abas, status e fluxos: use a seção MÓDULO.
-- Para perguntas sobre NORMAS, RESOLUÇÕES, DN/PL ou prazos legais: responda APENAS com base nas FONTES e cite [n]. Se não houver suporte nas fontes, diga "Não tenho fonte cadastrada para responder isso — confirme no portal oficial do CREA da UF".
+- Para perguntas sobre NORMAS, RESOLUÇÕES, DN/PL, LINKS OFICIAIS ou ANEXOS cadastrados na aba "Normas e Regras": use as FONTES (que já incluem crea_norms e crea_links_oficiais) e cite [n]. Você também pode chamar as tools "buscar_normas", "links_oficiais" e "fetch_link" para BAIXAR e LER o conteúdo de um link/anexo (PDF ou HTML) cadastrado. Se um link/anexo aparecer nas fontes e for relevante, chame fetch_link para ler o conteúdo antes de responder.
+- Se mesmo após buscar e tentar fetch_link não houver suporte nas fontes, diga "Não tenho fonte cadastrada para responder isso — confirme no portal oficial do CREA da UF".
 - Nunca invente número de DN/PL/Resolução nem prazo.
 - Responda em PT-BR, com valores R$ X.XXX,XX e listas curtas.
 
@@ -226,7 +365,7 @@ ${ctx || "(nenhuma fonte cadastrada)"}`;
     const toolCallsLog: any[] = [];
     let finalAnswer = "";
     const t0 = Date.now();
-    const useTools = !!companyId;
+    const useTools = true;
 
     for (let i = 0; i < 4; i++) {
       const body: any = { model: MODEL, messages };
