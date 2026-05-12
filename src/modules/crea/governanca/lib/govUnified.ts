@@ -60,6 +60,7 @@ export function canonContratante(v: any): string | null {
   s = s.replace(/\bS\.\s*A\b\.?/g, "SA").replace(/\bLTDA\.?/g, "LTDA");
   s = s.replace(/\s+/g, " ").trim();
   if (s.startsWith("HIGHLINE")) return "HIGHLINE";
+  if (s.startsWith("NOVA CORRENTE")) return "NOVA CORRENTE";
   return s;
 }
 
