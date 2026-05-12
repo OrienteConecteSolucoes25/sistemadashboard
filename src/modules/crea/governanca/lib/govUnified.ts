@@ -203,11 +203,70 @@ export async function fetchGovUnified(companyId: string, f: GovFilters): Promise
     });
   });
 
-  return rows.filter((r) =>
+  const filtered = rows.filter((r) =>
     matchesText(r, f) &&
     inYearMonth(r.data, f.ano, f.mes) &&
     inDateRange(r.data, f.data_de, f.data_ate)
   );
+  return mergeByArt(filtered);
+}
+
+/** Normaliza número de ART para chave de cruzamento. */
+function normArt(v: any): string | null {
+  if (v == null) return null;
+  const s = String(v).toUpperCase().replace(/[^0-9A-Z]/g, "");
+  return s || null;
+}
+
+/**
+ * Cruza linhas das 4 sub-abas pelo número da ART (Número = Número da ART = ART).
+ * Linhas com mesmo número viram UMA ART, complementando campos faltantes.
+ * Valores (R$) NÃO são somados entre fontes — usa-se o maior valor não-nulo.
+ */
+function mergeByArt(rows: GovUnifiedRow[]): GovUnifiedRow[] {
+  const groups = new Map<string, GovUnifiedRow[]>();
+  const orphans: GovUnifiedRow[] = [];
+  for (const r of rows) {
+    const k = normArt(r.numero);
+    if (!k) { orphans.push(r); continue; }
+    const arr = groups.get(k) ?? [];
+    arr.push(r);
+    groups.set(k, arr);
+  }
+  const merged: GovUnifiedRow[] = [];
+  const pickFirst = <T,>(arr: GovUnifiedRow[], f: (r: GovUnifiedRow) => T | null | undefined): T | null => {
+    for (const r of arr) { const v = f(r); if (v != null && v !== "") return v as T; }
+    return null;
+  };
+  const pickMaxNum = (arr: GovUnifiedRow[], f: (r: GovUnifiedRow) => number | null): number | null => {
+    let best: number | null = null;
+    for (const r of arr) { const v = f(r); if (v != null && (best == null || v > best)) best = v; }
+    return best;
+  };
+  // Prioriza fontes com mais dados estruturados
+  const order: Record<GovUnifiedRow["source"], number> = { servicos: 0, art_bloco: 1, relatorio_crea: 2, arts_todas: 3 };
+  groups.forEach((arr) => {
+    const sorted = [...arr].sort((a, b) => order[a.source] - order[b.source]);
+    const base = sorted[0];
+    merged.push({
+      ...base,
+      numero: pickFirst(sorted, (r) => r.numero) ?? base.numero,
+      uf: pickFirst(sorted, (r) => r.uf),
+      cidade: pickFirst(sorted, (r) => r.cidade),
+      nome_obra: pickFirst(sorted, (r) => r.nome_obra),
+      rt_nome: pickFirst(sorted, (r) => r.rt_nome),
+      contratante: pickFirst(sorted, (r) => r.contratante),
+      empresa: pickFirst(sorted, (r) => r.empresa),
+      status: pickFirst(sorted, (r) => r.status),
+      valor_art: pickMaxNum(sorted, (r) => r.valor_art),
+      valor_pago: pickMaxNum(sorted, (r) => r.valor_pago),
+      valor_contrato: pickMaxNum(sorted, (r) => r.valor_contrato),
+      atividade_servico: pickFirst(sorted, (r) => r.atividade_servico),
+      data: pickFirst(sorted, (r) => r.data),
+      raw: { merged: sorted.map((r) => ({ source: r.source, id: r.id, raw: r.raw })) },
+    });
+  });
+  return [...merged, ...orphans];
 }
 
 export function unifiedKpis(rows: GovUnifiedRow[]) {
