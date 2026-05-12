@@ -97,7 +97,7 @@ export function useGovFilterOptions(companyId: string | null, refreshKey: number
           pushUF(ufs, r.uf_obra, r.uf_contrato, r.endereco);
           pushTxt(cidades, r.cidade_obra, r.cidade_contrato);
           pushTxt(obras, r.endereco);
-          pushTxt(rts, r.responsavel_tecnico);
+          pushPessoa(rts, r.responsavel_tecnico);
           pushTxt(numeros, r.art, r.numero);
           pushDate(datas, r.cadastro, r.pagamento, r.data_inicio);
         });
@@ -105,7 +105,7 @@ export function useGovFilterOptions(companyId: string | null, refreshKey: number
           pushUF(ufs, r.uf_obra, r.uf_contrato, r.endereco_obra, r.endereco_contrato);
           pushTxt(cidades, r.cidade_obra, r.cidade_contrato);
           pushTxt(obras, r.endereco_obra, r.endereco_contrato);
-          pushTxt(rts, r.responsavel_tecnico);
+          pushPessoa(rts, r.responsavel_tecnico);
           pushTxt(numeros, r.numero_art);
           pushDate(datas, r.data_inicio, r.celebrado_em, r.data_solicitacao);
         });
