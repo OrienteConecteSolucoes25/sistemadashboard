@@ -17,15 +17,25 @@ const EMPTY: GovFilterOptions = {
   ufs: [], anos: [], meses: [], cidades: [], obras: [], rts: [], numeros: [],
 };
 
+const UFS_BR = new Set([
+  "AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG",
+  "PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"
+]);
 function pushUF(set: Set<string>, ...vals: any[]) {
+  const tryAdd = (cand: string) => {
+    const u = cand.toUpperCase();
+    if (UFS_BR.has(u)) set.add(u);
+  };
   for (const v of vals) {
     const s = String(v ?? "").trim();
     if (!s) continue;
-    if (/^[A-Za-z]{2}$/.test(s)) { set.add(s.toUpperCase()); continue; }
-    const m = s.match(/\b([A-Z]{2})\b/);
-    if (m) set.add(m[1]);
-    const m2 = s.match(/\/\s*([A-Z]{2})\b/);
-    if (m2) set.add(m2[1]);
+    if (/^[A-Za-z]{2}$/.test(s)) { tryAdd(s); continue; }
+    // Prioriza padrão "Cidade/UF"
+    const m2 = s.match(/\/\s*([A-Za-z]{2})\b/);
+    if (m2) { tryAdd(m2[1]); continue; }
+    // Procura qualquer ocorrência válida de UF brasileira como palavra isolada
+    const matches = s.toUpperCase().match(/\b[A-Z]{2}\b/g) ?? [];
+    for (const m of matches) tryAdd(m);
   }
 }
 function pushTxt(set: Set<string>, ...vals: any[]) {
