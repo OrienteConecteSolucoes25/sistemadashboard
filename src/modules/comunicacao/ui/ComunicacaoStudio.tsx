@@ -11,7 +11,25 @@ import { useToast } from "@/hooks/use-toast";
 import { useComunicacaoAccess } from "../hooks/useComunicacaoAccess";
 import { useActiveBrandKit } from "../hooks/useActiveBrandKit";
 import { commImageGen, commSoftDelete } from "../lib/api";
-import { Sparkles, Save, Download, Copy, ExternalLink, Trash2, Image as ImageIcon, Grid3x3, RefreshCcw, Loader2 } from "lucide-react";
+import { Sparkles, Save, Download, Copy, ExternalLink, Trash2, Image as ImageIcon, Grid3x3, RefreshCcw, Loader2, Package } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
+
+async function convertImageBlob(url: string, format: "png" | "jpg"): Promise<Blob> {
+  const res = await fetch(url, { mode: "cors" });
+  const srcBlob = await res.blob();
+  // PNG sem reencode se já for PNG; JPG sempre reencoda via canvas
+  if (format === "png" && srcBlob.type === "image/png") return srcBlob;
+  const bitmap = await createImageBitmap(srcBlob);
+  const canvas = document.createElement("canvas");
+  canvas.width = bitmap.width; canvas.height = bitmap.height;
+  const ctx = canvas.getContext("2d")!;
+  if (format === "jpg") { ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+  ctx.drawImage(bitmap, 0, 0);
+  const mime = format === "jpg" ? "image/jpeg" : "image/png";
+  return await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), mime, 0.92));
+}
 
 const FORMATS: Record<string, { w: number; h: number; label: string }> = {
   "1080x1080": { w: 1080, h: 1080, label: "Instagram Feed" },
