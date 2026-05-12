@@ -99,7 +99,7 @@ export function VisaoExecutivaTab({ filters }: { filters: GovFilters }) {
   const valorPorAtividade = useMemo(() => rows ? groupSum(rows, (r) => r.atividade_servico, (r) => r.valor_art ?? 0).filter(x => x.value > 0).sort((a,b) => b.value - a.value) : [], [rows]);
   const porCidade = useMemo(() => rows ? groupCount(rows, (r) => r.cidade).slice(0, 10) : [], [rows]);
   const custoArtPorUF = useMemo(
-    () => rows ? groupSum(rows, (r) => r.uf, (r) => (r.valor_art ?? r.valor_pago ?? 0)).filter(x => x.value > 0).sort((a,b) => b.value - a.value).slice(0, 15) : [],
+    () => rows ? groupSum(rows, (r) => r.uf, (r) => (r.valor_art ?? r.valor_pago ?? r.valor_contrato ?? 0)).filter(x => x.value > 0).sort((a,b) => b.value - a.value).slice(0, 27) : [],
     [rows]
   );
 
