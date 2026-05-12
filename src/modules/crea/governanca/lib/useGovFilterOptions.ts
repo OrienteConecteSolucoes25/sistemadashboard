@@ -44,6 +44,13 @@ function pushTxt(set: Set<string>, ...vals: any[]) {
     if (s) set.add(s);
   }
 }
+function pushPessoa(set: Set<string>, ...vals: any[]) {
+  for (const v of vals) {
+    const s = String(v ?? "").trim();
+    if (!s) continue;
+    set.add(s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/\s+/g, " "));
+  }
+}
 function pushDate(set: Set<string>, ...vals: any[]) {
   for (const v of vals) {
     if (!v) continue;
