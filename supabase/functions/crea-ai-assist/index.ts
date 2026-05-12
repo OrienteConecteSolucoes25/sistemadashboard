@@ -53,11 +53,46 @@ const TOOLS = [
       parameters: {
         type: "object",
         properties: {
-          entidade: { type: "string", enum: ["arts","protocolos","cats","certidoes","baixas","tratativas","prazos","rts","empresas","documentos"] },
+          entidade: { type: "string", enum: ["arts","protocolos","cats","certidoes","baixas","tratativas","prazos","rts","empresas","documentos","normas","links_oficiais"] },
           limit: { type: "number" },
           status: { type: "string" },
         },
         required: ["entidade"],
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "buscar_normas",
+      description: "Busca em Normas e Regras (crea_norms) por palavra-chave, UF, tipo, número, ano ou tema. Retorna até 20 normas com link, resumo e vigência.",
+      parameters: {
+        type: "object",
+        properties: {
+          q: { type: "string", description: "Texto a buscar em tipo, número, tema, resumo, órgão." },
+          uf: { type: "string" }, tipo: { type: "string" }, ano: { type: "number" },
+          limit: { type: "number" },
+        },
+      },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "links_oficiais",
+      description: "Retorna links oficiais (portal, consultas, certidões, protocolo, normas) por UF.",
+      parameters: { type: "object", properties: { uf: { type: "string" } } },
+    },
+  },
+  {
+    type: "function",
+    function: {
+      name: "fetch_link",
+      description: "Baixa o conteúdo de uma URL (anexo PDF/HTML, link de norma, portal oficial) e retorna texto extraído (até 12k caracteres). Use para LER de fato o conteúdo de um link/anexo cadastrado em Normas e Regras, Documentações ou Links Oficiais.",
+      parameters: {
+        type: "object",
+        properties: { url: { type: "string", description: "URL completa (https://...)" } },
+        required: ["url"],
       },
     },
   },
