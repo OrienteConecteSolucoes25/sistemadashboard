@@ -11,7 +11,25 @@ import { useToast } from "@/hooks/use-toast";
 import { useComunicacaoAccess } from "../hooks/useComunicacaoAccess";
 import { useActiveBrandKit } from "../hooks/useActiveBrandKit";
 import { commImageGen, commSoftDelete } from "../lib/api";
-import { Sparkles, Save, Download, Copy, ExternalLink, Trash2, Image as ImageIcon, Grid3x3, RefreshCcw, Loader2 } from "lucide-react";
+import { Sparkles, Save, Download, Copy, ExternalLink, Trash2, Image as ImageIcon, Grid3x3, RefreshCcw, Loader2, Package } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import JSZip from "jszip";
+import { saveAs } from "file-saver";
+
+async function convertImageBlob(url: string, format: "png" | "jpg"): Promise<Blob> {
+  const res = await fetch(url, { mode: "cors" });
+  const srcBlob = await res.blob();
+  // PNG sem reencode se já for PNG; JPG sempre reencoda via canvas
+  if (format === "png" && srcBlob.type === "image/png") return srcBlob;
+  const bitmap = await createImageBitmap(srcBlob);
+  const canvas = document.createElement("canvas");
+  canvas.width = bitmap.width; canvas.height = bitmap.height;
+  const ctx = canvas.getContext("2d")!;
+  if (format === "jpg") { ctx.fillStyle = "#ffffff"; ctx.fillRect(0, 0, canvas.width, canvas.height); }
+  ctx.drawImage(bitmap, 0, 0);
+  const mime = format === "jpg" ? "image/jpeg" : "image/png";
+  return await new Promise<Blob>((resolve) => canvas.toBlob((b) => resolve(b!), mime, 0.92));
+}
 
 const FORMATS: Record<string, { w: number; h: number; label: string }> = {
   "1080x1080": { w: 1080, h: 1080, label: "Instagram Feed" },
@@ -338,10 +356,49 @@ export function ImagesGalleryPage() {
     load();
   }
 
+  const [zipping, setZipping] = useState(false);
+  async function downloadApproved(format: "png" | "jpg") {
+    const approved = items.filter((i) => i.approval_status === "aprovado" && i.public_url);
+    if (approved.length === 0) { toast({ title: "Nenhuma imagem aprovada para baixar" }); return; }
+    setZipping(true);
+    try {
+      const zip = new JSZip();
+      let ok = 0, fail = 0;
+      await Promise.all(approved.map(async (img, idx) => {
+        try {
+          const blob = await convertImageBlob(img.public_url, format);
+          const safe = (img.prompt || "imagem").slice(0, 40).replace(/[^a-z0-9-_]+/gi, "_").toLowerCase();
+          zip.file(`${String(idx + 1).padStart(3, "0")}_${safe}.${format}`, blob);
+          ok++;
+        } catch { fail++; }
+      }));
+      const out = await zip.generateAsync({ type: "blob" });
+      saveAs(out, `imagens_aprovadas_${format}_${new Date().toISOString().slice(0, 10)}.zip`);
+      toast({ title: `Baixado (${ok}/${approved.length})`, description: fail ? `${fail} falharam` : undefined });
+    } catch (e: any) { toast({ title: "Erro ao gerar zip", description: e.message, variant: "destructive" }); }
+    finally { setZipping(false); }
+  }
+
+  const approvedCount = items.filter((i) => i.approval_status === "aprovado").length;
+
   return (
     <div className="space-y-3">
       <Card className="p-4 space-y-2">
-        <h2 className="text-xl font-display font-bold flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary" />Galeria IA</h2>
+        <div className="flex items-start justify-between gap-2 flex-wrap">
+          <h2 className="text-xl font-display font-bold flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary" />Galeria IA</h2>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button variant="outline" size="sm" disabled={zipping || approvedCount === 0}>
+                {zipping ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Package className="w-4 h-4 mr-1" />}
+                Baixar aprovadas ({approvedCount})
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end">
+              <DropdownMenuItem onClick={() => downloadApproved("png")}><ImageIcon className="w-4 h-4 mr-2" />ZIP em PNG</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => downloadApproved("jpg")}><ImageIcon className="w-4 h-4 mr-2" />ZIP em JPG</DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
         <Textarea placeholder="Descreva a imagem (ex: capa para post sobre engenharia de fibra ótica, estilo minimalista, cores teal e dark)" value={prompt} onChange={(e) => setPrompt(e.target.value)} rows={3} />
         <div className="flex flex-wrap gap-2">
           <Select value={format} onValueChange={setFormat}><SelectTrigger className="w-40"><SelectValue /></SelectTrigger>
