@@ -171,6 +171,12 @@ export function VisaoExecutivaTab({ filters }: { filters: GovFilters }) {
             <ResponsiveContainer><BarChart data={porCidade} layout="vertical"><XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} /><YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={140} /><Tooltip /><Bar dataKey="value" fill="#fbbf24" /></BarChart></ResponsiveContainer>
           </CardContent>
         </Card>
+        <Card className="card-elegant lg:col-span-2">
+          <CardHeader className="pb-1"><CardTitle className="text-sm flex items-center gap-1"><DollarSign className="h-3 w-3" /> Custo de ART por UF (R$)</CardTitle></CardHeader>
+          <CardContent className="h-72">
+            <ResponsiveContainer><BarChart data={custoArtPorUF} layout="vertical" margin={{ left: 8, right: 8 }}><XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={fmtBRLk} /><YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={50} /><Tooltip formatter={(v: any) => fmtBRL(Number(v))} /><Bar dataKey="value" fill="#a78bfa" name="Custo ART" /></BarChart></ResponsiveContainer>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
