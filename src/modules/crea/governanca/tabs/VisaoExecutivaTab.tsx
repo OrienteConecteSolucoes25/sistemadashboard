@@ -98,6 +98,10 @@ export function VisaoExecutivaTab({ filters }: { filters: GovFilters }) {
   const porContratante = useMemo(() => rows ? groupCount(rows, (r) => r.contratante).slice(0, 10) : [], [rows]);
   const valorPorAtividade = useMemo(() => rows ? groupSum(rows, (r) => r.atividade_servico, (r) => r.valor_art ?? 0).filter(x => x.value > 0).sort((a,b) => b.value - a.value) : [], [rows]);
   const porCidade = useMemo(() => rows ? groupCount(rows, (r) => r.cidade).slice(0, 10) : [], [rows]);
+  const custoArtPorUF = useMemo(
+    () => rows ? groupSum(rows, (r) => r.uf, (r) => r.valor_art ?? 0).filter(x => x.value > 0).sort((a,b) => b.value - a.value).slice(0, 15) : [],
+    [rows]
+  );
 
   if (cl) return <Skeleton className="h-40 w-full" />;
   if (!companyId) return <Card><CardContent className="p-6 text-sm text-muted-foreground">Você precisa estar vinculado a uma empresa.</CardContent></Card>;
