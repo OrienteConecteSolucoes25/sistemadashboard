@@ -8,6 +8,7 @@ import { NotificationsBell } from "@/components/NotificationsBell";
 import { AssistenteFloating } from "@/components/AssistenteFloating";
 import { ImpersonationProvider } from "@/modules/planos/hooks/useImpersonation";
 import { ImpersonationBanner } from "@/components/ImpersonationBanner";
+import { OfflineBanner } from "@/components/OfflineBanner";
 import { useUserLayoutPreference } from "@/modules/aparencia/hooks/useUserLayoutPreference";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { useAcl, useCan } from "@/acl/AclProvider";
@@ -172,6 +173,7 @@ const AppLayout = () => {
         className="flex-1 overflow-auto pt-14 md:pt-0"
         style={{ paddingBottom: "max(1rem, env(safe-area-inset-bottom))" }}
       >
+        <OfflineBanner />
         <ImpersonationBanner />
         <div className="p-4 md:p-6">
           <Outlet />
