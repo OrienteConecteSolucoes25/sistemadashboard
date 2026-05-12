@@ -103,6 +103,44 @@ export function VisaoExecutivaTab({ filters }: { filters: GovFilters }) {
     [rows]
   );
 
+  // Distribuição de valores pagos por ART (ex.: 285, 108, etc.)
+  const distribValorPago = useMemo(() => {
+    if (!rows) return [];
+    const map = new Map<string, number>();
+    for (const r of rows) {
+      const v = r.valor_pago;
+      if (v == null || !isFinite(v) || v <= 0) continue;
+      const key = (Math.round(v * 100) / 100).toFixed(2);
+      map.set(key, (map.get(key) ?? 0) + 1);
+    }
+    return Array.from(map.entries())
+      .map(([k, value]) => ({ name: fmtBRL(Number(k)), valorNum: Number(k), value }))
+      .sort((a, b) => b.value - a.value)
+      .slice(0, 12);
+  }, [rows]);
+
+  // Economia anual estimada se todas as ARTs custassem R$ 108
+  const economiaSe108 = useMemo(() => {
+    if (!rows) return { atual: 0, projetado: 0, economia: 0, qtd: 0, porAno: [] as { name: string; atual: number; projetado: number; economia: number }[] };
+    const ALVO = 108;
+    let atual = 0, qtd = 0;
+    const byYear = new Map<string, { atual: number; qtd: number }>();
+    for (const r of rows) {
+      const v = r.valor_pago;
+      if (v == null || !isFinite(v) || v <= 0) continue;
+      atual += v; qtd += 1;
+      const ano = r.data?.slice(0, 4) || "—";
+      const cur = byYear.get(ano) ?? { atual: 0, qtd: 0 };
+      cur.atual += v; cur.qtd += 1;
+      byYear.set(ano, cur);
+    }
+    const projetado = qtd * ALVO;
+    const porAno = Array.from(byYear.entries())
+      .sort((a, b) => a[0].localeCompare(b[0]))
+      .map(([ano, x]) => ({ name: ano, atual: x.atual, projetado: x.qtd * ALVO, economia: Math.max(0, x.atual - x.qtd * ALVO) }));
+    return { atual, projetado, economia: Math.max(0, atual - projetado), qtd, porAno };
+  }, [rows]);
+
   if (cl) return <Skeleton className="h-40 w-full" />;
   if (!companyId) return <Card><CardContent className="p-6 text-sm text-muted-foreground">Você precisa estar vinculado a uma empresa.</CardContent></Card>;
   if (err) return <Card><CardContent className="p-6 text-sm text-destructive">{err}</CardContent></Card>;
@@ -175,6 +213,56 @@ export function VisaoExecutivaTab({ filters }: { filters: GovFilters }) {
           <CardHeader className="pb-1"><CardTitle className="text-sm flex items-center gap-1"><DollarSign className="h-3 w-3" /> Custo de ART por UF (R$)</CardTitle></CardHeader>
           <CardContent className="h-72">
             <ResponsiveContainer><BarChart data={custoArtPorUF} layout="vertical" margin={{ left: 8, right: 8 }}><XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={fmtBRLk} /><YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={50} /><Tooltip formatter={(v: any) => fmtBRL(Number(v))} /><Bar dataKey="value" fill="#a78bfa" name="Custo ART" /></BarChart></ResponsiveContainer>
+          </CardContent>
+        </Card>
+
+        <Card className="card-elegant">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-sm flex items-center gap-1"><DollarSign className="h-3 w-3" /> Quantidade de ARTs por valor pago</CardTitle>
+          </CardHeader>
+          <CardContent className="h-72">
+            <ResponsiveContainer>
+              <BarChart data={distribValorPago} margin={{ left: 8, right: 8, bottom: 30 }}>
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} angle={-25} textAnchor="end" interval={0} height={50} />
+                <YAxis tick={{ fontSize: 10 }} allowDecimals={false} />
+                <Tooltip formatter={(v: any) => [`${v} ARTs`, "Quantidade"]} />
+                <Bar dataKey="value" fill="#60a5fa" name="ARTs" />
+              </BarChart>
+            </ResponsiveContainer>
+            <p className="text-[10px] text-muted-foreground mt-1">Conta quantas ARTs foram pagas em cada valor (R$ 285, R$ 108, etc.).</p>
+          </CardContent>
+        </Card>
+
+        <Card className="card-elegant">
+          <CardHeader className="pb-1">
+            <CardTitle className="text-sm flex items-center gap-1"><DollarSign className="h-3 w-3" /> Economia se todas as ARTs custassem R$ 108</CardTitle>
+          </CardHeader>
+          <CardContent className="h-72">
+            <div className="grid grid-cols-3 gap-2 mb-2">
+              <div className="rounded-md border p-2">
+                <p className="text-[10px] uppercase text-muted-foreground">Pago atual</p>
+                <p className="text-sm font-semibold">{fmtBRL(economiaSe108.atual)}</p>
+              </div>
+              <div className="rounded-md border p-2">
+                <p className="text-[10px] uppercase text-muted-foreground">Projetado a R$108</p>
+                <p className="text-sm font-semibold">{fmtBRL(economiaSe108.projetado)}</p>
+              </div>
+              <div className="rounded-md border p-2 bg-emerald-500/10">
+                <p className="text-[10px] uppercase text-muted-foreground">Economia</p>
+                <p className="text-sm font-semibold text-emerald-600">{fmtBRL(economiaSe108.economia)}</p>
+              </div>
+            </div>
+            <ResponsiveContainer height={170}>
+              <BarChart data={economiaSe108.porAno} margin={{ left: 8, right: 8 }}>
+                <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                <YAxis tick={{ fontSize: 10 }} tickFormatter={fmtBRLk} />
+                <Tooltip formatter={(v: any) => fmtBRL(Number(v))} />
+                <Legend wrapperStyle={{ fontSize: 11 }} />
+                <Bar dataKey="atual" fill="#f87171" name="Pago atual" />
+                <Bar dataKey="projetado" fill="#34d399" name="A R$108" />
+                <Bar dataKey="economia" fill="#a78bfa" name="Economia" />
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
