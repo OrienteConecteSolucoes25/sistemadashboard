@@ -98,6 +98,10 @@ export function VisaoExecutivaTab({ filters }: { filters: GovFilters }) {
   const porContratante = useMemo(() => rows ? groupCount(rows, (r) => r.contratante).slice(0, 10) : [], [rows]);
   const valorPorAtividade = useMemo(() => rows ? groupSum(rows, (r) => r.atividade_servico, (r) => r.valor_art ?? 0).filter(x => x.value > 0).sort((a,b) => b.value - a.value) : [], [rows]);
   const porCidade = useMemo(() => rows ? groupCount(rows, (r) => r.cidade).slice(0, 10) : [], [rows]);
+  const custoArtPorUF = useMemo(
+    () => rows ? groupSum(rows, (r) => r.uf, (r) => r.valor_art ?? 0).filter(x => x.value > 0).sort((a,b) => b.value - a.value).slice(0, 15) : [],
+    [rows]
+  );
 
   if (cl) return <Skeleton className="h-40 w-full" />;
   if (!companyId) return <Card><CardContent className="p-6 text-sm text-muted-foreground">Você precisa estar vinculado a uma empresa.</CardContent></Card>;
@@ -165,6 +169,12 @@ export function VisaoExecutivaTab({ filters }: { filters: GovFilters }) {
           <CardHeader className="pb-1"><CardTitle className="text-sm flex items-center gap-1"><MapPin className="h-3 w-3" /> Cidades com mais ARTs (top 10)</CardTitle></CardHeader>
           <CardContent className="h-72">
             <ResponsiveContainer><BarChart data={porCidade} layout="vertical"><XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} /><YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={140} /><Tooltip /><Bar dataKey="value" fill="#fbbf24" /></BarChart></ResponsiveContainer>
+          </CardContent>
+        </Card>
+        <Card className="card-elegant lg:col-span-2">
+          <CardHeader className="pb-1"><CardTitle className="text-sm flex items-center gap-1"><DollarSign className="h-3 w-3" /> Custo de ART por UF (R$)</CardTitle></CardHeader>
+          <CardContent className="h-72">
+            <ResponsiveContainer><BarChart data={custoArtPorUF} layout="vertical" margin={{ left: 8, right: 8 }}><XAxis type="number" tick={{ fontSize: 10 }} tickFormatter={fmtBRLk} /><YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={50} /><Tooltip formatter={(v: any) => fmtBRL(Number(v))} /><Bar dataKey="value" fill="#a78bfa" name="Custo ART" /></BarChart></ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
