@@ -148,7 +148,7 @@ export function VisaoExecutivaTab({ filters }: { filters: GovFilters }) {
           </CardContent>
         </Card>
         <Card className="card-elegant">
-          <CardHeader className="pb-1"><CardTitle className="text-sm">Top UFs (ARTs)</CardTitle></CardHeader>
+          <CardHeader className="pb-1"><CardTitle className="text-sm">Maior demanda x Região</CardTitle></CardHeader>
           <CardContent className="h-64">
             <ResponsiveContainer><BarChart data={porUF} layout="vertical"><XAxis type="number" tick={{ fontSize: 10 }} allowDecimals={false} /><YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} width={50} /><Tooltip /><Bar dataKey="value" fill="hsl(var(--primary))" /></BarChart></ResponsiveContainer>
           </CardContent>
