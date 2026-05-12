@@ -237,11 +237,41 @@ async function execTool(supabase: any, companyId: string, name: string, args: an
   if (name === "listar") {
     const tbl = ENTIDADE_TABLE[args?.entidade];
     if (!tbl) return { error: "entidade inválida" };
-    let q = supabase.from(tbl).select("*").eq("company_id", companyId).eq("is_deleted", false).order("created_at", { ascending: false }).limit(Math.min(args?.limit ?? 10, 20));
+    const isGlobal = args?.entidade === "normas" || args?.entidade === "links_oficiais";
+    let q = supabase.from(tbl).select("*").eq("is_deleted", false).order("created_at", { ascending: false }).limit(Math.min(args?.limit ?? 10, 20));
+    if (!isGlobal) q = q.eq("company_id", companyId);
     if (args?.status) q = q.eq("status", args.status);
     const { data, error } = await q;
     if (error) return { error: error.message };
     return data ?? [];
+  }
+  if (name === "buscar_normas") {
+    let q = supabase.from("crea_norms")
+      .select("id,tipo,numero,ano,orgao,uf,tema,resumo,link,arquivo_url,anexo_url,status,data_vigencia")
+      .eq("is_deleted", false)
+      .order("ano", { ascending: false })
+      .limit(Math.min(args?.limit ?? 20, 30));
+    if (args?.uf) q = q.in("uf", [args.uf, "BR"]);
+    if (args?.tipo) q = q.ilike("tipo", `%${args.tipo}%`);
+    if (args?.ano) q = q.eq("ano", args.ano);
+    if (args?.q) {
+      const term = String(args.q).replace(/[,()]/g, " ").trim();
+      q = q.or(`tipo.ilike.%${term}%,numero.ilike.%${term}%,tema.ilike.%${term}%,resumo.ilike.%${term}%,orgao.ilike.%${term}%`);
+    }
+    const { data, error } = await q;
+    if (error) return { error: error.message };
+    return data ?? [];
+  }
+  if (name === "links_oficiais") {
+    let q = supabase.from("crea_links_oficiais").select("*").eq("is_deleted", false).limit(40);
+    if (args?.uf) q = q.eq("uf", args.uf);
+    const { data, error } = await q;
+    if (error) return { error: error.message };
+    return data ?? [];
+  }
+  if (name === "fetch_link") {
+    if (!args?.url) return { error: "url obrigatória" };
+    return await fetchUrlContent(String(args.url));
   }
   return { error: `tool desconhecida: ${name}` };
 }
