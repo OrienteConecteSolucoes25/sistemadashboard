@@ -365,7 +365,7 @@ ${ctx || "(nenhuma fonte cadastrada)"}`;
     const toolCallsLog: any[] = [];
     let finalAnswer = "";
     const t0 = Date.now();
-    const useTools = !!companyId;
+    const useTools = true;
 
     for (let i = 0; i < 4; i++) {
       const body: any = { model: MODEL, messages };
