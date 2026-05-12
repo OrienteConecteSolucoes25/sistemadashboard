@@ -44,6 +44,13 @@ function pushTxt(set: Set<string>, ...vals: any[]) {
     if (s) set.add(s);
   }
 }
+function pushPessoa(set: Set<string>, ...vals: any[]) {
+  for (const v of vals) {
+    const s = String(v ?? "").trim();
+    if (!s) continue;
+    set.add(s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/\s+/g, " "));
+  }
+}
 function pushDate(set: Set<string>, ...vals: any[]) {
   for (const v of vals) {
     if (!v) continue;
@@ -90,7 +97,7 @@ export function useGovFilterOptions(companyId: string | null, refreshKey: number
           pushUF(ufs, r.uf_obra, r.uf_contrato, r.endereco);
           pushTxt(cidades, r.cidade_obra, r.cidade_contrato);
           pushTxt(obras, r.endereco);
-          pushTxt(rts, r.responsavel_tecnico);
+          pushPessoa(rts, r.responsavel_tecnico);
           pushTxt(numeros, r.art, r.numero);
           pushDate(datas, r.cadastro, r.pagamento, r.data_inicio);
         });
@@ -98,7 +105,7 @@ export function useGovFilterOptions(companyId: string | null, refreshKey: number
           pushUF(ufs, r.uf_obra, r.uf_contrato, r.endereco_obra, r.endereco_contrato);
           pushTxt(cidades, r.cidade_obra, r.cidade_contrato);
           pushTxt(obras, r.endereco_obra, r.endereco_contrato);
-          pushTxt(rts, r.responsavel_tecnico);
+          pushPessoa(rts, r.responsavel_tecnico);
           pushTxt(numeros, r.numero_art);
           pushDate(datas, r.data_inicio, r.celebrado_em, r.data_solicitacao);
         });

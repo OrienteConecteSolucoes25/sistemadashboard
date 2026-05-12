@@ -38,6 +38,14 @@ function toDate(v: any): string | null {
   return null;
 }
 
+/** Canoniza nome de pessoa: tira acentos, uppercase, colapsa espaços. */
+export function canonPessoa(v: any): string | null {
+  if (v == null) return null;
+  const s = String(v).trim();
+  if (!s) return null;
+  return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/\s+/g, " ");
+}
+
 /** Canoniza nome de contratante: agrupa todos que começam com "HIGHLINE" em um único nome. */
 export function canonContratante(v: any): string | null {
   if (v == null) return null;
@@ -143,7 +151,7 @@ export async function fetchGovUnified(companyId: string, f: GovFilters): Promise
     uf: pickUF(r.uf_obra, r.uf_contrato),
     cidade: pickCidade(r.cidade_obra, r.cidade_contrato),
     nome_obra: r.endereco ?? null,
-    rt_nome: r.responsavel_tecnico ?? null,
+    rt_nome: canonPessoa(r.responsavel_tecnico),
     contratante: canonContratante(r.contratante),
     empresa: r.empresa ?? null,
     status: r.analise ?? r.baixa ?? null,
@@ -163,7 +171,7 @@ export async function fetchGovUnified(companyId: string, f: GovFilters): Promise
       uf: pickUF(r.uf_obra, r.uf_contrato, end),
       cidade: pickCidade(r.cidade_obra, r.cidade_contrato),
       nome_obra: end,
-      rt_nome: r.responsavel_tecnico ?? null,
+      rt_nome: canonPessoa(r.responsavel_tecnico),
       contratante: canonContratante(r.contratante),
       empresa: null,
       status: r.situacao ?? r.atendido ?? null,
