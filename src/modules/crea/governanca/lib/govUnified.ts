@@ -46,13 +46,20 @@ export function canonPessoa(v: any): string | null {
   return s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/\s+/g, " ");
 }
 
-/** Canoniza nome de contratante: agrupa todos que começam com "HIGHLINE" em um único nome. */
+/** Canoniza nome de contratante: normaliza (sem acento, uppercase, espaços colapsados,
+ *  pontuação final removida) para que variações como "LTDA" / "Ltda." virem o mesmo nome.
+ *  Também agrupa todos que começam com "HIGHLINE" em um único nome. */
 export function canonContratante(v: any): string | null {
   if (v == null) return null;
-  const s = String(v).trim();
+  let s = String(v).trim();
   if (!s) return null;
-  const norm = s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase();
-  if (/^HIGHLINE\b/.test(norm) || norm.startsWith("HIGHLINE")) return "HIGHLINE";
+  // Remove acentos, uppercase, colapsa espaços
+  s = s.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/\s+/g, " ").trim();
+  // Remove pontuação final (., ,, ;) e pontos em abreviações comuns (LTDA., S.A.)
+  s = s.replace(/[.,;]+$/g, "").trim();
+  s = s.replace(/\bS\.\s*A\b\.?/g, "SA").replace(/\bLTDA\.?/g, "LTDA");
+  s = s.replace(/\s+/g, " ").trim();
+  if (s.startsWith("HIGHLINE")) return "HIGHLINE";
   return s;
 }
 
