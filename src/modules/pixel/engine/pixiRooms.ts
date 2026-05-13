@@ -94,54 +94,13 @@ class PixiRoomsManager {
     const variant = this.variantOf(room);
     const colors = this.variantColors(variant);
     const carpetColor = this.hexToNumber(colors.carpet);
-    const accentColor = this.hexToNumber(colors.accent);
 
-    // Carpet
-    graphics.rect(2, 2, w - 4, h - 4);
-    graphics.fill({ color: carpetColor, alpha: 0.85 });
+    // Tapete sutil — sem bordas marcantes, só uma tonalidade de chão
+    graphics.roundRect(0, 0, w, h, 6);
+    graphics.fill({ color: carpetColor, alpha: 0.18 });
 
-    // Checkerboard pattern
-    for (let i = 0; i < Math.floor((w - 4) / 8); i++) {
-      for (let j = 0; j < Math.floor((h - 4) / 8); j++) {
-        if ((i + j) % 2 === 0) {
-          graphics.rect(2 + i * 8, 2 + j * 8, 8, 8);
-          graphics.fill({ color: 0xffffff, alpha: 0.04 });
-        }
-      }
-    }
-
-    // Border
-    graphics.setStrokeStyle({ width: 2, color: accentColor, alpha: 0.6 });
-    graphics.rect(0, 0, w, h);
-    graphics.stroke();
-
-    // Internal inner border
-    graphics.setStrokeStyle({ width: 1, color: 0x000000, alpha: 0.4 });
-    graphics.rect(2, 2, w - 4, h - 4);
-    graphics.stroke();
-
-    // Update Dashboard
-    if (variant !== 'common') {
-      dashboard.visible = true;
-      dashboard.x = w - 10;
-      dashboard.y = -40;
-      
-      const dashBg = dashboard.children[0] as PIXI.Graphics;
-      const title = dashboard.children[1] as PIXI.Text;
-      const stats = dashboard.children[2] as PIXI.Text;
-
-      const config = this.getModuleConfig(variant);
-      title.text = config.title.toUpperCase();
-      stats.text = config.stats.map(s => `${s.label}: ${s.value}`).join('\n');
-
-      dashBg.clear();
-      dashBg.roundRect(-4, -4, 110, 35, 6);
-      dashBg.fill({ color: this.hexToNumber(config.bg), alpha: 0.9 });
-      dashBg.setStrokeStyle({ width: 1, color: this.hexToNumber(config.color), alpha: 0.4 });
-      dashBg.stroke();
-    } else {
-      dashboard.visible = false;
-    }
+    // Dashboards flutuantes desligados (causavam aspecto de "caixa")
+    dashboard.visible = false;
   }
 
   private sizeForCapacity(cap: number) {

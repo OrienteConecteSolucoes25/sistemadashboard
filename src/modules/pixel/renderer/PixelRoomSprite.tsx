@@ -51,51 +51,15 @@ export const PixelRoomSprite = ({ width, height, variant = "common", label }: Pr
         width={width}
         height={height}
         shapeRendering="crispEdges"
-        style={{ imageRendering: "pixelated", display: "block" }}
+        style={{ imageRendering: "pixelated", display: "block", background: "transparent" }}
       >
-        {/* Tapete principal */}
-        <rect x="2" y="2" width={width - 4} height={height - 4} fill={c.carpet} opacity="0.85" />
-        {/* Padrão xadrez sutil */}
-        {Array.from({ length: Math.floor((width - 4) / 8) }).map((_, i) =>
-          Array.from({ length: Math.floor((height - 4) / 8) }).map((__, j) =>
-            (i + j) % 2 === 0 ? (
-              <rect
-                key={`${i}-${j}`}
-                x={2 + i * 8}
-                y={2 + j * 8}
-                width="8"
-                height="8"
-                fill="rgba(255,255,255,0.04)"
-              />
-            ) : null,
-          ),
-        )}
-        {/* Borda dupla */}
-        <rect
-          x="0"
-          y="0"
-          width={width}
-          height={height}
-          fill="none"
-          stroke={c.accent}
-          strokeWidth="2"
-          strokeDasharray="6 4"
-          opacity="0.6"
-        />
-        <rect
-          x="2"
-          y="2"
-          width={width - 4}
-          height={height - 4}
-          fill="none"
-          stroke="rgba(0,0,0,0.4)"
-          strokeWidth="1"
-        />
+        {/* Tapete sutil — apenas tonalidade no chão, sem bordas marcantes */}
+        <rect x="0" y="0" width={width} height={height} fill={c.carpet} opacity="0.18" rx="6" />
       </svg>
       {label && (
         <span
-          className="absolute top-1 left-1 text-[10px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded-sm pointer-events-none"
-          style={{ background: "rgba(0,0,0,0.55)", color: c.accent }}
+          className="absolute top-1 left-1 text-[9px] font-mono uppercase tracking-wider px-1.5 py-0.5 rounded-sm pointer-events-none opacity-60"
+          style={{ background: "rgba(0,0,0,0.35)", color: c.accent }}
         >
           {label}
         </span>
