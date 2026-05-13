@@ -10,6 +10,7 @@ import { JarbasAmbientProvider } from "./modules/jarbas/hooks/useJarbasAmbient";
 import { JarbasAmbientVisuals } from "./modules/jarbas/ui/JarbasAmbientVisuals";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
+import PublicSite from "./pages/PublicSite";
 // Import Projetos removido
 import Adm from "./pages/Adm";
 import ModuleSelector from "./pages/ModuleSelector";
