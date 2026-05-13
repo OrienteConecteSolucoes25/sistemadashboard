@@ -29,6 +29,20 @@ import { DiretorNpc } from "./DiretorNpc";
 import { ModuleAgentNpc } from "./ModuleAgentNpc";
 import { ModuleAgentChat } from "./ModuleAgentChat";
 import { NPCS_CONFIG } from "../data/npcsConfig";
+import { useUserModules } from "@/modules/planos/hooks/useUserModules";
+
+// NPCs internos da plataforma OCS — sempre visíveis (não exigem módulo comprado).
+const INTERNAL_NPCS = new Set(["jarbas", "ocs_guard", "marketplace", "gamificacao"]);
+// Mapa moduleKey -> chave do plano (useUserModules.has)
+const NPC_MODULE_REQ: Record<string, string> = {
+  engenharia: "engenharia",
+  juridico: "juridico",
+  rhdp: "rhdp",
+  crea: "crea",
+  financeiro: "financeiro",
+  ti: "ti",
+  comunicacao: "comunicacao",
+};
 import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare, ShieldAlert, Cpu, Zap, ShoppingCart, DollarSign, Users, Video } from "lucide-react";
 import { ActiveBrandKitProvider } from "@/modules/comunicacao/hooks/useActiveBrandKit";
 import { toast } from "sonner";
