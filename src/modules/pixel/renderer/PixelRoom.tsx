@@ -69,11 +69,7 @@ export const PixelRoom = memo(({ room, onClick, characters = [], meetings }: Pro
         <PixelRoomSprite width={width} height={height} variant={variant} label={room.name} />
       </button>
 
-      {/* Dashboard Flutuante do Módulo */}
-      {variant !== "common" && (
-        <PixelModuleDashboard type={variant as ModuleType} x={width - 20} y={-50} />
-      )}
-
+      {/* Dashboard flutuante removido — causava aspecto de "caixa" sobre o personagem */}
       {/* Mini cena de reunião */}
       {participants.length > 0 && (
         <div className="absolute inset-0 pointer-events-none flex items-center justify-center">
