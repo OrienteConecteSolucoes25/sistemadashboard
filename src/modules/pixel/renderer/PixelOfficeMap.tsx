@@ -1,16 +1,15 @@
 import { TILE_SIZE, STAGE_WIDTH_PX, STAGE_HEIGHT_PX } from "../core/constants";
 import { OFFICE_THEME } from "../core/pixelOfficeTheme";
+import { OFFICE_ZONES, zonePx } from "../core/officeZones";
 import { spriteEngine } from "../engine/spriteEngine";
 
 /**
- * Piso do escritório — gradiente pseudo-iso + grade sutil de tiles.
- * Renderiza embaixo de tudo. Sem interação.
+ * Piso do escritório (Leva 3): 9 zonas nomeadas + paredes laterais + iluminação.
+ * Quando o renderer Pixi está ativo, devolve apenas o container alvo.
  */
 export const PixelOfficeMap = () => {
   const isPixi = spriteEngine.getRenderer() === "pixi";
-
   if (isPixi) {
-    // Retorna placeholder ou container para o futuro PixiJS Stage
     return <div id="pixi-container" className="absolute inset-0" />;
   }
 
@@ -20,45 +19,73 @@ export const PixelOfficeMap = () => {
       style={{ width: STAGE_WIDTH_PX, height: STAGE_HEIGHT_PX, background: OFFICE_THEME.floorBase }}
       aria-hidden="true"
     >
-      {/* Grade sutil de tiles */}
-      <div 
-        className="absolute inset-0" 
+      {/* Grade sutil */}
+      <div
+        className="absolute inset-0"
         style={{
           backgroundImage: `
             linear-gradient(to right, ${OFFICE_THEME.floorTileLine} 1px, transparent 1px),
             linear-gradient(to bottom, ${OFFICE_THEME.floorTileLine} 1px, transparent 1px)
           `,
-          backgroundSize: `${TILE_SIZE}px ${TILE_SIZE}px`
-        }} 
+          backgroundSize: `${TILE_SIZE}px ${TILE_SIZE}px`,
+        }}
       />
 
-      {/* Zonas visuais usando SVG para precisão pixelada */}
-      <svg width={STAGE_WIDTH_PX} height={STAGE_HEIGHT_PX} viewBox={`0 0 ${STAGE_WIDTH_PX} ${STAGE_HEIGHT_PX}`} shapeRendering="crispEdges">
-        {/* Recepção (Canto Superior Esquerdo) */}
-        <rect x="0" y={TILE_SIZE} width={TILE_SIZE * 6} height={TILE_SIZE * 5} fill={OFFICE_THEME.carpetReception} fillOpacity="0.3" />
-        
-        {/* Área Comunitária / Café (Canto Inferior Esquerdo) */}
-        <rect x="0" y={STAGE_HEIGHT_PX - TILE_SIZE * 5} width={TILE_SIZE * 5} height={TILE_SIZE * 5} fill={OFFICE_THEME.carpetCommon} fillOpacity="0.2" />
-        
-        {/* Área de Engenharia (Centro Superior) */}
-        <rect x={TILE_SIZE * 7} y={TILE_SIZE} width={TILE_SIZE * 8} height={TILE_SIZE * 4} fill={OFFICE_THEME.carpetEngineer} fillOpacity="0.15" />
-        
-        {/* Área Jurídica (Centro Inferior) */}
-        <rect x={TILE_SIZE * 6} y={STAGE_HEIGHT_PX - TILE_SIZE * 6} width={TILE_SIZE * 7} height={TILE_SIZE * 5} fill={OFFICE_THEME.carpetLegal} fillOpacity="0.15" />
+      <svg
+        width={STAGE_WIDTH_PX}
+        height={STAGE_HEIGHT_PX}
+        viewBox={`0 0 ${STAGE_WIDTH_PX} ${STAGE_HEIGHT_PX}`}
+        shapeRendering="crispEdges"
+        className="absolute inset-0"
+      >
+        {/* Tapetes setoriais com checker bem sutil via pattern */}
+        <defs>
+          <pattern id="checker" width="16" height="16" patternUnits="userSpaceOnUse">
+            <rect width="16" height="16" fill="rgba(255,255,255,0)" />
+            <rect width="8" height="8" fill="rgba(255,255,255,0.025)" />
+            <rect x="8" y="8" width="8" height="8" fill="rgba(255,255,255,0.025)" />
+          </pattern>
+          <radialGradient id="warmlight" cx="50%" cy="50%" r="60%">
+            <stop offset="0%" stopColor="rgba(255,220,170,0.10)" />
+            <stop offset="100%" stopColor="rgba(255,220,170,0)" />
+          </radialGradient>
+        </defs>
 
-        {/* Área TI (Direita Superior) */}
-        <rect x={STAGE_WIDTH_PX - TILE_SIZE * 7} y={TILE_SIZE} width={TILE_SIZE * 7} height={TILE_SIZE * 5} fill={OFFICE_THEME.carpetIT} fillOpacity="0.15" />
+        {OFFICE_ZONES.map((z) => {
+          const { x, y, w, h } = zonePx(z);
+          return (
+            <g key={z.id}>
+              <rect x={x} y={y} width={w} height={h} fill={z.color} fillOpacity={z.alpha} rx={4} />
+              <rect x={x} y={y} width={w} height={h} fill="url(#checker)" rx={4} />
+              <rect x={x} y={y} width={w} height={h} fill="url(#warmlight)" rx={4} />
+              {/* Etiqueta discreta no canto superior esquerdo da zona */}
+              <text
+                x={x + 6}
+                y={y + 12}
+                fontSize="9"
+                fontFamily="ui-monospace, monospace"
+                fontWeight="700"
+                letterSpacing="0.5"
+                fill="rgba(255,255,255,0.55)"
+                style={{ textTransform: "uppercase" }}
+              >
+                {z.label}
+              </text>
+            </g>
+          );
+        })}
 
-        {/* Sala de Reunião (Direita Inferior - área demarcada) */}
-        <rect x={STAGE_WIDTH_PX - TILE_SIZE * 9} y={STAGE_HEIGHT_PX - TILE_SIZE * 8} width={TILE_SIZE * 9} height={TILE_SIZE * 8} fill={OFFICE_THEME.carpetMeeting} fillOpacity="0.1" />
+        {/* Paredes laterais (faixas escuras) — pseudo-iso */}
+        <rect x={0} y={0} width={4} height={STAGE_HEIGHT_PX} fill={OFFICE_THEME.wallSide} opacity="0.55" />
+        <rect x={STAGE_WIDTH_PX - 4} y={0} width={4} height={STAGE_HEIGHT_PX} fill={OFFICE_THEME.wallSide} opacity="0.55" />
+        <rect x={0} y={STAGE_HEIGHT_PX - 4} width={STAGE_WIDTH_PX} height={4} fill={OFFICE_THEME.wallSide} opacity="0.45" />
       </svg>
 
-      {/* Vinheta para profundidade */}
+      {/* Vinheta */}
       <div
         className="absolute inset-0 pointer-events-none"
         style={{
-          background:
-            "radial-gradient(ellipse at center, transparent 30%, rgba(0,0,0,0.3) 100%)",
+          background: "radial-gradient(ellipse at center, transparent 35%, rgba(0,0,0,0.35) 100%)",
         }}
       />
     </div>
