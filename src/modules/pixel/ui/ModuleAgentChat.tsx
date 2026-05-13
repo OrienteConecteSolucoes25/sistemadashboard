@@ -27,7 +27,7 @@ export function ModuleAgentChat({
   icon: Icon = Sparkles,
   welcomeMessage,
   renderTrigger,
-  edgeFunctionName = "pixel-module-agent"
+  edgeFunctionName = "verso-agent"
 }: Props) {
   const [open, setOpen] = useState(false);
   const [view, setView] = useState<"list" | "chat">("list");
@@ -102,11 +102,16 @@ export function ModuleAgentChat({
     });
 
     try {
+      const history = messages
+        .filter((m) => m.role === "user" || m.role === "assistant")
+        .slice(-10)
+        .map((m) => ({ role: m.role, content: m.content }));
       const { data, error } = await supabase.functions.invoke(edgeFunctionName, {
         body: {
           conversation_id: convId,
           module_key: moduleKey,
           message: text,
+          history,
         },
       });
 
