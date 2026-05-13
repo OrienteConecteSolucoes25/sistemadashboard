@@ -18,6 +18,8 @@ import { EngPageHeader } from "./components/EngPageHeader";
 import { DeleteWithPasswordModal } from "@/components/DeleteWithPasswordModal";
 import { DataActionsToolbar } from "@/components/DataActionsToolbar";
 import { useBulkSelection } from "@/hooks/useBulkSelection";
+import { useEngDemoMode } from "../demo/useEngDemoMode";
+import { getDemoTable } from "../demo/engDemoTables";
 import { BulkActionsBar } from "@/components/BulkActionsBar";
 import type { FieldSchema } from "./crud/types";
 

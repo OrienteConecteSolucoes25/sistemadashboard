@@ -28,6 +28,8 @@ import { StatusBadge } from "./components/StatusBadge";
 import { EngKanban } from "./components/EngKanban";
 import { DistribuicaoCard, RankingCard } from "./components/EngMiniCharts";
 import { DataActionsToolbar } from "@/components/DataActionsToolbar";
+import { useEngDemoMode } from "../demo/useEngDemoMode";
+import { getDemoTable } from "../demo/engDemoTables";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useBulkSelection } from "@/hooks/useBulkSelection";
 import { BulkActionsBar } from "@/components/BulkActionsBar";
@@ -654,6 +656,7 @@ function ScRcPanel({ solicitId, solicit, onClose }: { solicitId: string; solicit
 }
 
 const SuprimentosPage = () => {
+  const { enabled: isDemo } = useEngDemoMode();
   const [rows, setRows] = useState<Solicit[]>([]);
   const [loading, setLoading] = useState(true);
   const [busca, setBusca] = useState("");
