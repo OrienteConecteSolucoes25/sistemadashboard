@@ -25,6 +25,8 @@ import { BulkActionsBar } from "@/components/BulkActionsBar";
 import { DeleteWithPasswordModal } from "@/components/DeleteWithPasswordModal";
 import { makeEditKeyHandler } from "../lib/keyboardEdit";
 import { SOFT_DELETE_TABLES } from "../lib/deleteWithAudit";
+import { useEngDemoMode } from "../demo/useEngDemoMode";
+import { getDemoTable } from "../demo/engDemoTables";
 
 type Tone = "teal" | "warn" | "danger" | "success" | "neutral";
 export type KpiDef = {
