@@ -166,6 +166,16 @@ const EngListPage = ({
         toast.error(`${f.label} é obrigatório`); return;
       }
     }
+    if (isDemo) {
+      const payload: any = { id: editing.id ?? `demo-new-${Date.now()}` };
+      config.fields.forEach((f) => { payload[f.key] = editing[f.key] ?? null; });
+      setRows((prev) => editing.id
+        ? prev.map((r) => r.id === editing.id ? { ...r, ...payload } : r)
+        : [payload, ...prev]);
+      toast.info("Modo Demo — alteração não persistida");
+      setOpenForm(false); setEditing(null); sel.clear();
+      return;
+    }
     const payload: any = {};
     config.fields.forEach((f) => { payload[f.key] = editing[f.key] ?? null; });
     if (editing.id) {
@@ -182,6 +192,12 @@ const EngListPage = ({
 
   const del = async (ids: string[]) => {
     if (!ids.length) return;
+    if (isDemo) {
+      setRows((prev) => prev.filter((r) => !ids.includes(r.id)));
+      toast.info("Modo Demo — exclusão não persistida");
+      sel.clear();
+      return;
+    }
     if (isSoftDelete) {
       setDelOpen(true);
       return;
