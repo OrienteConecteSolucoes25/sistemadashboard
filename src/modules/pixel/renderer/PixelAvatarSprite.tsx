@@ -32,13 +32,16 @@ export const PixelAvatarSprite = ({ role, size = 56, faded, grayscale }: Props) 
     ? "saturate(0.6) brightness(0.85)"
     : undefined;
 
+  // 16x24 (2:3) — width acompanha a altura para não criar quadrado vazio.
+  const w = Math.round(size * (16 / 24));
   return (
     <svg
       viewBox="0 0 16 24"
-      width={size}
+      width={w}
       height={size}
+      preserveAspectRatio="xMidYMax meet"
       shapeRendering="crispEdges"
-      style={{ imageRendering: "pixelated", display: "block", filter }}
+      style={{ imageRendering: "pixelated", display: "block", background: "transparent", filter }}
       aria-hidden="true"
     >
       {/* Sombra no chão */}

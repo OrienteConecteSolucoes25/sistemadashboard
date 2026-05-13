@@ -18,7 +18,8 @@ interface Props {
   isTyping?: boolean;
 }
 
-const AVATAR_SIZE = 56;
+const AVATAR_SIZE = 72; // altura do sprite — largura acompanha 2:3 (≈48px)
+const AVATAR_WIDTH = Math.round(AVATAR_SIZE * (16 / 24));
 
 export const PixelAvatar = memo(({ character, posX, posY, onClick, recentMessage, isTyping, hideName }: Props & { hideName?: boolean }) => {
   const status = (character.status as PixelStatus) ?? "offline";
@@ -38,7 +39,7 @@ export const PixelAvatar = memo(({ character, posX, posY, onClick, recentMessage
   const isWalking = character.current_action === "walking";
 
   // Centraliza o sprite no tile clicado usando spriteEngine
-  const left = spriteEngine.tileToPixel(x) + TILE_SIZE / 2 - AVATAR_SIZE / 2;
+  const left = spriteEngine.tileToPixel(x) + TILE_SIZE / 2 - AVATAR_WIDTH / 2;
   const top = spriteEngine.tileToPixel(y) + TILE_SIZE - AVATAR_SIZE; // pés no chão do tile
   const zIndex = spriteEngine.calculateZIndex(y, 100);
   const role = roleFromSpriteKey(character.avatar_sprite_key);
@@ -68,9 +69,9 @@ export const PixelAvatar = memo(({ character, posX, posY, onClick, recentMessage
               e.stopPropagation();
               onClick?.(character);
             }}
-            className="group focus:outline-none rounded-md"
+            className="group focus:outline-none bg-transparent border-0 p-0"
             style={{
-              width: AVATAR_SIZE,
+              width: AVATAR_WIDTH,
               height: AVATAR_SIZE,
               transition: "transform 600ms cubic-bezier(0.4, 0, 0.2, 1)",
             }}

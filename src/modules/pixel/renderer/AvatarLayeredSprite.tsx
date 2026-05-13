@@ -68,26 +68,33 @@ export const AvatarLayeredSprite = ({ customization, size = 56, faded, grayscale
   // Detecção de NPCs especiais para renderização diferenciada
   const isSpecialNPC = c.avatar_sprite_key && ["jarbas", "ocs_guard", "ti", "engenharia", "juridico", "rhdp", "crea", "marketplace", "financeiro", "gamificacao"].includes(c.avatar_sprite_key);
 
+  // O sprite é 16x24 (2:3). `size` representa a ALTURA desejada — a largura
+  // acompanha proporcionalmente para que não exista área vazia ao redor
+  // (que aparecia como "quadrado" atrás do personagem).
+  const spriteHeight = size;
+  const spriteWidth = Math.round(size * (16 / 24));
+
   return (
-    <div 
-      className="relative flex items-center justify-center"
-      style={{ width: size, height: size }}
+    <div
+      className="relative inline-flex items-end justify-center bg-transparent"
+      style={{ width: spriteWidth, height: spriteHeight }}
     >
-      {/* Glow para NPCs Especiais */}
+      {/* Glow para NPCs Especiais — elipse no chão, nunca um quadrado */}
       {isSpecialNPC && !grayscale && (
-        <div 
-          className="absolute inset-0 rounded-full animate-pulse blur-md opacity-20"
-          style={{ backgroundColor: outfitColor }}
+        <div
+          className="absolute left-1/2 -translate-x-1/2 bottom-0 rounded-full animate-pulse blur-md opacity-25 pointer-events-none"
+          style={{ backgroundColor: outfitColor, width: spriteWidth * 0.9, height: spriteHeight * 0.18 }}
         />
       )}
 
       <svg
         viewBox="0 0 16 24"
-        width={size}
-        height={size}
+        width={spriteWidth}
+        height={spriteHeight}
+        preserveAspectRatio="xMidYMax meet"
         shapeRendering="crispEdges"
-        className={`transition-transform duration-300 ${isWalking ? "animate-bounce" : ""}`}
-        style={{ imageRendering: "pixelated", display: "block", filter, transform: flip }}
+        className={`relative transition-transform duration-300 ${isWalking ? "animate-bounce" : ""}`}
+        style={{ imageRendering: "pixelated", display: "block", background: "transparent", filter, transform: flip }}
         aria-hidden="true"
       >
         <defs>
