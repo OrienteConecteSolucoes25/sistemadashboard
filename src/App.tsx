@@ -10,6 +10,7 @@ import { JarbasAmbientProvider } from "./modules/jarbas/hooks/useJarbasAmbient";
 import { JarbasAmbientVisuals } from "./modules/jarbas/ui/JarbasAmbientVisuals";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
+import PublicSite from "./pages/PublicSite";
 // Import Projetos removido
 import Adm from "./pages/Adm";
 import ModuleSelector from "./pages/ModuleSelector";
@@ -120,8 +121,10 @@ const App = () => (
             <AclProvider>
               <CompanyThemeProvider>
                 <Routes>
-            <Route path="/" element={<Navigate to="/app" replace />} />
-            <Route path="/auth" element={<Auth />} />
+            <Route path="/" element={<PublicSite />} />
+            <Route path="/entrar" element={<Auth />} />
+            {/* Compat: rota antiga /auth redireciona para /entrar */}
+            <Route path="/auth" element={<Navigate to="/entrar" replace />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/app" element={<AppLayout />}>
               <Route index element={<ModuleSelector />} />
