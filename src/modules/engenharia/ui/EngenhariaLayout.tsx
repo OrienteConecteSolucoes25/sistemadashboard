@@ -5,6 +5,7 @@ import { Hammer } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUserModules } from "@/modules/planos/hooks/useUserModules";
 import { CollapsibleModuleSidebar } from "@/modules/aparencia/ui/CollapsibleModuleSidebar";
+import { EngDemoToggle, EngDemoBanner } from "./components/EngDemoToggle";
 
 const EngenhariaLayout = () => {
   const loc = useLocation();
@@ -27,7 +28,11 @@ const EngenhariaLayout = () => {
         moduleIcon={Hammer}
         tabs={visibleTabs.map(t => ({ to: t.to, label: t.label, icon: t.icon, end: t.end, group: t.group }))}
       />
-      <div className="flex-1 min-w-0 bg-background">
+      <div className="flex-1 min-w-0 bg-background flex flex-col">
+        <EngDemoBanner />
+        <div className="hidden md:flex justify-end px-4 pt-3">
+          <EngDemoToggle />
+        </div>
         <nav className="md:hidden flex overflow-x-auto gap-1 border-b px-3 py-2 bg-card pl-12">
           {visibleTabs.map((t) => {
             const active = t.end ? loc.pathname === t.to : loc.pathname.startsWith(t.to);
@@ -40,7 +45,7 @@ const EngenhariaLayout = () => {
             );
           })}
         </nav>
-        <div className="p-4 lg:p-6 min-w-0"><Outlet /></div>
+        <div className="p-4 lg:p-6 min-w-0 flex-1"><Outlet /></div>
       </div>
     </div>
   );
