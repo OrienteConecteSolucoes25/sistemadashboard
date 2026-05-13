@@ -1,7 +1,7 @@
 import { Switch } from "@/components/ui/switch";
 import { Badge } from "@/components/ui/badge";
 import { FlaskConical } from "lucide-react";
-import { useEngDemoMode } from "../demo/useEngDemoMode";
+import { useEngDemoMode } from "../../demo/useEngDemoMode";
 import { usePlanosAccess } from "@/modules/planos/hooks/usePlanosAccess";
 
 /** Toggle "Modo Demo / Mockup" — visível APENAS para OCS staff.
