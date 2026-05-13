@@ -29,6 +29,20 @@ import { DiretorNpc } from "./DiretorNpc";
 import { ModuleAgentNpc } from "./ModuleAgentNpc";
 import { ModuleAgentChat } from "./ModuleAgentChat";
 import { NPCS_CONFIG } from "../data/npcsConfig";
+import { useUserModules } from "@/modules/planos/hooks/useUserModules";
+
+// NPCs internos da plataforma OCS — sempre visíveis (não exigem módulo comprado).
+const INTERNAL_NPCS = new Set(["jarbas", "ocs_guard", "marketplace", "gamificacao"]);
+// Mapa moduleKey -> chave do plano (useUserModules.has)
+const NPC_MODULE_REQ: Record<string, string> = {
+  engenharia: "engenharia",
+  juridico: "juridico",
+  rhdp: "rhdp",
+  crea: "crea",
+  financeiro: "financeiro",
+  ti: "ti",
+  comunicacao: "comunicacao",
+};
 import { HardHat, Scale, HeartHandshake, FileSignature, MessageSquare, ShieldAlert, Cpu, Zap, ShoppingCart, DollarSign, Users, Video } from "lucide-react";
 import { ActiveBrandKitProvider } from "@/modules/comunicacao/hooks/useActiveBrandKit";
 import { toast } from "sonner";
@@ -40,6 +54,7 @@ type Selected =
 
 export default function PixelOfficePage() {
   const { user, isAdmin } = useAuth();
+  const { has: hasModule, ready: modulesReady } = useUserModules();
   const [notifTick, setNotifTick] = useState(0);
   const [directorNotifs, setDirectorNotifs] = useState<string[]>([]);
   const [bubbles, setBubbles] = useState<Record<string, string>>({});
@@ -233,7 +248,13 @@ export default function PixelOfficePage() {
             <DiretorAgentChat renderTrigger={(open) => <DiretorNpc onClick={open} notifications={directorNotifs} />} />
 
             {/* Agentes por Módulo Automáticos */}
-            {Object.values(NPCS_CONFIG).map((npc) => (
+            {Object.values(NPCS_CONFIG).filter((npc) => {
+              if (!modulesReady) return false;
+              if (INTERNAL_NPCS.has(npc.id)) return true;
+              const req = NPC_MODULE_REQ[npc.moduleKey];
+              if (!req) return true;
+              return hasModule(req);
+            }).map((npc) => (
               <ModuleAgentChat
                 key={npc.id}
                 moduleKey={npc.moduleKey}
