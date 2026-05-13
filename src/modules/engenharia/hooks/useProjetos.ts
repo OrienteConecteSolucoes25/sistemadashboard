@@ -81,16 +81,17 @@ export function useProjetos() {
     if (error) { console.warn("Projetos load:", error.message); setReady(true); return; }
     setItems((data ?? []).map((r) => rowToProjeto(r as Record<string, unknown>)));
     setReady(true);
-  }, []);
+  }, [isDemo]);
 
   useEffect(() => {
     refresh();
+    if (isDemo) return;
     const ch = supabase
       .channel("eng-projetos-realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: TABLE }, () => refresh())
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [refresh]);
+  }, [refresh, isDemo]);
 
   const insertOne = useCallback(async (p: Projeto): Promise<Projeto | null> => {
     const row = projetoToRow(p) as never;
