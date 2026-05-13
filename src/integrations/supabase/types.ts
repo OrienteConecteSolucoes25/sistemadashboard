@@ -13641,6 +13641,96 @@ export type Database = {
           },
         ]
       }
+      verso_agent_audit: {
+        Row: {
+          created_at: string
+          id: string
+          module_key: string
+          prompt: string
+          tokens_in: number | null
+          tokens_out: number | null
+          tools_used: Json | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          module_key: string
+          prompt: string
+          tokens_in?: number | null
+          tokens_out?: number | null
+          tools_used?: Json | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          module_key?: string
+          prompt?: string
+          tokens_in?: number | null
+          tokens_out?: number | null
+          tools_used?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      verso_agent_cache: {
+        Row: {
+          answer: string
+          created_at: string
+          expires_at: string
+          id: string
+          module_key: string
+          question_hash: string
+        }
+        Insert: {
+          answer: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          module_key: string
+          question_hash: string
+        }
+        Update: {
+          answer?: string
+          created_at?: string
+          expires_at?: string
+          id?: string
+          module_key?: string
+          question_hash?: string
+        }
+        Relationships: []
+      }
+      verso_agent_quota: {
+        Row: {
+          created_at: string
+          data_reset: string
+          id: string
+          limite_mensal: number
+          mensagens_usadas_mes: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          data_reset?: string
+          id?: string
+          limite_mensal?: number
+          mensagens_usadas_mes?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          data_reset?: string
+          id?: string
+          limite_mensal?: number
+          mensagens_usadas_mes?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       visibility_audit: {
         Row: {
           action: string
