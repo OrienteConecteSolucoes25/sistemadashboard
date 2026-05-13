@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         signOut: async () => {
           intentionalSignOutRef.current = true;
           await supabase.auth.signOut();
-          window.location.assign("/auth");
+          window.location.assign("/entrar");
         },
       }}
     >
