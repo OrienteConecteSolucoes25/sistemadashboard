@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useEngDemoMode } from "../demo/useEngDemoMode";
+import { DEMO_PROJETOS } from "../demo/engDemoFixtures";
 
 export interface Projeto {
   id: string;
@@ -62,10 +64,16 @@ function projetoToRow(p: Projeto): Record<string, unknown> {
 }
 
 export function useProjetos() {
+  const { enabled: isDemo } = useEngDemoMode();
   const [items, setItems] = useState<Projeto[]>([]);
   const [ready, setReady] = useState(false);
 
   const refresh = useCallback(async () => {
+    if (isDemo) {
+      setItems(DEMO_PROJETOS as unknown as Projeto[]);
+      setReady(true);
+      return;
+    }
     const { data, error } = await supabase
       .from(TABLE)
       .select("*")
