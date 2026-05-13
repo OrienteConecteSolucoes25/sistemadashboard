@@ -17,6 +17,8 @@ import { ObraDetailSheet, type ObraRow } from "./components/ObraDetailSheet";
 import { useBulkSelection } from "@/hooks/useBulkSelection";
 import { BulkActionsBar } from "@/components/BulkActionsBar";
 import type { FieldSchema } from "./crud/types";
+import { useEngDemoMode } from "../demo/useEngDemoMode";
+import { getDemoTable } from "../demo/engDemoTables";
 
 const UFS = ["AC","AL","AP","AM","BA","CE","DF","ES","GO","MA","MT","MS","MG","PA","PB","PR","PE","PI","RJ","RN","RS","RO","RR","SC","SP","SE","TO"];
 
@@ -38,6 +40,7 @@ const FIELDS: FieldSchema[] = [
 ];
 
 export const ObrasPage = () => {
+  const { enabled: isDemo } = useEngDemoMode();
   const [items, setItems] = useState<ObraRow[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -48,6 +51,11 @@ export const ObrasPage = () => {
 
   const load = async () => {
     setLoading(true);
+    if (isDemo) {
+      setItems((getDemoTable("eng_sites") ?? []) as any);
+      setLoading(false);
+      return;
+    }
     const { data, error } = await supabase
       .from("eng_sites")
       .select("id,nome,cidade,uf,endereco,cep,maps_url,trigger_date,delivery_date,total_value,latitude,longitude")
@@ -57,7 +65,7 @@ export const ObrasPage = () => {
     setItems((data ?? []) as any);
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [isDemo]);
 
   const filtered = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -94,6 +102,14 @@ export const ObrasPage = () => {
       delivery_date: editing.delivery_date || null,
       total_value: Number(editing.total_value || 0),
     };
+    if (isDemo) {
+      setItems((prev) => editing.id
+        ? prev.map((r) => r.id === editing.id ? ({ ...r, ...payload } as any) : r)
+        : ([{ id: `demo-new-${Date.now()}`, ...payload } as any, ...prev]));
+      toast.info("Modo Demo — alteração não persistida");
+      setOpen(false); setEditing(null);
+      return;
+    }
     const { error } = editing.id
       ? await supabase.from("eng_sites").update(payload).eq("id", editing.id)
       : await supabase.from("eng_sites").insert(payload);

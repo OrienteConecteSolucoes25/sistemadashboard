@@ -25,6 +25,8 @@ import { BulkActionsBar } from "@/components/BulkActionsBar";
 import { DeleteWithPasswordModal } from "@/components/DeleteWithPasswordModal";
 import { makeEditKeyHandler } from "../lib/keyboardEdit";
 import { SOFT_DELETE_TABLES } from "../lib/deleteWithAudit";
+import { useEngDemoMode } from "../demo/useEngDemoMode";
+import { getDemoTable } from "../demo/engDemoTables";
 
 type Tone = "teal" | "warn" | "danger" | "success" | "neutral";
 export type KpiDef = {
@@ -97,6 +99,7 @@ const EngListPage = ({
   config, kpis = [], statusKeys = ["status", "prioridade"], facetKeys = [],
   views = ["list"], kanban, dashboard, timelineDateKey = "created_at",
 }: EngListPageProps) => {
+  const { enabled: isDemo } = useEngDemoMode();
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -111,6 +114,12 @@ const EngListPage = ({
 
   const load = async () => {
     setLoading(true);
+    if (isDemo) {
+      const demo = getDemoTable(config.table) ?? [];
+      setRows(demo);
+      setLoading(false);
+      return;
+    }
     const orderCol = config.orderBy?.column ?? "created_at";
     const asc = config.orderBy?.ascending ?? false;
     const { data, error } = await (supabase.from(config.table as any).select("*").order(orderCol, { ascending: asc }) as any);
@@ -118,7 +127,7 @@ const EngListPage = ({
     setRows(data || []);
     setLoading(false);
   };
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [config.table]);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [config.table, isDemo]);
 
   const filtered = useMemo(() => {
     let r = rows;
@@ -157,6 +166,16 @@ const EngListPage = ({
         toast.error(`${f.label} é obrigatório`); return;
       }
     }
+    if (isDemo) {
+      const payload: any = { id: editing.id ?? `demo-new-${Date.now()}` };
+      config.fields.forEach((f) => { payload[f.key] = editing[f.key] ?? null; });
+      setRows((prev) => editing.id
+        ? prev.map((r) => r.id === editing.id ? { ...r, ...payload } : r)
+        : [payload, ...prev]);
+      toast.info("Modo Demo — alteração não persistida");
+      setOpenForm(false); setEditing(null); sel.clear();
+      return;
+    }
     const payload: any = {};
     config.fields.forEach((f) => { payload[f.key] = editing[f.key] ?? null; });
     if (editing.id) {
@@ -173,6 +192,12 @@ const EngListPage = ({
 
   const del = async (ids: string[]) => {
     if (!ids.length) return;
+    if (isDemo) {
+      setRows((prev) => prev.filter((r) => !ids.includes(r.id)));
+      toast.info("Modo Demo — exclusão não persistida");
+      sel.clear();
+      return;
+    }
     if (isSoftDelete) {
       setDelOpen(true);
       return;
