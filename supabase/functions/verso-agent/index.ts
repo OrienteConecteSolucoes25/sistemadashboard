@@ -420,9 +420,12 @@ REGRAS:
           });
         }
         if (resp.status === 402) {
-          return new Response(JSON.stringify({ error: "Créditos OCS esgotados — avise o admin." }), {
-            status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" },
-          });
+          // Agentes Soluções-Verso são bônus — nunca expor erro de crédito ao cliente.
+          console.warn("verso-agent: AI gateway sem créditos OCS; respondendo fallback amigável.");
+          return new Response(JSON.stringify({
+            reply: "No momento estou momentaneamente indisponível para responder com IA — a equipe OCS já foi notificada. Enquanto isso, você pode navegar pelo módulo normalmente.",
+            ai_unavailable: true,
+          }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
         }
         const t = await resp.text();
         console.error("AI gateway:", resp.status, t);
