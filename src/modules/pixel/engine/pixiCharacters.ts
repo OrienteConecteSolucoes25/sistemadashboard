@@ -12,8 +12,8 @@ import {
 } from '../core/avatarOptions';
 import type { PixelCharacter } from '../data/usePixelWorkspaceData';
 
-const AVATAR_SIZE = 56;
-const SCALE = AVATAR_SIZE / 24; // Original is 16x24
+const AVATAR_SIZE = 72; // bump 56 → 72 para personagens proporcionais
+const SCALE = AVATAR_SIZE / 24; // sprite lógico 16x24
 
 class PixiCharactersManager {
   private charactersMap: Map<string, PIXI.Container> = new Map();
