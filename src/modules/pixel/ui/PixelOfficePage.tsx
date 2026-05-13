@@ -54,6 +54,7 @@ type Selected =
 
 export default function PixelOfficePage() {
   const { user, isAdmin } = useAuth();
+  const { has: hasModule, ready: modulesReady } = useUserModules();
   const [notifTick, setNotifTick] = useState(0);
   const [directorNotifs, setDirectorNotifs] = useState<string[]>([]);
   const [bubbles, setBubbles] = useState<Record<string, string>>({});
@@ -247,7 +248,13 @@ export default function PixelOfficePage() {
             <DiretorAgentChat renderTrigger={(open) => <DiretorNpc onClick={open} notifications={directorNotifs} />} />
 
             {/* Agentes por Módulo Automáticos */}
-            {Object.values(NPCS_CONFIG).map((npc) => (
+            {Object.values(NPCS_CONFIG).filter((npc) => {
+              if (!modulesReady) return false;
+              if (INTERNAL_NPCS.has(npc.id)) return true;
+              const req = NPC_MODULE_REQ[npc.moduleKey];
+              if (!req) return true;
+              return hasModule(req);
+            }).map((npc) => (
               <ModuleAgentChat
                 key={npc.id}
                 moduleKey={npc.moduleKey}
