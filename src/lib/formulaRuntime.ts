@@ -1,4 +1,4 @@
-import { Parser } from "expr-eval";
+import { Parser } from "expr-eval-fork";
 
 const parser = new Parser({ allowMemberAccess: true });
 parser.functions.sum = (a: any) => (Array.isArray(a) ? a : [a]).reduce((s: number, x: any) => s + (Number(x) || 0), 0);
