@@ -92,7 +92,7 @@ export const PixelWorkspaceView = memo(({
 
   const handlePixiInit = useCallback(() => {
     pixiMap.render();
-    pixiCharacters.render(characters);
+    pixiCharacters.clear();
     pixiDesks.render(desks);
     pixiRooms.render(rooms);
     pixiFurniture.render(furniture);
@@ -125,7 +125,7 @@ export const PixelWorkspaceView = memo(({
   // Sync data to Pixi
   useEffect(() => {
     if (currentRenderer === "pixi") {
-      pixiCharacters.render(characters);
+      pixiCharacters.clear();
       pixiDesks.render(desks);
       pixiRooms.render(rooms);
       pixiFurniture.render(furniture);
@@ -421,26 +421,27 @@ export const PixelWorkspaceView = memo(({
                 return null;
               })}
 
-              {/* Personagens (Sempre no topo dos objetos, mas com sua própria lógica de profundidade) */}
-              {characters
-                .filter((c) => c.is_visible && !c.is_blocked)
-                .map((c) => {
-                  const pos = getPosition(c.user_id, { x: c.position_x, y: c.position_y });
-                  return (
-                    <div key={c.user_id} style={{ zIndex: 100, position: 'absolute' }}>
-                      <PixelAvatar
-                        character={c}
-                        posX={pos.x}
-                        posY={pos.y}
-                        onClick={onSelectCharacter}
-                        recentMessage={recentMessages[c.user_id]}
-                        isTyping={c.is_typing}
-                      />
-                    </div>
-                  );
-                })}
             </>
           )}
+
+          {/* Personagens sempre renderizados via DOM para manter sprite limpo, sem caixa do canvas */}
+          {characters
+            .filter((c) => c.is_visible && !c.is_blocked)
+            .map((c) => {
+              const pos = getPosition(c.user_id, { x: c.position_x, y: c.position_y });
+              return (
+                <div key={c.user_id} style={{ zIndex: 100, position: 'absolute' }}>
+                  <PixelAvatar
+                    character={c}
+                    posX={pos.x}
+                    posY={pos.y}
+                    onClick={onSelectCharacter}
+                    recentMessage={recentMessages[c.user_id]}
+                    isTyping={c.is_typing}
+                  />
+                </div>
+              );
+            })}
 
         </div>
       </div>

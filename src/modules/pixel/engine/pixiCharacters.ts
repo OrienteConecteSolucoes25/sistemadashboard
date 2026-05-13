@@ -20,6 +20,16 @@ class PixiCharactersManager {
   private prevPositions: Map<string, { x: number, y: number }> = new Map();
   private initialized = false;
 
+  clear() {
+    const container = pixiApp.getContainer(PIXI_LAYERS.CHARACTERS);
+    if (container) {
+      container.removeChildren();
+    }
+
+    this.charactersMap.clear();
+    this.prevPositions.clear();
+  }
+
   private setupTicker() {
     if (this.initialized) return;
     const app = pixiApp.getApp();
