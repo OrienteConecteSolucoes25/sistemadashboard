@@ -12,6 +12,11 @@ import {
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid,
   PieChart, Pie, Cell, Legend, AreaChart, Area,
 } from "recharts";
+import { useEngDemoMode } from "../demo/useEngDemoMode";
+import {
+  DEMO_COUNTS, DEMO_RFI_RECENTES, DEMO_PEND_RECENTES,
+  DEMO_ATIVIDADES_BY_STATUS, DEMO_PEND_BY_MONTH, DEMO_SITES_BY_UF,
+} from "../demo/engDemoFixtures";
 
 type Counts = {
   sites: number; rfiAbertos: number; pendCriticas: number; equipes: number;
@@ -51,6 +56,7 @@ const lastNMonths = (n: number) => {
 };
 
 const EngenhariaDashboard = () => {
+  const { enabled: isDemo } = useEngDemoMode();
   const [counts, setCounts] = useState<Counts>(initial);
   const [recentRfi, setRecentRfi] = useState<any[]>([]);
   const [recentPend, setRecentPend] = useState<any[]>([]);
@@ -59,6 +65,15 @@ const EngenhariaDashboard = () => {
   const [sitesByUf, setSitesByUf] = useState<{ name: string; total: number }[]>([]);
 
   useEffect(() => {
+    if (isDemo) {
+      setCounts(DEMO_COUNTS);
+      setRecentRfi(DEMO_RFI_RECENTES);
+      setRecentPend(DEMO_PEND_RECENTES);
+      setAtividadesByStatus(DEMO_ATIVIDADES_BY_STATUS);
+      setPendByMonth(DEMO_PEND_BY_MONTH);
+      setSitesByUf(DEMO_SITES_BY_UF);
+      return;
+    }
     (async () => {
       const head = (q: any) => q.select("*", { count: "exact", head: true });
       const [
@@ -126,7 +141,7 @@ const EngenhariaDashboard = () => {
           .slice(0, 8)
       );
     })();
-  }, []);
+  }, [isDemo]);
 
   return (
     <div className="space-y-5">

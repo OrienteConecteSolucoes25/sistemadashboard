@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useEngDemoMode } from "../demo/useEngDemoMode";
+import { DEMO_PROJETOS } from "../demo/engDemoFixtures";
 
 export interface Projeto {
   id: string;
@@ -62,10 +64,16 @@ function projetoToRow(p: Projeto): Record<string, unknown> {
 }
 
 export function useProjetos() {
+  const { enabled: isDemo } = useEngDemoMode();
   const [items, setItems] = useState<Projeto[]>([]);
   const [ready, setReady] = useState(false);
 
   const refresh = useCallback(async () => {
+    if (isDemo) {
+      setItems(DEMO_PROJETOS as unknown as Projeto[]);
+      setReady(true);
+      return;
+    }
     const { data, error } = await supabase
       .from(TABLE)
       .select("*")
@@ -73,16 +81,17 @@ export function useProjetos() {
     if (error) { console.warn("Projetos load:", error.message); setReady(true); return; }
     setItems((data ?? []).map((r) => rowToProjeto(r as Record<string, unknown>)));
     setReady(true);
-  }, []);
+  }, [isDemo]);
 
   useEffect(() => {
     refresh();
+    if (isDemo) return;
     const ch = supabase
       .channel("eng-projetos-realtime")
       .on("postgres_changes", { event: "*", schema: "public", table: TABLE }, () => refresh())
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [refresh]);
+  }, [refresh, isDemo]);
 
   const insertOne = useCallback(async (p: Projeto): Promise<Projeto | null> => {
     const row = projetoToRow(p) as never;
