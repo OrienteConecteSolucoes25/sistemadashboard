@@ -82,8 +82,214 @@ const ENG_TOOLS: ToolDef[] = [
   },
 ];
 
+// deno-lint-ignore no-explicit-any
+const countOf = async (sb: any, table: string, filter?: (q: any) => any) => {
+  let q = sb.from(table).select("*", { count: "exact", head: true });
+  if (filter) q = filter(q);
+  const { count, error } = await q;
+  return error ? 0 : (count ?? 0);
+};
+
+const RHDP_TOOLS: ToolDef[] = [
+  {
+    name: "listar_colaboradores",
+    description: "Lista colaboradores ativos.",
+    parameters: { type: "object", properties: { limite: { type: "number", default: 20 } } },
+    handler: async (sb, args) => {
+      const { data, error } = await sb.from("hrdp_employees")
+        .select("id, full_name, position, department, status")
+        .limit(Math.min(args?.limite ?? 20, 50));
+      return error ? { error: error.message } : { colaboradores: data ?? [] };
+    },
+  },
+  {
+    name: "kpis_rhdp",
+    description: "KPIs gerais: colaboradores, contratos, férias e solicitações.",
+    parameters: { type: "object", properties: {} },
+    handler: async (sb) => ({
+      colaboradores: await countOf(sb, "hrdp_employees"),
+      contratos: await countOf(sb, "hrdp_contracts"),
+      ferias: await countOf(sb, "hrdp_vacations"),
+      solicitacoes: await countOf(sb, "hrdp_employee_requests"),
+    }),
+  },
+  {
+    name: "ferias_proximas",
+    description: "Lista próximas férias programadas.",
+    parameters: { type: "object", properties: { limite: { type: "number", default: 10 } } },
+    handler: async (sb, args) => {
+      const { data, error } = await sb.from("hrdp_vacations")
+        .select("id, employee_id, start_date, end_date, status")
+        .order("start_date", { ascending: true })
+        .limit(Math.min(args?.limite ?? 10, 30));
+      return error ? { error: error.message } : { ferias: data ?? [] };
+    },
+  },
+  {
+    name: "solicitacoes_pendentes",
+    description: "Solicitações de colaboradores em aberto.",
+    parameters: { type: "object", properties: {} },
+    handler: async (sb) => {
+      const { data, error } = await sb.from("hrdp_employee_requests")
+        .select("id, employee_id, request_type, status, created_at")
+        .neq("status", "approved")
+        .neq("status", "rejected")
+        .order("created_at", { ascending: false })
+        .limit(20);
+      return error ? { error: error.message } : { solicitacoes: data ?? [] };
+    },
+  },
+];
+
+const CREA_TOOLS: ToolDef[] = [
+  {
+    name: "listar_arts",
+    description: "Lista ARTs cadastradas.",
+    parameters: { type: "object", properties: { limite: { type: "number", default: 20 } } },
+    handler: async (sb, args) => {
+      const { data, error } = await sb.from("crea_arts")
+        .select("id, numero, status, data_emissao")
+        .order("data_emissao", { ascending: false })
+        .limit(Math.min(args?.limite ?? 20, 50));
+      return error ? { error: error.message } : { arts: data ?? [] };
+    },
+  },
+  {
+    name: "kpis_crea",
+    description: "KPIs: RTs, ARTs, anuidades e obras com ART.",
+    parameters: { type: "object", properties: {} },
+    handler: async (sb) => ({
+      rts: await countOf(sb, "crea_responsible_technicians"),
+      arts: await countOf(sb, "crea_arts"),
+      anuidades: await countOf(sb, "crea_anuidades"),
+      obras_art: await countOf(sb, "crea_art_obras"),
+    }),
+  },
+  {
+    name: "anuidades_proximas",
+    description: "Anuidades próximas do vencimento.",
+    parameters: { type: "object", properties: {} },
+    handler: async (sb) => {
+      const { data, error } = await sb.from("crea_anuidades")
+        .select("id, ano, valor, status, data_vencimento")
+        .order("data_vencimento", { ascending: true })
+        .limit(20);
+      return error ? { error: error.message } : { anuidades: data ?? [] };
+    },
+  },
+];
+
+const FIN_TOOLS: ToolDef[] = [
+  {
+    name: "kpis_financeiro",
+    description: "KPIs: contas, transações, dívidas e cartões.",
+    parameters: { type: "object", properties: {} },
+    handler: async (sb) => ({
+      contas: await countOf(sb, "fin_bank_accounts"),
+      transacoes: await countOf(sb, "fin_transactions"),
+      contas_a_pagar: await countOf(sb, "fin_bills"),
+      dividas: await countOf(sb, "fin_debts"),
+    }),
+  },
+  {
+    name: "contas_vencendo",
+    description: "Contas a pagar próximas do vencimento.",
+    parameters: { type: "object", properties: { limite: { type: "number", default: 10 } } },
+    handler: async (sb, args) => {
+      const { data, error } = await sb.from("fin_bills")
+        .select("id, descricao, valor, data_vencimento, status")
+        .order("data_vencimento", { ascending: true })
+        .limit(Math.min(args?.limite ?? 10, 30));
+      return error ? { error: error.message } : { contas: data ?? [] };
+    },
+  },
+];
+
+const TI_TOOLS: ToolDef[] = [
+  {
+    name: "kpis_ti",
+    description: "KPIs: chamados, ativos, incidentes e pedidos de acesso.",
+    parameters: { type: "object", properties: {} },
+    handler: async (sb) => ({
+      chamados: await countOf(sb, "ti_tickets"),
+      ativos: await countOf(sb, "ti_assets"),
+      incidentes: await countOf(sb, "ti_security_incidents"),
+      pedidos_acesso: await countOf(sb, "ti_access_requests"),
+    }),
+  },
+  {
+    name: "chamados_abertos",
+    description: "Lista chamados abertos.",
+    parameters: { type: "object", properties: { limite: { type: "number", default: 10 } } },
+    handler: async (sb, args) => {
+      const { data, error } = await sb.from("ti_tickets")
+        .select("id, title, priority, status, created_at")
+        .neq("status", "closed")
+        .order("created_at", { ascending: false })
+        .limit(Math.min(args?.limite ?? 10, 30));
+      return error ? { error: error.message } : { chamados: data ?? [] };
+    },
+  },
+];
+
+const COMM_TOOLS: ToolDef[] = [
+  {
+    name: "kpis_comunicacao",
+    description: "KPIs: posts, campanhas, brand kits e aprovações.",
+    parameters: { type: "object", properties: {} },
+    handler: async (sb) => ({
+      posts: await countOf(sb, "comm_content_posts"),
+      campanhas: await countOf(sb, "comm_campaigns"),
+      brand_kits: await countOf(sb, "comm_brand_kits"),
+      aprovacoes: await countOf(sb, "comm_approvals"),
+    }),
+  },
+  {
+    name: "posts_agendados",
+    description: "Posts agendados na fila de publicação.",
+    parameters: { type: "object", properties: {} },
+    handler: async (sb) => {
+      const { data, error } = await sb.from("comm_social_publish_queue")
+        .select("id, scheduled_at, status, platform")
+        .order("scheduled_at", { ascending: true })
+        .limit(20);
+      return error ? { error: error.message } : { posts: data ?? [] };
+    },
+  },
+];
+
+const PLANOS_TOOLS: ToolDef[] = [
+  {
+    name: "listar_modulos_catalogo",
+    description: "Lista módulos do catálogo OCS.",
+    parameters: { type: "object", properties: {} },
+    handler: async (sb) => {
+      const { data, error } = await sb.from("plan_modules_catalog")
+        .select("module_key, display_name, base_price, is_active")
+        .eq("is_active", true).limit(50);
+      return error ? { error: error.message } : { modulos: data ?? [] };
+    },
+  },
+  {
+    name: "listar_integracoes_catalogo",
+    description: "Lista integrações disponíveis.",
+    parameters: { type: "object", properties: {} },
+    handler: async (sb) => {
+      const { data, error } = await sb.from("plan_integrations_catalog")
+        .select("integration_key, display_name, base_price").limit(50);
+      return error ? { error: error.message } : { integracoes: data ?? [] };
+    },
+  },
+];
+
 const TOOLS_BY_MODULE: Record<string, ToolDef[]> = {
   engenharia: ENG_TOOLS,
+  rhdp: RHDP_TOOLS,
+  crea: CREA_TOOLS,
+  financeiro: FIN_TOOLS,
+  ti: TI_TOOLS,
+  comunicacao: COMM_TOOLS,
+  planos: PLANOS_TOOLS,
 };
 
 // ---- Util ----
