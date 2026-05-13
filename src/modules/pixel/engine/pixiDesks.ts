@@ -61,8 +61,10 @@ class PixiDesksManager {
   }
 
   private updateDeskSprite(container: PIXI.Container, desk: DeskLite) {
-    const graphics = container.children[0] as PIXI.Graphics;
-    const label = container.children[1] as PIXI.Text;
+    if (!container || container.destroyed) return;
+    const graphics = container.children[0] as PIXI.Graphics | undefined;
+    const label = container.children[1] as PIXI.Text | undefined;
+    if (!graphics || !label) return;
     const kind = deskKindFromKey((desk as any).asset_key ?? null, desk.desk_type);
     
     const isMeeting = kind === "meeting";
