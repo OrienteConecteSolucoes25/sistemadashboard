@@ -141,7 +141,7 @@ const EngenhariaDashboard = () => {
           .slice(0, 8)
       );
     })();
-  }, []);
+  }, [isDemo]);
 
   return (
     <div className="space-y-5">
