@@ -78,6 +78,7 @@ const FIELDS: FieldSchema[] = [
 ];
 
 export const FornecedoresPage = () => {
+  const { enabled: isDemo } = useEngDemoMode();
   const [items, setItems] = useState<Fornecedor[]>([]);
   const [openForm, setOpenForm] = useState(false);
   const [editId, setEditId] = useState<string | null>(null);
@@ -88,6 +89,10 @@ export const FornecedoresPage = () => {
   const [form, setForm] = useState<FormState>(emptyForm());
 
   const load = async () => {
+    if (isDemo) {
+      setItems((getDemoTable("eng_equipes") ?? []) as any);
+      return;
+    }
     const { data } = await supabase
       .from("eng_equipes")
       .select("*")
@@ -100,7 +105,7 @@ export const FornecedoresPage = () => {
       estados_atuacao: Array.isArray(t.estados_atuacao) ? t.estados_atuacao : [],
     })) as Fornecedor[]);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [isDemo]);
 
   const editing = items.find((t) => t.id === openDetailId);
 

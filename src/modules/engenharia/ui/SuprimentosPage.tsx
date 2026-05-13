@@ -676,6 +676,12 @@ const SuprimentosPage = () => {
 
   const load = async () => {
     setLoading(true);
+    if (isDemo) {
+      setRows(((getDemoTable("eng_suprimentos") ?? []) as any));
+      setAllScRc([]); setScrcCounts({});
+      setLoading(false);
+      return;
+    }
     const { data, error } = await supabase.from("eng_suprimentos").select("*").order("created_at", { ascending: false });
     if (error) toast.error(error.message);
     const list = (data || []) as Solicit[];
@@ -689,7 +695,7 @@ const SuprimentosPage = () => {
     } catch (e: any) { /* ignore */ }
     setLoading(false);
   };
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [isDemo]);
 
   const hasPendingScRc = (r: Solicit) => {
     const itens: any[] = Array.isArray(r.itens) ? r.itens : [];
