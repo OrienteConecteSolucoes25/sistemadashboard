@@ -121,8 +121,10 @@ const App = () => (
             <AclProvider>
               <CompanyThemeProvider>
                 <Routes>
-            <Route path="/" element={<Navigate to="/app" replace />} />
-            <Route path="/auth" element={<Auth />} />
+            <Route path="/" element={<PublicSite />} />
+            <Route path="/entrar" element={<Auth />} />
+            {/* Compat: rota antiga /auth redireciona para /entrar */}
+            <Route path="/auth" element={<Navigate to="/entrar" replace />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/app" element={<AppLayout />}>
               <Route index element={<ModuleSelector />} />
