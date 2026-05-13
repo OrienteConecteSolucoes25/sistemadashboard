@@ -109,7 +109,19 @@ export function ModuleAgentChat({
           message: text,
         },
       });
-      if (error) throw error;
+
+      // Tenta extrair mensagem amigável de erro do edge function (ex.: 402 sem créditos)
+      let friendlyError: string | null = null;
+      if (error) {
+        try {
+          const ctx = (error as any).context;
+          if (ctx && typeof ctx.json === "function") {
+            const body = await ctx.json();
+            friendlyError = body?.error ?? null;
+          }
+        } catch {}
+        throw new Error(friendlyError ?? error.message ?? "Erro no agente");
+      }
       
       const reply = (data as any).reply ?? "(sem resposta)";
       const tool_results = (data as any).tool_results;
@@ -123,8 +135,12 @@ export function ModuleAgentChat({
       await supabase.from("pixel_agent_conversations").update({ updated_at: new Date().toISOString() }).eq("id", convId);
     } catch (e: any) {
       console.error(e);
-      toast.error(e.message ?? "Erro no agente");
-      setMessages((p) => [...p, { role: "assistant", content: `❌ Erro: ${e.message ?? "tente novamente"}` }]);
+      const msg = e?.message ?? "tente novamente";
+      const isCredits = /cr[eé]dito/i.test(msg);
+      toast.error(isCredits ? "Créditos de IA esgotados — adicione saldo nas configurações da workspace." : msg);
+      setMessages((p) => [...p, { role: "assistant", content: isCredits
+        ? "⚠️ Os créditos de IA da workspace acabaram. Peça ao admin para adicionar saldo em **Cloud → AI Gateway** para continuar conversando."
+        : `❌ Erro: ${msg}` }]);
     } finally {
       setBusy(false);
     }
