@@ -99,6 +99,7 @@ const EngListPage = ({
   config, kpis = [], statusKeys = ["status", "prioridade"], facetKeys = [],
   views = ["list"], kanban, dashboard, timelineDateKey = "created_at",
 }: EngListPageProps) => {
+  const { enabled: isDemo } = useEngDemoMode();
   const [rows, setRows] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [search, setSearch] = useState("");
@@ -113,6 +114,12 @@ const EngListPage = ({
 
   const load = async () => {
     setLoading(true);
+    if (isDemo) {
+      const demo = getDemoTable(config.table) ?? [];
+      setRows(demo);
+      setLoading(false);
+      return;
+    }
     const orderCol = config.orderBy?.column ?? "created_at";
     const asc = config.orderBy?.ascending ?? false;
     const { data, error } = await (supabase.from(config.table as any).select("*").order(orderCol, { ascending: asc }) as any);
@@ -120,7 +127,7 @@ const EngListPage = ({
     setRows(data || []);
     setLoading(false);
   };
-  useEffect(() => { load(); /* eslint-disable-next-line */ }, [config.table]);
+  useEffect(() => { load(); /* eslint-disable-next-line */ }, [config.table, isDemo]);
 
   const filtered = useMemo(() => {
     let r = rows;
