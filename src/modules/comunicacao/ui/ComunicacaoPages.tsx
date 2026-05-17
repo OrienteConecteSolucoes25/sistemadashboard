@@ -224,7 +224,7 @@ export function PostGeneratorPage() {
     if (!companyId || !result?.prompt_visual) return;
     setImageLoading(true);
     try {
-      const r = await commImageGen({ company_id: companyId, brand_kit_id: brandId || undefined, prompt: result.prompt_visual, format: "1080x1080", model: "google/gemini-2.5-flash-image" });
+      const r = await commImageGen({ company_id: companyId, brand_kit_id: brandId || undefined, prompt: result.prompt_visual, format: "1080x1080", model: "google/gemini-3.1-flash-image-preview" });
       setImage(r.image); toast({ title: "Imagem gerada", description: "Status: rascunho — exige aprovação." });
     } catch (e: any) { toast({ title: "Erro IA imagem", description: e.message, variant: "destructive" }); }
     finally { setImageLoading(false); }
