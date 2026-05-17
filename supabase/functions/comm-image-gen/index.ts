@@ -65,8 +65,8 @@ Deno.serve(async (req) => {
       .eq("company_id", company_id).eq("kind", "image").gte("created_at", monthAgo.toISOString());
     const { count: dayCount } = await sbAdmin.from("comm_ai_usage").select("*", { count: "exact", head: true })
       .eq("company_id", company_id).eq("kind", "image").gte("created_at", dayAgo.toISOString());
-    if ((monthCount ?? 0) >= monthlyLimit) return new Response(JSON.stringify({ error: "monthly_quota" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    if ((dayCount ?? 0) >= dailyLimit) return new Response(JSON.stringify({ error: "daily_quota" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if ((monthCount ?? 0) >= monthlyLimit) return new Response(JSON.stringify({ error: "monthly_quota", fallback: true, limit: monthlyLimit }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if ((dayCount ?? 0) >= dailyLimit) return new Response(JSON.stringify({ error: "daily_quota", fallback: true, limit: dailyLimit }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     // Chama Lovable AI — com retry quando o modelo retorna sem imagem
     let aiJson: any = null;
