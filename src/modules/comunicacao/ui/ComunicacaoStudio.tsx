@@ -332,7 +332,7 @@ export function ImagesGalleryPage() {
   const { companyId } = useComunicacaoAccess();
   const [items, setItems] = useState<any[]>([]);
   const [prompt, setPrompt] = useState("");
-  const [model, setModel] = useState("google/gemini-2.5-flash-image");
+  const [model, setModel] = useState("google/gemini-3.1-flash-image-preview");
   const [format, setFormat] = useState("1080x1080");
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
