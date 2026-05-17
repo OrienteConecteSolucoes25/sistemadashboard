@@ -214,6 +214,7 @@ function InstagramGridGenerator() {
       });
       if (r?.image) {
         setResults((arr) => arr.map((v, i) => (i === idx ? r.image : v)));
+        return true;
       } else {
         const msg = r?.error === "daily_quota"
           ? `Limite diário de imagens atingido (${r.limit ?? 50}).`
@@ -225,9 +226,11 @@ function InstagramGridGenerator() {
                 ? "A geração foi temporariamente limitada."
                 : r?.detail || "A imagem não foi gerada.";
         toast({ title: `Card ${idx + 1} não gerado`, description: msg, variant: "destructive" });
+        return false;
       }
     } catch (e: any) {
       toast({ title: `Card ${idx + 1} falhou`, description: e.message, variant: "destructive" });
+      return false;
     } finally {
       setLoading((l) => l.map((v, i) => (i === idx ? false : v)));
     }
@@ -239,24 +242,24 @@ function InstagramGridGenerator() {
     if (!activeBrand) return toast({ title: "Selecione um Brand Kit ativo", variant: "destructive" });
     setRunning(true);
     setResults(Array(9).fill(null));
+    let successCount = 0;
     // concurrency 3
     const pool: number[] = [];
     for (let i = 0; i < 9; i++) pool.push(i);
     async function worker() {
       while (pool.length) {
         const idx = pool.shift()!;
-        await genOne(idx);
+        if (await genOne(idx)) successCount += 1;
       }
     }
     await Promise.all([worker(), worker(), worker()]);
     setRunning(false);
-    const generatedCount = results.filter((item) => item?.public_url).length;
     toast({
-      title: generatedCount > 0 ? "Geração concluída" : "Nenhuma imagem gerada",
-      description: generatedCount > 0
-        ? `${generatedCount} imagem(ns) gerada(s) como rascunho.`
+      title: successCount > 0 ? "Geração concluída" : "Nenhuma imagem gerada",
+      description: successCount > 0
+        ? `${successCount} imagem(ns) gerada(s) como rascunho.`
         : "Verifique a mensagem de quota/limite exibida durante a geração.",
-      variant: generatedCount > 0 ? undefined : "destructive",
+      variant: successCount > 0 ? undefined : "destructive",
     });
   }
 
