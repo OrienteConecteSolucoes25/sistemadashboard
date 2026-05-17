@@ -13,7 +13,15 @@ export async function commImageGen(payload: { prompt: string; company_id: string
   if (error) throw error;
   const d = data as any;
   if (d?.error && !d?.fallback) throw new Error(d.error);
-  return data as { ok: boolean; image: any; signed_url: string; error?: string; fallback?: boolean; limit?: number };
+  return data as {
+    ok?: boolean;
+    image?: any;
+    signed_url?: string;
+    error?: string;
+    detail?: string;
+    fallback?: boolean;
+    limit?: number;
+  };
 }
 
 export async function commSoftDelete(table: string, id: string, reason: string) {
