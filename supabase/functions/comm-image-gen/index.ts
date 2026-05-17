@@ -34,7 +34,9 @@ Deno.serve(async (req) => {
     if (!user) return new Response(JSON.stringify({ error: "unauth" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     const body: Body = await req.json();
-    const { prompt, company_id, brand_kit_id, format = "1080x1080", model = "google/gemini-2.5-flash-image", linked_post_id } = body;
+    const { prompt, company_id, brand_kit_id, format = "1080x1080", model: rawModel = "google/gemini-3.1-flash-image-preview", linked_post_id } = body;
+    // Modelo legado "gemini-2.5-flash-image" não retorna imagem via gateway atual → força preview
+    const model = rawModel === "google/gemini-2.5-flash-image" ? "google/gemini-3.1-flash-image-preview" : rawModel;
     if (!prompt || !company_id) return new Response(JSON.stringify({ error: "missing_params" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
     // Permissão
