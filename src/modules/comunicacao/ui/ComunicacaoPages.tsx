@@ -225,7 +225,21 @@ export function PostGeneratorPage() {
     setImageLoading(true);
     try {
       const r = await commImageGen({ company_id: companyId, brand_kit_id: brandId || undefined, prompt: result.prompt_visual, format: "1080x1080", model: "google/gemini-3.1-flash-image-preview" });
-      setImage(r.image); toast({ title: "Imagem gerada", description: "Status: rascunho — exige aprovação." });
+      if (r?.image) {
+        setImage(r.image);
+        toast({ title: "Imagem gerada", description: "Status: rascunho — exige aprovação." });
+      } else {
+        const msg = r?.error === "daily_quota"
+          ? `Limite diário de imagens atingido (${r.limit ?? 50}).`
+          : r?.error === "monthly_quota"
+            ? `Limite mensal de imagens atingido (${r.limit ?? 200}).`
+            : r?.error === "credits_exhausted"
+              ? "Créditos de IA indisponíveis no momento."
+              : r?.error === "rate_limited"
+                ? "A geração foi temporariamente limitada. Tente novamente em instantes."
+                : r?.detail || "A imagem não foi gerada.";
+        toast({ title: "Imagem não gerada", description: msg, variant: "destructive" });
+      }
     } catch (e: any) { toast({ title: "Erro IA imagem", description: e.message, variant: "destructive" }); }
     finally { setImageLoading(false); }
   }
