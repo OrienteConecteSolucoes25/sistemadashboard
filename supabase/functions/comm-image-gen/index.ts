@@ -68,25 +68,44 @@ Deno.serve(async (req) => {
     if ((monthCount ?? 0) >= monthlyLimit) return new Response(JSON.stringify({ error: "monthly_quota" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     if ((dayCount ?? 0) >= dailyLimit) return new Response(JSON.stringify({ error: "daily_quota" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
 
-    // Chama Lovable AI
-    const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
-      body: JSON.stringify({
-        model,
-        messages: [{ role: "user", content: prompt }],
-        modalities: ["image", "text"],
-      }),
-    });
-    if (aiRes.status === 429) return new Response(JSON.stringify({ error: "rate_limited" }), { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    if (aiRes.status === 402) return new Response(JSON.stringify({ error: "credits_exhausted" }), { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } });
-    if (!aiRes.ok) {
-      const txt = await aiRes.text();
-      return new Response(JSON.stringify({ error: "ai_error", detail: txt }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    // Chama Lovable AI — com retry quando o modelo retorna sem imagem
+    let aiJson: any = null;
+    let dataUrl: string | undefined;
+    let lastErrDetail = "";
+    const maxAttempts = 3;
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      const aiRes = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${LOVABLE_API_KEY}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model,
+          messages: [{
+            role: "user",
+            content: attempt === 1 ? prompt : `${prompt}\n\nIMPORTANTE: gere uma IMAGEM (não responda apenas com texto).`,
+          }],
+          modalities: ["image", "text"],
+        }),
+      });
+      if (aiRes.status === 429) return new Response(JSON.stringify({ error: "rate_limited", fallback: true }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (aiRes.status === 402) return new Response(JSON.stringify({ error: "credits_exhausted", fallback: true }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+      if (!aiRes.ok) {
+        lastErrDetail = await aiRes.text();
+        if (attempt === maxAttempts) {
+          return new Response(JSON.stringify({ error: "ai_error", detail: lastErrDetail, fallback: true }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        }
+        continue;
+      }
+      aiJson = await aiRes.json();
+      dataUrl = aiJson.choices?.[0]?.message?.images?.[0]?.image_url?.url;
+      if (dataUrl?.startsWith("data:")) break;
+      lastErrDetail = "model returned no image";
+      // pequeno backoff antes de tentar novamente
+      if (attempt < maxAttempts) await new Promise((r) => setTimeout(r, 400 * attempt));
     }
-    const aiJson = await aiRes.json();
-    const dataUrl: string | undefined = aiJson.choices?.[0]?.message?.images?.[0]?.image_url?.url;
-    if (!dataUrl?.startsWith("data:")) return new Response(JSON.stringify({ error: "no_image" }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (!dataUrl?.startsWith("data:")) {
+      console.error("[comm-image-gen] no_image after retries", { model, detail: lastErrDetail });
+      return new Response(JSON.stringify({ error: "no_image", detail: lastErrDetail, fallback: true }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
 
     // Decode base64 e upload
     const [meta, b64] = dataUrl.split(",");
