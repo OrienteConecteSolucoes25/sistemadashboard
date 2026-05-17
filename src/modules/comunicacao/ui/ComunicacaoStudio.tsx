@@ -212,7 +212,20 @@ function InstagramGridGenerator() {
         format: "1080x1080",
         model: "google/gemini-3.1-flash-image-preview",
       });
-      setResults((arr) => arr.map((v, i) => (i === idx ? r.image : v)));
+      if (r?.image) {
+        setResults((arr) => arr.map((v, i) => (i === idx ? r.image : v)));
+      } else {
+        const msg = r?.error === "daily_quota"
+          ? `Limite diário de imagens atingido (${r.limit ?? 50}).`
+          : r?.error === "monthly_quota"
+            ? `Limite mensal de imagens atingido (${r.limit ?? 200}).`
+            : r?.error === "credits_exhausted"
+              ? "Créditos de IA indisponíveis no momento."
+              : r?.error === "rate_limited"
+                ? "A geração foi temporariamente limitada."
+                : r?.detail || "A imagem não foi gerada.";
+        toast({ title: `Card ${idx + 1} não gerado`, description: msg, variant: "destructive" });
+      }
     } catch (e: any) {
       toast({ title: `Card ${idx + 1} falhou`, description: e.message, variant: "destructive" });
     } finally {
@@ -237,7 +250,14 @@ function InstagramGridGenerator() {
     }
     await Promise.all([worker(), worker(), worker()]);
     setRunning(false);
-    toast({ title: "Grade 3x3 gerada", description: "Todas as imagens nascem como rascunho — exigem aprovação." });
+    const generatedCount = results.filter((item) => item?.public_url).length;
+    toast({
+      title: generatedCount > 0 ? "Geração concluída" : "Nenhuma imagem gerada",
+      description: generatedCount > 0
+        ? `${generatedCount} imagem(ns) gerada(s) como rascunho.`
+        : "Verifique a mensagem de quota/limite exibida durante a geração.",
+      variant: generatedCount > 0 ? undefined : "destructive",
+    });
   }
 
   function downloadOne(idx: number) {
@@ -346,7 +366,24 @@ export function ImagesGalleryPage() {
 
   async function gen() {
     if (!companyId || !prompt) return; setLoading(true);
-    try { await commImageGen({ company_id: companyId, prompt, format, model }); toast({ title: "Imagem gerada (rascunho)" }); load(); }
+    try {
+      const r = await commImageGen({ company_id: companyId, prompt, format, model });
+      if (r?.image) {
+        toast({ title: "Imagem gerada (rascunho)" });
+        load();
+      } else {
+        const msg = r?.error === "daily_quota"
+          ? `Limite diário de imagens atingido (${r.limit ?? 50}).`
+          : r?.error === "monthly_quota"
+            ? `Limite mensal de imagens atingido (${r.limit ?? 200}).`
+            : r?.error === "credits_exhausted"
+              ? "Créditos de IA indisponíveis no momento."
+              : r?.error === "rate_limited"
+                ? "A geração foi temporariamente limitada."
+                : r?.detail || "A imagem não foi gerada.";
+        toast({ title: "Imagem não gerada", description: msg, variant: "destructive" });
+      }
+    }
     catch (e: any) { toast({ title: "Erro IA", description: e.message, variant: "destructive" }); }
     finally { setLoading(false); }
   }
