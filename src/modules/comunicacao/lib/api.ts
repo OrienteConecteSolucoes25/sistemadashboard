@@ -11,8 +11,9 @@ export async function commAi(payload: { kind: string; brand?: any; inputs?: Reco
 export async function commImageGen(payload: { prompt: string; company_id: string; brand_kit_id?: string; format?: string; model?: string; linked_post_id?: string }) {
   const { data, error } = await supabase.functions.invoke("comm-image-gen", { body: payload });
   if (error) throw error;
-  if ((data as any)?.error) throw new Error((data as any).error);
-  return data as { ok: boolean; image: any; signed_url: string };
+  const d = data as any;
+  if (d?.error && !d?.fallback) throw new Error(d.error);
+  return data as { ok: boolean; image: any; signed_url: string; error?: string; fallback?: boolean; limit?: number };
 }
 
 export async function commSoftDelete(table: string, id: string, reason: string) {
