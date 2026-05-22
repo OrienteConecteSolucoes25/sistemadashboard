@@ -93,7 +93,7 @@ export default function FluxosPage() {
     setName(templateKey ? (templateKey === "linkedin_semanal" ? "Post LinkedIn semanal" : "Carrossel Instagram") : "Novo fluxo");
     setDesc("");
     if (templateKey && TEMPLATES[templateKey]) {
-      setNodes(TEMPLATES[templateKey].nodes.map((n) => ({ ...n, style: nodeStyle(n.data?.nodeType) })));
+      setNodes(TEMPLATES[templateKey].nodes.map((n) => ({ ...n, style: nodeStyle((n.data as any)?.nodeType) })));
       setEdges(TEMPLATES[templateKey].edges);
     } else {
       setNodes([{ id: "t", type: "default", position: { x: 100, y: 100 }, data: { label: "Gatilho", nodeType: "trigger", config: {} }, style: nodeStyle("trigger") }]);
