@@ -18,8 +18,10 @@ import {
   Filter,
   MoreVertical,
   ExternalLink,
-  Loader2
+  Loader2,
+  Menu
 } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
