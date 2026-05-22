@@ -155,6 +155,210 @@ async function tryOpenRouter(messages: any[]): Promise<CallResult> {
   return { ok: true, text: j.choices?.[0]?.message?.content ?? "", provider: "openrouter-free", model };
 }
 
+// ============== TEMPLATE LOCAL (sem nenhuma API key) ==============
+function localTemplate(kind: string, inputs: Record<string, any>, brand: any): any {
+  const i = inputs ?? {};
+  const tema = i.tema || i.assunto || "[tema]";
+  const cta = i.cta || brand?.cta_padrao || "Saiba mais";
+  const publico = i.publico || i.publico_alvo || brand?.publico_alvo || "nosso público";
+  const tom = i.tom || brand?.tom_de_voz || "profissional e próximo";
+  const marca = brand?.nome || "[Marca]";
+  const valor = brand?.proposta_valor || "entregar resultado de verdade";
+  const dif = brand?.diferenciais || "qualidade, agilidade e atendimento próximo";
+  const hashtags = (i.hashtags_extra ?? []).concat([
+    `#${marca.replace(/\s+/g, "")}`, "#OCS", "#Brasil", "#Inovacao", "#Gestao",
+  ]).slice(0, 10);
+  const linhas = (txt: string) => txt.split("\n").filter(Boolean);
+
+  switch (kind) {
+    case "linkedin_longo":
+    case "linkedin_artigo": {
+      const corpo = [
+        `🚀 ${tema} — o que ninguém te conta.`,
+        ``,
+        `Nos últimos meses, vimos uma mudança importante: ${tema} deixou de ser tendência e virou exigência de mercado. Para ${publico}, ignorar isso significa perder espaço para quem já adaptou seu jogo.`,
+        ``,
+        `Na ${marca}, trabalhamos com tom ${tom}, e o que aprendemos foi:`,
+        ``,
+        `• Estrutura > improviso. Quem documenta processo escala.`,
+        `• Comunicação clara > volume de mensagens. Ruído mata projeto.`,
+        `• Dados > opinião. Decisão sem número é fé, não estratégia.`,
+        ``,
+        `Um caso prático: aplicamos isso em ${tema} e o resultado apareceu em poucas semanas — não por mágica, por método. ${valor}. Nosso diferencial: ${dif}.`,
+        ``,
+        `💡 Reflexão: se você ainda trata ${tema} como item secundário, está pagando um custo invisível. Aquele que só aparece quando a concorrência leva o cliente.`,
+        ``,
+        `👉 ${cta}`,
+        ``,
+        hashtags.map((h: string) => h.startsWith("#") ? h : `#${h}`).join(" "),
+      ].join("\n");
+      return {
+        titulo: `${tema}: por que ${publico} precisa repensar agora`,
+        corpo,
+        hashtags,
+        cta,
+        variacao_curta: `${tema} virou exigência. ${cta}.`,
+      };
+    }
+    case "legenda_longa":
+    case "legenda": {
+      const principal = [
+        `✨ ${tema} — e aqui vai o que mudou pra gente.`,
+        ``,
+        `Quando ${publico} fala em ${tema}, normalmente pensa em ${tema} de forma genérica. Mas tem detalhe que faz diferença: ${dif}.`,
+        ``,
+        `Foi exatamente isso que a ${marca} entregou: ${valor}.`,
+        ``,
+        `Comenta aqui 👇 se faz sentido pro seu momento.`,
+        ``,
+        `👉 ${cta}`,
+      ].join("\n");
+      return {
+        principal,
+        variacoes: [
+          `${tema}: solução prática para ${publico}. ${cta}.`,
+          `Como a ${marca} resolve ${tema} — com ${tom}. ${cta}.`,
+          `Você ainda trata ${tema} no improviso? ${cta}.`,
+        ],
+        curta: `${tema}? ${cta}.`,
+        comercial: `${marca} entrega ${tema} com ${dif}. ${cta}.`,
+        institucional: `Na ${marca}, ${tema} é prioridade. ${valor}.`,
+        hashtags,
+        cta,
+      };
+    }
+    case "post":
+    case "post_institucional": {
+      return {
+        titulo: `${marca} apresenta: ${tema}`,
+        legenda: `${tema} — pensado para ${publico}.\n\n${valor}\n\n${cta}`,
+        texto_card: `${tema.toUpperCase()}\n${dif}`,
+        hashtags,
+        cta,
+        descricao_alternativa: `Card sobre ${tema} com identidade visual da ${marca}.`,
+        prompt_visual: `Post quadrado moderno sobre ${tema}, paleta da marca ${marca}, tipografia limpa, sem rostos.`,
+        variacoes: [
+          { tipo: "curta", texto: `${tema}. ${cta}.` },
+          { tipo: "humanizada", texto: `A gente sabe que ${tema} dá trabalho. Por isso a ${marca} existe. ${cta}.` },
+        ],
+      };
+    }
+    case "carrossel": {
+      const qtd = parseInt(i.qtd_slides ?? 6, 10) || 6;
+      const slides = Array.from({ length: qtd }, (_, k) => {
+        const ordem = k + 1;
+        const mapa = [
+          { titulo: `${tema}`, texto: `Por que isso importa para ${publico}.` },
+          { titulo: `O problema`, texto: `Sem método, ${tema} vira custo invisível.` },
+          { titulo: `Consequência`, texto: `Você paga em retrabalho, atraso e cliente perdido.` },
+          { titulo: `A virada`, texto: `${dif}. É assim que a ${marca} resolve.` },
+          { titulo: `Como aplicar`, texto: `Passo a passo simples: diagnóstico → plano → execução.` },
+          { titulo: `Resultado`, texto: `${valor}.` },
+          { titulo: `Próximo passo`, texto: cta },
+          { titulo: `Fale com a gente`, texto: cta },
+        ];
+        const s = mapa[Math.min(k, mapa.length - 1)];
+        return { ordem, titulo: s.titulo, texto: s.texto, design_sugerido: "fundo escuro, título grande, ícone simples" };
+      });
+      return {
+        titulo: `Carrossel: ${tema}`,
+        legenda: `${tema} explicado em ${qtd} cards.\n\n${cta}`,
+        hashtags, cta, slides,
+      };
+    }
+    case "newsletter": {
+      return {
+        assunto: `${marca}: o que você precisa saber sobre ${tema}`,
+        pre_header: `${tema} em pauta — e como isso afeta ${publico}.`,
+        abertura: `Olá! Esta semana o tema é ${tema}. Direto ao ponto: ${valor}.`,
+        blocos: [
+          { titulo: "O contexto", texto: `${tema} subiu na pauta. ${publico} precisa de clareza.` },
+          { titulo: "O que a ${marca} entrega", texto: `${dif}.` },
+          { titulo: "Próximos passos", texto: `${cta}.` },
+        ],
+        cta, rodape: `Até a próxima — equipe ${marca}.`,
+        versao_texto: `${tema} — ${valor}. ${cta}.`,
+      };
+    }
+    case "comunicado_interno": {
+      const tipo = i.tipo || "aviso";
+      return {
+        titulo: `[${tipo.toUpperCase()}] ${tema}`,
+        mensagem_curta: `${tema} — ação necessária.`,
+        mensagem_completa: `Time, segue ${tipo} sobre ${tema}.\n\nContexto: ${valor}.\nAção: ${cta}.\n\nDúvidas, falar com gestão.`,
+        cta,
+        versao_email: `Assunto: [${tipo}] ${tema}\n\n${tema}. ${cta}.`,
+        versao_whatsapp: `*[${tipo.toUpperCase()}] ${tema}* — ${cta}.`,
+        versao_mural: `${tema.toUpperCase()}\n${cta}`,
+      };
+    }
+    case "texto": {
+      return {
+        titulo: `${tema}`,
+        texto: `${tema}.\n\n${valor}.\n\n${dif}.\n\n${cta}.`,
+        cta,
+      };
+    }
+    case "ideia": {
+      const qtd = parseInt(i.qtd ?? 10, 10) || 10;
+      const bases = ["dica rápida", "case real", "antes e depois", "checklist", "mito x verdade", "pergunta provocativa", "estatística", "tutorial", "tendência", "FAQ"];
+      const ideias = Array.from({ length: qtd }, (_, k) => ({
+        titulo: `${bases[k % bases.length]}: ${tema}`,
+        resumo: `Conteúdo de ${bases[k % bases.length]} sobre ${tema} para ${publico}.`,
+        categoria: i.categoria || "post",
+        prioridade: k < 3 ? "alta" : k < 6 ? "média" : "baixa",
+      }));
+      return { ideias };
+    }
+    case "thread_x": {
+      const qtd = Math.min(parseInt(i.qtd ?? 8, 10) || 8, 12);
+      const thread = Array.from({ length: qtd }, (_, k) => ({
+        n: k + 1,
+        texto: k === 0
+          ? `${tema}: uma thread em ${qtd} tweets 🧵`
+          : k === qtd - 1
+            ? `Se curtiu, dá RT no primeiro. ${cta}.`
+            : `${k}/ ${linhas(`${tema} - ponto ${k}: ${dif}`)[0]}`,
+      }));
+      return { thread, hashtags };
+    }
+    case "campanha": {
+      return {
+        nome: `Campanha ${tema}`,
+        conceito: `${tema} como mote central para ${publico}.`,
+        promessa: valor,
+        mensagens_chave: [tema, dif, cta],
+        posts_sugeridos: [
+          { canal: "Instagram", titulo: `Teaser ${tema}`, resumo: "card único" },
+          { canal: "LinkedIn", titulo: `Manifesto ${tema}`, resumo: "post longo" },
+          { canal: "Email", titulo: `Lançamento ${tema}`, resumo: "newsletter" },
+        ],
+        roteiro_lancamento: ["semana -2: teaser", "semana -1: bastidor", "semana 0: lançamento", "semana +1: prova social"],
+        metricas_esperadas: { alcance: "+30%", engajamento: "+20%", leads: "+15%" },
+      };
+    }
+    case "roteiro":
+    case "roteiro_video":
+    case "roteiro_video_curto": {
+      return {
+        titulo: `Roteiro vídeo curto — ${tema}`,
+        duracao: "30-45s",
+        roteiro: [
+          { tempo: "0-3s", fala: `${tema}? Você está fazendo errado.` },
+          { tempo: "3-15s", fala: `Maioria de ${publico} faz assim — e perde tempo. O caminho certo é: ${dif}.` },
+          { tempo: "15-30s", fala: `Foi assim que a ${marca} entregou ${valor}.` },
+          { tempo: "30-40s", fala: `${cta}.` },
+        ],
+        cta,
+        hashtags,
+      };
+    }
+    default:
+      return { titulo: tema, texto: `${tema} — ${valor}. ${cta}.`, cta, hashtags };
+  }
+}
+
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
   try {
@@ -192,11 +396,19 @@ Deno.serve(async (req) => {
       if (r.ok && r.text) { result = r; break; }
     }
     if (!result) {
+      // Fallback FINAL: template local determinístico — sempre funciona, sem chave
+      const parsed = localTemplate(kind, inputs, brand);
+      if (company_id) {
+        const sbAdmin = createClient(SUPABASE_URL, SUPABASE_SR);
+        await sbAdmin.from("comm_ai_usage").insert({
+          company_id, user_id: user.id, provider: "template-local", model: "template-local", kind: "text",
+          tokens_in: 0, tokens_out: 0, cost_credits: 0,
+        });
+      }
       return new Response(JSON.stringify({
-        error: "no_free_provider",
-        detail: "Nenhuma chave grátis configurada ou todas falharam. Configure GEMINI_API_KEY (recomendado), GROQ_API_KEY ou GITHUB_MODELS_TOKEN.",
-        attempts,
-      }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+        ok: true, kind, data: parsed, model: "template-local", provider: "template-local",
+        attempts, note: "Nenhuma chave externa configurada — usando Template Local. Adicione GEMINI_API_KEY para IA generativa real.",
+      }), { headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
 
     let parsed: any;
