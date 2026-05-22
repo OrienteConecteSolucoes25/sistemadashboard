@@ -1,1 +1,4 @@
 project_id = "ttkgqjfvhstxvdyhfzwn"
+
+[functions.comm-providers-status]
+verify_jwt = false
