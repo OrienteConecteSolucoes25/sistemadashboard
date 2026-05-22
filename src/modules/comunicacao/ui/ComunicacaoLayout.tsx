@@ -3,7 +3,7 @@ import { useComunicacaoAccess } from "../hooks/useComunicacaoAccess";
 import {
   LayoutDashboard, Palette, FileText, MessageSquare, Image as ImageIcon, Calendar, Megaphone,
   Mail, Bell, Lightbulb, ListChecks, Layers, BarChart3, ShieldCheck, Sparkles, FileSignature,
-  Package, BookOpen, ExternalLink, Building2
+  Package, BookOpen, ExternalLink, Building2, Workflow
 } from "lucide-react";
 import { CollapsibleModuleSidebar } from "@/modules/aparencia/ui/CollapsibleModuleSidebar";
 import { ActiveBrandKitProvider } from "../hooks/useActiveBrandKit";
@@ -33,6 +33,7 @@ const tabs = [
 
   { to: "/app/comunicacao/aprovacoes", label: "Aprovações", icon: ListChecks, group: "Operação" },
   { to: "/app/comunicacao/publicacoes", label: "Publicações", icon: BarChart3, group: "Operação" },
+  { to: "/app/comunicacao/fluxos", label: "Fluxos (n8n)", icon: Workflow, group: "Operação" },
   { to: "/app/comunicacao/integracoes", label: "Integrações Sociais", icon: ExternalLink, group: "Operação" },
   { to: "/app/comunicacao/metricas", label: "Métricas & Insights IA", icon: BarChart3, group: "Operação" },
   { to: "/app/comunicacao/auditoria", label: "Auditoria", icon: ShieldCheck, group: "Operação" },

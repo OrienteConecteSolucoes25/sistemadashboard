@@ -81,6 +81,7 @@ import {
 import { DesignStudioPage, ImagesGalleryPage, CanvaPage } from "./modules/comunicacao/ui/ComunicacaoStudio";
 import IntegracoesSociaisPage from "./modules/comunicacao/ui/IntegracoesSociaisPage";
 import MetricasPage from "./modules/comunicacao/ui/MetricasPage";
+import FluxosPage from "./modules/comunicacao/ui/FluxosPage";
 import ThemeStudioPage from "./modules/aparencia/ui/ThemeStudioPage";
 import { CompanyThemeProvider } from "./modules/aparencia/hooks/CompanyThemeProvider";
 import VisaoGeralPage from "./modules/planos/ui/VisaoGeralPage";
@@ -231,6 +232,7 @@ const App = () => (
                 <Route path="integracoes" element={<IntegracoesSociaisPage />} />
                 <Route path="metricas" element={<MetricasPage />} />
                 <Route path="auditoria" element={<CommAuditoriaPage />} />
+                <Route path="fluxos" element={<FluxosPage />} />
               </Route>
               <Route path="comunicacao/governanca" element={<GovernanceUniversalPage moduleKey="comunicacao" />} />
               <Route path="governanca" element={<GovernanceUniversalPage moduleKey="geral" />} />
