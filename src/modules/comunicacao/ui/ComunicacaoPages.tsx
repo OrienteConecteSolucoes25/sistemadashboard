@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useComunicacaoAccess } from "../hooks/useComunicacaoAccess";
-import { commAi, commImageGen, commSoftDelete } from "../lib/api";
+import { commAi, commAiAuto, commImageGen, commSoftDelete } from "../lib/api";
 import { Sparkles, Trash2, Plus, Save, ExternalLink, Copy, ImageIcon, RefreshCcw, Send } from "lucide-react";
 import { Link } from "react-router-dom";
 import { ApprovalPanel } from "./ApprovalPanel";
@@ -211,7 +211,7 @@ export function PostGeneratorPage() {
     if (!companyId) return;
     setLoading(true); setResult(null); setImage(null);
     try {
-      const r = await commAi({
+      const r = await commAiAuto({
         kind: "post", company_id: companyId, brand,
         inputs: { ...inputs, palavras_chave: inputs.palavras_chave.split(",").map((s: string) => s.trim()).filter(Boolean) },
       });
@@ -355,7 +355,7 @@ export function LegendaGeneratorPage() {
   async function gen() {
     if (!companyId) return;
     setLoading(true);
-    try { const x = await commAi({ kind: "legenda", company_id: companyId, brand: brands.find((b) => b.id === brandId), inputs }); setR(x.data); }
+    try { const x = await commAiAuto({ kind: "legenda", company_id: companyId, brand: brands.find((b) => b.id === brandId), inputs }); setR(x.data); }
     catch (e: any) { toast({ title: "Erro", description: e.message, variant: "destructive" }); }
     finally { setLoading(false); }
   }
@@ -416,7 +416,7 @@ export function TextoGeneratorPage() {
         <Input placeholder="Palavras obrigatórias (CSV)" value={inputs.palavras_obrigatorias} onChange={(e) => setInputs({ ...inputs, palavras_obrigatorias: e.target.value })} />
         <Button disabled={loading} onClick={async () => {
           if (!companyId) return; setLoading(true);
-          try { const x = await commAi({ kind: "texto", company_id: companyId, brand: brands.find((b) => b.id === brandId), inputs: { ...inputs, palavras_obrigatorias: inputs.palavras_obrigatorias.split(",").map((s: string) => s.trim()).filter(Boolean) } }); setR(x.data); }
+          try { const x = await commAiAuto({ kind: "texto", company_id: companyId, brand: brands.find((b) => b.id === brandId), inputs: { ...inputs, palavras_obrigatorias: inputs.palavras_obrigatorias.split(",").map((s: string) => s.trim()).filter(Boolean) } }); setR(x.data); }
           catch (e: any) { toast({ title: "Erro", description: e.message, variant: "destructive" }); }
           finally { setLoading(false); }
         }}>{loading ? "Gerando..." : "Gerar"}</Button>
@@ -648,7 +648,7 @@ function MakeAiPage(props: {
 
     async function gen() {
       if (!companyId) return; setLoading(true);
-      try { const x = await commAi({ kind: props.kind, company_id: companyId, brand: brands.find((b) => b.id === brandId) ?? activeBrand, inputs }); setR(x.data); }
+      try { const x = await commAiAuto({ kind: props.kind, company_id: companyId, brand: brands.find((b) => b.id === brandId) ?? activeBrand, inputs }); setR(x.data); }
       catch (e: any) { toast({ title: "Erro", description: e.message, variant: "destructive" }); }
       finally { setLoading(false); }
     }
@@ -1059,7 +1059,7 @@ export function IdeiasPage() {
     if (!tema) return;
     setLoading(true);
     try {
-      const r = await commAi({ kind: "ideia", company_id: companyId, brand: activeBrand, inputs: { tema, qtd: 10, categoria: "post" } });
+      const r = await commAiAuto({ kind: "ideia", company_id: companyId, brand: activeBrand, inputs: { tema, qtd: 10, categoria: "post" } });
       const lista = r.data?.ideias ?? [];
       if (lista.length) {
         await supabase.from("comm_idea_bank").insert(lista.map((i: any) => ({

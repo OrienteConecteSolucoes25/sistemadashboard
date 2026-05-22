@@ -1351,6 +1351,92 @@ export type Database = {
           },
         ]
       }
+      comm_flow_runs: {
+        Row: {
+          company_id: string
+          finished_at: string | null
+          flow_id: string
+          id: string
+          log: Json
+          result: Json | null
+          started_at: string
+          started_by: string | null
+          status: string
+        }
+        Insert: {
+          company_id: string
+          finished_at?: string | null
+          flow_id: string
+          id?: string
+          log?: Json
+          result?: Json | null
+          started_at?: string
+          started_by?: string | null
+          status?: string
+        }
+        Update: {
+          company_id?: string
+          finished_at?: string | null
+          flow_id?: string
+          id?: string
+          log?: Json
+          result?: Json | null
+          started_at?: string
+          started_by?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comm_flow_runs_flow_id_fkey"
+            columns: ["flow_id"]
+            isOneToOne: false
+            referencedRelation: "comm_flows"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      comm_flows: {
+        Row: {
+          ativo: boolean
+          company_id: string
+          created_at: string
+          created_by: string | null
+          descricao: string | null
+          edges: Json
+          id: string
+          is_deleted: boolean
+          nodes: Json
+          nome: string
+          updated_at: string
+        }
+        Insert: {
+          ativo?: boolean
+          company_id: string
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          edges?: Json
+          id?: string
+          is_deleted?: boolean
+          nodes?: Json
+          nome: string
+          updated_at?: string
+        }
+        Update: {
+          ativo?: boolean
+          company_id?: string
+          created_at?: string
+          created_by?: string | null
+          descricao?: string | null
+          edges?: Json
+          id?: string
+          is_deleted?: boolean
+          nodes?: Json
+          nome?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       comm_generated_designs: {
         Row: {
           altura: number | null
