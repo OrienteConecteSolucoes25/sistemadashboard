@@ -9,6 +9,7 @@ import { CollapsibleModuleSidebar } from "@/modules/aparencia/ui/CollapsibleModu
 import { ActiveBrandKitProvider } from "../hooks/useActiveBrandKit";
 import { BrandKitSelector } from "./BrandKitSelector";
 import { DiretorAgentChat } from "./DiretorAgentChat";
+import { FreeAiToggle } from "./FreeAiToggle";
 
 const tabs = [
   { to: "/app/comunicacao", label: "Dashboard", icon: LayoutDashboard, end: true, group: "Visão" },
@@ -60,8 +61,10 @@ export default function ComunicacaoLayout() {
             <div className="text-xs text-muted-foreground truncate">
               {loc.pathname.split("/").pop() || "dashboard"}
             </div>
-            <BrandKitSelector />
-          </div>
+            <div className="flex items-center gap-3">
+              <FreeAiToggle compact />
+              <BrandKitSelector />
+            </div>
           <div className="p-4 md:p-6 flex-1">
             <Outlet />
           </div>
