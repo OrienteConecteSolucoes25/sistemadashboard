@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
-import ReactFlow, {
-  Background, Controls, MiniMap, addEdge, useEdgesState, useNodesState,
+import {
+  ReactFlow, Background, Controls, MiniMap, addEdge, useEdgesState, useNodesState,
   type Connection, type Edge, type Node,
 } from "@xyflow/react";
 import "@xyflow/react/dist/style.css";
@@ -105,7 +105,7 @@ export default function FluxosPage() {
     setCurrentId(f.id);
     setName(f.nome);
     setDesc(f.descricao || "");
-    setNodes((f.nodes || []).map((n: any) => ({ ...n, style: nodeStyle(n.data?.nodeType) })));
+    setNodes((f.nodes || []).map((n: any) => ({ ...n, style: nodeStyle(n.data?.nodeType as string) })));
     setEdges(f.edges || []);
     setRunLog([]);
   }
