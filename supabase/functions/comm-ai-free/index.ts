@@ -1,0 +1,224 @@
+// Edge: comm-ai-free
+// Roteador multi-provedor GRÁTIS (Gemini AI Studio, Groq, GitHub Models, OpenRouter free).
+// Não usa Lovable AI Gateway, portanto NÃO consome créditos.
+// Suporta novos kinds: linkedin_longo, linkedin_artigo, legenda_longa, thread_x — além dos kinds do comm-ai.
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.45.0";
+
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
+  "Access-Control-Allow-Methods": "POST, OPTIONS",
+};
+
+const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
+const SUPABASE_ANON = Deno.env.get("SUPABASE_ANON_KEY")!;
+const SUPABASE_SR = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+
+const GEMINI_API_KEY = Deno.env.get("GEMINI_API_KEY") || Deno.env.get("GOOGLE_API_KEY") || "";
+const GROQ_API_KEY = Deno.env.get("GROQ_API_KEY") || "";
+const GITHUB_MODELS_TOKEN = Deno.env.get("GITHUB_MODELS_TOKEN") || "";
+const OPENROUTER_API_KEY = Deno.env.get("OPENROUTER_API_KEY") || "";
+
+const SYSTEM_BASE = `Você é um assistente sênior de comunicação e marketing da plataforma ERP OCS.
+Escreve em pt-BR, claro e direto. Respeita o Brand Kit fornecido (tom, persona, palavras permitidas/proibidas).
+Nunca inventa dados. Se faltar info, use [placeholder] claro.`;
+
+function brandPrompt(brand: any) {
+  if (!brand) return "Brand Kit: (não fornecido — use tom neutro profissional).";
+  return `Brand Kit:
+- Marca: ${brand.nome ?? ""}
+- Slogan: ${brand.slogan ?? ""}
+- Persona: ${brand.persona ?? ""}
+- Público-alvo: ${brand.publico_alvo ?? ""}
+- Tom de voz: ${brand.tom_de_voz ?? ""}
+- Proposta de valor: ${brand.proposta_valor ?? ""}
+- CTA padrão: ${brand.cta_padrao ?? ""}
+- Palavras permitidas: ${(brand.palavras_permitidas ?? []).join(", ") || "—"}
+- Palavras PROIBIDAS: ${(brand.palavras_proibidas ?? []).join(", ") || "—"}`;
+}
+
+function userPromptFor(kind: string, inputs: Record<string, any>) {
+  const i = inputs ?? {};
+  switch (kind) {
+    case "linkedin_longo":
+    case "linkedin_artigo":
+      return `Escreva um POST LONGO para LinkedIn (entre 1500 e 2500 caracteres) sobre: ${i.tema}.
+Estrutura obrigatória:
+1) Hook (1 frase de impacto)
+2) Contexto / problema (2-3 parágrafos)
+3) Insight ou aprendizado central (com bullet points)
+4) Exemplo prático / case
+5) CTA: ${i.cta ?? "engajamento (pergunta aberta)"}
+6) 5 a 8 hashtags relevantes ao final
+Tom: ${i.tom ?? "profissional + humano"}. Público: ${i.publico ?? "executivos e profissionais brasileiros"}.
+Retorne JSON: { titulo, corpo, hashtags:[...], cta, variacao_curta }`;
+    case "legenda_longa":
+      return `Crie LEGENDA LONGA (até 2200 caracteres, formato Instagram) sobre: ${i.tema}.
+Use storytelling, quebras de linha, emojis discretos, CTA forte e 10-15 hashtags.
+Retorne JSON: { principal, hashtags:[...], cta, variacao_curta }`;
+    case "thread_x":
+      return `Crie uma THREAD de ${i.qtd ?? 8} tweets sobre: ${i.tema}. Cada tweet ≤ 270 caracteres.
+Retorne JSON: { thread:[{n,texto}], hashtags:[...] }`;
+    case "legenda":
+      return `Gere LEGENDAS para ${i.canal ?? "rede social"}.
+Tema: ${i.tema}; Objetivo: ${i.objetivo ?? "engajamento"}; Tamanho: ${i.tamanho ?? "médio"}.
+Retorne JSON: { principal, variacoes:[3], curta, comercial, institucional, hashtags:[...], cta }`;
+    case "post":
+      return `Crie um POST completo para ${i.canal ?? "Instagram"} (formato: ${i.formato ?? "post"}).
+Tema: ${i.tema}; Objetivo: ${i.objetivo}; CTA: ${i.cta ?? ""}.
+Retorne JSON: { titulo, legenda, texto_card, hashtags:[...], cta, descricao_alternativa, prompt_visual, variacoes:[{tipo,texto}] }`;
+    case "carrossel":
+      return `Crie CARROSSEL com ${i.qtd_slides ?? 6} slides. Tema: ${i.tema}; Canal: ${i.canal ?? "Instagram"}.
+Retorne JSON: { titulo, legenda, hashtags:[...], cta, slides:[{ordem,titulo,texto,design_sugerido}] }`;
+    case "newsletter":
+      return `Crie NEWSLETTER. Tema: ${i.tema}; Objetivo: ${i.objetivo}.
+Retorne JSON: { assunto, pre_header, abertura, blocos:[{titulo,texto}], cta, rodape, versao_texto }`;
+    case "comunicado_interno":
+      return `Crie COMUNICADO INTERNO tipo "${i.tipo ?? "aviso"}". Assunto: ${i.tema}.
+Retorne JSON: { titulo, mensagem_curta, mensagem_completa, cta, versao_email, versao_whatsapp, versao_mural }`;
+    case "texto":
+      return `Escreva texto tipo "${i.tipo ?? "institucional"}". Tema: ${i.tema}; Tamanho: ${i.tamanho ?? "médio"}.
+Retorne JSON: { titulo, texto, cta }`;
+    case "ideia":
+      return `Gere ${i.qtd ?? 10} IDEIAS de ${i.categoria ?? "post"} sobre: ${i.tema}.
+Retorne JSON: { ideias:[{titulo, resumo, categoria, prioridade}] }`;
+    case "campanha":
+      return `Crie CAMPANHA "${i.tipo ?? "lançamento"}". Objetivo: ${i.objetivo}; Canais: ${(i.canais ?? []).join(", ")}.
+Retorne JSON: { nome, conceito, promessa, mensagens_chave:[...], posts_sugeridos:[{canal,titulo,resumo}], roteiro_lancamento:[...], metricas_esperadas:{} }`;
+    default:
+      return `Atenda: ${JSON.stringify(i)}. Retorne JSON.`;
+  }
+}
+
+// ============== PROVIDERS ==============
+type CallResult = { ok: boolean; text?: string; provider: string; model: string; error?: string };
+
+async function tryGemini(messages: any[]): Promise<CallResult> {
+  if (!GEMINI_API_KEY) return { ok: false, provider: "gemini", model: "gemini-2.5-pro", error: "no_key" };
+  const sys = messages.find((m) => m.role === "system")?.content ?? "";
+  const usr = messages.find((m) => m.role === "user")?.content ?? "";
+  const body = {
+    system_instruction: { parts: [{ text: sys }] },
+    contents: [{ role: "user", parts: [{ text: usr }] }],
+    generationConfig: { response_mime_type: "application/json", temperature: 0.7, maxOutputTokens: 4096 },
+  };
+  const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-pro:generateContent?key=${GEMINI_API_KEY}`;
+  const r = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+  if (!r.ok) {
+    // tenta flash se pro estourar quota
+    const url2 = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+    const r2 = await fetch(url2, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) });
+    if (!r2.ok) return { ok: false, provider: "gemini", model: "gemini-2.5-flash", error: `${r2.status}: ${(await r2.text()).slice(0, 200)}` };
+    const j2 = await r2.json();
+    const t2 = j2?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+    return { ok: !!t2, text: t2, provider: "gemini-free", model: "gemini-2.5-flash" };
+  }
+  const j = await r.json();
+  const t = j?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+  return { ok: !!t, text: t, provider: "gemini-free", model: "gemini-2.5-pro" };
+}
+
+async function tryGroq(messages: any[]): Promise<CallResult> {
+  if (!GROQ_API_KEY) return { ok: false, provider: "groq", model: "llama-3.3-70b", error: "no_key" };
+  const r = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${GROQ_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ model: "llama-3.3-70b-versatile", messages, temperature: 0.7, response_format: { type: "json_object" } }),
+  });
+  if (!r.ok) return { ok: false, provider: "groq", model: "llama-3.3-70b", error: `${r.status}: ${(await r.text()).slice(0, 200)}` };
+  const j = await r.json();
+  return { ok: true, text: j.choices?.[0]?.message?.content ?? "", provider: "groq-free", model: "llama-3.3-70b-versatile" };
+}
+
+async function tryGithubModels(messages: any[]): Promise<CallResult> {
+  if (!GITHUB_MODELS_TOKEN) return { ok: false, provider: "github-models", model: "gpt-4o-mini", error: "no_key" };
+  const r = await fetch("https://models.inference.ai.azure.com/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${GITHUB_MODELS_TOKEN}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ model: "gpt-4o-mini", messages, temperature: 0.7, response_format: { type: "json_object" } }),
+  });
+  if (!r.ok) return { ok: false, provider: "github-models", model: "gpt-4o-mini", error: `${r.status}: ${(await r.text()).slice(0, 200)}` };
+  const j = await r.json();
+  return { ok: true, text: j.choices?.[0]?.message?.content ?? "", provider: "github-models-free", model: "gpt-4o-mini" };
+}
+
+async function tryOpenRouter(messages: any[]): Promise<CallResult> {
+  if (!OPENROUTER_API_KEY) return { ok: false, provider: "openrouter", model: "free", error: "no_key" };
+  const model = "google/gemini-2.0-flash-exp:free";
+  const r = await fetch("https://openrouter.ai/api/v1/chat/completions", {
+    method: "POST",
+    headers: { Authorization: `Bearer ${OPENROUTER_API_KEY}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ model, messages, temperature: 0.7 }),
+  });
+  if (!r.ok) return { ok: false, provider: "openrouter", model, error: `${r.status}: ${(await r.text()).slice(0, 200)}` };
+  const j = await r.json();
+  return { ok: true, text: j.choices?.[0]?.message?.content ?? "", provider: "openrouter-free", model };
+}
+
+Deno.serve(async (req) => {
+  if (req.method === "OPTIONS") return new Response("ok", { headers: corsHeaders });
+  try {
+    const auth = req.headers.get("Authorization");
+    if (!auth) return new Response(JSON.stringify({ error: "no_auth" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    const sb = createClient(SUPABASE_URL, SUPABASE_ANON, { global: { headers: { Authorization: auth } } });
+    const { data: { user } } = await sb.auth.getUser();
+    if (!user) return new Response(JSON.stringify({ error: "unauth" }), { status: 401, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
+    const body = await req.json();
+    const { kind, brand, inputs = {}, company_id, preferred = "auto" } = body ?? {};
+    if (!kind) return new Response(JSON.stringify({ error: "missing_kind" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+
+    if (company_id) {
+      const { data: ok } = await sb.rpc("comm_can", { _uid: user.id, _company: company_id, _action: "generate_content" });
+      if (!ok) return new Response(JSON.stringify({ error: "forbidden" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    const messages = [
+      { role: "system", content: SYSTEM_BASE + "\n\n" + brandPrompt(brand) + "\n\nResponda SEMPRE em JSON válido." },
+      { role: "user", content: userPromptFor(kind, inputs) },
+    ];
+
+    const order =
+      preferred === "groq" ? [tryGroq, tryGemini, tryGithubModels, tryOpenRouter]
+      : preferred === "github" ? [tryGithubModels, tryGemini, tryGroq, tryOpenRouter]
+      : preferred === "openrouter" ? [tryOpenRouter, tryGemini, tryGroq, tryGithubModels]
+      : [tryGemini, tryGroq, tryGithubModels, tryOpenRouter];
+
+    const attempts: string[] = [];
+    let result: CallResult | null = null;
+    for (const fn of order) {
+      const r = await fn(messages);
+      attempts.push(`${r.provider}:${r.ok ? "ok" : r.error}`);
+      if (r.ok && r.text) { result = r; break; }
+    }
+    if (!result) {
+      return new Response(JSON.stringify({
+        error: "no_free_provider",
+        detail: "Nenhuma chave grátis configurada ou todas falharam. Configure GEMINI_API_KEY (recomendado), GROQ_API_KEY ou GITHUB_MODELS_TOKEN.",
+        attempts,
+      }), { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+
+    let parsed: any;
+    try { parsed = JSON.parse(result.text!); }
+    catch {
+      // fallback: tenta extrair JSON entre ```json ... ```
+      const m = result.text!.match(/```(?:json)?\s*([\s\S]+?)\s*```/);
+      try { parsed = JSON.parse(m?.[1] ?? "{}"); } catch { parsed = { raw: result.text }; }
+    }
+
+    if (company_id) {
+      const sbAdmin = createClient(SUPABASE_URL, SUPABASE_SR);
+      await sbAdmin.from("comm_ai_usage").insert({
+        company_id, user_id: user.id, provider: result.provider, model: result.model, kind: "text",
+        tokens_in: 0, tokens_out: 0, cost_credits: 0,
+      });
+    }
+
+    return new Response(JSON.stringify({ ok: true, kind, data: parsed, model: result.model, provider: result.provider, attempts }), {
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
+  } catch (e) {
+    return new Response(JSON.stringify({ error: "internal", message: String(e) }), { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+  }
+});
