@@ -10,7 +10,8 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useComunicacaoAccess } from "../hooks/useComunicacaoAccess";
 import { useActiveBrandKit } from "../hooks/useActiveBrandKit";
-import { commImageGen, commSoftDelete } from "../lib/api";
+import { commImageGen, commImageAuto, commSoftDelete } from "../lib/api";
+import { FreeAiToggle } from "./FreeAiToggle";
 import { Sparkles, Save, Download, Copy, ExternalLink, Trash2, Image as ImageIcon, Grid3x3, RefreshCcw, Loader2, Package } from "lucide-react";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import JSZip from "jszip";
@@ -205,11 +206,12 @@ function InstagramGridGenerator() {
     if (!companyId || !tema) return;
     setLoading((l) => l.map((v, i) => (i === idx ? true : v)));
     try {
-      const r = await commImageGen({
+      const r = await commImageAuto({
         company_id: companyId,
         brand_kit_id: activeBrand?.id,
         prompt: buildPrompt(idx),
         format: "1080x1080",
+        preferred: "pollinations",
         model: "google/gemini-3.1-flash-image-preview",
       });
       if (r?.image) {
@@ -370,7 +372,7 @@ export function ImagesGalleryPage() {
   async function gen() {
     if (!companyId || !prompt) return; setLoading(true);
     try {
-      const r = await commImageGen({ company_id: companyId, prompt, format, model });
+      const r = await commImageAuto({ company_id: companyId, prompt, format, model, preferred: "pollinations" });
       if (r?.image) {
         toast({ title: "Imagem gerada (rascunho)" });
         load();
