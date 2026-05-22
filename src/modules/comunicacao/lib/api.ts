@@ -59,7 +59,7 @@ export async function commImageFree(payload: { prompt: string; company_id: strin
   return data as { ok?: boolean; image?: any; signed_url?: string; error?: string; provider?: string; attempts?: string[]; fallback?: boolean };
 }
 
-export async function commImageAuto(payload: { prompt: string; company_id: string; brand_kit_id?: string; format?: string; model?: string; preferred?: string; linked_post_id?: string }) {
+export async function commImageAuto(payload: { prompt: string; company_id: string; brand_kit_id?: string; format?: string; model?: string; preferred?: string; linked_post_id?: string }): Promise<any> {
   return isFreeAiEnabled() ? commImageFree(payload) : commImageGen(payload);
 }
 
