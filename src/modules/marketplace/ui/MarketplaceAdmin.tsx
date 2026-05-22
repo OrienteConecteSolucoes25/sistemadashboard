@@ -18,8 +18,10 @@ import {
   Filter,
   MoreVertical,
   ExternalLink,
-  Loader2
+  Loader2,
+  Menu
 } from 'lucide-react';
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -425,6 +427,7 @@ const CustomersTab = () => {
 export default function MarketplaceAdmin() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showVitrine, setShowVitrine] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { can, isInternalOcs } = useAcl();
   const { user } = useAuth();
   const [storeId, setStoreId] = useState<string | null>(null);
@@ -494,21 +497,60 @@ export default function MarketplaceAdmin() {
   return (
     <div className="flex flex-col min-h-screen bg-slate-50/50">
       {/* Header Superior */}
-      <div className="bg-white border-b px-6 py-4 flex flex-col md:flex-row md:items-center justify-between gap-4 sticky top-0 z-40">
-        <div>
-          <h1 className="text-2xl font-bold text-slate-900">Marketplace / Loja</h1>
-          <p className="text-sm text-muted-foreground mt-1">Gestão comercial e e-commerce multiempresa</p>
+      <div className="bg-white border-b px-4 md:px-6 py-4 flex flex-row items-center justify-between gap-3 sticky top-0 z-40">
+        <div className="flex items-center gap-2 min-w-0">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="lg:hidden shrink-0"
+            onClick={() => setMobileMenuOpen(true)}
+            aria-label="Abrir menu de abas"
+          >
+            <Menu className="w-5 h-5" />
+          </Button>
+          <div className="min-w-0">
+            <h1 className="text-lg md:text-2xl font-bold text-slate-900 truncate">Marketplace / Loja</h1>
+            <p className="text-xs md:text-sm text-muted-foreground mt-0.5 hidden sm:block">Gestão comercial e e-commerce multiempresa</p>
+          </div>
         </div>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2 shrink-0">
           <Button 
             variant="outline" 
-            className="border-primary text-primary hover:bg-primary/5 h-10"
+            size="sm"
+            className="border-primary text-primary hover:bg-primary/5"
             onClick={() => setShowVitrine(true)}
           >
-            <ExternalLink className="w-4 h-4 mr-2" /> Ver Vitrine Pública
+            <ExternalLink className="w-4 h-4 md:mr-2" /> <span className="hidden md:inline">Ver Vitrine Pública</span>
           </Button>
         </div>
       </div>
+
+      {/* Sheet mobile com as abas */}
+      <Sheet open={mobileMenuOpen} onOpenChange={setMobileMenuOpen}>
+        <SheetContent side="left" className="w-72 p-4">
+          <div className="mt-6 space-y-1">
+            {menuItems.map((item) => {
+              const hasPermission = can ? can(item.permission) : true;
+              if (!hasPermission) return null;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => { setActiveTab(item.id); setMobileMenuOpen(false); }}
+                  className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+                    activeTab === item.id
+                      ? "bg-primary text-white shadow-md shadow-primary/20"
+                      : "text-muted-foreground hover:bg-slate-50 hover:text-foreground"
+                  }`}
+                >
+                  <item.icon className={`w-4 h-4 ${activeTab === item.id ? "text-white" : "text-slate-400"}`} />
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
+        </SheetContent>
+      </Sheet>
+
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar Interna */}
