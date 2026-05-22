@@ -427,6 +427,7 @@ const CustomersTab = () => {
 export default function MarketplaceAdmin() {
   const [activeTab, setActiveTab] = useState("dashboard");
   const [showVitrine, setShowVitrine] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { can, isInternalOcs } = useAcl();
   const { user } = useAuth();
   const [storeId, setStoreId] = useState<string | null>(null);
