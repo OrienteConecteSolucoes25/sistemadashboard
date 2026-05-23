@@ -30,8 +30,16 @@ function parseSize(format = "1080x1080") {
 async function viaPollinations(prompt: string, format: string): Promise<ImgResult> {
   try {
     const { w, h } = parseSize(format);
-    const enc = encodeURIComponent(prompt);
-    const url = `https://image.pollinations.ai/prompt/${enc}?width=${w}&height=${h}&nologo=true&enhance=true&model=flux`;
+    // Evita texto ilegível: Flux não desenha letras bem, então pedimos "sem texto" por padrão
+    // a menos que o usuário peça explicitamente texto/title/letras no prompt.
+    const wantsText = /\b(text|texto|título|titulo|palavra|letra|caption|legenda|word|letters?)\b/i.test(prompt);
+    const cleanPrompt = wantsText
+      ? prompt
+      : `${prompt}. Clean composition, no text, no letters, no watermark, no captions, no signature, no UI elements, no logo`;
+    const enc = encodeURIComponent(cleanPrompt);
+    // Seed aleatório garante imagens diferentes a cada clique (Pollinations cacheia por prompt+seed)
+    const seed = Math.floor(Math.random() * 1_000_000_000);
+    const url = `https://image.pollinations.ai/prompt/${enc}?width=${w}&height=${h}&nologo=true&enhance=true&model=flux&seed=${seed}&nofeed=true`;
     const r = await fetch(url);
     if (!r.ok) return { ok: false, provider: "pollinations", error: `${r.status}` };
     const ct = r.headers.get("content-type") || "image/jpeg";
