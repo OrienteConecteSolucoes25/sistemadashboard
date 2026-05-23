@@ -452,8 +452,48 @@ export function ImagesGalleryPage() {
               <SelectItem value="google/gemini-3-pro-image-preview">Nano banana Pro (alta qualidade)</SelectItem>
             </SelectContent></Select>
           <Button onClick={gen} disabled={loading}>{loading ? "Gerando..." : (<><ImageIcon className="w-4 h-4 mr-1" />Gerar imagem</>)}</Button>
+          <Button asChild variant="outline" disabled={loading}>
+            <label className="cursor-pointer">
+              <ImageIcon className="w-4 h-4 mr-1" />
+              {loading ? "Enviando..." : "Upload logo/foto (sem IA)"}
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                className="hidden"
+                onChange={async (e) => {
+                  const files = Array.from(e.target.files || []);
+                  e.currentTarget.value = "";
+                  if (!companyId || files.length === 0) return;
+                  setLoading(true);
+                  let ok = 0, fail = 0;
+                  for (const file of files) {
+                    try {
+                      const ext = (file.name.split(".").pop() || "png").toLowerCase().replace(/[^a-z0-9]/g, "") || "png";
+                      const path = `${companyId}/${new Date().getFullYear()}/upload-${crypto.randomUUID()}.${ext}`;
+                      const { error: upErr } = await supabase.storage.from("comm-generated-images").upload(path, file, { contentType: file.type || "image/png", upsert: false });
+                      if (upErr) throw upErr;
+                      const { data: signed } = await supabase.storage.from("comm-generated-images").createSignedUrl(path, 60 * 60 * 24 * 365);
+                      const { error: insErr } = await supabase.from("comm_generated_images").insert({
+                        company_id: companyId, prompt: `[Upload] ${file.name}`, prompt_revisado: `[Upload] ${file.name}`,
+                        provider: "upload", model: "upload", format,
+                        storage_path: path, public_url: signed?.signedUrl ?? null,
+                        tokens_in: 0, tokens_out: 0, status: "ready", approval_status: "aprovado", ai_generated: false,
+                      } as any);
+                      if (insErr) throw insErr;
+                      ok++;
+                    } catch (err: any) { console.error(err); fail++; }
+                  }
+                  setLoading(false);
+                  toast({ title: `Upload concluído (${ok}/${files.length})`, description: fail ? `${fail} falharam` : "Sem consumo de créditos IA." });
+                  load();
+                }}
+              />
+            </label>
+          </Button>
         </div>
-        <div className="text-[11px] text-muted-foreground">Toda imagem nasce como <b>rascunho</b> — exige aprovação humana antes de ser usada.</div>
+        <div className="text-[11px] text-muted-foreground">Imagens IA nascem como <b>rascunho</b> e exigem aprovação. Uploads de logo/foto entram já <b>aprovados</b> e não consomem créditos.</div>
+
       </Card>
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
         {items.map((i) => (
