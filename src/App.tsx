@@ -10,7 +10,14 @@ import { JarbasAmbientProvider } from "./modules/jarbas/hooks/useJarbasAmbient";
 import { JarbasAmbientVisuals } from "./modules/jarbas/ui/JarbasAmbientVisuals";
 import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
-import PublicSite from "./pages/PublicSite";
+import PublicLayout from "./site/PublicLayout";
+import HomePage from "./site/pages/Home";
+import SolucoesPage from "./site/pages/Solucoes";
+import ErpOcsPage from "./site/pages/ErpOcs";
+import SobrePage from "./site/pages/Sobre";
+import ContatoPage from "./site/pages/Contato";
+import LancamentoPage from "./site/pages/Lancamento";
+import NewsletterPage from "./site/pages/Newsletter";
 // Import Projetos removido
 import Adm from "./pages/Adm";
 import ModuleSelector from "./pages/ModuleSelector";
@@ -123,7 +130,15 @@ const App = () => (
             <AclProvider>
               <CompanyThemeProvider>
                 <Routes>
-            <Route path="/" element={<PublicSite />} />
+            <Route element={<PublicLayout />}>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/solucoes" element={<SolucoesPage />} />
+              <Route path="/erp-ocs" element={<ErpOcsPage />} />
+              <Route path="/sobre" element={<SobrePage />} />
+              <Route path="/contato" element={<ContatoPage />} />
+              <Route path="/lancamento" element={<LancamentoPage />} />
+              <Route path="/newsletter" element={<NewsletterPage />} />
+            </Route>
             <Route path="/entrar" element={<Auth />} />
             {/* Compat: rota antiga /auth redireciona para /entrar */}
             <Route path="/auth" element={<Navigate to="/entrar" replace />} />
