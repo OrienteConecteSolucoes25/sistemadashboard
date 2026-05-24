@@ -155,16 +155,17 @@ export function DesignStudioPage() {
 }
 
 // ========== INSTAGRAM 3x3 GRID GENERATOR (IA) ==========
+// Cada tipo é uma CENA VISUAL concreta — evita que Flux/Pollinations caia em retratos por padrão.
 const GRID_TYPES = [
-  "capa anunciando o tema principal",
-  "citação curta inspiradora sobre o tema",
-  "dica prática rápida (3-5 palavras em destaque)",
-  "produto/serviço em destaque, estilo lifestyle",
-  "depoimento curto de cliente fictício",
-  "CTA forte, cores vibrantes da paleta",
-  "bastidor / behind the scenes",
-  "dado/estatística com número grande em destaque",
-  "post de série numerada (1/9 estilo título)",
+  "abstract geometric cover composition, bold shapes, minimal, no people",
+  "large minimalist typography poster on flat colored background, no people",
+  "top-down flat lay of simple objects related to the theme on clean surface, no people",
+  "isometric flat illustration of the concept, modern vector style, soft shadows, no people",
+  "minimal editorial still life photograph related to the theme, soft natural light, no people",
+  "bold call-to-action banner with arrow and geometric shapes, high contrast, no people",
+  "behind the scenes desk scene: laptop, notebook, coffee, plants, top down, no people visible",
+  "infographic with a big bold number in the center and simple line icons, clean background, no people",
+  "numbered series cover styled '1 / 9' as huge typography, abstract background, no people",
 ];
 
 function InstagramGridGenerator() {
@@ -172,13 +173,12 @@ function InstagramGridGenerator() {
   const { activeBrand } = useActiveBrandKit();
   const { toast } = useToast();
   const [tema, setTema] = useState("");
-  const [estilo, setEstilo] = useState("minimalista, geométrico, moderno");
+  const [estilo, setEstilo] = useState("minimalist modern editorial, clean composition");
   const [colors, setColors] = useState<string[]>(["#2BBDC0", "#1a1f26", "#ffffff", "#facc15"]);
   const [results, setResults] = useState<(any | null)[]>(Array(9).fill(null));
   const [loading, setLoading] = useState<boolean[]>(Array(9).fill(false));
   const [running, setRunning] = useState(false);
 
-  // Aplicar paleta da marca quando trocar
   useEffect(() => {
     if (activeBrand?.cores_principais?.length) {
       const novas = [...activeBrand.cores_principais, ...(activeBrand.cores_secundarias ?? []), "#ffffff"].slice(0, 4);
@@ -189,16 +189,15 @@ function InstagramGridGenerator() {
 
   function buildPrompt(idx: number) {
     const palette = colors.join(", ");
-    const tipografia = activeBrand?.fontes?.join(", ") || "Rajdhani, Inter";
-    const tom = activeBrand?.tom_de_voz || "profissional, próximo";
-    const marca = activeBrand?.nome ? `Marca: ${activeBrand.nome}. ` : "";
+    // Tema vai NA FRENTE para o modelo ancorar nele. Cena visual descrita em inglês (Flux entende melhor).
     return [
-      `Post quadrado 1080x1080 para Instagram. ${marca}Tema: ${tema}.`,
-      `Tipo deste post (${idx + 1}/9): ${GRID_TYPES[idx]}.`,
-      `Paleta obrigatória (use APENAS estas 4 cores): ${palette}.`,
-      `Tipografia inspirada em: ${tipografia}. Estilo visual: ${estilo}. Tom: ${tom}.`,
-      `Coerência visual com os outros 8 posts da grade (mesma família tipográfica, mesma paleta, mesmo estilo).`,
-      `Sem rostos de pessoas reais. Sem texto borrado ou ilegível. Composição equilibrada e moderna.`,
+      `Theme/concept: "${tema}".`,
+      `Visual scene: ${GRID_TYPES[idx]}.`,
+      `Must visually represent the theme above through objects, symbols, environment or typography — not generic portraits.`,
+      `Style: ${estilo}, square 1:1 social media post, editorial layout, professional, high quality.`,
+      `Strict color palette — use ONLY these hex tones as dominant colors: ${palette}.`,
+      `Consistent visual language across the 9 posts: same palette, same style, same composition logic.`,
+      `NO people, NO faces, NO portraits, NO humans, NO watermarks, NO logos, NO random text, NO blurry letters.`,
     ].join(" ");
   }
 
