@@ -13870,6 +13870,8 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      _folder_company: { Args: { _name: string }; Returns: string }
+      _user_company: { Args: { _uid: string }; Returns: string }
       acl_grant: {
         Args: {
           _company: string
