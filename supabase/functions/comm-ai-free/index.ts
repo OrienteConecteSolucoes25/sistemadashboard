@@ -71,13 +71,23 @@ Retorne JSON: { titulo, legenda, texto_card, hashtags:[...], cta, descricao_alte
       return `Crie CARROSSEL com ${i.qtd_slides ?? 6} slides. Tema: ${i.tema}; Canal: ${i.canal ?? "Instagram"}.
 Retorne JSON: { titulo, legenda, hashtags:[...], cta, slides:[{ordem,titulo,texto,design_sugerido}] }`;
     case "newsletter":
-      return `Crie NEWSLETTER. Tema: ${i.tema}; Objetivo: ${i.objetivo}.
-Retorne JSON: { assunto, pre_header, abertura, blocos:[{titulo,texto}], cta, rodape, versao_texto }`;
+      return `Crie uma NEWSLETTER 100% EDUCACIONAL E DE VALOR sobre: ${i.tema}.
+REGRAS OBRIGATÓRIAS:
+- Tom de quem ENSINA, NÃO vende. Zero pitch comercial.
+- NÃO mencione "contrate", "fale conosco", "compre", "agende", "nosso serviço", "nossa solução".
+- NÃO inclua CTA comercial. O único "CTA" permitido é convidar à reflexão ou à próxima leitura.
+- Foque em: contexto, dado relevante, conceito explicado de forma simples, exemplo prático, lição/aprendizado.
+- Desperte INTERESSE pela marca pela autoridade do conteúdo, não pela oferta.
+- Português-BR, claro, fluido, sem jargão vazio. 3 a 5 blocos.
+Retorne JSON: { assunto, pre_header, abertura, blocos:[{titulo,texto}], fechamento_reflexivo, leitura_recomendada, versao_texto }`;
     case "comunicado_interno":
       return `Crie COMUNICADO INTERNO tipo "${i.tipo ?? "aviso"}". Assunto: ${i.tema}.
 Retorne JSON: { titulo, mensagem_curta, mensagem_completa, cta, versao_email, versao_whatsapp, versao_mural }`;
     case "texto":
       return `Escreva texto tipo "${i.tipo ?? "institucional"}". Tema: ${i.tema}; Tamanho: ${i.tamanho ?? "médio"}.
+${i.tipo === "institucional" || i.tipo === "educacional" || i.tipo === "newsletter"
+  ? `IMPORTANTE: texto EDUCACIONAL, de VALOR. Quem lê deve APRENDER algo. Zero discurso de venda. Não use "contrate", "compre", "fale conosco", "nosso serviço". Não inclua CTA comercial. Desperte interesse pela autoridade do conteúdo.`
+  : ""}
 Retorne JSON: { titulo, texto, cta }`;
     case "ideia":
       return `Gere ${i.qtd ?? 10} IDEIAS de ${i.categoria ?? "post"} sobre: ${i.tema}.
@@ -267,17 +277,20 @@ function localTemplate(kind: string, inputs: Record<string, any>, brand: any): a
       };
     }
     case "newsletter": {
+      // EDUCACIONAL — não vende, ensina e desperta interesse pela marca via autoridade
       return {
-        assunto: `${marca}: o que você precisa saber sobre ${tema}`,
-        pre_header: `${tema} em pauta — e como isso afeta ${publico}.`,
-        abertura: `Olá! Esta semana o tema é ${tema}. Direto ao ponto: ${valor}.`,
+        assunto: `${tema}: o que está por trás (e o que dá pra aprender)`,
+        pre_header: `Uma leitura de 3 minutos sobre ${tema} — sem pitch, só conteúdo.`,
+        abertura: `Olá! Esta edição é sobre ${tema}. Sem venda, sem CTA agressivo. A ideia é simples: te entregar uma camada extra de entendimento sobre o assunto, daquelas que normalmente só aparecem na conversa entre quem está dentro da operação.`,
         blocos: [
-          { titulo: "O contexto", texto: `${tema} subiu na pauta. ${publico} precisa de clareza.` },
-          { titulo: "O que a ${marca} entrega", texto: `${dif}.` },
-          { titulo: "Próximos passos", texto: `${cta}.` },
+          { titulo: "Por que esse tema importa agora", texto: `${tema} subiu na pauta porque o ambiente mudou: ${publico} hoje convive com mais ruído, mais informação e menos tempo. Entender ${tema} deixou de ser diferencial técnico e virou base de leitura do próprio negócio.` },
+          { titulo: "O conceito em uma frase", texto: `${tema} é, no fundo, o jeito como as decisões e processos se conectam quando ninguém está olhando. Quando essa conexão é forte, o resultado aparece sozinho. Quando é fraca, vira retrabalho e desgaste — mesmo em empresas que faturam bem.` },
+          { titulo: "Um exemplo prático", texto: `Imagine duas empresas com o mesmo faturamento. Uma trata ${tema} como rotina viva, documentada e revisada. A outra trata como “a gente já sabe como faz”. Em 6 meses, a primeira escala. A segunda começa a perder gente, cliente e margem — sem entender por quê.` },
+          { titulo: "O aprendizado", texto: `${tema} não é um projeto, é um hábito. E hábito não se compra — se constrói com método: observar, registrar, ajustar, repetir. Isso vale tanto para quem está começando quanto para quem já cresceu rápido demais.` },
         ],
-        cta, rodape: `Até a próxima — equipe ${marca}.`,
-        versao_texto: `${tema} — ${valor}. ${cta}.`,
+        fechamento_reflexivo: `Fica a provocação: o que da sua operação hoje funciona porque está estruturado — e o que funciona porque alguém específico está segurando? Essa é a pergunta que ${tema} sempre devolve.`,
+        leitura_recomendada: `Se esse assunto te interessou, vale procurar materiais sobre ${tema} aplicado ao seu setor. Quanto mais específico o contexto, mais útil o conteúdo.`,
+        versao_texto: `${tema} é hábito, não projeto. Quem trata como rotina viva escala. Quem trata como “a gente sabe”, paga em retrabalho.`,
       };
     }
     case "comunicado_interno": {
@@ -293,6 +306,26 @@ function localTemplate(kind: string, inputs: Record<string, any>, brand: any): a
       };
     }
     case "texto": {
+      const tipo = (i.tipo || "institucional").toLowerCase();
+      const educacional = ["institucional", "educacional", "newsletter", "artigo", "blog"].includes(tipo);
+      if (educacional) {
+        // Texto de VALOR — ensina e desperta interesse pela marca via autoridade, sem vender
+        return {
+          titulo: `${tema}: o que normalmente não se diz`,
+          texto: [
+            `Quando se fala em ${tema}, a conversa quase sempre vai para o lugar óbvio — ferramenta, processo, planilha. Mas o que realmente diferencia ${publico} que avança de ${publico} que estaciona não é a ferramenta. É a leitura que se faz da própria operação.`,
+            ``,
+            `${tema} funciona como um espelho: mostra onde a empresa está sustentada por método e onde está sustentada por esforço individual. As duas coisas geram resultado no curto prazo. Só uma delas escala.`,
+            ``,
+            `O ponto prático é simples: pequenas decisões repetidas no dia a dia, quando alinhadas a um critério claro, criam previsibilidade. Sem critério, viram opinião — e opinião não se documenta, não se ensina e não se delega.`,
+            ``,
+            `Por isso ${tema} não é tema de “time avançado”. É base. E é também o motivo pelo qual operações que parecem simples por fora costumam ser as mais difíceis de copiar por dentro.`,
+            ``,
+            `Fica a pergunta: o que na sua rotina hoje só funciona porque você está presente?`,
+          ].join("\n"),
+          cta: "",
+        };
+      }
       return {
         titulo: `${tema}`,
         texto: `${tema}.\n\n${valor}.\n\n${dif}.\n\n${cta}.`,
