@@ -71,13 +71,23 @@ Retorne JSON: { titulo, legenda, texto_card, hashtags:[...], cta, descricao_alte
       return `Crie CARROSSEL com ${i.qtd_slides ?? 6} slides. Tema: ${i.tema}; Canal: ${i.canal ?? "Instagram"}.
 Retorne JSON: { titulo, legenda, hashtags:[...], cta, slides:[{ordem,titulo,texto,design_sugerido}] }`;
     case "newsletter":
-      return `Crie NEWSLETTER. Tema: ${i.tema}; Objetivo: ${i.objetivo}.
-Retorne JSON: { assunto, pre_header, abertura, blocos:[{titulo,texto}], cta, rodape, versao_texto }`;
+      return `Crie uma NEWSLETTER 100% EDUCACIONAL E DE VALOR sobre: ${i.tema}.
+REGRAS OBRIGATÓRIAS:
+- Tom de quem ENSINA, NÃO vende. Zero pitch comercial.
+- NÃO mencione "contrate", "fale conosco", "compre", "agende", "nosso serviço", "nossa solução".
+- NÃO inclua CTA comercial. O único "CTA" permitido é convidar à reflexão ou à próxima leitura.
+- Foque em: contexto, dado relevante, conceito explicado de forma simples, exemplo prático, lição/aprendizado.
+- Desperte INTERESSE pela marca pela autoridade do conteúdo, não pela oferta.
+- Português-BR, claro, fluido, sem jargão vazio. 3 a 5 blocos.
+Retorne JSON: { assunto, pre_header, abertura, blocos:[{titulo,texto}], fechamento_reflexivo, leitura_recomendada, versao_texto }`;
     case "comunicado_interno":
       return `Crie COMUNICADO INTERNO tipo "${i.tipo ?? "aviso"}". Assunto: ${i.tema}.
 Retorne JSON: { titulo, mensagem_curta, mensagem_completa, cta, versao_email, versao_whatsapp, versao_mural }`;
     case "texto":
       return `Escreva texto tipo "${i.tipo ?? "institucional"}". Tema: ${i.tema}; Tamanho: ${i.tamanho ?? "médio"}.
+${i.tipo === "institucional" || i.tipo === "educacional" || i.tipo === "newsletter"
+  ? `IMPORTANTE: texto EDUCACIONAL, de VALOR. Quem lê deve APRENDER algo. Zero discurso de venda. Não use "contrate", "compre", "fale conosco", "nosso serviço". Não inclua CTA comercial. Desperte interesse pela autoridade do conteúdo.`
+  : ""}
 Retorne JSON: { titulo, texto, cta }`;
     case "ideia":
       return `Gere ${i.qtd ?? 10} IDEIAS de ${i.categoria ?? "post"} sobre: ${i.tema}.
