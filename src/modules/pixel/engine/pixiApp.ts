@@ -71,7 +71,11 @@ class PixiAppManager {
   destroy() {
     if (this.app) {
       this.tickerRunning = false;
-      this.app.destroy(true, { children: true, texture: true });
+      try {
+        this.app.destroy(true, { children: true, texture: true });
+      } catch (e) {
+        console.warn("PixiApp destroy warning:", e);
+      }
       this.app = null;
       this.containers = {};
     }
