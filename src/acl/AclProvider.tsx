@@ -51,33 +51,12 @@ export function AclProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   const load = useCallback(async () => {
-    if (!user) {
-      setPerms([]);
-      setInternalOcs(false);
-      setTrueStaff(false);
-      setLoading(false);
-      return;
-    }
-    setLoading(true);
-    const [{ data: rows }, staffRes] = await Promise.all([
-      supabase
-        .from("acl_user_permissions" as any)
-        .select("permission_key, company_id")
-        .eq("user_id", user.id),
-      supabase
-        .from("acl_internal_staff" as any)
-        .select("user_id")
-        .eq("user_id", user.id)
-        .maybeSingle(),
-    ]);
-    setPerms((rows as any) ?? []);
-    const isOwner = user.id === "3510fb25-714e-4906-b6bb-a2a9cef7c8c6";
-    const realStaff = !!staffRes.data || isOwner;
-    setTrueStaff(realStaff);
-    // Owner / staff verdadeiro / admin sempre é interno (mantém alinhado com SQL is_internal_ocs)
-    setInternalOcs(realStaff || isAdmin);
+    // MODO ABERTO: acesso total liberado, com ou sem login
+    setPerms([]);
+    setTrueStaff(true);
+    setInternalOcs(true);
     setLoading(false);
-  }, [user, isAdmin]);
+  }, []);
 
   useEffect(() => {
     if (!authLoading) load();
