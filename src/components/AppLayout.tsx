@@ -41,7 +41,7 @@ const AppLayout = () => {
   useEffect(() => { setOpen(false); }, [loc.pathname]);
 
   if (loading || aclLoading) return null;
-  if (!session) return <Navigate to="/entrar" replace />;
+  // Auth guard desativado: /app liberado sem login
 
   const NavItem = ({ to, icon: Icon, label }: any) => {
     const isActive = loc.pathname === to || loc.pathname.startsWith(to + "/");
