@@ -41,7 +41,7 @@ const AppLayout = () => {
   useEffect(() => { setOpen(false); }, [loc.pathname]);
 
   if (loading || aclLoading) return null;
-  if (!session) return <Navigate to="/entrar" replace />;
+  // Auth guard desativado: /app liberado sem login
 
   const NavItem = ({ to, icon: Icon, label }: any) => {
     const isActive = loc.pathname === to || loc.pathname.startsWith(to + "/");
@@ -116,7 +116,7 @@ const AppLayout = () => {
       <div className="mt-auto pt-4 border-t">
         {!collapsed && (
           <>
-            <div className="text-xs text-muted-foreground mb-2 truncate">{session.user.email}</div>
+            <div className="text-xs text-muted-foreground mb-2 truncate">{session?.user?.email ?? "Convidado"}</div>
             {isAdmin && (
               <div className="text-xs flex items-center gap-1 text-primary mb-2">
                 <Shield className="w-3 h-3" /> Admin
