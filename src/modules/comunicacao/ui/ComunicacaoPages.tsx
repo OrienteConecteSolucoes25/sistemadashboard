@@ -182,8 +182,10 @@ export function BrandKitsPage() {
               {(b.cores_principais ?? []).slice(0, 6).map((c: string, i: number) => <span key={i} style={{ background: c }} className="w-5 h-5 rounded border" />)}
             </div>
             <div className="text-xs text-muted-foreground line-clamp-1">Tom: {b.tom_de_voz || "—"}</div>
-            <div className="flex gap-2">
-              <Button size="sm" variant="outline" className="flex-1" onClick={() => setEdit(b)}>Editar</Button>
+            <div className="flex gap-1 flex-wrap">
+              <Button size="sm" variant="outline" className="flex-1 min-w-[80px]" onClick={() => setEdit(b)}>Editar</Button>
+              <Button size="sm" variant="outline" onClick={() => exportBrandKitPdf(b)} title="Baixar Brand Kit em PDF"><FileText className="w-3 h-3 mr-1" />PDF</Button>
+              <Button size="sm" variant="outline" onClick={() => exportBrandKitDocx(b)} title="Baixar Brand Kit em Word"><FileType className="w-3 h-3 mr-1" />Word</Button>
             </div>
           </Card>
         ))}
