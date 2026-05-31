@@ -364,7 +364,14 @@ export function ImagesGalleryPage() {
   async function load() {
     if (!companyId) return;
     const { data } = await supabase.from("comm_generated_images").select("*").eq("company_id", companyId).eq("is_deleted", false).order("created_at", { ascending: false }).limit(60);
-    setItems(data ?? []);
+    const list = data ?? [];
+    // Refresca signed URLs (as antigas expiram em 7 dias). Sem storage_path mantém a pública/legada.
+    const refreshed = await Promise.all(list.map(async (it: any) => {
+      if (!it.storage_path) return it;
+      const { data: s } = await supabase.storage.from("comm-generated-images").createSignedUrl(it.storage_path, 60 * 60 * 24 * 7);
+      return s?.signedUrl ? { ...it, public_url: s.signedUrl } : it;
+    }));
+    setItems(refreshed);
   }
   useEffect(() => { load(); }, [companyId]);
 
