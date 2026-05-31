@@ -438,14 +438,16 @@ export function ImagesGalleryPage() {
           <h2 className="text-xl font-display font-bold flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary" />Galeria IA</h2>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" disabled={zipping || approvedCount === 0}>
+              <Button variant="outline" size="sm" disabled={zipping || totalCount === 0}>
                 {zipping ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Package className="w-4 h-4 mr-1" />}
-                Baixar aprovadas ({approvedCount})
+                Baixar imagens ({totalCount})
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => downloadApproved("png")}><ImageIcon className="w-4 h-4 mr-2" />ZIP em PNG</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => downloadApproved("jpg")}><ImageIcon className="w-4 h-4 mr-2" />ZIP em JPG</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => downloadBatch("png", "all")}><ImageIcon className="w-4 h-4 mr-2" />Todas · ZIP PNG</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => downloadBatch("jpg", "all")}><ImageIcon className="w-4 h-4 mr-2" />Todas · ZIP JPG</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => downloadBatch("png", "approved")} disabled={approvedCount === 0}><ImageIcon className="w-4 h-4 mr-2" />Só aprovadas · PNG ({approvedCount})</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => downloadBatch("jpg", "approved")} disabled={approvedCount === 0}><ImageIcon className="w-4 h-4 mr-2" />Só aprovadas · JPG ({approvedCount})</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
