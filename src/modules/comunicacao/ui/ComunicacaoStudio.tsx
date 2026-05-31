@@ -405,29 +405,31 @@ export function ImagesGalleryPage() {
   }
 
   const [zipping, setZipping] = useState(false);
-  async function downloadApproved(format: "png" | "jpg") {
-    const approved = items.filter((i) => i.approval_status === "aprovado" && i.public_url);
-    if (approved.length === 0) { toast({ title: "Nenhuma imagem aprovada para baixar" }); return; }
+  async function downloadBatch(format: "png" | "jpg", scope: "approved" | "all") {
+    const pool = items.filter((i) => i.public_url && (scope === "all" || i.approval_status === "aprovado"));
+    if (pool.length === 0) { toast({ title: "Nenhuma imagem para baixar" }); return; }
     setZipping(true);
     try {
       const zip = new JSZip();
       let ok = 0, fail = 0;
-      await Promise.all(approved.map(async (img, idx) => {
+      await Promise.all(pool.map(async (img, idx) => {
         try {
           const blob = await convertImageBlob(img.public_url, format);
+          const status = (img.approval_status || "rascunho").slice(0, 10);
           const safe = (img.prompt || "imagem").slice(0, 40).replace(/[^a-z0-9-_]+/gi, "_").toLowerCase();
-          zip.file(`${String(idx + 1).padStart(3, "0")}_${safe}.${format}`, blob);
+          zip.file(`${String(idx + 1).padStart(3, "0")}_${status}_${safe}.${format}`, blob);
           ok++;
         } catch { fail++; }
       }));
       const out = await zip.generateAsync({ type: "blob" });
-      saveAs(out, `imagens_aprovadas_${format}_${new Date().toISOString().slice(0, 10)}.zip`);
-      toast({ title: `Baixado (${ok}/${approved.length})`, description: fail ? `${fail} falharam` : undefined });
+      saveAs(out, `imagens_${scope}_${format}_${new Date().toISOString().slice(0, 10)}.zip`);
+      toast({ title: `Baixado (${ok}/${pool.length})`, description: fail ? `${fail} falharam` : undefined });
     } catch (e: any) { toast({ title: "Erro ao gerar zip", description: e.message, variant: "destructive" }); }
     finally { setZipping(false); }
   }
 
   const approvedCount = items.filter((i) => i.approval_status === "aprovado").length;
+  const totalCount = items.length;
 
   return (
     <div className="space-y-3">
