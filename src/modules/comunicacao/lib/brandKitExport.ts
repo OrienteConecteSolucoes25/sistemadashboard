@@ -108,9 +108,9 @@ export async function exportBrandKitPdf(b: Brand) {
     doc.setFontSize(10);
     doc.setTextColor(20);
     for (const [k, v] of rows) {
-      const lines = doc.splitTextToSize(`${k}: ${v}`, W - M * 2);
+      const lines: string[] = doc.splitTextToSize(`${k}: ${v}`, W - M * 2);
       if (y + lines.length * 5 > 285) { doc.addPage(); y = M; }
-      doc.text(lines as any, M, y);
+      (doc as any).text(lines, M, y);
       y += lines.length * 5 + 1;
     }
     y += 2;
