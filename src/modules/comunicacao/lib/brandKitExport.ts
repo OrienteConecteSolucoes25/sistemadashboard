@@ -99,7 +99,7 @@ export async function exportBrandKitPdf(b: Brand) {
   const drawSection = (title: string, rows: [string, string][]) => {
     if (rows.length === 0) return;
     if (y > 260) { doc.addPage(); y = M; }
-    doc.setFillColor(245);
+    doc.setFillColor(245, 245, 245);
     doc.rect(M, y, W - M * 2, 7, "F");
     doc.setFontSize(12);
     doc.setTextColor(pr, pg, pb);
