@@ -364,7 +364,14 @@ export function ImagesGalleryPage() {
   async function load() {
     if (!companyId) return;
     const { data } = await supabase.from("comm_generated_images").select("*").eq("company_id", companyId).eq("is_deleted", false).order("created_at", { ascending: false }).limit(60);
-    setItems(data ?? []);
+    const list = data ?? [];
+    // Refresca signed URLs (as antigas expiram em 7 dias). Sem storage_path mantém a pública/legada.
+    const refreshed = await Promise.all(list.map(async (it: any) => {
+      if (!it.storage_path) return it;
+      const { data: s } = await supabase.storage.from("comm-generated-images").createSignedUrl(it.storage_path, 60 * 60 * 24 * 7);
+      return s?.signedUrl ? { ...it, public_url: s.signedUrl } : it;
+    }));
+    setItems(refreshed);
   }
   useEffect(() => { load(); }, [companyId]);
 
@@ -398,29 +405,31 @@ export function ImagesGalleryPage() {
   }
 
   const [zipping, setZipping] = useState(false);
-  async function downloadApproved(format: "png" | "jpg") {
-    const approved = items.filter((i) => i.approval_status === "aprovado" && i.public_url);
-    if (approved.length === 0) { toast({ title: "Nenhuma imagem aprovada para baixar" }); return; }
+  async function downloadBatch(format: "png" | "jpg", scope: "approved" | "all") {
+    const pool = items.filter((i) => i.public_url && (scope === "all" || i.approval_status === "aprovado"));
+    if (pool.length === 0) { toast({ title: "Nenhuma imagem para baixar" }); return; }
     setZipping(true);
     try {
       const zip = new JSZip();
       let ok = 0, fail = 0;
-      await Promise.all(approved.map(async (img, idx) => {
+      await Promise.all(pool.map(async (img, idx) => {
         try {
           const blob = await convertImageBlob(img.public_url, format);
+          const status = (img.approval_status || "rascunho").slice(0, 10);
           const safe = (img.prompt || "imagem").slice(0, 40).replace(/[^a-z0-9-_]+/gi, "_").toLowerCase();
-          zip.file(`${String(idx + 1).padStart(3, "0")}_${safe}.${format}`, blob);
+          zip.file(`${String(idx + 1).padStart(3, "0")}_${status}_${safe}.${format}`, blob);
           ok++;
         } catch { fail++; }
       }));
       const out = await zip.generateAsync({ type: "blob" });
-      saveAs(out, `imagens_aprovadas_${format}_${new Date().toISOString().slice(0, 10)}.zip`);
-      toast({ title: `Baixado (${ok}/${approved.length})`, description: fail ? `${fail} falharam` : undefined });
+      saveAs(out, `imagens_${scope}_${format}_${new Date().toISOString().slice(0, 10)}.zip`);
+      toast({ title: `Baixado (${ok}/${pool.length})`, description: fail ? `${fail} falharam` : undefined });
     } catch (e: any) { toast({ title: "Erro ao gerar zip", description: e.message, variant: "destructive" }); }
     finally { setZipping(false); }
   }
 
   const approvedCount = items.filter((i) => i.approval_status === "aprovado").length;
+  const totalCount = items.length;
 
   return (
     <div className="space-y-3">
@@ -429,14 +438,16 @@ export function ImagesGalleryPage() {
           <h2 className="text-xl font-display font-bold flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary" />Galeria IA</h2>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="outline" size="sm" disabled={zipping || approvedCount === 0}>
+              <Button variant="outline" size="sm" disabled={zipping || totalCount === 0}>
                 {zipping ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <Package className="w-4 h-4 mr-1" />}
-                Baixar aprovadas ({approvedCount})
+                Baixar imagens ({totalCount})
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => downloadApproved("png")}><ImageIcon className="w-4 h-4 mr-2" />ZIP em PNG</DropdownMenuItem>
-              <DropdownMenuItem onClick={() => downloadApproved("jpg")}><ImageIcon className="w-4 h-4 mr-2" />ZIP em JPG</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => downloadBatch("png", "all")}><ImageIcon className="w-4 h-4 mr-2" />Todas · ZIP PNG</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => downloadBatch("jpg", "all")}><ImageIcon className="w-4 h-4 mr-2" />Todas · ZIP JPG</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => downloadBatch("png", "approved")} disabled={approvedCount === 0}><ImageIcon className="w-4 h-4 mr-2" />Só aprovadas · PNG ({approvedCount})</DropdownMenuItem>
+              <DropdownMenuItem onClick={() => downloadBatch("jpg", "approved")} disabled={approvedCount === 0}><ImageIcon className="w-4 h-4 mr-2" />Só aprovadas · JPG ({approvedCount})</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
@@ -506,16 +517,14 @@ export function ImagesGalleryPage() {
             </div>}
             <div className="flex gap-1 flex-wrap">
               <Button size="icon" variant="ghost" onClick={() => navigator.clipboard.writeText(i.public_url)}><Copy className="w-3 h-3" /></Button>
-              {i.approval_status === "aprovado" && (<>
-                <Button size="sm" variant="outline" className="h-7 px-2 text-[10px]" onClick={async () => {
-                  try { const blob = await convertImageBlob(i.public_url, "png"); const safe = (i.prompt || "imagem").slice(0, 40).replace(/[^a-z0-9-_]+/gi, "_").toLowerCase(); saveAs(blob, `${safe}.png`); }
-                  catch (e: any) { toast({ title: "Erro ao baixar", description: e.message, variant: "destructive" }); }
-                }}><Download className="w-3 h-3 mr-1" />PNG</Button>
-                <Button size="sm" variant="outline" className="h-7 px-2 text-[10px]" onClick={async () => {
-                  try { const blob = await convertImageBlob(i.public_url, "jpg"); const safe = (i.prompt || "imagem").slice(0, 40).replace(/[^a-z0-9-_]+/gi, "_").toLowerCase(); saveAs(blob, `${safe}.jpg`); }
-                  catch (e: any) { toast({ title: "Erro ao baixar", description: e.message, variant: "destructive" }); }
-                }}><Download className="w-3 h-3 mr-1" />JPG</Button>
-              </>)}
+              <Button size="sm" variant="outline" className="h-7 px-2 text-[10px]" onClick={async () => {
+                try { const blob = await convertImageBlob(i.public_url, "png"); const safe = (i.prompt || "imagem").slice(0, 40).replace(/[^a-z0-9-_]+/gi, "_").toLowerCase(); saveAs(blob, `${safe}.png`); }
+                catch (e: any) { toast({ title: "Erro ao baixar", description: e.message, variant: "destructive" }); }
+              }}><Download className="w-3 h-3 mr-1" />PNG</Button>
+              <Button size="sm" variant="outline" className="h-7 px-2 text-[10px]" onClick={async () => {
+                try { const blob = await convertImageBlob(i.public_url, "jpg"); const safe = (i.prompt || "imagem").slice(0, 40).replace(/[^a-z0-9-_]+/gi, "_").toLowerCase(); saveAs(blob, `${safe}.jpg`); }
+                catch (e: any) { toast({ title: "Erro ao baixar", description: e.message, variant: "destructive" }); }
+              }}><Download className="w-3 h-3 mr-1" />JPG</Button>
               <Button size="icon" variant="ghost" onClick={async () => { const r = window.prompt("Motivo:"); if (r) { await commSoftDelete("comm_generated_images", i.id, r); load(); } }}><Trash2 className="w-3 h-3" /></Button>
             </div>
           </Card>
