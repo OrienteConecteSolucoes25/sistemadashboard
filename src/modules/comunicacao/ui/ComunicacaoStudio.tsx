@@ -517,16 +517,14 @@ export function ImagesGalleryPage() {
             </div>}
             <div className="flex gap-1 flex-wrap">
               <Button size="icon" variant="ghost" onClick={() => navigator.clipboard.writeText(i.public_url)}><Copy className="w-3 h-3" /></Button>
-              {i.approval_status === "aprovado" && (<>
-                <Button size="sm" variant="outline" className="h-7 px-2 text-[10px]" onClick={async () => {
-                  try { const blob = await convertImageBlob(i.public_url, "png"); const safe = (i.prompt || "imagem").slice(0, 40).replace(/[^a-z0-9-_]+/gi, "_").toLowerCase(); saveAs(blob, `${safe}.png`); }
-                  catch (e: any) { toast({ title: "Erro ao baixar", description: e.message, variant: "destructive" }); }
-                }}><Download className="w-3 h-3 mr-1" />PNG</Button>
-                <Button size="sm" variant="outline" className="h-7 px-2 text-[10px]" onClick={async () => {
-                  try { const blob = await convertImageBlob(i.public_url, "jpg"); const safe = (i.prompt || "imagem").slice(0, 40).replace(/[^a-z0-9-_]+/gi, "_").toLowerCase(); saveAs(blob, `${safe}.jpg`); }
-                  catch (e: any) { toast({ title: "Erro ao baixar", description: e.message, variant: "destructive" }); }
-                }}><Download className="w-3 h-3 mr-1" />JPG</Button>
-              </>)}
+              <Button size="sm" variant="outline" className="h-7 px-2 text-[10px]" onClick={async () => {
+                try { const blob = await convertImageBlob(i.public_url, "png"); const safe = (i.prompt || "imagem").slice(0, 40).replace(/[^a-z0-9-_]+/gi, "_").toLowerCase(); saveAs(blob, `${safe}.png`); }
+                catch (e: any) { toast({ title: "Erro ao baixar", description: e.message, variant: "destructive" }); }
+              }}><Download className="w-3 h-3 mr-1" />PNG</Button>
+              <Button size="sm" variant="outline" className="h-7 px-2 text-[10px]" onClick={async () => {
+                try { const blob = await convertImageBlob(i.public_url, "jpg"); const safe = (i.prompt || "imagem").slice(0, 40).replace(/[^a-z0-9-_]+/gi, "_").toLowerCase(); saveAs(blob, `${safe}.jpg`); }
+                catch (e: any) { toast({ title: "Erro ao baixar", description: e.message, variant: "destructive" }); }
+              }}><Download className="w-3 h-3 mr-1" />JPG</Button>
               <Button size="icon" variant="ghost" onClick={async () => { const r = window.prompt("Motivo:"); if (r) { await commSoftDelete("comm_generated_images", i.id, r); load(); } }}><Trash2 className="w-3 h-3" /></Button>
             </div>
           </Card>
