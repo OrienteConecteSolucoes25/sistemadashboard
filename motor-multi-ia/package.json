@@ -1,0 +1,11 @@
+{
+  "name": "motor-multi-ia",
+  "version": "0.1.0",
+  "description": "Roteador multi-IA (BYOK + failover automático + memória) para o Método Alma Brasileira",
+  "type": "module",
+  "scripts": {
+    "start": "node server.js",
+    "demo": "node demo.js"
+  },
+  "engines": { "node": ">=18" }
+}
