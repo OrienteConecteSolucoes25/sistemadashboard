@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Método Alma Brasileira — Painel</title>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Hanken+Grotesk:wght@400;500;600&display=swap">
+<style>
+  :root{
+    --bg:#FBF7F0; --surface:#FFFFFF; --surface-2:#F5EEE2; --ink:#1C2B22; --muted:#5E6F63;
+    --line:#E7DDCD; --green:#0F6B43; --coral:#E0532B; --gold:#C98A16;
+    --shadow:0 1px 2px rgba(28,43,34,.06),0 10px 26px rgba(28,43,34,.07);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:"Hanken Grotesk",system-ui,sans-serif;line-height:1.5}
+  h1,h2,h3,h4{font-family:"Fraunces",Georgia,serif;font-weight:600;margin:0}
+  .app{display:flex;min-height:100vh}
+  /* Sidebar */
+  .sidebar{width:250px;flex:none;background:var(--surface);border-right:1px solid var(--line);
+    padding:18px 14px;display:flex;flex-direction:column;gap:6px}
+  .brand{display:flex;align-items:center;gap:10px;margin-bottom:16px;padding:4px}
+  .logo{width:34px;height:34px;border-radius:10px;display:grid;place-items:center;color:#fff;font-weight:600;
+    background:linear-gradient(135deg,var(--coral),var(--gold));font-family:"Fraunces",serif}
+  .brand b{font-family:"Fraunces",serif;font-size:15px}
+  .brand span{display:block;font-size:11px;color:var(--muted);font-family:"Hanken Grotesk"}
+  .mbtn{display:flex;align-items:center;gap:10px;text-align:left;font:inherit;font-size:14px;font-weight:600;
+    padding:11px 13px;border-radius:12px;color:var(--ink);border:1px solid transparent;background:transparent;cursor:pointer}
+  .mbtn:hover{background:var(--surface-2)}
+  .mbtn.active{background:var(--green);color:#fff}
+  .sbfoot{margin-top:auto;font-size:11px;color:var(--muted);padding:8px;border-top:1px dashed var(--line)}
+  /* Conteúdo */
+  .main{flex:1;padding:30px 34px;max-width:900px}
+  .kicker{display:inline-flex;gap:7px;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#fff;
+    background:linear-gradient(135deg,var(--coral),var(--gold));padding:6px 12px;border-radius:999px;margin-bottom:14px}
+  .screen{display:none} .screen.active{display:block}
+  .lead{color:var(--muted);max-width:60ch;margin:10px 0 0}
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:var(--shadow);margin-top:16px}
+  .pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-top:20px}
+  .pill{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px}
+  .pill .ic{font-size:22px} .pill b{display:block;margin:6px 0 2px}
+  .pill p{margin:0;font-size:12.5px;color:var(--muted)}
+  label{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.03em;margin:12px 0 5px}
+  input,select{width:100%;font:inherit;font-size:14px;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink)}
+  .row{display:grid;grid-template-columns:2fr 1fr;gap:12px}
+  .btn{font:inherit;font-size:14px;font-weight:700;border:none;border-radius:12px;padding:12px 16px;color:#fff;
+    background:linear-gradient(135deg,var(--green),#0a4d34);cursor:pointer;margin-top:14px}
+  .btn.alt{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+  .btn.coral{background:linear-gradient(135deg,var(--coral),var(--gold))}
+  .keylist{margin-top:16px;display:flex;flex-direction:column;gap:8px}
+  .keyitem{display:flex;align-items:center;gap:12px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .prio{width:26px;height:26px;flex:none;border-radius:8px;background:var(--surface-2);display:grid;place-items:center;font-weight:700;font-size:13px;color:var(--green)}
+  .keyitem .nm{font-weight:600}.keyitem .mk{font-size:12px;color:var(--muted);font-family:monospace}
+  .tag{margin-left:auto;font-size:11px;font-weight:600;padding:4px 10px;border-radius:999px}
+  .tag.ok{background:color-mix(in srgb,var(--green) 14%,transparent);color:var(--green)}
+  .tag.rest{background:color-mix(in srgb,var(--coral) 14%,transparent);color:var(--coral)}
+  /* Chat */
+  .chatbox{display:flex;flex-direction:column;gap:12px;margin-top:16px}
+  .bubble{max-width:80%;padding:11px 14px;border-radius:14px;font-size:14px}
+  .bubble.user{align-self:flex-end;background:var(--green);color:#fff;border-bottom-right-radius:4px}
+  .bubble.bot{align-self:flex-start;background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:4px}
+  .via{display:block;font-size:10.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--gold);font-weight:700;margin-bottom:4px}
+  .switch{align-self:center;font-size:12px;color:var(--coral);background:color-mix(in srgb,var(--coral) 9%,transparent);
+    border:1px dashed color-mix(in srgb,var(--coral) 40%,var(--line));border-radius:999px;padding:5px 12px}
+  .composer{display:flex;gap:8px;margin-top:14px}
+  .composer input{flex:1}
+  .demorow{display:flex;gap:8px;flex-wrap:wrap;margin-top:8px}
+  .demorow .btn{margin-top:0;padding:9px 13px;font-size:12.5px}
+  @media(max-width:720px){.app{flex-direction:column}.sidebar{width:100%;flex-direction:row;overflow-x:auto}.sbfoot{display:none}.main{padding:20px}}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand"><span class="logo">A</span><div><b>Alma Brasileira</b><span>Painel do sistema</span></div></div>
+    <button class="mbtn active" data-s="inicio">🏠 Início</button>
+    <button class="mbtn" data-s="ias">🔑 Minhas IAs</button>
+    <button class="mbtn" data-s="chat">💬 Gerador / Chat</button>
+    <button class="mbtn" data-s="lib">📥 Biblioteca</button>
+    <button class="mbtn" data-s="marcas">🏷️ Marcas</button>
+    <div class="sbfoot">🇧🇷 Multi-IA · troca automática<br>cada cliente com suas chaves</div>
+  </aside>
+
+  <main class="main">
+    <!-- INÍCIO -->
+    <section class="screen active" id="s-inicio">
+      <span class="kicker">🌱 Método Alma Brasileira</span>
+      <h1>A alma das marcas do Brasil, com IA que nunca te deixa na mão.</h1>
+      <p class="lead">Gere a estrutura de conteúdo das suas marcas usando <b>várias IAs ao mesmo tempo</b>.
+      Se uma fica sem crédito, o sistema <b>troca sozinho</b> — e nunca esquece a conversa.</p>
+      <div class="pillars">
+        <div class="pill"><div class="ic">🔑</div><b>Suas chaves</b><p>Cadastre várias IAs (grátis primeiro). Você não paga o uso — cada cliente usa as próprias.</p></div>
+        <div class="pill"><div class="ic">🔁</div><b>Troca automática</b><p>Sem crédito numa IA? Ele pula pra próxima na hora, sem você perceber.</p></div>
+        <div class="pill"><div class="ic">🧠</div><b>Memória</b><p>O contexto fica guardado aqui e viaja junto — troca de IA não apaga a conversa.</p></div>
+        <div class="pill"><div class="ic">🔒</div><b>Multi-tenant</b><p>Cada cliente isolado; chaves guardadas cifradas.</p></div>
+      </div>
+    </section>
+
+    <!-- MINHAS IAs -->
+    <section class="screen" id="s-ias">
+      <h2>🔑 Minhas IAs</h2>
+      <p class="lead">Cadastre suas chaves uma vez. Ordem = prioridade (o sistema tenta de cima pra baixo).</p>
+      <div class="card">
+        <div class="row">
+          <div><label>Provedor de IA</label>
+            <select id="k-prov">
+              <option value="gemini">Google Gemini (grátis)</option>
+              <option value="groq">Groq (grátis)</option>
+              <option value="openrouter">OpenRouter (tem grátis)</option>
+              <option value="mistral">Mistral (tem grátis)</option>
+              <option value="openai">OpenAI (pago)</option>
+              <option value="anthropic">Anthropic Claude (pago)</option>
+            </select>
+          </div>
+          <div><label>Prioridade</label><input id="k-prio" type="number" value="1" min="1"></div>
+        </div>
+        <label>Chave de API</label>
+        <input id="k-key" placeholder="cole a chave da IA aqui">
+        <button class="btn" id="k-add">➕ Adicionar IA</button>
+      </div>
+      <div class="keylist" id="keylist"></div>
+    </section>
+
+    <!-- CHAT / GERADOR -->
+    <section class="screen" id="s-chat">
+      <h2>💬 Gerador / Chat</h2>
+      <p class="lead">Converse com o motor. O selo mostra <b>qual IA respondeu</b>. Use os botões pra simular uma IA sem crédito e ver a troca automática ao vivo.</p>
+      <div class="demorow">
+        <button class="btn coral" id="d-run">▶️ Rodar demonstração (failover + memória)</button>
+        <button class="btn alt" id="d-clear">🧹 Limpar</button>
+      </div>
+      <div class="card">
+        <div class="chatbox" id="chatbox"></div>
+        <div class="composer">
+          <input id="msg" placeholder="Escreva uma mensagem...">
+          <button class="btn" id="send" style="margin-top:0">Enviar</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- placeholders -->
+    <section class="screen" id="s-lib"><h2>📥 Biblioteca</h2><p class="lead">Aqui o cliente importa vídeos/carrosséis/posts por nicho pra alimentar o gerador. (tela do produto — a montar)</p></section>
+    <section class="screen" id="s-marcas"><h2>🏷️ Marcas</h2><p class="lead">Base de marcas já decodificadas (playbook, arquétipo, gatilhos, combinação de palavras). (tela do produto — a montar)</p></section>
+  </main>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+let token = null, convId = null;
+
+async function api(path, method='GET', bodyObj){
+  const h = { 'Content-Type':'application/json' };
+  if(token) h['Authorization'] = 'Bearer '+token;
+  const res = await fetch(path,{ method, headers:h, body: bodyObj?JSON.stringify(bodyObj):undefined });
+  return res.json();
+}
+async function ensureTenant(){
+  token = localStorage.getItem('alma_token');
+  if(!token){ const t = await api('/tenants','POST',{name:'Meu negócio'}); token = t.token; localStorage.setItem('alma_token', token); }
+}
+
+// navegação
+document.querySelectorAll('.mbtn').forEach(b=>b.addEventListener('click',()=>show(b.dataset.s)));
+function show(s){
+  document.querySelectorAll('.mbtn').forEach(b=>b.classList.toggle('active', b.dataset.s===s));
+  document.querySelectorAll('.screen').forEach(x=>x.classList.toggle('active', x.id==='s-'+s));
+  if(s==='ias') loadKeys();
+  location.hash = s;
+}
+
+// Minhas IAs
+async function loadKeys(){
+  const r = await api('/tenants/keys');
+  const el = $('#keylist'); el.innerHTML='';
+  (r.chaves||[]).forEach(k=>{
+    const rest = k.status.includes('descansando');
+    el.insertAdjacentHTML('beforeend',
+      `<div class="keyitem"><div class="prio">${k.priority}</div>
+        <div><div class="nm">${k.provider}</div><div class="mk">${k.apiKeyMask}</div></div>
+        <span class="tag ${rest?'rest':'ok'}">${rest?'sem crédito agora':'pronta'}</span></div>`);
+  });
+  if(!(r.chaves||[]).length) el.innerHTML='<p class="lead">Nenhuma IA cadastrada ainda.</p>';
+}
+$('#k-add').addEventListener('click', async ()=>{
+  const provider=$('#k-prov').value, apiKey=$('#k-key').value.trim(), priority=+$('#k-prio').value||1;
+  if(!apiKey){ alert('Cole a chave da IA.'); return; }
+  await api('/tenants/keys','POST',{provider,apiKey,priority});
+  $('#k-key').value=''; loadKeys();
+});
+
+// Chat
+function bubble(role, text, via){
+  const b=document.createElement('div'); b.className='bubble '+(role==='user'?'user':'bot');
+  b.innerHTML=(via?`<span class="via">via ${via}</span>`:'')+text; $('#chatbox').appendChild(b);
+  $('#chatbox').scrollTop=1e9;
+}
+function switchNote(t){ const s=document.createElement('div'); s.className='switch'; s.textContent=t; $('#chatbox').appendChild(s); }
+
+async function demoChat(message, fail){
+  const r = await api('/demo-chat','POST',{ message, conversationId: convId, fail });
+  convId = r.conversationId; return r;
+}
+$('#d-run').addEventListener('click', async ()=>{
+  $('#chatbox').innerHTML=''; convId=null;
+  // garante 3 IAs pra demonstração
+  const cur = await api('/tenants/keys');
+  if((cur.chaves||[]).length < 3){
+    for(const p of ['gemini','groq','openrouter']) await api('/tenants/keys','POST',{provider:p,apiKey:'chave-demo-'+p});
+  }
+  bubble('user','Oi! Meu nome é Jessica.');
+  let r = await demoChat('Oi! Meu nome é Jessica.', []);
+  bubble('bot', r.reply, r.usadaAgora);
+
+  switchNote('⚠️ Simulando: a 1ª IA ficou SEM crédito…');
+  bubble('user','Qual é o meu nome?');
+  r = await demoChat('Qual é o meu nome?', ['gemini']);
+  switchNote('🔁 Troquei de IA automaticamente → '+r.usadaAgora);
+  bubble('bot', r.reply, r.usadaAgora);
+
+  switchNote('⚠️ Simulando: as 2 primeiras IAs SEM crédito…');
+  bubble('user','De novo: qual meu nome?');
+  r = await demoChat('De novo: qual meu nome?', ['gemini','groq']);
+  switchNote('🔁 Caiu na reserva → '+r.usadaAgora+' (e continua lembrando!)');
+  bubble('bot', r.reply, r.usadaAgora);
+});
+$('#d-clear').addEventListener('click',()=>{ $('#chatbox').innerHTML=''; convId=null; });
+$('#send').addEventListener('click', async ()=>{
+  const m=$('#msg').value.trim(); if(!m) return; $('#msg').value=''; bubble('user',m);
+  const r = await demoChat(m, []); bubble('bot', r.reply, r.usadaAgora);
+});
+
+// boot
+(async ()=>{
+  await ensureTenant();
+  const h = location.hash.replace('#','') || 'inicio';
+  show(h);
+  // modo "auto" (usado pra gerar prints de demonstração)
+  const auto = new URLSearchParams(location.search).get('auto');
+  if(auto){
+    if(h==='ias'){
+      const cur = await api('/tenants/keys');
+      if((cur.chaves||[]).length < 4){
+        await api('/tenants/keys','POST',{provider:'gemini',apiKey:'AIzaDEMO000gemini',priority:1});
+        await api('/tenants/keys','POST',{provider:'groq',apiKey:'gsk_DEMO000groq',priority:2});
+        await api('/tenants/keys','POST',{provider:'openrouter',apiKey:'sk-or-DEMO000',priority:3});
+        await api('/tenants/keys','POST',{provider:'openai',apiKey:'sk-DEMO000openai',priority:4});
+      }
+      loadKeys();
+    }
+    if(h==='chat'){ $('#d-run').click(); }
+  }
+})();
+</script>
+</body>
+</html>

@@ -9,9 +9,15 @@
 //   POST /chat                         -> conversa (Bearer)                 { message, conversationId? }
 //   GET  /conversations/:id            -> histórico (Bearer)
 import http from 'node:http';
+import fs from 'node:fs';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
 import * as store from './src/store.js';
 import { gerar, REAL_PROVIDERS } from './src/router.js';
+import { makeMock } from './src/providers.js';
 
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const PUB = path.join(__dirname, 'public');
 const PORT = process.env.PORT || 3000;
 
 function send(res, code, obj) {
@@ -34,6 +40,13 @@ const server = http.createServer(async (req, res) => {
   const p = url.pathname;
 
   try {
+    // Frontend (telas) — servido pelo próprio servidor
+    if (req.method === 'GET' && (p === '/' || p === '/index.html')) {
+      const html = fs.readFileSync(path.join(PUB, 'index.html'), 'utf8');
+      res.writeHead(200, { 'Content-Type': 'text/html; charset=utf-8' });
+      return res.end(html);
+    }
+
     // Cria cliente (não precisa de token)
     if (req.method === 'POST' && p === '/tenants') {
       const b = await body(req);
@@ -60,6 +73,23 @@ const server = http.createServer(async (req, res) => {
       if (!b.message) return send(res, 400, { erro: 'Informe message.' });
       try {
         const r = await gerar({ tenantId: tenant.id, conversationId: b.conversationId, message: b.message });
+        return send(res, 200, r);
+      } catch (e) {
+        return send(res, 502, { erro: e.message, tentativas: e.tentativas || null });
+      }
+    }
+
+    // Demonstração visual: usa IAs FALSAS (sem chave real) e permite simular "sem crédito".
+    if (req.method === 'POST' && p === '/demo-chat') {
+      const b = await body(req);
+      if (!b.message) return send(res, 400, { erro: 'Informe message.' });
+      const fail = new Set(b.fail || []);
+      const mocks = {};
+      for (const k of store.getKeysDecrypted(tenant.id)) {
+        mocks[k.provider] = makeMock(k.provider, { failWith: fail.has(k.provider) ? 429 : undefined });
+      }
+      try {
+        const r = await gerar({ tenantId: tenant.id, conversationId: b.conversationId, message: b.message, mocks });
         return send(res, 200, r);
       } catch (e) {
         return send(res, 502, { erro: e.message, tentativas: e.tentativas || null });
